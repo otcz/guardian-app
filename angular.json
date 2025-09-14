@@ -54,6 +54,9 @@
         },
         "serve": {
           "builder": "@angular/build:dev-server",
+          "options": {
+            "port": 4200
+          },
           "configurations": {
             "production": {
               "buildTarget": "guardian:build:production"
@@ -82,11 +85,17 @@
               }
             ],
             "styles": [
+              "node_modules/primeng/resources/themes/lara-light-blue/theme.css",
+              "node_modules/primeng/resources/primeng.min.css",
+              "node_modules/primeicons/primeicons.css",
               "src/styles.css"
             ]
           }
         }
       }
     }
+  },
+  "cli": {
+    "analytics": "7baebc75-c6de-4cdb-b64d-1a4163ea187a"
   }
 }

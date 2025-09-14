@@ -1,0 +1,40 @@
+<div class="login-bg-modern">
+  <button type="button" class="darkmode-btn-floating" (click)="toggleDarkMode()" aria-label="Cambiar modo oscuro/claro">
+    <span *ngIf="!darkMode"><i class="pi pi-moon"></i></span>
+    <span *ngIf="darkMode"><i class="pi pi-sun"></i></span>
+  </button>
+  <div class="login-panel-modern">
+    <div class="login-welcome">
+      <h2>BIENVENIDO</h2>
+      <div class="login-headline">Sistema GUARDIAN</div>
+      <p class="login-desc">
+        Control centralizado de accesos y seguridad.<br />
+        Ingresa con tu usuario y contraseña para continuar.
+      </p>
+    </div>
+    <div class="login-form-panel">
+      <div class="login-title-modern">Iniciar sesión</div>
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form-modern">
+        <div class="login-field-modern">
+          <input pInputText id="correo" formControlName="correo" placeholder="Usuario o correo" />
+        </div>
+        <div class="login-field-modern login-field-password">
+          <input [type]="showPassword ? 'text' : 'password'" pInputText id="password" formControlName="password" placeholder="Contraseña" />
+          <button type="button" class="showpass-btn" (click)="togglePassword()" tabindex="-1">
+            <i class="pi" [ngClass]="showPassword ? 'pi-eye-slash' : 'pi-eye'"></i>
+          </button>
+        </div>
+        <div class="login-options">
+          <label class="login-remember">
+            <input type="checkbox" /> Recuérdame
+          </label>
+          <a href="#" class="login-link">¿Olvidaste tu contraseña?</a>
+        </div>
+        <button pButton type="submit" label="Ingresar" class="login-btn-modern" [disabled]="loginForm.invalid || loading"></button>
+      </form>
+      <div class="login-signup">
+        ¿No tienes una cuenta? <a href="#">Regístrate</a>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,34 +1,35 @@
 <div class="login-bg-mobile">
   <div class="login-panel-mobile">
+    <div class="login-logo-mobile">
+      <img src="assets/logo_guardian_256px.png" alt="Logo Guardian" />
+    </div>
     <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form-mobile">
-      <h2 class="login-title-mobile">Login</h2>
+      <h2 class="login-title-mobile">Iniciar sesión</h2>
       <div class="login-field-mobile">
-        <input pInputText id="correo" formControlName="correo" placeholder="Yourmail@gmail.com" />
+        <input pInputText id="correo" formControlName="correo" placeholder="Cuenta" />
       </div>
       <div class="login-field-mobile">
-        <input [type]="showPassword ? 'text' : 'password'" pInputText id="password" formControlName="password" placeholder="********" />
+        <input [type]="showPassword ? 'text' : 'password'" pInputText id="password" formControlName="password" placeholder="Contraseña" />
         <button type="button" class="showpass-btn-mobile" (click)="togglePassword()" tabindex="-1">
           <i class="pi" [ngClass]="showPassword ? 'pi-eye-slash' : 'pi-eye'"></i>
         </button>
       </div>
-      <button pButton type="submit" label="Login" class="login-btn-mobile" [disabled]="loginForm.invalid || loading">
-        <span *ngIf="!loading">Login</span>
+      <button pButton type="submit" class="login-btn-mobile" [disabled]="loginForm.invalid || loading">
+        <span *ngIf="!loading">Iniciar sesión</span>
         <span *ngIf="loading" class="spinner"></span>
       </button>
       <div class="login-links-row-mobile">
-        <a href="#" class="login-link-mobile right">Forgot Password?</a>
+        <a href="#" class="login-link-mobile right">¿Olvidaste tu contraseña?</a>
       </div>
       <div class="login-separator-mobile">
-        <span>Or Login with</span>
+        <span>O inicia con Google</span>
       </div>
       <div class="login-social-row-mobile">
-        <button type="button" class="login-social-btn fb"><i class="pi pi-facebook"></i></button>
-        <button type="button" class="login-social-btn tw"><i class="pi pi-twitter"></i></button>
-        <button type="button" class="login-social-btn ig"><i class="pi pi-instagram"></i></button>
+        <button type="button" class="login-social-btn google"><i class="pi pi-google"></i></button>
       </div>
       <div class="login-signup-row-mobile">
-        <span>Don't have account?</span>
-        <a href="#" class="login-link-mobile">Sign up</a>
+        <span>¿No tienes cuenta?</span>
+        <a href="#" class="login-link-mobile">Regístrate</a>
       </div>
     </form>
   </div>

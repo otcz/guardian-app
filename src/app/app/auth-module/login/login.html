@@ -19,9 +19,11 @@
       <div class="login-title-modern">Iniciar sesión</div>
       <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form-modern">
         <div class="login-field-modern">
+          <i class="pi pi-user input-icon"></i>
           <input pInputText id="correo" formControlName="correo" placeholder="Usuario o correo" />
         </div>
         <div class="login-field-modern login-field-password">
+          <i class="pi pi-lock input-icon"></i>
           <input [type]="showPassword ? 'text' : 'password'" pInputText id="password" formControlName="password" placeholder="Contraseña" />
           <button type="button" class="showpass-btn" (click)="togglePassword()" tabindex="-1">
             <i class="pi" [ngClass]="showPassword ? 'pi-eye-slash' : 'pi-eye'"></i>
@@ -33,7 +35,10 @@
           </label>
           <a href="#" class="login-link">¿Olvidaste tu contraseña?</a>
         </div>
-        <button pButton type="submit" label="Ingresar" class="login-btn-modern" [disabled]="loginForm.invalid || loading"></button>
+        <button pButton type="submit" label="Ingresar" class="login-btn-modern" [disabled]="loginForm.invalid || loading">
+          <span *ngIf="!loading">Ingresar</span>
+          <span *ngIf="loading" class="spinner"></span>
+        </button>
       </form>
       <div class="login-signup">
         ¿No tienes una cuenta? <a href="#">Regístrate</a>

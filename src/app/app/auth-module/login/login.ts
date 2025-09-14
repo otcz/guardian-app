@@ -4,7 +4,8 @@ import { CommonModule } from '@angular/common';
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
 import { ButtonModule } from 'primeng/button';
-import { HttpClient, HttpErrorResponse, HttpClientModule } from '@angular/common/http';
+import { AuthService } from '../../service/auth-service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-login',
@@ -14,8 +15,7 @@ import { HttpClient, HttpErrorResponse, HttpClientModule } from '@angular/common
     ReactiveFormsModule,
     InputTextModule,
     PasswordModule,
-    ButtonModule,
-    HttpClientModule
+    ButtonModule
   ],
   templateUrl: './login.html',
   styleUrl: './login.css'
@@ -27,7 +27,7 @@ export class Login {
   darkMode = false;
   errorMsg: string | null = null;
 
-  constructor(private fb: FormBuilder, private http: HttpClient) {
+  constructor(private fb: FormBuilder, private authService: AuthService, private router: Router) {
     this.loginForm = this.fb.group({
       correo: ['', Validators.required],
       password: ['', Validators.required]
@@ -55,19 +55,15 @@ export class Login {
     }
     this.loading = true;
     this.errorMsg = null;
-    const body = {
-      correo: this.loginForm.value.correo,
-      password: this.loginForm.value.password
-    };
-    this.http.post('http://localhost:8080/api/auth/login', body).subscribe({
+    this.authService.login(this.loginForm.value).subscribe({
       next: (resp) => {
         this.loading = false;
-        // Aquí puedes guardar el token o redirigir
-        alert('¡Bienvenido!');
+        // Guardar token si es necesario: localStorage.setItem('token', resp.token);
+        this.router.navigate(['/user/dashboard']);
       },
-      error: (err: HttpErrorResponse) => {
+      error: (err: Error) => {
         this.loading = false;
-        this.errorMsg = err.error?.message || 'Error de autenticación';
+        this.errorMsg = err.message || 'Error de autenticación';
       }
     });
   }

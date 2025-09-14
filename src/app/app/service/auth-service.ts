@@ -15,15 +15,34 @@ export interface LoginResponse {
   // Puedes agregar más campos según la respuesta de tu backend
 }
 
+/**
+ * Servicio para la autenticación y gestión de sesión de usuarios.
+ *
+ * @author OSCAR TOMAS CARRILLO ZULETA
+ * @version 1.0.0
+ * @since 2025-09-14
+ */
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
+  /**
+   * URL base del backend para autenticación.
+   */
   private readonly baseUrl = 'http://localhost:8080';
 
-  constructor(private http: HttpClient) {}
+  /**
+   * Constructor del servicio de autenticación.
+   * @param http Cliente HTTP para peticiones REST.
+   */
+  constructor(protected http: HttpClient) {}
 
-  login(data: LoginRequest): Observable<LoginResponse> {
+  /**
+   * Realiza el login del usuario.
+   * @param data Credenciales de acceso (correo y password).
+   * @returns Observable<LoginResponse> Respuesta del backend con token y datos de usuario.
+   */
+  public login(data: LoginRequest): Observable<LoginResponse> {
     return this.http.post<LoginResponse>(
       this.baseUrl + ApiEndpoints.Auth.BASE + ApiEndpoints.Auth.LOGIN,
       data
@@ -33,7 +52,12 @@ export class AuthService {
     );
   }
 
-  private handleError(error: HttpErrorResponse) {
+  /**
+   * Maneja los errores de las peticiones HTTP.
+   * @param error Error HTTP recibido.
+   * @returns Observable<never> Lanza un error con mensaje personalizado.
+   */
+  protected handleError(error: HttpErrorResponse): Observable<never> {
     let msg = 'Error de conexión';
     if (error.error?.message) {
       msg = error.error.message;

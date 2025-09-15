@@ -371,6 +371,14 @@ body, .dashboard-layout, .dashboard-header, .dashboard-title, .sidebar, .sidebar
   display: none !important;
 }
 @media (max-width: 900px) {
+  .dashboard-header {
+    justify-content: flex-start;
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    z-index: 300;
+  }
   .mobile-only {
     display: inline-flex !important;
     align-items: center;
@@ -379,9 +387,20 @@ body, .dashboard-layout, .dashboard-header, .dashboard-title, .sidebar, .sidebar
     border: none;
     color: #fff;
     font-size: 1.7rem;
-    margin-right: 1rem;
+    margin-right: 0;
+    margin-left: 0;
+    padding-left: 0;
+    padding-right: 0;
     cursor: pointer;
     z-index: 1001;
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 56px;
+    width: 56px;
+  }
+  .dashboard-title {
+    margin-left: 56px;
   }
   .desktop-only {
     display: none !important;

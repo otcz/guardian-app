@@ -53,33 +53,33 @@
 .crear-usuario-form-grid {
   box-sizing: border-box;
   width: 100%;
-  max-width: 900px;
+  max-width: 600px;
   min-width: 0;
   margin: 24px auto 0 auto;
   background: #fff;
-  border-radius: 20px;
+  border-radius: 14px;
   box-shadow: 0 4px 32px rgba(30,40,60,0.13);
-  padding: 24px 48px 32px 48px;
+  padding: 16px 16px 20px 16px;
   font-family: 'Inter', 'Segoe UI', 'Roboto', Arial, sans-serif;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 16px;
   align-items: center;
 }
 .crear-usuario-form-grid h2 {
   color: #23272f;
-  font-size: 1.5rem;
+  font-size: 1.15rem;
   font-weight: 700;
-  margin-bottom: 10px;
+  margin-bottom: 6px;
   text-align: center;
 }
 .form-grid {
   width: 100%;
-  max-width: 700px;
+  max-width: 500px;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  column-gap: 32px;
-  row-gap: 22px;
+  column-gap: 16px;
+  row-gap: 12px;
   margin-bottom: 0;
   box-sizing: border-box;
 }
@@ -87,12 +87,12 @@
   display: flex;
   align-items: center;
   background: #f4f7fa;
-  border-radius: 10px;
+  border-radius: 7px;
   border: 1px solid #dbeafe;
-  padding: 0 18px;
-  height: 54px;
+  padding: 0 10px;
+  height: 40px;
   box-shadow: 0 1px 4px rgba(30,40,60,0.07);
-  gap: 16px;
+  gap: 8px;
   width: 100%;
   max-width: 100%;
   min-width: 0;
@@ -100,8 +100,8 @@
 }
 .input-icon {
   color: #7a869a;
-  font-size: 1.3rem;
-  min-width: 32px;
+  font-size: 1.05rem;
+  min-width: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -111,11 +111,11 @@
   flex: 1;
   border: none;
   background: transparent;
-  font-size: 1.08rem;
+  font-size: 0.98rem;
   font-family: inherit;
   color: #23272f;
   outline: none;
-  padding: 12px 0;
+  padding: 8px 0;
 }
 .input-group input:focus,
 .input-group select:focus {
@@ -123,15 +123,15 @@
 }
 .btn-crear {
   width: 100%;
-  padding: 18px;
+  padding: 10px;
   background: linear-gradient(90deg, #4f8cff 60%, #23272f 100%);
   color: #fff;
-  font-size: 1.15rem;
+  font-size: 1rem;
   font-weight: 600;
   border: none;
-  border-radius: 10px;
+  border-radius: 7px;
   cursor: pointer;
-  margin: 5px auto 0 auto;
+  margin: 8px auto 0 auto;
   display: block;
   box-shadow: 0 2px 8px rgba(79,140,255,0.10);
   transition: background 0.2s;
@@ -140,9 +140,9 @@
   background: linear-gradient(90deg, #23272f 60%, #4f8cff 100%);
 }
 .mensaje {
-  margin-top: 18px;
+  margin-top: 8px;
   text-align: center;
-  font-size: 1.08rem;
+  font-size: 0.95rem;
   color: #4f8cff;
   font-weight: 500;
 }
@@ -158,37 +158,60 @@
 }
 @media (max-width: 900px) {
   .crear-usuario-form-grid {
-    padding: 18px 4vw 12px 4vw;
-    gap: 18px;
-    max-width: 100vw;
+    max-width: 98vw;
+    padding: 10px 4vw 10px 4vw;
+    gap: 10px;
   }
   .form-grid {
-    grid-template-columns: 1fr;
-    column-gap: 0;
-    row-gap: 14px;
-    max-width: 100vw;
+    max-width: 98vw;
+    column-gap: 8px;
+    row-gap: 8px;
   }
   .btn-crear {
-    max-width: 100vw;
-    margin: 12px 0 0 0;
+    max-width: 98vw;
+    margin: 8px 0 0 0;
   }
 }
 @media (max-width: 600px) {
   .crear-usuario-form-grid {
-    padding: 8px 0 16px 0 !important;
-    border-radius: 0 !important;
-    gap: 10px !important;
-    min-width: 0 !important;
+    max-width: 90vw !important;
+    width: 90vw !important;
+    padding: 2px 1vw 4px 1vw !important;
+    border-radius: 4px !important;
+    gap: 2px !important;
+    box-shadow: 0 1px 4px rgba(30,40,60,0.08) !important;
   }
   .form-grid {
-    grid-template-columns: 1fr !important;
-    gap: 10px !important;
-    width: 100% !important;
-    max-width: 100vw !important;
+    max-width: 90vw !important;
+    column-gap: 1px !important;
+    row-gap: 2px !important;
+  }
+  .input-group {
+    height: 24px !important;
+    padding: 0 1px !important;
+    font-size: 0.82rem !important;
+    border-radius: 2px !important;
+    gap: 1px !important;
+  }
+  .input-icon {
+    font-size: 0.82rem !important;
+    min-width: 10px !important;
+  }
+  .input-group input,
+  .input-group select {
+    font-size: 0.82rem !important;
+    padding: 2px 0 !important;
   }
   .btn-crear {
-    max-width: 100vw !important;
-    margin: 16px 0 0 0 !important;
+    font-size: 0.82rem !important;
+    padding: 4px !important;
+    border-radius: 2px !important;
+    margin: 2px 0 0 0 !important;
+    max-width: 90vw !important;
+  }
+  .mensaje {
+    font-size: 0.82rem !important;
+    margin-top: 2px !important;
   }
 }
 /* Añade margen izquierdo al área principal si es necesario */

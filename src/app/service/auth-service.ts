@@ -11,8 +11,8 @@ export interface LoginRequest {
 
 export interface LoginResponse {
   token?: string;
-  usuario?: any;
-  // Puedes agregar más campos según la respuesta de tu backend
+  rol?: string;
+  correo?: string;
 }
 
 /**

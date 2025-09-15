@@ -62,7 +62,8 @@ export class Login {
       next: (resp) => {
         if (resp.token) {
           localStorage.setItem('token', resp.token);
-          localStorage.setItem('usuario', correo);
+          localStorage.setItem('rol', resp.rol || ''); // Guardar rol, siempre string
+          localStorage.setItem('correo', resp.correo || ''); // Guardar correo real, siempre string
           this.router.navigate(['/dashboard']);
         } else {
           this.errorMsg = 'Credenciales incorrectas.';

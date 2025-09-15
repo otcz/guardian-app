@@ -24,7 +24,6 @@ export class Login {
   loginForm: FormGroup;
   loading = false;
   showPassword = false;
-  darkMode = false;
   errorMsg: string | null = null;
   successMsg: string | null = null;
 
@@ -37,16 +36,6 @@ export class Login {
 
   togglePassword() {
     this.showPassword = !this.showPassword;
-  }
-
-  toggleDarkMode() {
-    this.darkMode = !this.darkMode;
-    const body = document.body;
-    if (this.darkMode) {
-      body.classList.add('dark-mode');
-    } else {
-      body.classList.remove('dark-mode');
-    }
   }
 
   onSubmit() {
@@ -70,7 +59,7 @@ export class Login {
         }
         this.loading = false;
       },
-      error: (err) => {
+      error: () => {
         this.errorMsg = 'Error de autenticación.';
         this.loading = false;
       }

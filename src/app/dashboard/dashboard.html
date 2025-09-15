@@ -37,7 +37,7 @@
         </span>
         <div class="user-menu" *ngIf="showUserMenu">
           <div style="padding: 0.7rem 1.2rem 0.3rem 1.2rem; border-bottom: 1px solid #e0e6ed;">
-            <div class="navbar-usuario">{{ correo }}</div>
+            <div class="navbar-usuario" style="font-size:0.85rem; font-family:'Chakra Petch', 'Inter', 'Segoe UI', Arial, sans-serif; color:#7a869a; letter-spacing:1px; font-weight:500;">{{ correo }}</div>
             <div class="navbar-rol">{{ rol | titlecase }}</div>
           </div>
           <button class="user-menu-item" (click)="logout()">
@@ -50,7 +50,7 @@
       <h2>¡Bienvenido al Dashboard!</h2>
     </div>
   </main>
-  <footer class="footer-flotante">
+  <footer class="footer-flotante" style="font-size:0.75rem; font-family:'Chakra Petch', 'Inter', 'Segoe UI', Arial, sans-serif; color:#7a869a; letter-spacing:1px; font-weight:500;">
     ESTA APP FUE DESARROLLADA POR OT&CZ
   </footer>
 </div>

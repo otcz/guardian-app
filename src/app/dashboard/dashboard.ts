@@ -19,11 +19,9 @@ export class Dashboard {
   sidebarMobileOpen: boolean = false;
   showUserMenu: boolean = false;
 
-  constructor(private router: Router) {}
-
-  ngOnInit() {
+  constructor(private router: Router) {
     this.correo = localStorage.getItem('correo') || '';
-    this.rol = localStorage.getItem('rol') || 'USUARIO'; // Por defecto USUARIO
+    this.rol = localStorage.getItem('rol') || 'USUARIO';
     this.menu = this.getMenuByRol(this.rol);
   }
 
@@ -104,10 +102,6 @@ export class Dashboard {
 
   isSubmenuOpen(idx: number): boolean {
     return this.openSubmenus.has(idx);
-  }
-
-  openSidebarMobile() {
-    this.sidebarMobileOpen = true;
   }
 
   closeSidebarMobile() {

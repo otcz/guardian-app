@@ -1,17 +1,2 @@
-import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
+// Eliminado: dashboard-module.ts y dashboard-routing-module.ts porque ya no se usan en modo standalone.
 
-import { DashboardRoutingModule } from './dashboard-routing-module';
-import { Dashboard } from './dashboard';
-
-
-@NgModule({
-  declarations: [
-    Dashboard
-  ],
-  imports: [
-    CommonModule,
-    DashboardRoutingModule
-  ]
-})
-export class DashboardModule { }

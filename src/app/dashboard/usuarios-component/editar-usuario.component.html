@@ -1,0 +1,32 @@
+<div class="editar-usuario-form" *ngIf="usuario">
+  <h2>Editar Usuario</h2>
+  <form (ngSubmit)="editarUsuario()">
+    <label>Correo:</label>
+    <input [(ngModel)]="usuario.correo" name="correo" required readonly>
+    <label>Contraseña:</label>
+    <input [(ngModel)]="usuario.passwordHash" name="passwordHash" required type="password">
+    <label>Rol:</label>
+    <select [(ngModel)]="usuario.rol" name="rol">
+      <option value="USUARIO">Usuario</option>
+      <option value="GUARDIA">Guardia</option>
+      <option value="ADMINISTRADOR">Administrador</option>
+    </select>
+    <label>Estado:</label>
+    <select [(ngModel)]="usuario.estado" name="estado">
+      <option value="ACTIVO">Activo</option>
+      <option value="INACTIVO">Inactivo</option>
+    </select>
+    <label>Nombre completo:</label>
+    <input [(ngModel)]="usuario.nombreCompleto" name="nombreCompleto" required>
+    <label>Tipo de documento:</label>
+    <input [(ngModel)]="usuario.documentoTipo" name="documentoTipo" required>
+    <label>Número de documento:</label>
+    <input [(ngModel)]="usuario.documentoNumero" name="documentoNumero" required>
+    <button type="submit">Guardar cambios</button>
+  </form>
+  <div class="mensaje">{{mensaje}}</div>
+</div>
+<div *ngIf="!usuario">
+  <p>Usuario no encontrado.</p>
+</div>
+

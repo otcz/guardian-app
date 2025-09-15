@@ -1,1 +1,11 @@
-<p>usuarios-component works!</p>
+<!-- Menú de usuario -->
+<div class="usuario-tabs-wrapper">
+  <div class="usuario-tabs">
+    <a routerLink="crear" routerLinkActive="active-tab" class="tab">Crear usuario</a>
+    <a routerLink="editar/OSCAR.CARRILLO44" routerLinkActive="active-tab" class="tab">Editar usuario</a>
+    <a routerLink="eliminar" routerLinkActive="active-tab" class="tab">Eliminar usuario</a>
+  </div>
+</div>
+<div class="usuario-tabs-content">
+  <router-outlet></router-outlet>
+</div>

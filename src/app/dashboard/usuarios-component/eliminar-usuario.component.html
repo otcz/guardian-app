@@ -1,0 +1,10 @@
+<div class="eliminar-usuario-form">
+  <h2>Eliminar Usuario</h2>
+  <form (ngSubmit)="eliminarUsuario()">
+    <label>Correo del usuario a eliminar:</label>
+    <input [(ngModel)]="correo" name="correo" required>
+    <button type="submit">Eliminar</button>
+  </form>
+  <div class="mensaje">{{mensaje}}</div>
+</div>
+

@@ -1,0 +1,43 @@
+<div class="crear-usuario-form-horizontal">
+  <form class="crear-usuario-form-grid" (ngSubmit)="crearUsuario()">
+    <h2>Crear usuario</h2>
+    <div class="form-grid">
+      <div class="input-group">
+        <span class="input-icon"><i class="pi pi-user"></i></span>
+        <input id="nombreCompleto" [(ngModel)]="usuario.nombreCompleto" name="nombreCompleto" required placeholder="Nombre completo">
+      </div>
+      <div class="input-group">
+        <span class="input-icon"><i class="pi pi-id-card"></i></span>
+        <select id="documentoTipo" [(ngModel)]="usuario.documentoTipo" name="documentoTipo" required>
+          <option *ngFor="let tipo of documentoTipos" [value]="tipo">{{tipo}}</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <span class="input-icon"><i class="pi pi-hash"></i></span>
+        <input id="documentoNumero" [(ngModel)]="usuario.documentoNumero" name="documentoNumero" required placeholder="Número de documento">
+      </div>
+      <div class="input-group">
+        <span class="input-icon"><i class="pi pi-envelope"></i></span>
+        <input id="correo" [(ngModel)]="usuario.correo" name="correo" required placeholder="Correo" autocomplete="username">
+      </div>
+      <div class="input-group">
+        <span class="input-icon"><i class="pi pi-lock"></i></span>
+        <input id="passwordHash" [(ngModel)]="usuario.passwordHash" name="passwordHash" required type="password" placeholder="Contraseña" autocomplete="new-password">
+      </div>
+      <div class="input-group">
+        <span class="input-icon"><i class="pi pi-users"></i></span>
+        <select id="rol" [(ngModel)]="usuario.rol" name="rol">
+          <option *ngFor="let rol of roles" [value]="rol">{{rol}}</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <span class="input-icon"><i class="pi pi-check"></i></span>
+        <select id="estado" [(ngModel)]="usuario.estado" name="estado">
+          <option *ngFor="let estado of estados" [value]="estado">{{estado}}</option>
+        </select>
+      </div>
+    </div>
+    <button type="submit" class="btn-crear">Crear usuario</button>
+    <div class="mensaje">{{mensaje}}</div>
+  </form>
+</div>

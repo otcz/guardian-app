@@ -47,8 +47,7 @@
       </div>
     </div>
     <div class="dashboard-container">
-      <app-usuarios-component *ngIf="vistaActual === 'usuarios'"></app-usuarios-component>
-      <h2 *ngIf="vistaActual === 'dashboard'">¡Bienvenido al Dashboard!</h2>
+      <router-outlet></router-outlet>
     </div>
   </main>
   <footer class="footer-flotante" style="font-size:0.75rem; font-family:'Chakra Petch', 'Inter', 'Segoe UI', Arial, sans-serif; color:#7a869a; letter-spacing:1px; font-weight:500;">

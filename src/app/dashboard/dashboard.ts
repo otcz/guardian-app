@@ -1,13 +1,13 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { ClickOutsideDirective } from '../utils/click-outside.directive';
-import { UsuariosComponent } from './usuarios-component/usuarios-component';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, ClickOutsideDirective, UsuariosComponent],
+  imports: [CommonModule, RouterModule, ClickOutsideDirective],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css'
 })
@@ -44,7 +44,7 @@ export class Dashboard {
           { label: 'Inicio', icon: 'pi pi-home', action: () => this.vistaActual = 'dashboard' },
           { label: 'Perfil', icon: 'pi pi-user', sub: [] },
           { label: 'Usuarios', icon: 'pi pi-users', sub: [
-            { label: 'Crear/editar/eliminar', action: () => this.vistaActual = 'usuarios' },
+            { label: 'Crear/editar/eliminar', action: () => this.router.navigate(['/dashboard/usuarios']) },
             { label: 'Asignar roles' },
             { label: 'Activar/Desactivar' }
           ] },

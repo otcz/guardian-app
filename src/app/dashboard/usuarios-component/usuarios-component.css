@@ -1,0 +1,73 @@
+/* Estilos para tabs de usuario mejorados */
+.usuario-tabs-wrapper {
+  background: #fff;
+  border-radius: 14px 14px 0 0;
+  box-shadow: 0 2px 8px rgba(30,40,60,0.10);
+  margin-bottom: 0;
+  padding-top: 8px;
+}
+.usuario-tabs {
+  display: flex;
+  justify-content: space-around;
+  background: #23272f;
+  border-radius: 12px;
+  margin: 16px 0;
+  box-shadow: 0 2px 8px rgba(30,40,60,0.10);
+  overflow-x: auto;
+  gap: 8px;
+  padding: 4px;
+  border-bottom: 1.5px solid #e3e8ee;
+  margin-bottom: 0;
+}
+.tab {
+  flex: 1;
+  text-align: center;
+  padding: 12px 0;
+  color: #fff;
+  font-family: 'Inter', 'Segoe UI', 'Roboto', Arial, sans-serif;
+  font-size: 1rem;
+  font-weight: 500;
+  text-decoration: none;
+  border-bottom: 3px solid transparent;
+  border-radius: 8px;
+  margin: 0 2px;
+  background: #23272f;
+  transition: background 0.2s, color 0.2s, border-bottom 0.2s, box-shadow 0.2s;
+  box-shadow: 0 1px 4px rgba(30,40,60,0.07);
+}
+.tab:hover {
+  background: #4f8cff22;
+  color: #4f8cff;
+  box-shadow: 0 2px 8px rgba(79,140,255,0.10);
+}
+.active-tab {
+  color: #4f8cff;
+  border-bottom: 3px solid #4f8cff;
+  background: #23272f;
+  box-shadow: 0 2px 8px rgba(79,140,255,0.10);
+}
+.usuario-tabs-content {
+  background: #f4f7fa;
+  border-radius: 0 0 12px 12px;
+  padding: 24px 16px 16px 16px;
+  box-shadow: 0 2px 8px rgba(30,40,60,0.07);
+  min-height: 320px;
+}
+@media (max-width: 600px) {
+  .usuario-tabs {
+    flex-direction: column;
+    border-radius: 8px;
+    margin: 8px 0;
+    gap: 4px;
+    padding: 2px;
+  }
+  .tab {
+    padding: 10px 0;
+    font-size: 0.95rem;
+    margin: 2px 0;
+  }
+  .usuario-tabs-content {
+    padding: 12px 4px 8px 4px;
+    min-height: 220px;
+  }
+}

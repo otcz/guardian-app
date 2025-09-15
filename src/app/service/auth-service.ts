@@ -6,7 +6,6 @@ import { ApiEndpoints } from '../utils/api-endpoints';
 
 export interface LoginRequest {
   usuario: string;
-  correo: string;
   password: string;
 }
 
@@ -40,7 +39,7 @@ export class AuthService {
 
   /**
    * Realiza el login del usuario.
-   * @param data Credenciales de acceso (correo y password).
+   * @param data Credenciales de acceso (usuario y password).
    * @returns Observable<LoginResponse> Respuesta del backend con token y datos de usuario.
    */
   public login(data: LoginRequest): Observable<LoginResponse> {

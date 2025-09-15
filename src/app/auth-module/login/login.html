@@ -15,9 +15,6 @@
         <input pInputText id="usuario" formControlName="usuario" placeholder="Usuario" />
       </div>
       <div class="login-field-mobile">
-        <input pInputText id="correo" formControlName="correo" placeholder="Correo electrónico" />
-      </div>
-      <div class="login-field-mobile">
         <input [type]="showPassword ? 'text' : 'password'" pInputText id="password" formControlName="password" placeholder="Contraseña" />
         <button type="button" class="showpass-btn-mobile" (click)="togglePassword()" tabindex="-1">
           <i class="pi" [ngClass]="showPassword ? 'pi-eye-slash' : 'pi-eye'"></i>

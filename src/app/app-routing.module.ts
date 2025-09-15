@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
+import { AuthGuard } from './service/auth.guard';
 
 const routes: Routes = [
   {
@@ -8,7 +9,11 @@ const routes: Routes = [
   },
   // Puedes agregar aquí otras rutas principales, como home, etc.
   { path: '', redirectTo: 'login', pathMatch: 'full' },
-  { path: 'dashboard', loadChildren: () => import('./dashboard/dashboard-module').then(m => m.DashboardModule) },
+  {
+    path: 'dashboard',
+    canActivate: [AuthGuard],
+    loadChildren: () => import('./dashboard/dashboard-module').then(m => m.DashboardModule)
+  },
   { path: '**', redirectTo: 'login' }
 ];
 
@@ -17,4 +22,3 @@ const routes: Routes = [
   exports: [RouterModule]
 })
 export class AppRoutingModule {}
-

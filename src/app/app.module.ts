@@ -1,10 +1,2 @@
-import { NgModule } from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
-import { AppRoutingModule } from './app-routing.module';
+// Este archivo ha sido eliminado porque la aplicación ahora es completamente standalone.
 
-@NgModule({
-  declarations: [], // AppComponent eliminado porque es standalone
-  imports: [BrowserModule, AppRoutingModule],
-  bootstrap: [] // AppComponent eliminado
-})
-export class AppModule {}

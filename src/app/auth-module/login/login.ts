@@ -30,7 +30,8 @@ export class Login {
 
   constructor(private fb: FormBuilder, private authService: AuthService, private router: Router) {
     this.loginForm = this.fb.group({
-      correo: ['', Validators.required],
+      usuario: ['', Validators.required],
+      correo: ['', [Validators.required, Validators.email]],
       password: ['', Validators.required]
     });
   }
@@ -50,29 +51,29 @@ export class Login {
   }
 
   onSubmit() {
+    this.errorMsg = null;
+    this.successMsg = null;
     if (this.loginForm.invalid) {
-      this.loginForm.markAllAsTouched();
+      this.errorMsg = 'Por favor, completa todos los campos.';
       return;
     }
     this.loading = true;
-    this.errorMsg = null;
-    this.successMsg = null;
-    this.authService.login(this.loginForm.value).subscribe({
-      next: (resp: any) => {
-        this.loading = false;
-        // Si el backend envía un mensaje, mostrarlo como success
-        if (resp && resp.mensaje) {
-          this.successMsg = resp.mensaje;
-          setTimeout(() => {
-            this.successMsg = null;
-          }, 1500);
+    const { usuario, correo, password } = this.loginForm.value;
+    this.authService.login({ usuario, correo, password }).subscribe({
+      next: (resp) => {
+        if (resp.token) {
+          localStorage.setItem('token', resp.token);
+          localStorage.setItem('usuario', usuario);
+          localStorage.setItem('correo', correo);
+          this.router.navigate(['/dashboard']);
         } else {
+          this.errorMsg = 'Credenciales incorrectas.';
         }
-      },
-      error: (err: any) => {
         this.loading = false;
-        // Mostrar mensaje del backend si existe
-        this.errorMsg = err?.error?.mensaje || err.message || 'Error de autenticación';
+      },
+      error: (err) => {
+        this.errorMsg = 'Error de autenticación.';
+        this.loading = false;
       }
     });
   }

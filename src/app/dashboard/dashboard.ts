@@ -106,6 +106,9 @@ export class Dashboard {
     return this.openSubmenus.has(idx);
   }
 
+  openSidebarMobile() {
+    this.sidebarMobileOpen = true;
+  }
   closeSidebarMobile() {
     this.sidebarMobileOpen = false;
   }
@@ -122,5 +125,25 @@ export class Dashboard {
     localStorage.removeItem('token');
     localStorage.removeItem('correo');
     this.router.navigate(['/login']);
+  }
+
+  onMenuItemClick(item: any, idx: number) {
+    if (item.sub && item.sub.length) {
+      this.toggleSubmenu(idx);
+    } else if (item.action) {
+      item.action();
+      if (this.sidebarMobileOpen) {
+        this.closeSidebarMobile();
+      }
+    }
+  }
+
+  onSubMenuItemClick(sub: any) {
+    if (sub.action) {
+      sub.action();
+      if (this.sidebarMobileOpen) {
+        this.closeSidebarMobile();
+      }
+    }
   }
 }

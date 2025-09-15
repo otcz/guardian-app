@@ -1,4 +1,7 @@
 <div class="dashboard-header">
+  <button class="sidebar-hamburger mobile-only" (click)="sidebarMobileOpen ? closeSidebarMobile() : openSidebarMobile()">
+    <i class="pi pi-bars"></i>
+  </button>
   <span class="dashboard-title">GUARDIAN</span>
 </div>
 <div class="dashboard-layout">
@@ -11,14 +14,16 @@
     <nav class="sidebar-menu">
       <ul>
         <li *ngFor="let item of menu; let i = index">
-          <div class="menu-item" [class.collapsed]="!sidebarExpanded" (click)="item.sub && item.sub.length ? toggleSubmenu(i) : (item.action ? item.action() : null)">
+          <div class="menu-item"
+               [class.collapsed]="!sidebarExpanded && !sidebarMobileOpen"
+               (click)="onMenuItemClick(item, i)">
             <i class="pi" [ngClass]="item.icon"></i>
-            <span class="menu-label" *ngIf="sidebarExpanded">{{ item.label }}</span>
-            <i *ngIf="item.sub && item.sub.length && sidebarExpanded" class="pi pi-angle-down submenu-arrow" [class.open]="isSubmenuOpen(i)"></i>
+            <span class="menu-label" *ngIf="sidebarExpanded || sidebarMobileOpen">{{ item.label }}</span>
+            <i *ngIf="item.sub && item.sub.length && (sidebarExpanded || sidebarMobileOpen)" class="pi pi-angle-down submenu-arrow" [class.open]="isSubmenuOpen(i)"></i>
           </div>
-          <ul *ngIf="item.sub && item.sub.length && isSubmenuOpen(i) && sidebarExpanded" class="submenu">
+          <ul *ngIf="item.sub && item.sub.length && isSubmenuOpen(i) && (sidebarExpanded || sidebarMobileOpen)" class="submenu">
             <li *ngFor="let sub of item.sub">
-              <span (click)="sub.action ? sub.action() : null" style="cursor:pointer">{{ sub.label }}</span>
+              <span (click)="onSubMenuItemClick(sub)">{{ sub.label }}</span>
             </li>
           </ul>
         </li>

@@ -5,7 +5,7 @@ import { catchError, map } from 'rxjs/operators';
 import { ApiEndpoints } from '../utils/api-endpoints';
 
 export interface LoginRequest {
-  usuario: string;
+  correo: string;
   password: string;
 }
 

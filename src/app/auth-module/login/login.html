@@ -12,7 +12,7 @@
     <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form-mobile">
       <h2 class="login-title-mobile">Iniciar sesión</h2>
       <div class="login-field-mobile">
-        <input pInputText id="usuario" formControlName="usuario" placeholder="Usuario" />
+        <input pInputText id="correo" formControlName="correo" placeholder="Usuario" />
       </div>
       <div class="login-field-mobile">
         <input [type]="showPassword ? 'text' : 'password'" pInputText id="password" formControlName="password" placeholder="Contraseña" />

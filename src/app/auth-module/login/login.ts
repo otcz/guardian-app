@@ -30,7 +30,7 @@ export class Login {
 
   constructor(private fb: FormBuilder, private authService: AuthService, private router: Router) {
     this.loginForm = this.fb.group({
-      usuario: ['', Validators.required],
+      correo: ['', Validators.required],
       password: ['', Validators.required]
     });
   }
@@ -57,12 +57,12 @@ export class Login {
       return;
     }
     this.loading = true;
-    const { usuario, password } = this.loginForm.value;
-    this.authService.login({ usuario, password }).subscribe({
+    const { correo, password } = this.loginForm.value;
+    this.authService.login({ correo, password }).subscribe({
       next: (resp) => {
         if (resp.token) {
           localStorage.setItem('token', resp.token);
-          localStorage.setItem('usuario', usuario);
+          localStorage.setItem('usuario', correo);
           this.router.navigate(['/dashboard']);
         } else {
           this.errorMsg = 'Credenciales incorrectas.';

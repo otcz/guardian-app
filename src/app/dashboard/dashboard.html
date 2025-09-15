@@ -18,7 +18,7 @@
           </div>
           <ul *ngIf="item.sub && item.sub.length && isSubmenuOpen(i) && sidebarExpanded" class="submenu">
             <li *ngFor="let sub of item.sub">
-              <span>{{ sub.label }}</span>
+              <span (click)="sub.action ? sub.action() : null" style="cursor:pointer">{{ sub.label }}</span>
             </li>
           </ul>
         </li>
@@ -47,7 +47,8 @@
       </div>
     </div>
     <div class="dashboard-container">
-      <h2>¡Bienvenido al Dashboard!</h2>
+      <app-usuarios-component *ngIf="vistaActual === 'usuarios'"></app-usuarios-component>
+      <h2 *ngIf="vistaActual === 'dashboard'">¡Bienvenido al Dashboard!</h2>
     </div>
   </main>
   <footer class="footer-flotante" style="font-size:0.75rem; font-family:'Chakra Petch', 'Inter', 'Segoe UI', Arial, sans-serif; color:#7a869a; letter-spacing:1px; font-weight:500;">

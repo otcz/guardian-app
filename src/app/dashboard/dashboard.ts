@@ -2,11 +2,12 @@ import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ClickOutsideDirective } from '../utils/click-outside.directive';
+import { UsuariosComponent } from './usuarios-component/usuarios-component';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, ClickOutsideDirective],
+  imports: [CommonModule, ClickOutsideDirective, UsuariosComponent],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css'
 })
@@ -18,6 +19,7 @@ export class Dashboard {
   openSubmenus: Set<number> = new Set();
   sidebarMobileOpen: boolean = false;
   showUserMenu: boolean = false;
+  vistaActual: string = 'dashboard';
 
   constructor(private router: Router) {
     this.correo = localStorage.getItem('correo') || '';
@@ -39,10 +41,10 @@ export class Dashboard {
         ];
       case 'ADMIN':
         return [
-          { label: 'Inicio', icon: 'pi pi-home' },
+          { label: 'Inicio', icon: 'pi pi-home', action: () => this.vistaActual = 'dashboard' },
           { label: 'Perfil', icon: 'pi pi-user', sub: [] },
           { label: 'Usuarios', icon: 'pi pi-users', sub: [
-            { label: 'Crear/editar/eliminar' },
+            { label: 'Crear/editar/eliminar', action: () => this.vistaActual = 'usuarios' },
             { label: 'Asignar roles' },
             { label: 'Activar/Desactivar' }
           ] },

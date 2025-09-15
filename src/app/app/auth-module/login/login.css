@@ -630,27 +630,59 @@ body.dark-mode .login-bg-modern,
   margin-bottom: 1.2rem;
 }
 .login-logo-mobile img {
-  max-width: 140px;
-  width: 50vw;
-  min-width: 80px;
+  max-width: 120px;
+  width: 38vw;
+  min-width: 70px;
   height: auto;
   display: block;
   object-fit: contain;
-  border-radius: 16px;
-  background: #f4f8fb;
-  box-shadow: 0 4px 18px 0 rgba(30, 41, 59, 0.10), 0 1.5px 8px 0 rgba(13, 59, 102, 0.07);
-  padding: 1.2rem 1.2rem 1rem 1.2rem;
-  transition: box-shadow 0.2s, background 0.2s;
+  border-radius: 50%;
+  background: #f7fafd;
+  box-shadow: 0 2px 12px 0 rgba(30, 41, 59, 0.10), 0 1.5px 8px 0 rgba(13, 59, 102, 0.06);
+  padding: 1.1rem;
   border: 1.5px solid #e3eef7;
+  transition: box-shadow 0.2s, background 0.2s, border 0.2s;
 }
 .login-logo-mobile img:hover {
-  box-shadow: 0 8px 32px 0 rgba(30, 41, 59, 0.13), 0 2px 12px 0 rgba(13, 59, 102, 0.10);
-  background: #e6ecf3;
+  box-shadow: 0 6px 24px 0 rgba(30, 41, 59, 0.13), 0 2px 12px 0 rgba(13, 59, 102, 0.09);
+  background: #f0f3f7;
+  border: 1.5px solid #b6c7d6;
 }
 @media (max-width: 480px) {
   .login-logo-mobile img {
-    max-width: 90px;
-    width: 32vw;
-    padding: 0.7rem 0.7rem 0.5rem 0.7rem;
+    max-width: 70px;
+    width: 22vw;
+    padding: 0.6rem;
   }
+}
+
+.login-card-message {
+  width: 100%;
+  margin: 0 0 1rem 0;
+  padding: 0.9rem 1rem;
+  border-radius: 18px;
+  font-size: 1.04rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  box-shadow: 0 2px 12px 0 rgba(30, 41, 59, 0.10);
+  border: 1.5px solid #e3eef7;
+  background: #fafdff;
+  color: #0D3B66;
+  transition: background 0.2s, color 0.2s, border 0.2s;
+}
+.login-card-message.error {
+  border-color: #ffb4b4;
+  background: #fff3f3;
+  color: #d32f2f;
+}
+.login-card-message.success {
+  border-color: #b4ffb4;
+  background: #f3fff3;
+  color: #388e3c;
+}
+.login-card-message i {
+  font-size: 1.3rem;
+  margin-right: 0.5rem;
 }

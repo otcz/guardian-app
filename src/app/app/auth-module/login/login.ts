@@ -26,6 +26,7 @@ export class Login {
   showPassword = false;
   darkMode = false;
   errorMsg: string | null = null;
+  successMsg: string | null = null;
 
   constructor(private fb: FormBuilder, private authService: AuthService, private router: Router) {
     this.loginForm = this.fb.group({
@@ -55,15 +56,25 @@ export class Login {
     }
     this.loading = true;
     this.errorMsg = null;
+    this.successMsg = null;
     this.authService.login(this.loginForm.value).subscribe({
-      next: (resp) => {
+      next: (resp: any) => {
         this.loading = false;
-        // Guardar token si es necesario: localStorage.setItem('token', resp.token);
-        this.router.navigate(['/user/dashboard']);
+        // Si el backend envía un mensaje, mostrarlo como success
+        if (resp && resp.mensaje) {
+          this.successMsg = resp.mensaje;
+          setTimeout(() => {
+            this.successMsg = null;
+            this.router.navigate(['/user/dashboard']);
+          }, 1500);
+        } else {
+          this.router.navigate(['/user/dashboard']);
+        }
       },
-      error: (err: Error) => {
+      error: (err: any) => {
         this.loading = false;
-        this.errorMsg = err.message || 'Error de autenticación';
+        // Mostrar mensaje del backend si existe
+        this.errorMsg = err?.error?.mensaje || err.message || 'Error de autenticación';
       }
     });
   }

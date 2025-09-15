@@ -3,6 +3,12 @@
     <div class="login-logo-mobile">
       <img src="assets/logo.png" alt="Logo Guardian" class="login-logo-img" />
     </div>
+    <div *ngIf="errorMsg" class="login-card-message error">
+      <i class="pi pi-exclamation-triangle"></i> {{ errorMsg }}
+    </div>
+    <div *ngIf="successMsg" class="login-card-message success">
+      <i class="pi pi-check-circle"></i> {{ successMsg }}
+    </div>
     <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form-mobile">
       <h2 class="login-title-mobile">Iniciar sesión</h2>
       <div class="login-field-mobile">

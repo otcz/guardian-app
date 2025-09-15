@@ -65,10 +65,8 @@ export class Login {
           this.successMsg = resp.mensaje;
           setTimeout(() => {
             this.successMsg = null;
-            this.router.navigate(['/user/dashboard']);
           }, 1500);
         } else {
-          this.router.navigate(['/user/dashboard']);
         }
       },
       error: (err: any) => {

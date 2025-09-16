@@ -15,7 +15,7 @@
             <span class="sidebar-icon"><i class="pi" [ngClass]="item.icon"></i></span>
             <span class="sidebar-label" [style.opacity]="collapsed ? 0 : 1" [style.transform]="collapsed ? 'translateX(-8px)' : 'none'">{{ item.label }}</span>
           </a>
-          <!-- Item con submenú (primer nivel) -->
+          <!-- Item con submenú -->
           <div *ngIf="item.items" class="sidebar-submenu-trigger"
                (click)="collapsed ? showPopover($event, item.items) : item.expanded = !item.expanded"
                (keydown)="onKeydown($event, item)"
@@ -25,35 +25,14 @@
             <span class="sidebar-label" [style.opacity]="collapsed ? 0 : 1" [style.transform]="collapsed ? 'translateX(-8px)' : 'none'">{{ item.label }}</span>
             <i class="pi pi-chevron-right submenu-arrow" [class.rotated]="item.expanded" *ngIf="!collapsed"></i>
           </div>
-          <!-- Submenú expandido (primer nivel) -->
+          <!-- Submenú expandido (expandido) -->
           <ul class="sidebar-submenu" *ngIf="item.items && item.expanded && !collapsed" [attr.id]="'submenu-' + i">
-            <ng-container *ngFor="let sub of item.items; let j = index">
-              <li>
-                <!-- Subitem sin submenú (segundo nivel) -->
-                <a *ngIf="!sub.items" [routerLink]="sub.routerLink" tabindex="0" [attr.role]="'menuitem'">
-                  <span class="sidebar-icon"><i class="pi" [ngClass]="sub.icon"></i></span>
-                  <span class="sidebar-label">{{ sub.label }}</span>
-                </a>
-                <!-- Subitem con submenú (segundo nivel) -->
-                <div *ngIf="sub.items" class="sidebar-submenu-trigger"
-                     (click)="sub.expanded = !sub.expanded"
-                     tabindex="0"
-                     [attr.aria-expanded]="sub.expanded" [attr.aria-controls]="'submenu2-' + i + '-' + j" [attr.role]="'menuitem'">
-                  <span class="sidebar-icon"><i class="pi" [ngClass]="sub.icon"></i></span>
-                  <span class="sidebar-label">{{ sub.label }}</span>
-                  <i class="pi pi-chevron-right submenu-arrow" [class.rotated]="sub.expanded"></i>
-                </div>
-                <!-- Submenú anidado (segundo nivel) -->
-                <ul class="sidebar-submenu" *ngIf="sub.items && sub.expanded" [attr.id]="'submenu2-' + i + '-' + j">
-                  <li *ngFor="let sub2 of sub.items">
-                    <a [routerLink]="sub2.routerLink" tabindex="0" [attr.role]="'menuitem'">
-                      <span class="sidebar-icon"><i class="pi" [ngClass]="sub2.icon"></i></span>
-                      <span class="sidebar-label">{{ sub2.label }}</span>
-                    </a>
-                  </li>
-                </ul>
-              </li>
-            </ng-container>
+            <li *ngFor="let sub of item.items">
+              <a [routerLink]="sub.routerLink" tabindex="0" [attr.role]="'menuitem'">
+                <span class="sidebar-icon"><i class="pi" [ngClass]="sub.icon"></i></span>
+                <span class="sidebar-label">{{ sub.label }}</span>
+              </a>
+            </li>
           </ul>
         </li>
       </ng-container>

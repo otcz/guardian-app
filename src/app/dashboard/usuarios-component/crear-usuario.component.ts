@@ -14,24 +14,56 @@ import { Rol, EstadoUsuario, DocumentoTipo } from '../../service/usuario-enums';
 export class CrearUsuarioComponent {
   usuario: Usuario = {
     correo: '',
-    passwordHash: '',
+    password: '',
     rol: Rol.USUARIO,
     estado: EstadoUsuario.ACTIVO,
     nombreCompleto: '',
     documentoTipo: DocumentoTipo.CC,
-    documentoNumero: ''
+    documentoNumero: '',
+    casa: '',
+    telefono: ''
   };
   roles = Object.values(Rol);
   estados = Object.values(EstadoUsuario);
   documentoTipos = Object.values(DocumentoTipo);
   mensaje: string = '';
+  snackbarVisible = false;
+  snackbarMensaje = '';
 
   constructor(private usuariosService: UsuariosService) {}
 
   crearUsuario() {
-    this.usuariosService.crearUsuario(this.usuario).subscribe({
-      next: () => this.mensaje = 'Usuario creado exitosamente.',
-      error: () => this.mensaje = 'Error al crear usuario.'
+    const token = localStorage.getItem('token');
+    const usuarioAEnviar = {
+      ...this.usuario,
+      rol: String(this.usuario.rol),
+      estado: String(this.usuario.estado),
+      documentoTipo: String(this.usuario.documentoTipo)
+    };
+    this.usuariosService.crearUsuario(usuarioAEnviar).subscribe({
+      next: (resp) => {
+        // Si el backend retorna un objeto usuario, no tendrá 'mensaje'.
+        this.mensaje = 'Usuario creado exitosamente.';
+        this.snackbarMensaje = 'Usuario creado exitosamente.';
+        this.snackbarVisible = true;
+        setTimeout(() => this.snackbarVisible = false, 4000);
+      },
+      error: (err) => {
+        this.mensaje = 'Error al crear usuario.';
+        let backendMsg = '';
+        if (err.error) {
+          try {
+            const errorObj = typeof err.error === 'string' ? JSON.parse(err.error) : err.error;
+            backendMsg = errorObj.message || errorObj.mensaje || this.mensaje;
+          } catch (e) {
+            backendMsg = err.error;
+          }
+        }
+        this.snackbarMensaje = backendMsg;
+        this.snackbarVisible = true;
+        setTimeout(() => this.snackbarVisible = false, 4000);
+        console.error('Error backend:', err);
+      }
     });
   }
 }

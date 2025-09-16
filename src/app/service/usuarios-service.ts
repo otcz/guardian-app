@@ -1,15 +1,18 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 export interface Usuario {
+  id?: number;
   correo: string;
-  passwordHash: string;
+  password: string;
   rol: string;
   estado: string;
   nombreCompleto: string;
   documentoTipo: string;
   documentoNumero: string;
+  casa: string;
+  telefono: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -19,19 +22,65 @@ export class UsuariosService {
   constructor(private http: HttpClient) {}
 
   getUsuarios(): Observable<Usuario[]> {
-    return this.http.get<Usuario[]>(this.apiUrl);
+    const token = localStorage.getItem('token');
+    const headers = token ? new HttpHeaders({ 'Authorization': `Bearer ${token}` }) : undefined;
+    return this.http.get<Usuario[]>(this.apiUrl, { headers });
   }
 
   crearUsuario(usuario: Usuario): Observable<Usuario> {
-    return this.http.post<Usuario>(this.apiUrl, usuario);
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+    return this.http.post<Usuario>(this.apiUrl, usuario, { headers });
   }
 
   editarUsuario(correo: string, usuario: Usuario): Observable<Usuario> {
-    return this.http.put<Usuario>(`${this.apiUrl}/${correo}`, usuario);
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+    return this.http.put<Usuario>(`${this.apiUrl}/${correo}`, usuario, { headers });
   }
 
   eliminarUsuario(correo: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${correo}`);
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+    return this.http.delete<void>(`${this.apiUrl}/${correo}`, { headers });
+  }
+
+  getUsuariosConToken(token: string | null): Observable<Usuario[]> {
+    const headers = token ? new HttpHeaders({ 'Authorization': `Bearer ${token}` }) : undefined;
+    return this.http.get<Usuario[]>(this.apiUrl, { headers });
+  }
+
+  getUsuarioPorCorreo(correo: string): Observable<Usuario> {
+    const token = localStorage.getItem('token');
+    const headers = token ? new HttpHeaders({ 'Authorization': `Bearer ${token}` }) : undefined;
+    return this.http.get<Usuario>(`${this.apiUrl}/correo/${correo}`, { headers });
+  }
+
+  getUsuarioPorDocumento(documentoNumero: string): Observable<Usuario> {
+    const token = localStorage.getItem('token');
+    const headers = token ? new HttpHeaders({ 'Authorization': `Bearer ${token}` }) : undefined;
+    return this.http.get<Usuario>(`${this.apiUrl}/documento/${documentoNumero}`, { headers });
+  }
+
+  editarUsuarioPorDocumento(documentoNumero: string, usuario: Usuario): Observable<Usuario> {
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+    return this.http.put<Usuario>(`${this.apiUrl}/documento/${documentoNumero}`, usuario, { headers });
+  }
+
+  editarUsuarioPorId(id: number, usuario: Usuario): Observable<Usuario> {
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+    return this.http.put<Usuario>(`${this.apiUrl}/${id}`, usuario, { headers });
   }
 }
-

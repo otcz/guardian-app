@@ -14,7 +14,7 @@
           </select>
         </div>
         <div class="input-group">
-          <span class="input-icon"><i class="pi pi-hash"></i></span>
+          <span class="input-icon"><i class="pi pi-id-card"></i></span>
           <input id="documentoNumero" [(ngModel)]="usuario.documentoNumero" name="documentoNumero" required placeholder="Número de documento">
         </div>
         <div class="input-group">
@@ -23,7 +23,7 @@
         </div>
         <div class="input-group">
           <span class="input-icon"><i class="pi pi-lock"></i></span>
-          <input id="passwordHash" [(ngModel)]="usuario.passwordHash" name="passwordHash" required type="password" placeholder="Contraseña" autocomplete="new-password">
+          <input id="password" [(ngModel)]="usuario.password" name="password" required type="password" placeholder="Contraseña" autocomplete="new-password">
         </div>
         <div class="input-group">
           <span class="input-icon"><i class="pi pi-users"></i></span>
@@ -37,9 +37,20 @@
             <option *ngFor="let estado of estados" [value]="estado">{{estado}}</option>
           </select>
         </div>
+        <div class="input-group">
+          <span class="input-icon"><i class="pi pi-home"></i></span>
+          <input id="casa" [(ngModel)]="usuario.casa" name="casa" required placeholder="Casa">
+        </div>
+        <div class="input-group">
+          <span class="input-icon"><i class="pi pi-phone"></i></span>
+          <input id="telefono" [(ngModel)]="usuario.telefono" name="telefono" required placeholder="Teléfono">
+        </div>
       </div>
       <button type="submit" class="btn-crear">Crear usuario</button>
       <div class="mensaje">{{mensaje}}</div>
     </form>
+  </div>
+  <div class="snackbar" *ngIf="snackbarVisible">
+    {{ snackbarMensaje }}
   </div>
 </div>

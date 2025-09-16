@@ -1,7 +1,4 @@
 <div class="dashboard-header">
-  <button class="sidebar-hamburger mobile-only" (click)="sidebarMobileOpen ? closeSidebarMobile() : openSidebarMobile()">
-    <i class="pi pi-bars"></i>
-  </button>
   <span class="dashboard-title">GUARDIAN</span>
 </div>
 <div class="dashboard-layout">
@@ -17,13 +14,15 @@
           <div class="menu-item"
                [class.collapsed]="!sidebarExpanded && !sidebarMobileOpen"
                (click)="onMenuItemClick(item, i)">
-            <i class="pi" [ngClass]="item.icon"></i>
+            <i class="pi" [ngClass]="item.icon" style="margin-right: 12px;"></i>
             <span class="menu-label" *ngIf="sidebarExpanded || sidebarMobileOpen">{{ item.label }}</span>
             <i *ngIf="item.sub && item.sub.length && (sidebarExpanded || sidebarMobileOpen)" class="pi pi-angle-down submenu-arrow" [class.open]="isSubmenuOpen(i)"></i>
           </div>
           <ul *ngIf="item.sub && item.sub.length && isSubmenuOpen(i) && (sidebarExpanded || sidebarMobileOpen)" class="submenu">
             <li *ngFor="let sub of item.sub">
-              <span (click)="onSubMenuItemClick(sub)">{{ sub.label }}</span>
+              <span (click)="onSubMenuItemClick(sub)">
+                <i *ngIf="sub.icon" class="pi" [ngClass]="sub.icon" style="margin-right: 8px;"></i>{{ sub.label }}
+              </span>
             </li>
           </ul>
         </li>
@@ -33,6 +32,9 @@
   </aside>
   <main class="dashboard-main">
     <div class="dashboard-navbar">
+      <button class="sidebar-hamburger-navbar mobile-only" (click)="sidebarMobileOpen ? closeSidebarMobile() : openSidebarMobile()">
+        <i class="pi pi-bars"></i>
+      </button>
       <div class="navbar-user" (clickOutside)="closeUserMenu()">
         <span class="avatar-circle user-avatar" (click)="toggleUserMenu()">
           <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">

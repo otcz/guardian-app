@@ -1,6 +1,6 @@
 /* Estilos para editar usuario */
 
-/* Estilos responsivos para editar usuario */
+/* --- SOLO FORMULARIO Y MENSAJES --- */
 .editar-usuario-form {
   max-width: 480px;
   margin: 32px auto 0 auto;
@@ -70,6 +70,145 @@
   text-align: center;
   word-break: break-word;
 }
+
+/* --- ESTILOS PERSONALIZADOS PARA LA TABLA PRIME --- */
+.tabla-usuarios-prime .p-datatable {
+  font-family: 'Inter', 'Segoe UI', 'Roboto', Arial, sans-serif;
+  border-radius: 18px;
+  box-shadow: 0 4px 18px rgba(30,40,60,0.10);
+  background: #fff;
+  border: none;
+  overflow: hidden;
+}
+.tabla-usuarios-prime .p-datatable-header {
+  background: #f4f7fa;
+  color: #23272f;
+  font-weight: 600;
+  border-bottom: 1px solid #e3e8ee;
+  border-radius: 18px 18px 0 0;
+  padding: 18px 18px 10px 18px;
+}
+.tabla-usuarios-prime .p-datatable-thead > tr > th {
+  background: #f4f7fa;
+  color: #4f8cff;
+  font-weight: 700;
+  font-size: 1.08rem;
+  border-bottom: 2px solid #dbeafe;
+  padding: 14px 12px 8px 12px;
+  vertical-align: middle;
+  letter-spacing: 0.01em;
+}
+.tabla-usuarios-prime .p-datatable-thead > tr > th .p-sortable-column-icon {
+  color: #4f8cff;
+}
+.tabla-usuarios-prime .p-datatable-tbody > tr > td {
+  padding: 13px 12px;
+  font-size: 1.01rem;
+  color: #23272f;
+  border-bottom: 1px solid #e3e8ee;
+  background: #fff;
+  letter-spacing: 0.01em;
+}
+.tabla-usuarios-prime .p-datatable-tbody > tr:last-child > td {
+  border-bottom: none;
+}
+.tabla-usuarios-prime .p-datatable-tbody > tr {
+  transition: background 0.2s;
+}
+.tabla-usuarios-prime .p-datatable-tbody > tr:hover {
+  background: #eaf2ff;
+}
+.tabla-usuarios-prime .p-column-filter {
+  background: #f4f7fa !important;
+  border: 1px solid #dbeafe !important;
+  border-radius: 8px !important;
+  font-size: 0.97rem !important;
+  color: #23272f !important;
+  margin-top: 4px;
+  margin-bottom: 2px;
+  padding: 7px 10px !important;
+  width: 100%;
+  box-sizing: border-box;
+  transition: border 0.2s;
+}
+.tabla-usuarios-prime .p-column-filter:focus {
+  border-color: #4f8cff !important;
+  box-shadow: 0 0 0 2px #4f8cff22;
+}
+.tabla-usuarios-prime .p-paginator {
+  background: #f4f7fa;
+  border-radius: 0 0 18px 18px;
+  border: none;
+  color: #23272f;
+  font-size: 1.01rem;
+  margin-top: 0;
+  box-shadow: none;
+}
+.tabla-usuarios-prime .p-paginator .p-paginator-pages .p-paginator-page.p-highlight {
+  background: #4f8cff;
+  color: #fff;
+  border-radius: 7px;
+}
+.tabla-usuarios-prime .p-paginator .p-paginator-page {
+  border-radius: 7px;
+  margin: 0 2px;
+}
+.tabla-usuarios-prime .p-datatable .p-datatable-tbody > tr > td:last-child {
+  text-align: right;
+}
+.tabla-usuarios-prime .p-button-info {
+  background: #4f8cff !important;
+  border: none !important;
+  color: #fff !important;
+  font-size: 1.1em;
+}
+.tabla-usuarios-prime .p-button-info:hover {
+  background: #23272f !important;
+}
+.tabla-usuarios-prime .p-button-danger {
+  background: #e53e3e !important;
+  border: none !important;
+  color: #fff !important;
+  font-size: 1.1em;
+}
+.tabla-usuarios-prime .p-button-danger:hover {
+  background: #b91c1c !important;
+}
+.tabla-usuarios-prime .p-datatable .p-sortable-column:not(.p-highlight):hover {
+  background: #eaf2ff;
+  color: #4f8cff;
+}
+.tabla-usuarios-prime .p-datatable .p-sortable-column.p-highlight {
+  color: #23272f;
+}
+.tabla-usuarios-prime .p-datatable .p-sortable-column-icon {
+  color: #4f8cff;
+}
+.tabla-usuarios-prime .p-datatable .p-datatable-thead > tr > th .p-column-filter {
+  margin-top: 6px;
+}
+
+/* Mejorar contraste de la barra de búsqueda global */
+.tabla-usuarios-prime .p-datatable-caption {
+  background: #f4f7fa;
+  border-radius: 18px 18px 0 0;
+  padding: 12px 18px 8px 18px;
+  border-bottom: 1px solid #e3e8ee;
+}
+.tabla-usuarios-prime .p-inputtext-sm {
+  font-size: 1rem;
+  border-radius: 8px;
+  border: 1px solid #dbeafe;
+  background: #fff;
+  color: #23272f;
+  padding: 7px 10px;
+  transition: border 0.2s;
+}
+.tabla-usuarios-prime .p-inputtext-sm:focus {
+  border-color: #4f8cff;
+  box-shadow: 0 0 0 2px #4f8cff22;
+}
+
 @media (max-width: 900px) {
   .editar-usuario-form {
     padding: 18px 8px 12px 8px;
@@ -84,6 +223,16 @@
   .editar-usuario-form button[type="submit"] {
     font-size: 0.98rem;
     padding: 10px 0;
+  }
+  .tabla-usuarios-prime .p-datatable {
+    font-size: 0.97rem;
+    border-radius: 12px;
+  }
+  .tabla-usuarios-prime .p-datatable-header,
+  .tabla-usuarios-prime .p-paginator,
+  .tabla-usuarios-prime .p-datatable-caption {
+    border-radius: 12px 12px 0 0;
+    font-size: 0.97rem;
   }
 }
 @media (max-width: 600px) {
@@ -117,5 +266,15 @@
   .mensaje {
     font-size: 0.97rem !important;
     margin-top: 6px !important;
+  }
+  .tabla-usuarios-prime .p-datatable {
+    font-size: 0.95rem;
+    border-radius: 6px;
+  }
+  .tabla-usuarios-prime .p-datatable-header,
+  .tabla-usuarios-prime .p-paginator,
+  .tabla-usuarios-prime .p-datatable-caption {
+    border-radius: 6px 6px 0 0;
+    font-size: 0.95rem;
   }
 }

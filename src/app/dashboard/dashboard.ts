@@ -8,11 +8,12 @@ import { MENU_CONFIG, MenuItem } from './menu-config';
 import { AuthService } from '../service/auth-service';
 import { Subscription } from 'rxjs';
 import { SidebarModule } from 'primeng/sidebar';
+import { SidebarComponent } from './sidebar/sidebar.component';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule, PanelMenuModule, TooltipModule, SidebarModule],
+  imports: [CommonModule, RouterModule, PanelMenuModule, TooltipModule, SidebarComponent],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css'
 })

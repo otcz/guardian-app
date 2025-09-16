@@ -1,1 +1,57 @@
 /* You can add global styles to this file, and also import other style files */
+
+/* Fondo y color del Sidebar de PrimeNG igual en desktop y móvil */
+.p-sidebar {
+  background: linear-gradient(to bottom, #0f2027, #203a43, #2c5364) !important;
+  color: white !important;
+  border-top-right-radius: 12px !important;
+  border-bottom-right-radius: 12px !important;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.4) !important;
+  padding: 0 !important;
+}
+.p-sidebar-content, .p-sidebar .sidebar-content {
+  background: transparent !important;
+  color: white !important;
+  min-height: 100vh;
+  padding: 0 !important;
+}
+.p-sidebar .dashboard-header,
+.p-sidebar .sidebar-header {
+  background: transparent !important;
+  color: white !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+.p-sidebar .p-menuitem-link,
+.p-sidebar .menu-item,
+.p-sidebar .submenu-link {
+  color: white !important;
+  background: transparent !important;
+}
+.p-sidebar .p-menuitem-link:hover,
+.p-sidebar .menu-item:hover,
+.p-sidebar .submenu-link:hover {
+  background: rgba(255,255,255,0.08) !important;
+  color: #fff !important;
+}
+.p-sidebar .p-menuitem-link.p-highlight {
+  background: rgba(0,123,255,0.18) !important;
+  color: #fff !important;
+}
+.p-sidebar .p-menuitem-icon,
+.p-sidebar .menu-icon,
+.p-sidebar .submenu-icon {
+  color: white !important;
+}
+.p-sidebar .p-submenu-list {
+  background: transparent !important;
+  padding-left: 1rem !important;
+}
+@media (max-width: 900px) {
+  .p-sidebar {
+    width: 80vw !important;
+    min-width: unset !important;
+    max-width: 80vw !important;
+    font-size: 0.95rem !important;
+  }
+}

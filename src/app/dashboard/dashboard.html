@@ -2,63 +2,7 @@
   <span class="dashboard-title">GUARDIAN</span>
 </div>
 <div class="dashboard-layout">
-  <!-- Sidebar para desktop -->
-  <aside class="sidebar desktop-only" [class.collapsed]="!sidebarExpanded">
-    <div class="sidebar-header">
-      <button class="sidebar-toggle" (click)="toggleSidebar()">
-        <i class="pi" [ngClass]="sidebarExpanded ? 'pi-angle-left' : 'pi-angle-right'"></i>
-      </button>
-    </div>
-    <nav class="sidebar-menu">
-      <ul class="menu-list">
-        <li *ngFor="let item of menu">
-          <ng-container *ngIf="!item.children">
-            <a [routerLink]="item.route" routerLinkActive="active" (click)="onNavigate()">
-              <i [class]="item.icon"></i> <span>{{item.label}}</span>
-            </a>
-          </ng-container>
-          <ng-container *ngIf="item.children">
-            <div class="submenu-header" (click)="toggleSubmenu(item.label)">
-              <i [class]="item.icon"></i> <span>{{item.label}}</span>
-              <i class="pi" [ngClass]="{'pi-angle-down': activeSubmenu !== item.label, 'pi-angle-up': activeSubmenu === item.label}"></i>
-            </div>
-            <ul class="submenu-list" [ngClass]="{'open': activeSubmenu === item.label}">
-              <li *ngFor="let sub of item.children">
-                <a [routerLink]="sub.route" routerLinkActive="active" (click)="onNavigate()">{{sub.label}}</a>
-              </li>
-            </ul>
-          </ng-container>
-        </li>
-      </ul>
-    </nav>
-  </aside>
-
-  <!-- Sidebar PrimeNG para móvil -->
-  <p-sidebar [(visible)]="sidebarMobileOpen" [modal]="true" [style]="{width: '80vw'}" [baseZIndex]="10000" position="left" class="mobile-only sidebar-mobile">
-    <div class="sidebar-content">
-      <ul class="menu-list">
-        <li *ngFor="let item of menu">
-          <ng-container *ngIf="!item.children">
-            <a [routerLink]="item.route" routerLinkActive="active" (click)="onNavigate(true)">
-              <i [class]="item.icon"></i> <span>{{item.label}}</span>
-            </a>
-          </ng-container>
-          <ng-container *ngIf="item.children">
-            <div class="submenu-header" (click)="toggleSubmenu(item.label)">
-              <i [class]="item.icon"></i> <span>{{item.label}}</span>
-              <i class="pi" [ngClass]="{'pi-angle-down': activeSubmenu !== item.label, 'pi-angle-up': activeSubmenu === item.label}"></i>
-            </div>
-            <ul class="submenu-list" [ngClass]="{'open': activeSubmenu === item.label}">
-              <li *ngFor="let sub of item.children">
-                <a [routerLink]="sub.route" routerLinkActive="active" (click)="onNavigate(true)">{{sub.label}}</a>
-              </li>
-            </ul>
-          </ng-container>
-        </li>
-      </ul>
-    </div>
-  </p-sidebar>
-
+  <app-sidebar [rol]="rol"></app-sidebar>
   <main class="dashboard-main">
     <div class="dashboard-navbar">
       <button class="sidebar-hamburger-navbar mobile-only" (click)="sidebarMobileOpen ? closeSidebarMobile() : openSidebarMobile()">

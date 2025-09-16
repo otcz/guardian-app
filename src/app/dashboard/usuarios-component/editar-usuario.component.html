@@ -1,20 +1,5 @@
 <div class="form-center-wrapper">
   <div class="editar-usuario-form-horizontal">
-    <form class="buscar-usuario-form" (ngSubmit)="buscarUsuario()">
-      <div class="input-group buscador-mejorado">
-        <span class="input-icon"><i class="pi pi-search"></i></span>
-        <input id="valorBusqueda"
-               [(ngModel)]="valorBusqueda"
-               name="valorBusqueda"
-               required
-               placeholder="Buscar usuario por correo o documento"
-               autocomplete="off"
-               (ngModelChange)="detectarTipoBusqueda()">
-        <button type="submit" class="btn-buscar" title="Buscar usuario">
-          <i class="pi pi-arrow-right"></i>
-        </button>
-      </div>
-    </form>
     <form *ngIf="usuario" class="editar-usuario-form" (ngSubmit)="editarUsuario()">
       <h2>Editar usuario</h2>
       <div class="form-grid">
@@ -73,7 +58,6 @@
       <button type="submit">Guardar cambios</button>
       <div class="mensaje">{{mensaje}}</div>
     </form>
-    <div *ngIf="!usuario && usuarioBuscado">Usuario no encontrado.</div>
     <div *ngIf="usuarios.length > 0 && !usuario">
       <p-table #dt class="tabla-usuarios-prime" [value]="usuariosFiltrados" [paginator]="true" [rows]="10" [responsiveLayout]="'scroll'" [showCurrentPageReport]="true" currentPageReportTemplate="{first} - {last} de {totalRecords}" [rowsPerPageOptions]="[5,10,20]" [globalFilterFields]="['nombreCompleto','documentoTipo','documentoNumero','correo','rol','estado','casa','telefono']">
         <ng-template pTemplate="caption">

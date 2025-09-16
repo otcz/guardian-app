@@ -17,10 +17,6 @@ export class EditarUsuarioComponent implements OnInit {
   @Input() correo: string = '';
   usuario: Usuario | null = null;
   mensaje: string = '';
-  buscarCorreo: string = '';
-  usuarioBuscado: boolean = false;
-  tipoBusqueda: 'correo' | 'documento' = 'correo';
-  valorBusqueda: string = '';
   roles: string[] = ['USUARIO', 'GUARDIA', 'ADMINISTRADOR'];
   estados: string[] = ['ACTIVO', 'INACTIVO'];
   documentoTipos: string[] = ['CC', 'TI', 'CE', 'PAS'];
@@ -49,54 +45,6 @@ export class EditarUsuarioComponent implements OnInit {
     }
   }
 
-  buscarUsuario() {
-    this.usuario = null;
-    this.mensaje = '';
-    this.usuarioBuscado = false;
-    if (!this.valorBusqueda || this.valorBusqueda.trim() === '') {
-      // Si no hay valor de búsqueda, mostrar todos los usuarios
-      this.usuariosService.getUsuarios().subscribe({
-        next: usuarios => {
-          this.usuarios = usuarios;
-          this.usuariosFiltrados = [...usuarios];
-          this.usuarioBuscado = true;
-        },
-        error: () => {
-          this.mensaje = 'Error al obtener usuarios.';
-          this.usuarioBuscado = true;
-        }
-      });
-      return;
-    }
-    this.usuarios = [];
-    this.usuariosFiltrados = [];
-    if (this.tipoBusqueda === 'correo') {
-      this.usuariosService.getUsuarioPorCorreo(this.valorBusqueda).subscribe({
-        next: usuario => {
-          this.usuario = usuario;
-          this.usuariosFiltrados = usuario ? [usuario] : [];
-          this.usuarioBuscado = true;
-        },
-        error: () => {
-          this.mensaje = 'Usuario no encontrado.';
-          this.usuarioBuscado = true;
-        }
-      });
-    } else if (this.tipoBusqueda === 'documento') {
-      this.usuariosService.getUsuarioPorDocumento(this.valorBusqueda).subscribe({
-        next: usuario => {
-          this.usuario = usuario;
-          this.usuariosFiltrados = usuario ? [usuario] : [];
-          this.usuarioBuscado = true;
-        },
-        error: () => {
-          this.mensaje = 'Usuario no encontrado.';
-          this.usuarioBuscado = true;
-        }
-      });
-    }
-  }
-
   aplicarFiltros() {
     this.usuariosFiltrados = this.usuarios.filter(u => {
       return (
@@ -106,16 +54,6 @@ export class EditarUsuarioComponent implements OnInit {
         (!this.filtros.telefono || (u.telefono && u.telefono.toLowerCase().includes(this.filtros.telefono.toLowerCase())))
       );
     });
-  }
-
-  detectarTipoBusqueda() {
-    if (!this.valorBusqueda) {
-      this.tipoBusqueda = 'correo';
-      return;
-    }
-    // Si es solo números, es documento; si tiene letras o @, es correo
-    const soloNumeros = /^\d+$/.test(this.valorBusqueda);
-    this.tipoBusqueda = soloNumeros ? 'documento' : 'correo';
   }
 
   editarUsuario() {

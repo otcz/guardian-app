@@ -56,26 +56,6 @@ export class UsuariosService {
     return this.http.get<Usuario[]>(this.apiUrl, { headers });
   }
 
-  getUsuarioPorCorreo(correo: string): Observable<Usuario> {
-    const token = localStorage.getItem('token');
-    const headers = token ? new HttpHeaders({ 'Authorization': `Bearer ${token}` }) : undefined;
-    return this.http.get<Usuario>(`${this.apiUrl}/correo/${correo}`, { headers });
-  }
-
-  getUsuarioPorDocumento(documentoNumero: string): Observable<Usuario> {
-    const token = localStorage.getItem('token');
-    const headers = token ? new HttpHeaders({ 'Authorization': `Bearer ${token}` }) : undefined;
-    return this.http.get<Usuario>(`${this.apiUrl}/documento/${documentoNumero}`, { headers });
-  }
-
-  editarUsuarioPorDocumento(documentoNumero: string, usuario: Usuario): Observable<Usuario> {
-    const token = localStorage.getItem('token');
-    const headers = new HttpHeaders({
-      'Authorization': `Bearer ${token}`
-    });
-    return this.http.put<Usuario>(`${this.apiUrl}/documento/${documentoNumero}`, usuario, { headers });
-  }
-
   editarUsuarioPorId(id: number, usuario: Usuario): Observable<Usuario> {
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders({

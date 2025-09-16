@@ -31,7 +31,8 @@
               "node_modules/primeicons/primeicons.css",
               "src/styles.css"
             ],
-            "outputPath": "dist/guardian"
+            "outputPath": "dist/guardian",
+            "index": "src/index.html"
           },
           "configurations": {
             "production": {

@@ -79,37 +79,37 @@
         <ng-template pTemplate="caption">
           <div class="p-input-icon-left" style="width:100%; max-width:350px;">
             <i class="pi pi-search"></i>
-            <input pInputText type="text" (input)="$event.target.value && dt.filterGlobal($event.target.value, 'contains')" placeholder="Buscar en la tabla..." class="p-inputtext-sm" style="width:100%;" />
+            <input pInputText type="text" (input)="onGlobalFilterInput($event, dt)" placeholder="Buscar en la tabla..." class="p-inputtext-sm" style="width:100%;" />
           </div>
         </ng-template>
         <ng-template pTemplate="header">
           <tr>
             <th pSortableColumn="id">ID <p-sortIcon field="id"></p-sortIcon>
-              <input pInputText type="text" (input)="dt.filter($event.target.value, 'id', 'contains')" placeholder="Filtrar" class="p-column-filter" />
+              <input pInputText type="text" (input)="onFilterInput($event, 'id', dt)" placeholder="Filtrar" class="p-column-filter" />
             </th>
             <th pSortableColumn="nombreCompleto">Nombre <p-sortIcon field="nombreCompleto"></p-sortIcon>
-              <input pInputText type="text" (input)="dt.filter($event.target.value, 'nombreCompleto', 'contains')" placeholder="Filtrar" class="p-column-filter" />
+              <input pInputText type="text" (input)="onFilterInput($event, 'nombreCompleto', dt)" placeholder="Filtrar" class="p-column-filter" />
             </th>
             <th pSortableColumn="documentoTipo">Tipo Doc <p-sortIcon field="documentoTipo"></p-sortIcon>
-              <input pInputText type="text" (input)="dt.filter($event.target.value, 'documentoTipo', 'contains')" placeholder="Filtrar" class="p-column-filter" />
+              <input pInputText type="text" (input)="onFilterInput($event, 'documentoTipo', dt)" placeholder="Filtrar" class="p-column-filter" />
             </th>
             <th pSortableColumn="documentoNumero">N° Doc <p-sortIcon field="documentoNumero"></p-sortIcon>
-              <input pInputText type="text" (input)="dt.filter($event.target.value, 'documentoNumero', 'contains')" placeholder="Filtrar" class="p-column-filter" />
+              <input pInputText type="text" (input)="onFilterInput($event, 'documentoNumero', dt)" placeholder="Filtrar" class="p-column-filter" />
             </th>
             <th pSortableColumn="correo">Correo <p-sortIcon field="correo"></p-sortIcon>
-              <input pInputText type="text" (input)="dt.filter($event.target.value, 'correo', 'contains')" placeholder="Filtrar" class="p-column-filter" />
+              <input pInputText type="text" (input)="onFilterInput($event, 'correo', dt)" placeholder="Filtrar" class="p-column-filter" />
             </th>
             <th pSortableColumn="rol">Rol <p-sortIcon field="rol"></p-sortIcon>
-              <input pInputText type="text" (input)="dt.filter($event.target.value, 'rol', 'contains')" placeholder="Filtrar" class="p-column-filter" />
+              <input pInputText type="text" (input)="onFilterInput($event, 'rol', dt)" placeholder="Filtrar" class="p-column-filter" />
             </th>
             <th pSortableColumn="estado">Estado <p-sortIcon field="estado"></p-sortIcon>
-              <input pInputText type="text" (input)="dt.filter($event.target.value, 'estado', 'contains')" placeholder="Filtrar" class="p-column-filter" />
+              <input pInputText type="text" (input)="onFilterInput($event, 'estado', dt)" placeholder="Filtrar" class="p-column-filter" />
             </th>
             <th pSortableColumn="casa">Casa <p-sortIcon field="casa"></p-sortIcon>
-              <input pInputText type="text" (input)="dt.filter($event.target.value, 'casa', 'contains')" placeholder="Filtrar" class="p-column-filter" />
+              <input pInputText type="text" (input)="onFilterInput($event, 'casa', dt)" placeholder="Filtrar" class="p-column-filter" />
             </th>
             <th pSortableColumn="telefono">Teléfono <p-sortIcon field="telefono"></p-sortIcon>
-              <input pInputText type="text" (input)="dt.filter($event.target.value, 'telefono', 'contains')" placeholder="Filtrar" class="p-column-filter" />
+              <input pInputText type="text" (input)="onFilterInput($event, 'telefono', dt)" placeholder="Filtrar" class="p-column-filter" />
             </th>
             <th>Acciones</th>
           </tr>

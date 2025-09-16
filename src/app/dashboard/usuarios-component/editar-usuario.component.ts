@@ -164,4 +164,18 @@ export class EditarUsuarioComponent implements OnInit {
     // Por ahora solo muestra mensaje
     this.mensaje = `¿Deseas eliminar al usuario ${u.nombreCompleto}?`;
   }
+
+  onFilterInput(event: Event, field: string, dt: any) {
+    const value = (event.target as HTMLInputElement).value;
+    dt.filter(value, field, 'contains');
+  }
+
+  onGlobalFilterInput(event: Event, dt: any) {
+    const value = (event.target as HTMLInputElement).value;
+    if (value) {
+      dt.filterGlobal(value, 'contains');
+    } else {
+      dt.filterGlobal('', 'contains');
+    }
+  }
 }

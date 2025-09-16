@@ -17,7 +17,11 @@
             <span class="sidebar-label">{{ item.label }}</span>
           </a>
           <!-- Item con submenú -->
-          <div *ngIf="item.items" class="sidebar-submenu-trigger" tabindex="0" (click)="toggleSubmenu(idx)">
+          <div *ngIf="item.items" class="sidebar-submenu-trigger" tabindex="0"
+               (click)="toggleSubmenu(idx)"
+               (keydown)="onSubmenuKeydown($event, idx)"
+               [attr.aria-expanded]="openSubmenus.has(idx)"
+               [attr.aria-label]="item.label">
             <span class="sidebar-icon"><i class="pi" [ngClass]="item.icon"></i></span>
             <span class="sidebar-label">{{ item.label }}</span>
             <i class="pi pi-chevron-down submenu-arrow" [class.rotated]="openSubmenus.has(idx)"></i>

@@ -193,4 +193,12 @@ export class Dashboard {
       this.sidebarMobileOpen = false;
     }
   }
+
+  // Permite abrir/cerrar submenús con teclado (Enter/Espacio)
+  onSubmenuKeydown(event: KeyboardEvent, idx: number) {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      this.toggleSubmenu(idx);
+    }
+  }
 }

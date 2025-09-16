@@ -25,8 +25,12 @@ body, .dashboard-layout, .dashboard-header, .dashboard-title, .sidebar, .sidebar
   z-index: 3000;
   box-shadow: 0 2px 8px rgba(30,40,60,0.10);
   overflow: visible;
+  margin-bottom: 0;
 }
 .dashboard-title {
+  margin: 0;
+  padding: 0;
+  display: block;
   font-size: 1.3rem;
   font-weight: 700;
   letter-spacing: 2.5px;
@@ -40,6 +44,7 @@ body, .dashboard-layout, .dashboard-header, .dashboard-title, .sidebar, .sidebar
   padding-top: 56px; /* espacio para la barra superior */
   padding-bottom: 40px; /* espacio para el footer */
   box-sizing: border-box;
+  margin-top: 0;
 }
 .sidebar, .sidebar-mobile .sidebar-content {
   background: linear-gradient(135deg, #1a2942 0%, #223a5e 100%);
@@ -803,9 +808,10 @@ body, .dashboard-layout, .dashboard-header, .dashboard-title, .sidebar, .sidebar
   align-items: center;
   justify-content: flex-start;
   margin-left: 40px; /* Separación del sidebar */
-  margin-top: 32px;  /* Separación del header */
-  margin-bottom: 32px; /* Separación del footer flotante */
-  min-height: calc(100vh - 56px - 40px - 64px); /* header + footer + margen extra */
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+  margin-bottom: 0 !important;
+  min-height: calc(100vh - 56px - 40px); /* header + footer */
 }
 
 .footer-flotante {

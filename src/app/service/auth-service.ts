@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
+import { Observable, throwError, BehaviorSubject } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { ApiEndpoints } from '../utils/api-endpoints';
 
@@ -31,6 +31,28 @@ export class AuthService {
    */
   private readonly baseUrl = 'http://localhost:8080';
 
+  private rolSubject = new BehaviorSubject<string>(localStorage.getItem('rol') || 'USUARIO');
+
+  /**
+   * Observable del rol actual del usuario.
+   */
+  public rol$ = this.rolSubject.asObservable();
+
+  /**
+   * Devuelve el rol actual del usuario (sincrónico).
+   */
+  public getRol(): string {
+    return this.rolSubject.value;
+  }
+
+  /**
+   * Actualiza el rol del usuario (por ejemplo, tras login/logout).
+   */
+  public setRol(rol: string) {
+    this.rolSubject.next(rol);
+    localStorage.setItem('rol', rol);
+  }
+
   /**
    * Constructor del servicio de autenticación.
    * @param http Cliente HTTP para peticiones REST.
@@ -47,7 +69,12 @@ export class AuthService {
       this.baseUrl + ApiEndpoints.Auth.BASE + ApiEndpoints.Auth.LOGIN,
       data
     ).pipe(
-      map(resp => resp),
+      map(resp => {
+        if (resp.rol) {
+          this.setRol(resp.rol);
+        }
+        return resp;
+      }),
       catchError(this.handleError)
     );
   }

@@ -12,12 +12,12 @@
       <ul class="sidebar-list">
         <li *ngFor="let item of menu; let idx = index" class="sidebar-item" [class.active]="isActive(item)" (mouseenter)="onSidebarItemHover(idx)" (mouseleave)="onSidebarItemLeave(idx)">
           <!-- Item sin submenú -->
-          <a *ngIf="!item.items" [routerLink]="item.routerLink" routerLinkActive="active" (click)="onSidebarItemClick()" tabindex="0">
+          <a *ngIf="!item.children" [routerLink]="item.route" routerLinkActive="active" (click)="onSidebarItemClick()" tabindex="0">
             <span class="sidebar-icon"><i class="pi" [ngClass]="item.icon"></i></span>
             <span class="sidebar-label">{{ item.label }}</span>
           </a>
           <!-- Item con submenú -->
-          <div *ngIf="item.items" class="sidebar-submenu-trigger" tabindex="0"
+          <div *ngIf="item.children" class="sidebar-submenu-trigger" tabindex="0"
                (click)="toggleSubmenu(idx)"
                (keydown)="onSubmenuKeydown($event, idx)"
                [attr.aria-expanded]="openSubmenus.has(idx)"
@@ -26,9 +26,9 @@
             <span class="sidebar-label">{{ item.label }}</span>
             <i class="pi pi-chevron-down submenu-arrow" [class.rotated]="openSubmenus.has(idx)"></i>
           </div>
-          <ul class="sidebar-submenu" [class.open]="openSubmenus.has(idx)" *ngIf="item.items">
-            <li *ngFor="let sub of item.items">
-              <a [routerLink]="sub.routerLink" routerLinkActive="active" (click)="onSidebarItemClick()" tabindex="0">
+          <ul class="sidebar-submenu" [class.open]="openSubmenus.has(idx)" *ngIf="item.children">
+            <li *ngFor="let sub of item.children">
+              <a [routerLink]="sub.route" routerLinkActive="active" (click)="onSidebarItemClick()" tabindex="0">
                 <span class="sidebar-icon"><i class="pi" [ngClass]="sub.icon"></i></span>
                 <span class="sidebar-label">{{ sub.label }}</span>
               </a>
@@ -44,7 +44,7 @@
       <button class="sidebar-hamburger-navbar mobile-only" (click)="sidebarMobileOpen ? closeSidebarMobile() : openSidebarMobile()">
         <i class="pi pi-bars"></i>
       </button>
-      <div class="navbar-user" (clickOutside)="closeUserMenu()">
+      <div class="navbar-user">
         <span class="avatar-circle user-avatar" (click)="toggleUserMenu()">
           <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
             <circle cx="16" cy="16" r="16" fill="#e0e6ed"/>

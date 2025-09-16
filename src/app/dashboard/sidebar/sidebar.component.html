@@ -1,0 +1,34 @@
+<div class="sidebar-container" [class.collapsed]="!isExpanded" [class.mobile]="isMobile">
+  <!-- Botón hamburguesa solo en móvil -->
+  <button *ngIf="isMobile" class="sidebar-hamburger" (click)="openSidebarMobile()">
+    <i class="pi pi-bars"></i>
+  </button>
+
+  <!-- Sidebar móvil 100% controlado -->
+  <div *ngIf="isMobile && menuVisible" class="sidebar-mobile-overlay">
+    <div class="dashboard-header">
+      <span class="dashboard-title">GUARDIAN</span>
+      <button class="sidebar-close" (click)="closeSidebarMobile()">
+        <i class="pi pi-times"></i>
+      </button>
+    </div>
+    <div class="sidebar-content">
+      <ng-container *ngFor="let item of menu">
+        <app-menu-item [item]="item" [isExpanded]="true" (itemClick)="onItemClick($event)"></app-menu-item>
+      </ng-container>
+    </div>
+  </div>
+
+  <aside *ngIf="!isMobile" class="sidebar-fixed" [class.collapsed]="!isExpanded">
+    <div class="sidebar-header">
+      <button class="sidebar-toggle" (click)="toggleSidebar()">
+        <i class="pi" [ngClass]="isExpanded ? 'pi-angle-left' : 'pi-angle-right'"></i>
+      </button>
+    </div>
+    <div class="sidebar-content">
+      <ng-container *ngFor="let item of menu">
+        <app-menu-item [item]="item" [isExpanded]="isExpanded" (itemClick)="onItemClick($event)"></app-menu-item>
+      </ng-container>
+    </div>
+  </aside>
+</div>

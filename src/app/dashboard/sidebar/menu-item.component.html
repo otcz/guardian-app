@@ -1,0 +1,14 @@
+<div class="menu-item" [class.has-children]="item.items" [class.open]="submenuOpen" [class.collapsed]="!isExpanded" role="menuitem" tabindex="0"
+     [attr.aria-expanded]="item.items ? submenuOpen : null" (click)="onItemClick($event)">
+  <i class="pi menu-icon" [ngClass]="item.icon"></i>
+  <span class="menu-label" *ngIf="isExpanded">{{ item.label }}</span>
+  <i *ngIf="item.items" class="pi pi-angle-down submenu-arrow" [class.open]="submenuOpen"></i>
+</div>
+<ul *ngIf="item.items" class="submenu-list" [class.open]="submenuOpen" role="menu">
+  <li *ngFor="let sub of item.items">
+    <a class="submenu-link" tabindex="0" (click)="onSubItemClick(sub.routerLink ?? '', $event)">
+      <i *ngIf="sub.icon" class="pi submenu-icon" [ngClass]="sub.icon"></i>
+      <span>{{ sub.label }}</span>
+    </a>
+  </li>
+</ul>

@@ -7,27 +7,28 @@
       </button>
     </div>
     <ul class="sidebar-list">
-      <ng-container *ngFor="let item of menuItems">
+      <ng-container *ngFor="let item of menuItems; let i = index">
         <li class="sidebar-item" [class.has-submenu]="item.items" [attr.aria-expanded]="item.expanded" [attr.aria-label]="item.label">
           <!-- Item sin submenú -->
-          <a *ngIf="!item.items" [routerLink]="item.routerLink" pTooltip="{{collapsed ? item.label : ''}}" tooltipPosition="right" tabindex="0">
+          <a *ngIf="!item.items" [routerLink]="item.routerLink" pTooltip="{{collapsed ? item.label : ''}}" tooltipPosition="right" tabindex="0"
+             [attr.aria-label]="item.label" [attr.role]="'menuitem'">
             <span class="sidebar-icon"><i class="pi" [ngClass]="item.icon"></i></span>
-            <span class="sidebar-label" [style.opacity]="collapsed ? 0 : 1">{{ item.label }}</span>
+            <span class="sidebar-label" [style.opacity]="collapsed ? 0 : 1" [style.transform]="collapsed ? 'translateX(-8px)' : 'none'">{{ item.label }}</span>
           </a>
           <!-- Item con submenú -->
           <div *ngIf="item.items" class="sidebar-submenu-trigger"
-               (click)="collapsed ? showPopover($event, item.items) : null"
+               (click)="collapsed ? showPopover($event, item.items) : item.expanded = !item.expanded"
                (keydown)="onKeydown($event, item)"
                pTooltip="{{collapsed ? item.label : ''}}" tooltipPosition="right" tabindex="0"
-               [attr.aria-expanded]="item.expanded">
+               [attr.aria-expanded]="item.expanded" [attr.aria-controls]="'submenu-' + i" [attr.role]="'menuitem'">
             <span class="sidebar-icon"><i class="pi" [ngClass]="item.icon"></i></span>
-            <span class="sidebar-label" [style.opacity]="collapsed ? 0 : 1">{{ item.label }}</span>
+            <span class="sidebar-label" [style.opacity]="collapsed ? 0 : 1" [style.transform]="collapsed ? 'translateX(-8px)' : 'none'">{{ item.label }}</span>
             <i class="pi pi-chevron-right submenu-arrow" [class.rotated]="item.expanded" *ngIf="!collapsed"></i>
           </div>
           <!-- Submenú expandido (expandido) -->
-          <ul class="sidebar-submenu" *ngIf="item.items && item.expanded && !collapsed">
+          <ul class="sidebar-submenu" *ngIf="item.items && item.expanded && !collapsed" [attr.id]="'submenu-' + i">
             <li *ngFor="let sub of item.items">
-              <a [routerLink]="sub.routerLink" tabindex="0">
+              <a [routerLink]="sub.routerLink" tabindex="0" [attr.role]="'menuitem'">
                 <span class="sidebar-icon"><i class="pi" [ngClass]="sub.icon"></i></span>
                 <span class="sidebar-label">{{ sub.label }}</span>
               </a>
@@ -36,11 +37,21 @@
         </li>
       </ng-container>
     </ul>
-    <!-- Popover para submenús en colapsado (eliminado porque no es válido en PrimeNG) -->
+    <!-- Popover para submenús en colapsado -->
+    <p-overlayPanel #overlayPanel [showCloseIcon]="true" [dismissable]="true" [style]="{minWidth: '180px', background: 'var(--sidebar-popover-bg)'}">
+      <ul class="sidebar-popover-list">
+        <li *ngFor="let sub of popoverItems">
+          <a [routerLink]="sub.routerLink" tabindex="0" [attr.role]="'menuitem'">
+            <span class="sidebar-icon"><i class="pi" [ngClass]="sub.icon"></i></span>
+            <span class="sidebar-label">{{ sub.label }}</span>
+          </a>
+        </li>
+      </ul>
+    </p-overlayPanel>
   </div>
 
   <!-- Móvil: Drawer -->
-  <p-sidebar [(visible)]="mobileVisible" position="left" [modal]="true" [dismissible]="true" [baseZIndex]="3000" (onHide)="closeMobileSidebar()" [style]="{width: '80vw', maxWidth: '320px'}">
+  <p-sidebar [(visible)]="mobileVisible" position="left" [modal]="true" [dismissible]="true" [baseZIndex]="3000" (onHide)="closeMobileSidebar()" [style]="{width: '80vw', maxWidth: '320px'}" [attr.role]="'dialog'" [attr.aria-modal]="'true'">
     <div class="sidebar-header">
       <button class="sidebar-toggle" (click)="closeMobileSidebar()" aria-label="Cerrar menú">
         <i class="pi pi-times"></i>

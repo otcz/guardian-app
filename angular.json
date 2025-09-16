@@ -30,7 +30,8 @@
               "node_modules/primeng/resources/primeng.min.css",
               "node_modules/primeicons/primeicons.css",
               "src/styles.css"
-            ]
+            ],
+            "outputPath": "dist/guardian"
           },
           "configurations": {
             "production": {
@@ -57,16 +58,17 @@
           "defaultConfiguration": "production"
         },
         "serve": {
-          "buildTarget": "guardian:build",
+          "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
+            "browserTarget": "guardian:build",
             "port": 4200
           },
           "configurations": {
             "production": {
-              "buildTarget": "guardian:build:production"
+              "browserTarget": "guardian:build:production"
             },
             "development": {
-              "buildTarget": "guardian:build:development"
+              "browserTarget": "guardian:build:development"
             }
           },
           "defaultConfiguration": "development"

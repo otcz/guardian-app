@@ -147,8 +147,16 @@ body, .dashboard-layout, .dashboard-header, .dashboard-title, .sidebar, .sidebar
   padding: 0.2rem 0.5rem 0.2rem 2.5rem;
   border-radius: 8px;
   list-style: none;
-  transition: max-height 0.3s;
+  transition: max-height 0.3s, opacity 0.25s;
   overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+.sidebar-submenu.open {
+  max-height: 500px;
+  opacity: 1;
+  pointer-events: auto;
 }
 .sidebar-submenu li a {
   display: flex;
@@ -758,8 +766,7 @@ body, .dashboard-layout, .dashboard-header, .dashboard-title, .sidebar, .sidebar
   pointer-events: none;
   transition: max-height 0.35s cubic-bezier(0.4,0,0.2,1), opacity 0.25s;
 }
-.sidebar-submenu[style*="display: block"],
-.sidebar-submenu:has(li) {
+.sidebar-submenu.open {
   max-height: 500px;
   opacity: 1;
   pointer-events: auto;

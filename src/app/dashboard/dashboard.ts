@@ -7,11 +7,12 @@ import { TooltipModule } from 'primeng/tooltip';
 import { MENU_CONFIG, MenuItem } from './menu-config';
 import { AuthService } from '../service/auth-service';
 import { Subscription } from 'rxjs';
+import { SidebarModule } from 'primeng/sidebar';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule, PanelMenuModule, TooltipModule],
+  imports: [CommonModule, RouterModule, PanelMenuModule, TooltipModule, SidebarModule],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css'
 })
@@ -20,15 +21,11 @@ export class Dashboard implements OnDestroy {
   rol: string = '';
   menu: MenuItem[] = [];
   sidebarExpanded: boolean = true;
-  openSubmenu: number | null = null;
-  hoverSubmenu: number|null = null;
+  activeSubmenu: string | null = null;
   sidebarMobileOpen: boolean = false;
   showUserMenu: boolean = false;
   vistaActual: string = 'dashboard';
   private rolSub: Subscription | undefined;
-
-  // Volver a Set para multiacordeón
-  openSubmenus: Set<number> = new Set();
 
   constructor(private router: Router, private authService: AuthService) {
     this.correo = localStorage.getItem('correo') || '';
@@ -70,27 +67,21 @@ export class Dashboard implements OnDestroy {
     this.sidebarExpanded = true; // Forzar siempre expandido
   }
 
-  toggleSubmenu(idx: number) {
-    if (this.openSubmenus.has(idx)) {
-      this.openSubmenus.delete(idx);
-    } else {
-      this.openSubmenus.add(idx);
+  toggleSubmenu(label: string) {
+    this.activeSubmenu = this.activeSubmenu === label ? null : label;
+  }
+
+  onNavigate(closeSidebar: boolean = false) {
+    if (closeSidebar && window.innerWidth < 768) {
+      this.sidebarMobileOpen = false;
     }
   }
 
-  onSidebarItemHover(idx: number) {
-    // Si quieres abrir con hover en modo colapsado, puedes dejarlo así o quitarlo
-    // if (!this.sidebarExpanded && this.menu[idx]?.children) {
-    //   this.openSubmenu = idx;
-    //   this.hoverSubmenu = idx;
-    // }
+  openSidebarMobile() {
+    this.sidebarMobileOpen = true;
   }
-
-  onSidebarItemLeave(idx: number) {
-    // if (!this.sidebarExpanded) {
-    //   this.openSubmenu = null;
-    //   this.hoverSubmenu = null;
-    // }
+  closeSidebarMobile() {
+    this.sidebarMobileOpen = false;
   }
 
   // Devuelve true si el item o subitem está activo según la ruta actual
@@ -111,22 +102,6 @@ export class Dashboard implements OnDestroy {
       this.sidebarMobileOpen = false;
     }
     this.closeUserMenu();
-  }
-
-  openSidebarMobile() {
-    this.sidebarMobileOpen = true;
-  }
-
-  closeSidebarMobile() {
-    this.sidebarMobileOpen = false;
-  }
-
-  // Permite abrir/cerrar submenús con teclado (Enter/Espacio)
-  onSubmenuKeydown(event: KeyboardEvent, idx: number) {
-    if (event.key === 'Enter' || event.key === ' ') {
-      event.preventDefault();
-      this.toggleSubmenu(idx);
-    }
   }
 
   // Métodos para el menú de usuario

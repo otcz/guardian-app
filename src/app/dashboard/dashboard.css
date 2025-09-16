@@ -41,19 +41,11 @@ body, .dashboard-layout, .dashboard-header, .dashboard-title, .sidebar, .sidebar
   padding-bottom: 40px; /* espacio para el footer */
   box-sizing: border-box;
 }
-.sidebar {
-  width: 240px;
-  min-width: 60px;
-  max-width: 240px;
-  transition: width 0.3s cubic-bezier(0.4,0,0.2,1), background 0.3s;
-  background: #1e1e2d !important;
-  color: #fff !important;
-  box-shadow: 2px 0 16px 0 rgba(13,110,253,0.10), 0 4px 24px 0 rgba(0,0,0,0.10);
-  position: relative;
-  z-index: 2000;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
+.sidebar, .sidebar-mobile .sidebar-content {
+  background: linear-gradient(135deg, #1a2942 0%, #223a5e 100%);
+  color: #fff;
+  border-radius: 0 20px 20px 0;
+  box-shadow: 0 2px 8px rgba(30,40,60,0.10);
 }
 .sidebar.collapsed {
   width: 60px !important;
@@ -71,7 +63,7 @@ body, .dashboard-layout, .dashboard-header, .dashboard-title, .sidebar, .sidebar
   background: none;
   border: none;
   color: #fff;
-  font-size: 1.3rem;
+  font-size: 1.2rem;
   cursor: pointer;
   outline: none;
   margin-left: auto;
@@ -84,33 +76,52 @@ body, .dashboard-layout, .dashboard-header, .dashboard-title, .sidebar, .sidebar
   overflow-y: auto;
   padding: 0.5rem 0;
 }
-.sidebar-list {
+.menu-list, .submenu-list {
   list-style: none;
-  margin: 0;
   padding: 0;
+  margin: 0;
 }
-.sidebar-item {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
+.menu-list > li {
+  margin-bottom: 0.5rem;
 }
-.sidebar-item > a, .sidebar-submenu-trigger {
+.menu-list a, .submenu-header {
   display: flex;
   align-items: center;
-  padding: 0.7rem 1.1rem;
-  color: #fff !important;
-  text-decoration: none;
-  cursor: pointer;
-  transition: background 0.2s, color 0.2s;
+  padding: 0.75rem 1rem;
   border-radius: 8px;
-  font-weight: 500;
-  font-size: 1.2rem !important;
-  outline: none;
+  color: #fff;
+  text-decoration: none;
+  transition: background 0.2s;
+  cursor: pointer;
 }
-.sidebar-item > a.active, .sidebar-item > a:focus, .sidebar-item > a:hover, .sidebar-submenu-trigger:focus, .sidebar-submenu-trigger:hover {
-  background: rgba(13,110,253,0.13);
-  color: #0d6efd;
+.menu-list a:hover, .submenu-header:hover {
+  background: #1a2942;
+}
+.submenu-header {
+  justify-content: space-between;
+  font-weight: 500;
+}
+.submenu-list {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+  background: #223a5e;
+  border-radius: 0 0 8px 8px;
+}
+.submenu-list.open {
+  max-height: 500px;
+  transition: max-height 0.3s ease;
+}
+.submenu-list li a {
+  padding-left: 2.5rem;
+  font-size: 0.95em;
+}
+.menu-list a.active {
+  background: #223a5e;
+  font-weight: bold;
+}
+.menu-list a:active {
+  background: #1a2942;
 }
 .sidebar.collapsed .sidebar-label {
   display: none;
@@ -145,32 +156,27 @@ body, .dashboard-layout, .dashboard-header, .dashboard-title, .sidebar, .sidebar
   transform: rotate(-180deg);
 }
 .sidebar-submenu {
-  background: rgba(13,110,253,0.08) !important;
-  border: none !important;
-  margin: 0.1rem 0 0 0;
-  padding: 0.2rem 0.5rem 0.2rem 2.5rem;
-  border-radius: 8px;
-  list-style: none;
-  transition: max-height 0.3s, opacity 0.25s;
-  overflow: hidden !important;
   max-height: 0;
-  opacity: 0;
-  pointer-events: none;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+  margin-left: 32px;
 }
 .sidebar-submenu.open {
-  max-height: 500px !important;
-  opacity: 1 !important;
-  pointer-events: auto !important;
-  overflow: visible !important;
-  background: rgba(13,110,253,0.08) !important;
-  border: none !important;
+  max-height: 500px;
 }
 .sidebar-submenu li a {
-  color: #fff !important;
-  background: transparent !important;
-  font-size: 1rem !important;
-  font-weight: 400 !important;
-  padding: 0.5rem 0.5rem !important;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  font-size: 0.9rem;
+  color: #9ca3af;
+  border-radius: 10px;
+  transition: background 0.2s, color 0.2s;
+}
+.sidebar-submenu li a:hover {
+  background: rgba(59, 130, 246, 0.08);
+  color: #3b82f6;
 }
 .sidebar-popover {
   position: absolute;

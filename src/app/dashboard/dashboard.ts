@@ -20,7 +20,7 @@ export class Dashboard implements OnDestroy {
   rol: string = '';
   menu: MenuItem[] = [];
   sidebarExpanded: boolean = true;
-  openSubmenus: Set<number> = new Set();
+  openSubmenu: number | null = null;
   hoverSubmenu: number|null = null;
   sidebarMobileOpen: boolean = false;
   showUserMenu: boolean = false;
@@ -29,12 +29,12 @@ export class Dashboard implements OnDestroy {
 
   constructor(private router: Router, private authService: AuthService) {
     this.correo = localStorage.getItem('correo') || '';
-    this.rol = this.authService.getRol();
+    this.rol = this.normalizeRol(this.authService.getRol());
     this.menu = this.getMenuByRol(this.rol);
     // Suscribirse a cambios de rol (por si cambia en tiempo real)
     this.rolSub = this.authService.rol$.subscribe(rol => {
-      this.rol = rol;
-      this.menu = this.getMenuByRol(rol);
+      this.rol = this.normalizeRol(rol);
+      this.menu = this.getMenuByRol(this.rol);
     });
   }
 
@@ -42,11 +42,16 @@ export class Dashboard implements OnDestroy {
     this.rolSub?.unsubscribe();
   }
 
+  normalizeRol(rol: string): string {
+    return (rol || '').trim().toUpperCase();
+  }
+
   getMenuByRol(rol: string): MenuItem[] {
+    const normalizedRol = this.normalizeRol(rol);
     // Filtra los menús y submenús según el rol
     const filterMenu = (items: MenuItem[]): MenuItem[] => {
       return items
-        .filter(item => item.roles.includes(rol))
+        .filter(item => item.roles.some(r => this.normalizeRol(r) === normalizedRol))
         .map(item => {
           if (item.children) {
             const filteredChildren = filterMenu(item.children);
@@ -59,29 +64,30 @@ export class Dashboard implements OnDestroy {
   }
 
   toggleSidebar() {
-    this.sidebarExpanded = !this.sidebarExpanded;
+    this.sidebarExpanded = true; // Forzar siempre expandido
   }
 
   toggleSubmenu(idx: number) {
-    if (this.openSubmenus.has(idx)) {
-      this.openSubmenus.delete(idx);
+    if (this.openSubmenu === idx) {
+      this.openSubmenu = null;
     } else {
-      this.openSubmenus.add(idx);
+      this.openSubmenu = idx;
     }
   }
 
   onSidebarItemHover(idx: number) {
-    if (!this.sidebarExpanded && this.menu[idx]?.children) {
-      this.openSubmenus.add(idx);
-      this.hoverSubmenu = idx;
-    }
+    // Si quieres abrir con hover en modo colapsado, puedes dejarlo así o quitarlo
+    // if (!this.sidebarExpanded && this.menu[idx]?.children) {
+    //   this.openSubmenu = idx;
+    //   this.hoverSubmenu = idx;
+    // }
   }
 
   onSidebarItemLeave(idx: number) {
-    if (!this.sidebarExpanded) {
-      this.openSubmenus.delete(idx);
-      this.hoverSubmenu = null;
-    }
+    // if (!this.sidebarExpanded) {
+    //   this.openSubmenu = null;
+    //   this.hoverSubmenu = null;
+    // }
   }
 
   // Devuelve true si el item o subitem está activo según la ruta actual

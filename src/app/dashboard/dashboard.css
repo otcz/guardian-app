@@ -46,9 +46,9 @@ body, .dashboard-layout, .dashboard-header, .dashboard-title, .sidebar, .sidebar
   min-width: 60px;
   max-width: 240px;
   transition: width 0.3s cubic-bezier(0.4,0,0.2,1), background 0.3s;
-  background: #1e1e2d;
+  background: #1e1e2d !important;
+  color: #fff !important;
   box-shadow: 2px 0 16px 0 rgba(13,110,253,0.10), 0 4px 24px 0 rgba(0,0,0,0.10);
-  color: #fff;
   position: relative;
   z-index: 2000;
   display: flex;
@@ -99,13 +99,13 @@ body, .dashboard-layout, .dashboard-header, .dashboard-title, .sidebar, .sidebar
   display: flex;
   align-items: center;
   padding: 0.7rem 1.1rem;
-  color: #fff;
+  color: #fff !important;
   text-decoration: none;
   cursor: pointer;
   transition: background 0.2s, color 0.2s;
   border-radius: 8px;
   font-weight: 500;
-  font-size: 1rem;
+  font-size: 1.2rem !important;
   outline: none;
 }
 .sidebar-item > a.active, .sidebar-item > a:focus, .sidebar-item > a:hover, .sidebar-submenu-trigger:focus, .sidebar-submenu-trigger:hover {
@@ -129,6 +129,9 @@ body, .dashboard-layout, .dashboard-header, .dashboard-title, .sidebar, .sidebar
   font-size: 1.3rem;
   text-align: center;
 }
+.sidebar-icon i {
+  color: #fff !important;
+}
 .sidebar-item .pi {
   font-size: 1.3rem;
   min-width: 24px;
@@ -142,35 +145,32 @@ body, .dashboard-layout, .dashboard-header, .dashboard-title, .sidebar, .sidebar
   transform: rotate(-180deg);
 }
 .sidebar-submenu {
-  background: rgba(13,110,253,0.08);
+  background: rgba(13,110,253,0.08) !important;
+  border: none !important;
   margin: 0.1rem 0 0 0;
   padding: 0.2rem 0.5rem 0.2rem 2.5rem;
   border-radius: 8px;
   list-style: none;
   transition: max-height 0.3s, opacity 0.25s;
-  overflow: hidden;
+  overflow: hidden !important;
   max-height: 0;
   opacity: 0;
   pointer-events: none;
 }
 .sidebar-submenu.open {
-  max-height: 500px;
-  opacity: 1;
-  pointer-events: auto;
+  max-height: 500px !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  overflow: visible !important;
+  background: rgba(13,110,253,0.08) !important;
+  border: none !important;
 }
 .sidebar-submenu li a {
-  display: flex;
-  align-items: center;
-  color: #e0e6ed;
-  padding: 0.5rem 0.5rem;
-  border-radius: 6px;
-  font-size: 0.97rem;
-  text-decoration: none;
-  transition: background 0.2s, color 0.2s;
-}
-.sidebar-submenu li a.active, .sidebar-submenu li a:focus, .sidebar-submenu li a:hover {
-  background: rgba(13,110,253,0.18);
-  color: #0d6efd;
+  color: #fff !important;
+  background: transparent !important;
+  font-size: 1rem !important;
+  font-weight: 400 !important;
+  padding: 0.5rem 0.5rem !important;
 }
 .sidebar-popover {
   position: absolute;

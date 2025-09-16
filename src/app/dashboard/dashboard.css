@@ -796,3 +796,36 @@ body, .dashboard-layout, .dashboard-header, .dashboard-title, .sidebar, .sidebar
   font-size: 0.97rem;
   box-shadow: 0 2px 8px rgba(13,110,253,0.13);
 }
+.dashboard-main {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  margin-left: 40px; /* Separación del sidebar */
+  margin-top: 32px;  /* Separación del header */
+  margin-bottom: 32px; /* Separación del footer flotante */
+  min-height: calc(100vh - 56px - 40px - 64px); /* header + footer + margen extra */
+}
+
+.footer-flotante {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100vw;
+  text-align: center;
+  background: transparent;
+  z-index: 9999;
+  font-size: 0.75rem;
+  font-family: 'Chakra Petch', 'Inter', 'Segoe UI', Arial, sans-serif;
+  color: #7a869a;
+  letter-spacing: 1px;
+  font-weight: 500;
+  pointer-events: none;
+}
+@media (max-width: 900px) {
+  .footer-flotante {
+    font-size: 0.7rem;
+    padding-bottom: 2.5rem;
+  }
+}

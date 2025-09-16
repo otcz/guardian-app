@@ -27,6 +27,9 @@ export class Dashboard implements OnDestroy {
   vistaActual: string = 'dashboard';
   private rolSub: Subscription | undefined;
 
+  // Volver a Set para multiacordeón
+  openSubmenus: Set<number> = new Set();
+
   constructor(private router: Router, private authService: AuthService) {
     this.correo = localStorage.getItem('correo') || '';
     this.rol = this.normalizeRol(this.authService.getRol());
@@ -68,10 +71,10 @@ export class Dashboard implements OnDestroy {
   }
 
   toggleSubmenu(idx: number) {
-    if (this.openSubmenu === idx) {
-      this.openSubmenu = null;
+    if (this.openSubmenus.has(idx)) {
+      this.openSubmenus.delete(idx);
     } else {
-      this.openSubmenu = idx;
+      this.openSubmenus.add(idx);
     }
   }
 

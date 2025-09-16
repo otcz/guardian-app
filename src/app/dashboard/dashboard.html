@@ -20,13 +20,13 @@
           <div *ngIf="item.children" class="sidebar-submenu-trigger" tabindex="0"
                (click)="toggleSubmenu(idx)"
                (keydown)="onSubmenuKeydown($event, idx)"
-               [attr.aria-expanded]="openSubmenu === idx"
+               [attr.aria-expanded]="openSubmenus.has(idx)"
                [attr.aria-label]="item.label">
             <span class="sidebar-icon"><i class="pi" [ngClass]="item.icon"></i></span>
             <span class="sidebar-label">{{ item.label }}</span>
-            <i class="pi pi-chevron-down submenu-arrow" [class.rotated]="openSubmenu === idx"></i>
+            <i class="pi pi-chevron-down submenu-arrow" [class.rotated]="openSubmenus.has(idx)"></i>
           </div>
-          <ul class="sidebar-submenu" [class.open]="openSubmenu === idx" *ngIf="item.children">
+          <ul class="sidebar-submenu" [class.open]="openSubmenus.has(idx)" *ngIf="item.children">
             <li *ngFor="let sub of item.children">
               <a [routerLink]="sub.route" routerLinkActive="active" (click)="onSidebarItemClick()" tabindex="0">
                 <span class="sidebar-icon"><i class="pi" [ngClass]="sub.icon"></i></span>

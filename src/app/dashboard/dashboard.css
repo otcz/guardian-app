@@ -63,6 +63,7 @@ body, .dashboard-layout, .dashboard-header, .dashboard-title, .sidebar, .sidebar
   height: 56px;
   padding: 0 8px;
   justify-content: flex-end;
+  gap: 1.5rem; /* Más separación entre el botón y el avatar */
 }
 .sidebar-toggle, .sidebar-close {
   background: none;
@@ -344,6 +345,11 @@ body, .dashboard-layout, .dashboard-header, .dashboard-title, .sidebar, .sidebar
     align-items: center;
     padding-left: 0.5rem !important;
     min-height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 2.5rem; /* Aumenta la separación entre los elementos del navbar */
+    padding: 0 2rem;
   }
   .navbar-user {
     margin-left: auto;
@@ -484,7 +490,8 @@ body, .dashboard-layout, .dashboard-header, .dashboard-title, .sidebar, .sidebar
     padding: 0 0.5rem 0 0.5rem !important;
     min-height: 56px;
     background: #fff;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    border-bottom: 1px solid #e0e6ed;
+    box-shadow: 0 1px 4px rgba(30,40,60,0.04);
     position: relative;
     z-index: 2001;
   }

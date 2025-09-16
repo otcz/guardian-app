@@ -3,18 +3,83 @@ import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { ClickOutsideDirective } from '../utils/click-outside.directive';
+import { PanelMenuModule } from 'primeng/panelmenu';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule, ClickOutsideDirective],
+  imports: [CommonModule, RouterModule, ClickOutsideDirective, PanelMenuModule],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css'
 })
 export class Dashboard {
   correo: string = '';
   rol: string = '';
-  menu: any[] = [];
+  menu: any[] = [
+    {
+      label: 'Inicio',
+      icon: 'pi pi-home',
+      command: () => this.vistaActual = 'dashboard'
+    },
+    {
+      label: 'Perfil',
+      icon: 'pi pi-user',
+      command: () => this.vistaActual = 'perfil'
+    },
+    {
+      label: 'Usuarios',
+      icon: 'pi pi-users',
+      items: [
+        { label: 'Crear/editar/eliminar', command: () => this.router.navigate(['/dashboard/usuarios']) },
+        { label: 'Asignar roles' },
+        { label: 'Activar/Desactivar' }
+      ]
+    },
+    {
+      label: 'Vehículos',
+      icon: 'pi pi-car',
+      items: [
+        { label: 'Lista global' },
+        { label: 'Cambiar estado' },
+        { label: 'Reasignar propietario' }
+      ]
+    },
+    {
+      label: 'Guardias',
+      icon: 'pi pi-id-card',
+      items: [
+        { label: 'Gestión de credenciales' },
+        { label: 'Turnos' }
+      ]
+    },
+    {
+      label: 'Reportes',
+      icon: 'pi pi-chart-bar',
+      items: [
+        { label: 'Entradas/Salidas por fecha' },
+        { label: 'Invitados por usuario' },
+        { label: 'Vehículos activos/inactivos' },
+        { label: 'Exportar PDF/Excel' }
+      ]
+    },
+    {
+      label: 'Configuración del sistema',
+      icon: 'pi pi-cog',
+      items: [
+        { label: 'Parámetros de seguridad' }
+      ]
+    },
+    {
+      label: 'Generar invitación QR',
+      icon: 'pi pi-qrcode',
+      command: () => this.vistaActual = 'qr'
+    },
+    {
+      label: 'Cerrar sesión',
+      icon: 'pi pi-sign-out',
+      command: () => this.logout()
+    }
+  ];
   sidebarExpanded: boolean = true;
   openSubmenus: Set<number> = new Set();
   sidebarMobileOpen: boolean = false;

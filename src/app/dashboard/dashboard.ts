@@ -174,4 +174,23 @@ export class Dashboard {
   closeUserMenu() {
     this.showUserMenu = false;
   }
+
+  // Devuelve true si el item o subitem está activo según la ruta actual
+  isActive(item: any): boolean {
+    if (!item) return false;
+    if (item.routerLink && this.router.isActive(this.router.createUrlTree(item.routerLink), false)) {
+      return true;
+    }
+    if (item.items) {
+      return item.items.some((sub: any) => this.isActive(sub));
+    }
+    return false;
+  }
+
+  // Cierra el sidebar móvil al hacer clic en un ítem
+  onSidebarItemClick() {
+    if (window.innerWidth <= 900) {
+      this.sidebarMobileOpen = false;
+    }
+  }
 }

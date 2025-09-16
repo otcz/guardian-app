@@ -9,7 +9,29 @@
       </button>
     </div>
     <nav class="sidebar-menu">
-      <p-panelMenu [model]="menu" [style]="{'width':'100%'}"></p-panelMenu>
+      <ul class="sidebar-list">
+        <li *ngFor="let item of menu; let idx = index" class="sidebar-item" [class.active]="isActive(item)" (mouseenter)="onSidebarItemHover(idx)" (mouseleave)="onSidebarItemLeave(idx)">
+          <!-- Item sin submenú -->
+          <a *ngIf="!item.items" [routerLink]="item.routerLink" routerLinkActive="active" (click)="onSidebarItemClick()" tabindex="0">
+            <span class="sidebar-icon"><i class="pi" [ngClass]="item.icon"></i></span>
+            <span class="sidebar-label">{{ item.label }}</span>
+          </a>
+          <!-- Item con submenú -->
+          <div *ngIf="item.items" class="sidebar-submenu-trigger" tabindex="0" (click)="toggleSubmenu(idx)">
+            <span class="sidebar-icon"><i class="pi" [ngClass]="item.icon"></i></span>
+            <span class="sidebar-label">{{ item.label }}</span>
+            <i class="pi pi-chevron-down submenu-arrow" [class.rotated]="openSubmenus.has(idx)"></i>
+          </div>
+          <ul class="sidebar-submenu" *ngIf="item.items && openSubmenus.has(idx)">
+            <li *ngFor="let sub of item.items">
+              <a [routerLink]="sub.routerLink" routerLinkActive="active" (click)="onSidebarItemClick()" tabindex="0">
+                <span class="sidebar-icon"><i class="pi" [ngClass]="sub.icon"></i></span>
+                <span class="sidebar-label">{{ sub.label }}</span>
+              </a>
+            </li>
+          </ul>
+        </li>
+      </ul>
     </nav>
     <div class="sidebar-overlay" *ngIf="sidebarMobileOpen" (click)="closeSidebarMobile()"></div>
   </aside>

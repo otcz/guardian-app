@@ -1,21 +1,17 @@
 <div class="dashboard-header">
   <span class="dashboard-title">GUARDIAN</span>
 </div>
-<div class="dashboard-layout">
-  <aside class="sidebar" [class.collapsed]="!sidebarExpanded" [class.open]="sidebarMobileOpen">
-    <div class="sidebar-header">
-      <button class="sidebar-toggle desktop-only" (click)="toggleSidebar()">
-        <i class="pi" [ngClass]="sidebarExpanded ? 'pi-angle-left' : 'pi-angle-right'"></i>
-      </button>
-    </div>
-    <nav class="sidebar-menu">
-      <p-panelMenu [model]="menu" [style]="{'width':'100%'}"></p-panelMenu>
-    </nav>
-    <div class="sidebar-overlay" *ngIf="sidebarMobileOpen" (click)="closeSidebarMobile()"></div>
-  </aside>
+<div class="dashboard-layout" [class.sidebar-collapsed]="!sidebarExpanded">
+  <app-sidebar
+    [collapsed]="!sidebarExpanded"
+    [mobileVisible]="sidebarMobileOpen"
+    [menuItems]="menu"
+    (collapsedChange)="onSidebarCollapsedChange($event)"
+    (mobileVisibleChange)="onSidebarMobileVisibleChange($event)"
+  ></app-sidebar>
   <main class="dashboard-main">
     <div class="dashboard-navbar">
-      <button class="sidebar-hamburger-navbar mobile-only" (click)="sidebarMobileOpen ? closeSidebarMobile() : openSidebarMobile()">
+      <button class="sidebar-hamburger-navbar mobile-only" (click)="sidebarMobileOpen ? onSidebarMobileVisibleChange(false) : onSidebarMobileVisibleChange(true)" aria-label="Abrir menú lateral">
         <i class="pi pi-bars"></i>
       </button>
       <div class="navbar-user" (clickOutside)="closeUserMenu()">

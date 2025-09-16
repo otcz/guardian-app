@@ -1,20 +1,27 @@
 /* Estilos para tabs de usuario mejorados */
-.usuario-tabs-wrapper {
+.usuario-tabs-navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   background: #fff;
   border-radius: 14px 14px 0 0;
-  box-shadow: 0 2px 8px rgba(30,40,60,0.10);
-  margin-bottom: 0;
-  padding-top: 8px;
+  box-shadow: 0 2px 8px rgba(30,40,60,0.07);
+  padding: 0.5rem 1.5rem 0.5rem 1.5rem;
+  margin-bottom: 0.5rem;
+  min-height: 56px;
+}
+.usuario-tabs-wrapper {
+  flex: 1 1 auto;
 }
 .usuario-tabs {
   display: flex;
+  gap: 1.5rem;
   justify-content: space-around;
   background: #23272f;
   border-radius: 12px;
   margin: 16px 0;
   box-shadow: 0 2px 8px rgba(30,40,60,0.10);
   overflow-x: auto;
-  gap: 8px;
   padding: 4px;
   border-bottom: 1.5px solid #e3e8ee;
   margin-bottom: 0;
@@ -53,7 +60,36 @@
   box-shadow: 0 2px 8px rgba(30,40,60,0.07);
   min-height: 320px;
 }
+.usuario-avatar-navbar {
+  display: flex;
+  align-items: center;
+  margin-left: 2rem;
+}
+.avatar-circle.user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #e0e6ed;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(30,40,60,0.10);
+}
 @media (max-width: 900px) {
+  .usuario-tabs-navbar {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 0.5rem 0.5rem 0.5rem 0.5rem;
+  }
+  .usuario-avatar-navbar {
+    margin-left: 0;
+    justify-content: flex-end;
+    margin-top: 0.5rem;
+  }
+  .usuario-tabs {
+    gap: 0.7rem;
+    flex-wrap: wrap;
+  }
   .usuario-tabs {
     gap: 4px;
     padding: 2px;

@@ -15,6 +15,10 @@ import { NgClass } from '@angular/common';
 })
 export class SidebarComponent implements OnInit {
   @Input() rol: string = '';
+  @Input() correo: string = '';
+  @Input() showUserMenu: boolean = false;
+  @Input() toggleUserMenu!: () => void;
+  @Input() logout!: () => void;
   menu: MenuItem[] = [];
   isExpanded = true;
   isMobile = false;

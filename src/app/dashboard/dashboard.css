@@ -25,7 +25,7 @@ body, .dashboard-layout, .dashboard-header, .dashboard-title, .sidebar, .sidebar
   height: calc(100vh - 0px);
   min-height: 0;
   background: #f4f7fa;
-  padding-top: 56px; /* espacio para la barra superior */
+  padding-top: 2px; /* Quitado el espacio para la barra superior */
   padding-bottom: 40px; /* espacio para el footer */
   box-sizing: border-box;
   margin-top: 0;
@@ -339,6 +339,16 @@ body, .dashboard-layout, .dashboard-header, .dashboard-title, .sidebar, .sidebar
     min-width: 60px !important;
     max-width: 60px !important;
   }
+  .dashboard-header {
+    position: relative;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    z-index: 300;
+  }
+  .dashboard-layout {
+    padding-top: 0 !important;
+  }
 }
 .desktop-only {
   display: inline-flex;
@@ -431,7 +441,7 @@ body, .dashboard-layout, .dashboard-header, .dashboard-title, .sidebar, .sidebar
 @media (max-width: 900px) {
   .dashboard-header {
     justify-content: flex-start;
-    position: fixed;
+    position: relative;
     left: 0;
     top: 0;
     width: 100vw;
@@ -474,7 +484,7 @@ body, .dashboard-layout, .dashboard-header, .dashboard-title, .sidebar, .sidebar
     flex-direction: column;
     height: 100vh;
     min-height: 100vh;
-    padding-top: 56px;
+    padding-top: 0;
     padding-bottom: 0;
     box-sizing: border-box;
     width: 100vw;

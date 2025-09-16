@@ -1,8 +1,10 @@
 <div class="dashboard-header">
   <span class="dashboard-title">GUARDIAN</span>
 </div>
+
 <div class="dashboard-layout">
   <app-sidebar [rol]="rol"></app-sidebar>
+
   <main class="dashboard-main">
     <div class="dashboard-navbar">
       <button class="sidebar-hamburger-navbar mobile-only" (click)="sidebarMobileOpen ? closeSidebarMobile() : openSidebarMobile()">
@@ -30,6 +32,7 @@
       <router-outlet></router-outlet>
     </div>
   </main>
+
   <footer class="footer-flotante" style="font-size:0.75rem; font-family:'Chakra Petch', 'Inter', 'Segoe UI', Arial, sans-serif; color:#7a869a; letter-spacing:1px; font-weight:500;">
     ESTA APP FUE DESARROLLADA POR OT&CZ para al flooter
   </footer>

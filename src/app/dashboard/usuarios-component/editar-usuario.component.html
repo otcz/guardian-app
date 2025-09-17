@@ -5,114 +5,122 @@
       <div class="form-grid">
         <div class="input-group">
           <span class="input-icon"><i class="pi pi-user"></i></span>
-          <input id="nombreCompleto" [(ngModel)]="usuario.nombreCompleto" name="nombreCompleto" required placeholder="Nombre completo"
-            [ngClass]="{'campo-requerido': intentoGuardar && (!usuario.nombreCompleto || usuario.nombreCompleto.trim() === '')}">
+          <input id="nombreCompleto" [(ngModel)]="usuario.nombreCompleto" name="nombreCompleto" required
+                 placeholder="Nombre completo"
+                 [ngClass]="{'campo-requerido': intentoGuardar && (!usuario.nombreCompleto || usuario.nombreCompleto.trim() === '')}">
         </div>
         <div class="input-group">
           <span class="input-icon"><i class="pi pi-id-card"></i></span>
           <select id="documentoTipo" [(ngModel)]="usuario.documentoTipo" name="documentoTipo" required
-            [ngClass]="{'campo-requerido': intentoGuardar && (!usuario.documentoTipo || usuario.documentoTipo.trim() === '')}">
-            <option *ngFor="let tipo of documentoTipos" [value]="tipo">{{tipo}}</option>
+                  [ngClass]="{'campo-requerido': intentoGuardar && (!usuario.documentoTipo || usuario.documentoTipo.trim() === '')}">
+            <option *ngFor="let tipo of documentoTipos" [value]="tipo">{{ tipo }}</option>
           </select>
         </div>
         <div class="input-group">
           <span class="input-icon"><i class="pi pi-id-card"></i></span>
-          <input id="documentoNumero" [(ngModel)]="usuario.documentoNumero" name="documentoNumero" required placeholder="Número de documento"
-            [ngClass]="{'campo-requerido': intentoGuardar && (!usuario.documentoNumero || usuario.documentoNumero.trim() === '')}">
+          <input id="documentoNumero" [(ngModel)]="usuario.documentoNumero" name="documentoNumero" required
+                 placeholder="Número de documento"
+                 [ngClass]="{'campo-requerido': intentoGuardar && (!usuario.documentoNumero || usuario.documentoNumero.trim() === '')}">
         </div>
         <div class="input-group">
           <span class="input-icon"><i class="pi pi-envelope"></i></span>
-          <input id="correo" [(ngModel)]="usuario.correo" name="correo" required placeholder="Correo" autocomplete="username" readonly
-            [ngClass]="{'campo-requerido': intentoGuardar && (!usuario.correo || usuario.correo.trim() === '')}">
+          <input id="correo" [(ngModel)]="usuario.correo" name="correo" required placeholder="Correo"
+                 autocomplete="username" readonly
+                 [ngClass]="{'campo-requerido': intentoGuardar && (!usuario.correo || usuario.correo.trim() === '')}">
         </div>
         <div class="input-group">
           <span class="input-icon"><i class="pi pi-lock"></i></span>
-          <input id="password" [(ngModel)]="usuario.password" name="password" type="password" placeholder="Contraseña" autocomplete="new-password"
-            [ngClass]="{'campo-requerido': intentoGuardar && false}">
+          <input id="password" [(ngModel)]="usuario.password" name="password" type="password" placeholder="Contraseña"
+                 autocomplete="new-password"
+                 [ngClass]="{'campo-requerido': intentoGuardar && false}">
         </div>
         <div class="input-group">
           <span class="input-icon"><i class="pi pi-users"></i></span>
           <select id="rol" [(ngModel)]="usuario.rol" name="rol"
-            [ngClass]="{'campo-requerido': intentoGuardar && (!usuario.rol || usuario.rol.trim() === '')}">
-            <option *ngFor="let rol of roles" [value]="rol">{{rol}}</option>
+                  [ngClass]="{'campo-requerido': intentoGuardar && (!usuario.rol || usuario.rol.trim() === '')}">
+            <option *ngFor="let rol of roles" [value]="rol">{{ rol }}</option>
           </select>
         </div>
         <div class="input-group">
           <span class="input-icon"><i class="pi pi-check"></i></span>
           <select id="estado" [(ngModel)]="usuario.estado" name="estado"
-            [ngClass]="{'campo-requerido': intentoGuardar && (!usuario.estado || usuario.estado.trim() === '')}">
-            <option *ngFor="let estado of estados" [value]="estado">{{estado}}</option>
+                  [ngClass]="{'campo-requerido': intentoGuardar && (!usuario.estado || usuario.estado.trim() === '')}">
+            <option *ngFor="let estado of estados" [value]="estado">{{ estado }}</option>
           </select>
         </div>
         <div class="input-group">
           <span class="input-icon"><i class="pi pi-home"></i></span>
           <input id="casa" [(ngModel)]="usuario.casa" name="casa" required placeholder="Casa"
-            [ngClass]="{'campo-requerido': intentoGuardar && (!usuario.casa || usuario.casa.trim() === '')}">
+                 [ngClass]="{'campo-requerido': intentoGuardar && (!usuario.casa || usuario.casa.trim() === '')}">
         </div>
         <div class="input-group">
           <span class="input-icon"><i class="pi pi-phone"></i></span>
           <input id="telefono" [(ngModel)]="usuario.telefono" name="telefono" required placeholder="Teléfono"
-            [ngClass]="{'campo-requerido': intentoGuardar && (!usuario.telefono || usuario.telefono.trim() === '')}">
+                 [ngClass]="{'campo-requerido': intentoGuardar && (!usuario.telefono || usuario.telefono.trim() === '')}">
         </div>
       </div>
       <button type="submit">Guardar cambios</button>
-      <div class="mensaje">{{mensaje}}</div>
+      <div class="mensaje">{{ mensaje }}</div>
     </form>
     <div *ngIf="usuarios.length > 0 && !usuario">
-      <p-table #dt class="tabla-usuarios-prime" [value]="usuariosFiltrados" [paginator]="true" [rows]="10" [responsiveLayout]="'scroll'" [showCurrentPageReport]="true" currentPageReportTemplate="{first} - {last} de {totalRecords}" [rowsPerPageOptions]="[5,10,20]" [globalFilterFields]="['nombreCompleto','documentoTipo','documentoNumero','correo','rol','estado','casa','telefono']">
+      <p-table #dt class="tabla-usuarios-prime" [value]="usuariosFiltrados" [paginator]="true" [rows]="10"
+               [responsiveLayout]="'scroll'" [showCurrentPageReport]="true"
+               currentPageReportTemplate="{first} - {last} de {totalRecords}" [rowsPerPageOptions]="[5,10,20]"
+               [globalFilterFields]="['nombreCompleto','documentoTipo','documentoNumero','correo','rol','estado','casa','telefono']">
         <ng-template pTemplate="caption">
           <div class="p-input-icon-left" style="width:100%; max-width:350px;">
             <i class="pi pi-search"></i>
-            <input pInputText type="text" (input)="onGlobalFilterInput($event, dt)" placeholder="Buscar en la tabla..." class="p-inputtext-sm" style="width:100%;" />
+            <input pInputText type="text" (input)="onGlobalFilterInput($event, dt)" placeholder="Buscar en la tabla..."
+                   class="p-inputtext-sm" style="width:100%;"/>
           </div>
         </ng-template>
 
         <ng-template pTemplate="header">
           <tr>
-            <th pSortableColumn="id">ID <p-sortIcon field="id"></p-sortIcon>
-              <!-- <input pInputText type="text" (input)="onFilterInput($event, 'id', dt)" placeholder="Filtrar" class="p-column-filter" /> -->
+            <th class="td-contador">#</th>
+            <th pSortableColumn="nombreCompleto" class="td-nombre">Nombre
+              <p-sortIcon field="nombreCompleto"></p-sortIcon>
             </th>
-            <th pSortableColumn="nombreCompleto">Nombre <p-sortIcon field="nombreCompleto"></p-sortIcon>
-              <!-- <input pInputText type="text" (input)="onFilterInput($event, 'nombreCompleto', dt)" placeholder="Filtrar" class="p-column-filter" /> -->
+            <th pSortableColumn="documentoTipo" class="td-corto">Tipo CC
+              <p-sortIcon field="documentoTipo"></p-sortIcon>
             </th>
-            <th pSortableColumn="documentoTipo">Tipo Doc <p-sortIcon field="documentoTipo"></p-sortIcon>
-              <!-- <input pInputText type="text" (input)="onFilterInput($event, 'documentoTipo', dt)" placeholder="Filtrar" class="p-column-filter" /> -->
+            <th pSortableColumn="documentoNumero">N° Doc
+              <p-sortIcon field="documentoNumero"></p-sortIcon>
             </th>
-            <th pSortableColumn="documentoNumero">N° Doc <p-sortIcon field="documentoNumero"></p-sortIcon>
-              <!-- <input pInputText type="text" (input)="onFilterInput($event, 'documentoNumero', dt)" placeholder="Filtrar" class="p-column-filter" /> -->
+            <th pSortableColumn="correo">Correo
+              <p-sortIcon field="correo"></p-sortIcon>
             </th>
-            <th pSortableColumn="correo">Correo <p-sortIcon field="correo"></p-sortIcon>
-              <!-- <input pInputText type="text" (input)="onFilterInput($event, 'correo', dt)" placeholder="Filtrar" class="p-column-filter" /> -->
+            <th pSortableColumn="rol">Rol
+              <p-sortIcon field="rol"></p-sortIcon>
             </th>
-            <th pSortableColumn="rol">Rol <p-sortIcon field="rol"></p-sortIcon>
-              <!-- <input pInputText type="text" (input)="onFilterInput($event, 'rol', dt)" placeholder="Filtrar" class="p-column-filter" /> -->
+            <th pSortableColumn="estado">Estado
+              <p-sortIcon field="estado"></p-sortIcon>
             </th>
-            <th pSortableColumn="estado">Estado <p-sortIcon field="estado"></p-sortIcon>
-              <!-- <input pInputText type="text" (input)="onFilterInput($event, 'estado', dt)" placeholder="Filtrar" class="p-column-filter" /> -->
+            <th pSortableColumn="casa" class="td-corto">Casa
+              <p-sortIcon field="casa"></p-sortIcon>
             </th>
-            <th pSortableColumn="casa">Casa <p-sortIcon field="casa"></p-sortIcon>
-              <!-- <input pInputText type="text" (input)="onFilterInput($event, 'casa', dt)" placeholder="Filtrar" class="p-column-filter" /> -->
+            <th pSortableColumn="telefono">Teléfono
+              <p-sortIcon field="telefono"></p-sortIcon>
             </th>
-            <th pSortableColumn="telefono">Teléfono <p-sortIcon field="telefono"></p-sortIcon>
-              <!-- <input pInputText type="text" (input)="onFilterInput($event, 'telefono', dt)" placeholder="Filtrar" class="p-column-filter" /> -->
-            </th>
-            <th>Acciones</th>
+            <th class="td-acciones">Acciones</th>
           </tr>
         </ng-template>
-        <ng-template pTemplate="body" let-u>
+        <ng-template pTemplate="body" let-u let-rowIndex="rowIndex">
           <tr>
-            <td>{{u.id}}</td>
-            <td>{{u.nombreCompleto}}</td>
-            <td>{{u.documentoTipo}}</td>
-            <td>{{u.documentoNumero}}</td>
-            <td>{{u.correo}}</td>
-            <td>{{u.rol}}</td>
-            <td>{{u.estado}}</td>
-            <td>{{u.casa}}</td>
-            <td>{{u.telefono}}</td>
-            <td>
-              <button pButton type="button" icon="pi pi-pencil" class="p-button-rounded p-button-sm p-button-info" (click)="irAEditar(u)" style="margin-right:4px;"></button>
-              <button pButton type="button" icon="pi pi-trash" class="p-button-rounded p-button-sm p-button-danger" (click)="irAEliminar(u)"></button>
+            <td class="td-contador">{{ (dt.first || 0) + rowIndex + 1 }}</td>
+            <td class="td-nombre">{{ u.nombreCompleto }}</td>
+            <td class="td-corto">{{ u.documentoTipo }}</td>
+            <td>{{ u.documentoNumero }}</td>
+            <td>{{ u.correo }}</td>
+            <td>{{ u.rol }}</td>
+            <td>{{ u.estado }}</td>
+            <td class="td-corto">{{ u.casa }}</td>
+            <td>{{ u.telefono }}</td>
+            <td class="td-acciones">
+              <button pButton type="button" icon="pi pi-pencil" class="p-button-rounded p-button-sm p-button-info"
+                      (click)="irAEditar(u)" style="margin-right:4px;"></button>
+              <button pButton type="button" icon="pi pi-trash" class="p-button-rounded p-button-sm p-button-danger"
+                      (click)="irAEliminar(u)"></button>
             </td>
           </tr>
         </ng-template>

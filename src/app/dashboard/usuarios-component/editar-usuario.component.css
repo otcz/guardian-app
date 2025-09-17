@@ -71,210 +71,239 @@
   word-break: break-word;
 }
 
-/* --- ESTILOS PERSONALIZADOS PARA LA TABLA PRIME --- */
-.tabla-usuarios-prime .p-datatable {
-  font-family: 'Inter', 'Segoe UI', 'Roboto', Arial, sans-serif;
-  border-radius: 18px;
-  box-shadow: 0 4px 18px rgba(30,40,60,0.10);
-  background: #fff;
-  border: none;
-  overflow: hidden;
+/* --- ESTILO MODERNO PARA p-table (PrimeNG) --- */
+:host ::ng-deep .tabla-usuarios-prime .p-datatable {
+  font-family: 'Inter', 'Segoe UI', 'Roboto', Arial, sans-serif !important;
+  background: #f8fafc !important;
+  border-radius: 18px !important;
+  box-shadow: 0 4px 24px 0 rgba(30,40,60,0.13) !important;
+  overflow: hidden !important;
+  margin-top: 32px !important;
+  margin-bottom: 32px !important;
+  border: none !important;
+  transition: box-shadow 0.2s !important;
 }
-.tabla-usuarios-prime .p-datatable-header {
-  background: #f4f7fa;
-  color: #23272f;
-  font-weight: 600;
-  border-bottom: 1px solid #e3e8ee;
-  border-radius: 18px 18px 0 0;
-  padding: 18px 18px 10px 18px;
+:host ::ng-deep .tabla-usuarios-prime .p-datatable,
+:host ::ng-deep .tabla-usuarios-prime .p-datatable-thead > tr > th,
+:host ::ng-deep .tabla-usuarios-prime .p-datatable-tbody > tr > td {
+  font-family: 'Chakra Petch', 'Inter', 'Segoe UI', Arial, sans-serif !important;
 }
-.tabla-usuarios-prime .p-datatable-thead > tr > th {
-  background: #f4f7fa;
-  color: #4f8cff;
-  font-weight: 700;
-  font-size: 1.08rem;
-  border-bottom: 2px solid #dbeafe;
-  padding: 14px 12px 8px 12px;
-  vertical-align: middle;
-  letter-spacing: 0.01em;
+:host ::ng-deep .tabla-usuarios-prime .p-datatable-caption {
+  background: #eaf2ff !important;
+  border-radius: 18px 18px 0 0 !important;
+  padding: 24px 32px 16px 32px !important;
+  border-bottom: none !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 1.5rem !important;
 }
-.tabla-usuarios-prime .p-datatable-thead > tr > th .p-sortable-column-icon {
-  color: #4f8cff;
+:host ::ng-deep .tabla-usuarios-prime .p-datatable-thead > tr > th {
+  background: #f8fafc !important;
+  color: #1e293b !important;
+  font-weight: 700 !important;
+  font-size: 1.12rem !important;
+  border-bottom: none !important;
+  padding-top: 4px !important;
+  padding-bottom: 2px !important;
+  padding-left: 8px !important;
+  padding-right: 8px !important;
+  vertical-align: middle !important;
+  letter-spacing: 0.01em !important;
+  transition: background 0.2s !important;
+  text-align: left !important;
+  position: relative !important;
 }
-.tabla-usuarios-prime .p-datatable-tbody > tr > td {
-  padding: 13px 12px;
-  font-size: 1.01rem;
-  color: #23272f;
-  border-bottom: 1px solid #e3e8ee;
-  background: #fff;
-  letter-spacing: 0.01em;
+:host ::ng-deep .tabla-usuarios-prime .p-datatable-thead > tr > th .pi {
+  color: #4f8cff !important;
+  margin-left: 6px !important;
+  font-size: 1.1em !important;
 }
-.tabla-usuarios-prime .p-datatable-tbody > tr:last-child > td {
-  border-bottom: none;
-}
-.tabla-usuarios-prime .p-datatable-tbody > tr {
-  transition: background 0.2s;
-}
-.tabla-usuarios-prime .p-datatable-tbody > tr:hover {
-  background: #eaf2ff;
-}
-.tabla-usuarios-prime .p-column-filter {
-  background: #f4f7fa !important;
-  border: 1px solid #dbeafe !important;
-  border-radius: 8px !important;
-  font-size: 0.97rem !important;
+:host ::ng-deep .tabla-usuarios-prime .p-datatable-tbody > tr > td {
+  padding-top: 4px !important;
+  padding-bottom: 4px !important;
+  padding-left: 8px !important;
+  padding-right: 8px !important;
+  font-size: 1.04rem !important;
   color: #23272f !important;
-  margin-top: 4px;
-  margin-bottom: 2px;
-  padding: 7px 10px !important;
-  width: 100%;
-  box-sizing: border-box;
-  transition: border 0.2s;
+  border-bottom: none !important;
+  background: #fff !important;
+  letter-spacing: 0.01em !important;
+  transition: background 0.18s !important;
+  text-align: left !important;
 }
-.tabla-usuarios-prime .p-column-filter:focus {
-  border-color: #4f8cff !important;
-  box-shadow: 0 0 0 2px #4f8cff22;
+:host ::ng-deep .tabla-usuarios-prime .p-datatable-tbody > tr {
+  transition: background 0.18s !important;
 }
-.tabla-usuarios-prime .p-paginator {
-  background: #f4f7fa;
-  border-radius: 0 0 18px 18px;
-  border: none;
-  color: #23272f;
-  font-size: 1.01rem;
-  margin-top: 0;
-  box-shadow: none;
+:host ::ng-deep .tabla-usuarios-prime .p-datatable-tbody > tr:hover {
+  background: #eaf2ff !important;
 }
-.tabla-usuarios-prime .p-paginator .p-paginator-pages .p-paginator-page.p-highlight {
-  background: #4f8cff;
-  color: #fff;
-  border-radius: 7px;
+:host ::ng-deep .tabla-usuarios-prime .p-datatable-tbody > tr:last-child > td {
+  border-bottom: none !important;
 }
-.tabla-usuarios-prime .p-paginator .p-paginator-page {
-  border-radius: 7px;
-  margin: 0 2px;
+:host ::ng-deep .tabla-usuarios-prime .p-datatable-thead > tr > th,
+:host ::ng-deep .tabla-usuarios-prime .p-datatable-tbody > tr > td {
+  min-width: 120px !important;
 }
-.tabla-usuarios-prime .p-datatable .p-datatable-tbody > tr > td:last-child {
-  text-align: right;
+:host ::ng-deep .tabla-usuarios-prime .p-paginator {
+  background: #eaf2ff !important;
+  border-radius: 0 0 18px 18px !important;
+  border: none !important;
+  color: #23272f !important;
+  font-size: 1.04rem !important;
+  margin-top: 0 !important;
+  box-shadow: none !important;
+  padding: 14px 32px !important;
 }
-.tabla-usuarios-prime .p-button-info {
+:host ::ng-deep .tabla-usuarios-prime .p-paginator .p-paginator-pages .p-paginator-page.p-highlight {
   background: #4f8cff !important;
+  color: #fff !important;
+  border-radius: 7px !important;
+}
+:host ::ng-deep .tabla-usuarios-prime .p-paginator .p-paginator-page {
+  border-radius: 7px !important;
+  margin: 0 2px !important;
+}
+:host ::ng-deep .tabla-usuarios-prime .p-paginator .p-paginator-page:not(.p-highlight):hover {
+  background: #eaf2ff !important;
+  color: #4f8cff !important;
+}
+:host ::ng-deep .tabla-usuarios-prime .p-datatable-tbody .p-button {
+  margin: 0 4px !important;
+  box-shadow: none !important;
+}
+:host ::ng-deep .tabla-usuarios-prime .p-datatable-tbody .p-button-info {
+  background: linear-gradient(90deg, #4f8cff 60%, #38bdf8 100%) !important;
   border: none !important;
   color: #fff !important;
-  font-size: 1.1em;
 }
-.tabla-usuarios-prime .p-button-info:hover {
+:host ::ng-deep .tabla-usuarios-prime .p-datatable-tbody .p-button-danger {
+  background: linear-gradient(90deg, #ff4d4f 60%, #f87171 100%) !important;
+  border: none !important;
+  color: #fff !important;
+}
+:host ::ng-deep .tabla-usuarios-prime .p-datatable-tbody .p-button-info:hover {
   background: #23272f !important;
 }
-.tabla-usuarios-prime .p-button-danger {
-  background: #e53e3e !important;
+:host ::ng-deep .tabla-usuarios-prime .p-datatable-tbody .p-button-danger:hover {
+  background: #d90429 !important;
+}
+:host ::ng-deep .tabla-usuarios-prime .p-datatable-wrapper {
+  overflow-x: auto !important;
+  scrollbar-width: thin !important;
+  scrollbar-color: #4f8cff #eaf2ff !important;
+}
+:host ::ng-deep .tabla-usuarios-prime .p-datatable-wrapper::-webkit-scrollbar {
+  height: 8px !important;
+  background: #eaf2ff !important;
+}
+:host ::ng-deep .tabla-usuarios-prime .p-datatable-wrapper::-webkit-scrollbar-thumb {
+  background: #4f8cff !important;
+  border-radius: 8px !important;
+}
+:host ::ng-deep .tabla-usuarios-prime .p-datatable .p-datatable-tbody > tr > td:last-child {
+  text-align: right !important;
+}
+:host ::ng-deep .tabla-usuarios-prime .p-datatable-caption .p-input-icon-left {
+  display: flex !important;
+  align-items: center !important;
+  background: #fff !important;
+  border-radius: 10px !important;
+  border: 1px solid #dbeafe !important;
+  padding: 10px 18px 10px 14px !important;
+  box-shadow: 0 1px 4px rgba(30,40,60,0.07) !important;
+  width: 100% !important;
+  max-width: 400px !important;
+  transition: border 0.2s !important;
+  margin-top: 0 !important;
+}
+:host ::ng-deep .tabla-usuarios-prime .p-datatable-caption .p-input-icon-left:focus-within {
+  border-color: #4f8cff !important;
+  box-shadow: 0 0 0 2px #4f8cff22 !important;
+}
+:host ::ng-deep .tabla-usuarios-prime .p-datatable-caption .p-input-icon-left i.pi {
+  color: #4f8cff !important;
+  font-size: 1.3rem !important;
+  margin-right: 12px !important;
+}
+:host ::ng-deep .tabla-usuarios-prime .p-datatable-caption .p-inputtext-sm {
   border: none !important;
-  color: #fff !important;
-  font-size: 1.1em;
+  outline: none !important;
+  background: transparent !important;
+  font-size: 1.12rem !important;
+  color: #23272f !important;
+  width: 100% !important;
+  padding: 7px 0 !important;
+  box-shadow: none !important;
+  font-family: 'Inter', 'Segoe UI', 'Roboto', Arial, sans-serif !important;
 }
-.tabla-usuarios-prime .p-button-danger:hover {
-  background: #b91c1c !important;
+:host ::ng-deep .tabla-usuarios-prime .p-datatable-caption .p-inputtext-sm:focus {
+  background: transparent !important;
 }
-.tabla-usuarios-prime .p-datatable .p-sortable-column:not(.p-highlight):hover {
-  background: #eaf2ff;
-  color: #4f8cff;
+:host ::ng-deep .dark-mode .tabla-usuarios-prime .p-datatable-caption .p-input-icon-left {
+  background: #232336 !important;
+  border: 1.5px solid #4f8cff !important;
 }
-.tabla-usuarios-prime .p-datatable .p-sortable-column.p-highlight {
-  color: #23272f;
+:host ::ng-deep .dark-mode .tabla-usuarios-prime .p-datatable-caption .p-input-icon-left i.pi {
+  color: #4f8cff !important;
 }
-.tabla-usuarios-prime .p-datatable .p-sortable-column-icon {
-  color: #4f8cff;
+:host ::ng-deep .dark-mode .tabla-usuarios-prime .p-datatable-caption .p-inputtext-sm {
+  color: #e0e6ed !important;
+  background: transparent !important;
 }
-.tabla-usuarios-prime .p-datatable .p-datatable-thead > tr > th .p-column-filter {
-  margin-top: 6px;
+:host ::ng-deep .dark-mode .tabla-usuarios-prime .p-datatable {
+  background: #232336 !important;
+  color: #e0e6ed !important;
 }
-
-/* Mejorar contraste de la barra de búsqueda global */
-.tabla-usuarios-prime .p-datatable-caption {
-  background: #f4f7fa;
-  border-radius: 18px 18px 0 0;
-  padding: 12px 18px 8px 18px;
-  border-bottom: 1px solid #e3e8ee;
+:host ::ng-deep .dark-mode .tabla-usuarios-prime .p-datatable-thead > tr > th {
+  background: #232336 !important;
+  color: #e0e6ed !important;
+  border-bottom: none !important;
 }
-.tabla-usuarios-prime .p-inputtext-sm {
-  font-size: 1rem;
-  border-radius: 8px;
-  border: 1px solid #dbeafe;
-  background: #fff;
-  color: #23272f;
-  padding: 7px 10px;
-  transition: border 0.2s;
+:host ::ng-deep .dark-mode .tabla-usuarios-prime .p-datatable-tbody > tr > td {
+  color: #e0e6ed !important;
+  border-bottom: none !important;
 }
-.tabla-usuarios-prime .p-inputtext-sm:focus {
-  border-color: #4f8cff;
-  box-shadow: 0 0 0 2px #4f8cff22;
+:host ::ng-deep .dark-mode .tabla-usuarios-prime .p-datatable-tbody > tr:hover {
+  background: #23272f !important;
 }
-
-@media (max-width: 900px) {
-  .editar-usuario-form {
-    padding: 18px 8px 12px 8px;
-    border-radius: 10px;
-    margin: 16px auto 0 auto;
-    gap: 10px;
-  }
-  .editar-usuario-form h2 {
-    font-size: 1.1rem;
-    margin-bottom: 6px;
-  }
-  .editar-usuario-form button[type="submit"] {
-    font-size: 0.98rem;
-    padding: 10px 0;
-  }
-  .tabla-usuarios-prime .p-datatable {
-    font-size: 0.97rem;
-    border-radius: 12px;
-  }
-  .tabla-usuarios-prime .p-datatable-header,
-  .tabla-usuarios-prime .p-paginator,
-  .tabla-usuarios-prime .p-datatable-caption {
-    border-radius: 12px 12px 0 0;
-    font-size: 0.97rem;
-  }
+:host ::ng-deep .tabla-usuarios-prime .p-datatable-thead > tr > th.td-corto,
+:host ::ng-deep .tabla-usuarios-prime .p-datatable-tbody > tr > td.td-corto {
+  min-width: 40px !important;
+  max-width: 60px !important;
+  width: 1% !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  padding-left: 2px !important;
+  padding-right: 2px !important;
+  font-size: 0.98em !important;
 }
-@media (max-width: 600px) {
-  .editar-usuario-form {
-    width: 100vw !important;
-    max-width: 100vw !important;
-    min-width: 0 !important;
-    margin: 0 !important;
-    padding: 8px 2vw 8px 2vw !important;
-    border-radius: 0 !important;
-    gap: 8px !important;
-    box-sizing: border-box !important;
-  }
-  .editar-usuario-form h2 {
-    font-size: 1rem !important;
-    margin-bottom: 4px !important;
-  }
-  .editar-usuario-form label {
-    font-size: 0.95rem !important;
-  }
-  .editar-usuario-form input,
-  .editar-usuario-form select {
-    font-size: 0.97rem !important;
-    padding: 8px 8px !important;
-  }
-  .editar-usuario-form button[type="submit"] {
-    font-size: 0.97rem !important;
-    padding: 10px !important;
-    border-radius: 8px !important;
-  }
-  .mensaje {
-    font-size: 0.97rem !important;
-    margin-top: 6px !important;
-  }
-  .tabla-usuarios-prime .p-datatable {
-    font-size: 0.95rem;
-    border-radius: 6px;
-  }
-  .tabla-usuarios-prime .p-datatable-header,
-  .tabla-usuarios-prime .p-paginator,
-  .tabla-usuarios-prime .p-datatable-caption {
-    border-radius: 6px 6px 0 0;
-    font-size: 0.95rem;
-  }
+:host ::ng-deep .tabla-usuarios-prime .p-datatable-thead > tr > th.td-contador,
+:host ::ng-deep .tabla-usuarios-prime .p-datatable-tbody > tr > td.td-contador {
+  min-width: 32px !important;
+  max-width: 40px !important;
+  width: 1% !important;
+  text-align: center !important;
+  padding-left: 2px !important;
+  padding-right: 2px !important;
+  font-size: 0.98em !important;
+}
+:host ::ng-deep .tabla-usuarios-prime .p-datatable-thead > tr > th.td-acciones,
+:host ::ng-deep .tabla-usuarios-prime .p-datatable-tbody > tr > td.td-acciones {
+  min-width: 40px !important;
+  max-width: 60px !important;
+  width: 1% !important;
+  text-align: center !important;
+  padding-left: 2px !important;
+  padding-right: 2px !important;
+}
+:host ::ng-deep .tabla-usuarios-prime .p-datatable-thead > tr > th.td-nombre,
+:host ::ng-deep .tabla-usuarios-prime .p-datatable-tbody > tr > td.td-nombre {
+  min-width: 110px !important;
+  max-width: 180px !important;
+  width: 15% !important;
+  font-size: 1.04em !important;
+  font-weight: 500 !important;
+  white-space: normal !important;
 }

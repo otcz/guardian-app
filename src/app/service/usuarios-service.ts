@@ -48,7 +48,7 @@ export class UsuariosService {
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${token}`
     });
-    return this.http.delete<void>(`${this.apiUrl}/${correo}`, { headers });
+    return this.http.delete<void>(`${this.apiUrl}/correo/${correo}`, { headers });
   }
 
   getUsuariosConToken(token: string | null): Observable<Usuario[]> {
@@ -62,5 +62,13 @@ export class UsuariosService {
       'Authorization': `Bearer ${token}`
     });
     return this.http.put<Usuario>(`${this.apiUrl}/${id}`, usuario, { headers });
+  }
+
+  eliminarUsuarioPorDocumento(documentoNumero: string): Observable<void> {
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+    return this.http.delete<void>(`${this.apiUrl}/documento/${documentoNumero}`, { headers });
   }
 }

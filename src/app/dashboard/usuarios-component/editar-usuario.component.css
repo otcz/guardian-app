@@ -91,6 +91,12 @@
   border: none !important;
   box-shadow: none !important;
 }
+:host ::ng-deep .tabla-usuarios-prime .p-datatable-header {
+  border-style: none !important;
+  border-width: 0 !important;
+  border: none !important;
+  box-shadow: none !important;
+}
 :host ::ng-deep .tabla-usuarios-prime .p-datatable-caption {
   background: #eaf2ff !important;
   border-radius: 18px 18px 0 0 !important;

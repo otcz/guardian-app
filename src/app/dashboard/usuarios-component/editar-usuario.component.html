@@ -60,6 +60,9 @@
         </div>
       </div>
       <button type="submit">Guardar cambios</button>
+      <button type="button" class="btn-volver-tabla" (click)="mostrarTabla()" style="margin-left: 8px; background: transparent; border: none; cursor: pointer; vertical-align: middle;">
+        <i class="pi pi-users" style="font-size: 1.3rem; color: #2563eb;"></i>
+      </button>
       <div class="mensaje">{{ mensaje }}</div>
     </form>
     <div *ngIf="usuarios.length > 0 && !usuario">
@@ -125,7 +128,7 @@
               <button *ngIf="puedeEliminar(u)" pButton type="button" icon="pi pi-trash" class="boton-accion boton-eliminar-minimal" pTooltip="Eliminar" tooltipPosition="top"
                       (click)="irAEliminar(u)"></button>
             </td>
-          <
+          </tr>
         </ng-template>
       </p-table>
     </div>

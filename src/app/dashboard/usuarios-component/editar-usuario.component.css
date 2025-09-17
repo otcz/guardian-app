@@ -454,3 +454,6 @@
 :host ::ng-deep .tabla-usuarios-prime .boton-eliminar-minimal:hover {
   filter: brightness(0.85) !important;
 }
+
+
+  background: transparent !important;

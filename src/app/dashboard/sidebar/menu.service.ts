@@ -41,9 +41,7 @@ export class MenuService {
       { label: 'Inicio', icon: 'pi pi-home', routerLink: '/inicio' },
       { label: 'Perfil', icon: 'pi pi-user', items: [ { label: 'Ver Perfil', icon: '', routerLink: '/perfil' } ] },
       { label: 'Usuarios', icon: 'pi pi-users', items: [
-        { label: 'Crear/editar/eliminar', icon: '', routerLink: '/usuarios/gestion' },
-        { label: 'Asignar roles', icon: '', routerLink: '/usuarios/roles' },
-        { label: 'Activar/Desactivar', icon: '', routerLink: '/usuarios/estado' }
+        { label: 'Crear/editar/eliminar', icon: '', routerLink: '/usuarios/gestion' }
       ] },
       { label: 'Vehículos', icon: 'pi pi-car', items: [
         { label: 'Lista global', icon: '', routerLink: '/vehiculos/lista' },

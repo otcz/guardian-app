@@ -118,18 +118,6 @@ export const MENU_CONFIG: MenuItem[] = [
         icon: 'pi pi-user-edit',
         route: '/dashboard/usuarios',
         roles: ['ADMIN']
-      },
-      {
-        label: 'Asignar roles',
-        icon: 'pi pi-id-card',
-        route: '/dashboard/asignar-roles',
-        roles: ['ADMIN']
-      },
-      {
-        label: 'Activar/Desactivar',
-        icon: 'pi pi-user-minus',
-        route: '/dashboard/activar-desactivar-usuario',
-        roles: ['ADMIN']
       }
     ]
   },
@@ -235,4 +223,3 @@ export const MENU_CONFIG: MenuItem[] = [
     roles: ['GUARDIA', 'USUARIO', 'ADMIN']
   }
 ];
-

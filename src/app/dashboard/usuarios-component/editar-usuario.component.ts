@@ -5,6 +5,8 @@ import { UsuariosService, Usuario } from '../../service/usuarios-service';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
+import { Router, NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-editar-usuario',
@@ -31,9 +33,15 @@ export class EditarUsuarioComponent implements OnInit {
   usuariosFiltrados: Usuario[] = [];
   usuarioLogueado: Usuario | null = null;
 
-  constructor(private usuariosService: UsuariosService) {}
+  constructor(private usuariosService: UsuariosService, private router: Router) {}
 
   ngOnInit() {
+    // Suscribirse a cambios de ruta para forzar la tabla si corresponde
+    this.router.events.pipe(filter(e => e instanceof NavigationEnd)).subscribe((event: any) => {
+      if (event.urlAfterRedirects && event.urlAfterRedirects.includes('/dashboard/editar-usuario')) {
+        this.mostrarTabla();
+      }
+    });
     // Simulación: obtener usuario logueado (reemplaza por tu AuthService real)
     this.usuarioLogueado = { rol: 'ADMINISTRADOR' } as Usuario; // <-- Ajusta según tu lógica real
 
@@ -46,6 +54,14 @@ export class EditarUsuarioComponent implements OnInit {
         this.usuarios = usuarios;
         this.usuariosFiltrados = [...usuarios];
       });
+    }
+  }
+
+  mostrarTabla() {
+    if (this.usuario) {
+      this.usuario = null;
+      this.mensaje = '';
+      this.intentoGuardar = false;
     }
   }
 

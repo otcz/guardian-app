@@ -118,14 +118,14 @@
             <td class="td-casa">{{ u.casa }}</td>
             <td>{{ u.telefono }}</td>
             <td class="td-acciones">
-              <button *ngIf="puedeVer(u)" pButton type="button" icon="pi pi-eye" class="p-button-rounded p-button-md p-button-success boton-ver"
+              <button *ngIf="puedeVer(u)" pButton type="button" icon="pi pi-eye" class="boton-accion boton-ver-minimal" pTooltip="Ver" tooltipPosition="top"
                       (click)="verUsuario(u)" style="margin-right:6px;"></button>
-              <button *ngIf="puedeEditar(u)" pButton type="button" icon="pi pi-pencil" class="p-button-rounded p-button-md p-button-primary boton-editar"
+              <button *ngIf="puedeEditar(u)" pButton type="button" icon="pi pi-pencil" class="boton-accion boton-editar-minimal" pTooltip="Editar" tooltipPosition="top"
                       (click)="irAEditar(u)" style="margin-right:6px;"></button>
-              <button *ngIf="puedeEliminar(u)" pButton type="button" icon="pi pi-trash" class="p-button-rounded p-button-md p-button-danger boton-eliminar"
+              <button *ngIf="puedeEliminar(u)" pButton type="button" icon="pi pi-trash" class="boton-accion boton-eliminar-minimal" pTooltip="Eliminar" tooltipPosition="top"
                       (click)="irAEliminar(u)"></button>
             </td>
-          </tr>
+          <
         </ng-template>
       </p-table>
     </div>

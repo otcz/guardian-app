@@ -108,7 +108,7 @@
   gap: 1.5rem !important;
 }
 :host ::ng-deep .tabla-usuarios-prime .p-datatable-thead > tr > th {
-  background: #f8fafc !important;
+  color: #2563ebcc !important; /* Azul principal, 80% opacidad */
   color: #1e293b !important;
   font-weight: 700 !important;
   font-size: 1.12rem !important;
@@ -129,7 +129,7 @@
   font-size: 1.1em !important;
 }
 :host ::ng-deep .tabla-usuarios-prime .p-datatable-tbody > tr > td {
-  padding-top: 4px !important;
+  color: #23272fcc !important; /* Gris oscuro, 80% opacidad */
   padding-bottom: 4px !important;
   padding-left: 8px !important;
   padding-right: 8px !important;
@@ -409,4 +409,48 @@
 }
 :host ::ng-deep .tabla-usuarios-prime .td-acciones {
   vertical-align: middle !important;
+}
+:host ::ng-deep .tabla-usuarios-prime .boton-accion {
+  border-radius: 50% !important;
+  min-width: 32px !important;
+  min-height: 32px !important;
+  width: 32px !important;
+  height: 32px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-shadow: 0 2px 8px rgba(30,40,60,0.07) !important;
+  transition: background 0.18s, border 0.18s, color 0.18s, box-shadow 0.18s, filter 0.18s !important;
+  padding: 0 !important;
+  border: none !important;
+}
+:host ::ng-deep .tabla-usuarios-prime .boton-ver-minimal {
+  background: #22c55e !important;
+}
+:host ::ng-deep .tabla-usuarios-prime .boton-ver-minimal .pi {
+  color: #fff !important;
+  font-size: 1.1rem !important;
+}
+:host ::ng-deep .tabla-usuarios-prime .boton-ver-minimal:hover {
+  filter: brightness(0.85) !important;
+}
+:host ::ng-deep .tabla-usuarios-prime .boton-editar-minimal {
+  background: #2563eb !important;
+}
+:host ::ng-deep .tabla-usuarios-prime .boton-editar-minimal .pi {
+  color: #fff !important;
+  font-size: 1.1rem !important;
+}
+:host ::ng-deep .tabla-usuarios-prime .boton-editar-minimal:hover {
+  filter: brightness(0.85) !important;
+}
+:host ::ng-deep .tabla-usuarios-prime .boton-eliminar-minimal {
+  background: #ef4444 !important;
+}
+:host ::ng-deep .tabla-usuarios-prime .boton-eliminar-minimal .pi {
+  color: #fff !important;
+  font-size: 1.1rem !important;
+}
+:host ::ng-deep .tabla-usuarios-prime .boton-eliminar-minimal:hover {
+  filter: brightness(0.85) !important;
 }

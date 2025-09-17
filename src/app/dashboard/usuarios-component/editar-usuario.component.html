@@ -66,7 +66,8 @@
       <p-table #dt class="tabla-usuarios-prime" [value]="usuariosFiltrados" [paginator]="true" [rows]="10"
                [responsiveLayout]="'scroll'" [showCurrentPageReport]="true"
                currentPageReportTemplate="{first} - {last} de {totalRecords}" [rowsPerPageOptions]="[5,10,20]"
-               [globalFilterFields]="['nombreCompleto','documentoTipo','documentoNumero','correo','rol','estado','casa','telefono']">
+               [globalFilterFields]="['nombreCompleto','documentoTipo','documentoNumero','correo','rol','estado','casa','telefono']"
+               [resizableColumns]="true" columnResizeMode="expand">
         <ng-template pTemplate="caption">
           <div class="p-input-icon-left" style="width:100%; max-width:350px;">
             <i class="pi pi-search"></i>

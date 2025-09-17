@@ -85,8 +85,11 @@
 }
 :host ::ng-deep .tabla-usuarios-prime .p-datatable,
 :host ::ng-deep .tabla-usuarios-prime .p-datatable-thead > tr > th,
-:host ::ng-deep .tabla-usuarios-prime .p-datatable-tbody > tr > td {
-  font-family: 'Chakra Petch', 'Inter', 'Segoe UI', Arial, sans-serif !important;
+:host ::ng-deep .tabla-usuarios-prime .p-datatable-tbody > tr > td,
+:host ::ng-deep .tabla-usuarios-prime .p-datatable-tfoot > tr > td,
+:host ::ng-deep .tabla-usuarios-prime .p-datatable-tfoot > tr > th {
+  border: none !important;
+  box-shadow: none !important;
 }
 :host ::ng-deep .tabla-usuarios-prime .p-datatable-caption {
   background: #eaf2ff !important;
@@ -140,6 +143,10 @@
 }
 :host ::ng-deep .tabla-usuarios-prime .p-datatable-tbody > tr:last-child > td {
   border-bottom: none !important;
+}
+:host ::ng-deep .tabla-usuarios-prime .p-datatable-tfoot > tr > td,
+:host ::ng-deep .tabla-usuarios-prime .p-datatable-tfoot > tr > th {
+  border-top: none !important;
 }
 :host ::ng-deep .tabla-usuarios-prime .p-datatable-thead > tr > th,
 :host ::ng-deep .tabla-usuarios-prime .p-datatable-tbody > tr > td {
@@ -209,9 +216,9 @@
   align-items: center !important;
   background: #fff !important;
   border-radius: 10px !important;
-  border: 1px solid #dbeafe !important;
+  border: none !important;
+  box-shadow: none !important;
   padding: 10px 18px 10px 14px !important;
-  box-shadow: 0 1px 4px rgba(30,40,60,0.07) !important;
   width: 100% !important;
   max-width: 400px !important;
   transition: border 0.2s !important;
@@ -228,7 +235,7 @@
 }
 :host ::ng-deep .tabla-usuarios-prime .p-datatable-caption .p-inputtext-sm {
   border: none !important;
-  outline: none !important;
+  box-shadow: none !important;
   background: transparent !important;
   font-size: 1.12rem !important;
   color: #23272f !important;
@@ -307,3 +314,30 @@
   font-weight: 500 !important;
   white-space: normal !important;
 }
+:host ::ng-deep .tabla-usuarios-prime .p-datatable-thead > tr > th.td-nombre {
+  font-weight: 700 !important;
+}
+:host ::ng-deep .tabla-usuarios-prime .p-datatable-tbody > tr > td.td-nombre {
+  font-weight: 400 !important;
+}
+:host ::ng-deep .tabla-usuarios-prime .p-datatable-caption .p-input-icon-left input.p-inputtext,
+:host ::ng-deep .tabla-usuarios-prime .p-datatable-caption .p-inputtext-sm,
+:host ::ng-deep .tabla-usuarios-prime .p-datatable-caption input[type="text"] {
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+  background: transparent !important;
+}
+:host ::ng-deep .tabla-usuarios-prime .p-datatable-thead > tr > th.td-estado,
+:host ::ng-deep .tabla-usuarios-prime .p-datatable-tbody > tr > td.td-estado {
+  min-width: 60px !important;
+  max-width: 90px !important;
+  width: 7% !important;
+}
+:host ::ng-deep .tabla-usuarios-prime .p-datatable-thead > tr > th.td-casa,
+:host ::ng-deep .tabla-usuarios-prime .p-datatable-tbody > tr > td.td-casa {
+  min-width: 80px !important;
+  max-width: 120px !important;
+  width: 10% !important;
+}
+

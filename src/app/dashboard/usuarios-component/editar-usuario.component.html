@@ -94,10 +94,10 @@
             <th pSortableColumn="rol">Rol
               <p-sortIcon field="rol"></p-sortIcon>
             </th>
-            <th pSortableColumn="estado">Estado
+            <th pSortableColumn="estado" class="td-estado">Estado
               <p-sortIcon field="estado"></p-sortIcon>
             </th>
-            <th pSortableColumn="casa" class="td-corto">Casa
+            <th pSortableColumn="casa" class="td-casa">Casa
               <p-sortIcon field="casa"></p-sortIcon>
             </th>
             <th pSortableColumn="telefono">Teléfono
@@ -114,8 +114,8 @@
             <td>{{ u.documentoNumero }}</td>
             <td>{{ u.correo }}</td>
             <td>{{ u.rol }}</td>
-            <td>{{ u.estado }}</td>
-            <td class="td-corto">{{ u.casa }}</td>
+            <td class="td-estado">{{ u.estado }}</td>
+            <td class="td-casa">{{ u.casa }}</td>
             <td>{{ u.telefono }}</td>
             <td class="td-acciones">
               <button pButton type="button" icon="pi pi-pencil" class="p-button-rounded p-button-sm p-button-info"

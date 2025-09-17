@@ -19,7 +19,7 @@ export class EditarUsuarioComponent implements OnInit {
   @Input() correo: string = '';
   usuario: Usuario | null = null;
   mensaje: string = '';
-  roles: string[] = ['USUARIO', 'GUARDIA', 'ADMINISTRADOR'];
+  roles: string[] = ['USUARIO', 'GUARDIA', 'ADMIN'];
   estados: string[] = ['ACTIVO', 'INACTIVO'];
   documentoTipos: string[] = ['CC', 'TI', 'CE', 'PAS'];
   intentoGuardar: boolean = false;
@@ -43,7 +43,7 @@ export class EditarUsuarioComponent implements OnInit {
       }
     });
     // Simulación: obtener usuario logueado (reemplaza por tu AuthService real)
-    this.usuarioLogueado = { rol: 'ADMINISTRADOR' } as Usuario; // <-- Ajusta según tu lógica real
+    this.usuarioLogueado = { rol: 'ADMIN' } as Usuario; // <-- Ajusta según tu lógica real
 
     if (this.correo) {
       this.usuariosService.getUsuarios().subscribe(usuarios => {
@@ -137,16 +137,17 @@ export class EditarUsuarioComponent implements OnInit {
     }
   }
 
+  // Cambiar validaciones de rol
+  esAdmin(): boolean {
+    return this.usuarioLogueado?.rol === 'ADMIN';
+  }
   puedeEditar(u: Usuario): boolean {
-    // Ejemplo: solo admins pueden editar
-    return this.usuarioLogueado?.rol === 'ADMINISTRADOR';
+    return this.usuarioLogueado?.rol === 'ADMIN';
   }
   puedeEliminar(u: Usuario): boolean {
-    // Ejemplo: solo admins pueden eliminar
-    return this.usuarioLogueado?.rol === 'ADMINISTRADOR';
+    return this.usuarioLogueado?.rol === 'ADMIN';
   }
   puedeVer(u: Usuario): boolean {
-    // Todos pueden ver
     return true;
   }
   verUsuario(u: Usuario) {

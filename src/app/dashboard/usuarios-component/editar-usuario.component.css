@@ -304,12 +304,12 @@
 }
 :host ::ng-deep .tabla-usuarios-prime .p-datatable-thead > tr > th.td-acciones,
 :host ::ng-deep .tabla-usuarios-prime .p-datatable-tbody > tr > td.td-acciones {
-  min-width: 40px !important;
-  max-width: 60px !important;
-  width: 1% !important;
+  min-width: 140px !important;
+  max-width: 200px !important;
+  width: 10% !important;
   text-align: center !important;
-  padding-left: 2px !important;
-  padding-right: 2px !important;
+  padding-left: 8px !important;
+  padding-right: 8px !important;
 }
 :host ::ng-deep .tabla-usuarios-prime .p-datatable-thead > tr > th.td-nombre,
 :host ::ng-deep .tabla-usuarios-prime .p-datatable-tbody > tr > td.td-nombre {
@@ -382,4 +382,31 @@
 }
 .search-bar-input:focus {
   background: transparent !important;
+}
+:host ::ng-deep .tabla-usuarios-prime .boton-ver .pi {
+  color: #22c55e !important; /* verde */
+  font-size: 1.25rem !important;
+}
+:host ::ng-deep .tabla-usuarios-prime .boton-editar .pi {
+  color: #2563eb !important; /* azul */
+  font-size: 1.25rem !important;
+}
+:host ::ng-deep .tabla-usuarios-prime .boton-eliminar .pi {
+  color: #ef4444 !important; /* rojo */
+  font-size: 1.25rem !important;
+}
+:host ::ng-deep .tabla-usuarios-prime .p-button-md {
+  min-width: 36px !important;
+  min-height: 36px !important;
+  font-size: 1rem !important;
+  box-shadow: 0 2px 8px rgba(30,40,60,0.08) !important;
+  border: none !important;
+  transition: background 0.18s, box-shadow 0.18s !important;
+}
+:host ::ng-deep .tabla-usuarios-prime .p-button-md:hover {
+  filter: brightness(1.08) drop-shadow(0 2px 8px #4f8cff22);
+  box-shadow: 0 4px 16px rgba(30,40,60,0.13) !important;
+}
+:host ::ng-deep .tabla-usuarios-prime .td-acciones {
+  vertical-align: middle !important;
 }

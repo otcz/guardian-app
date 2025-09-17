@@ -118,9 +118,11 @@
             <td class="td-casa">{{ u.casa }}</td>
             <td>{{ u.telefono }}</td>
             <td class="td-acciones">
-              <button pButton type="button" icon="pi pi-pencil" class="p-button-rounded p-button-sm p-button-info"
-                      (click)="irAEditar(u)" style="margin-right:4px;"></button>
-              <button pButton type="button" icon="pi pi-trash" class="p-button-rounded p-button-sm p-button-danger"
+              <button *ngIf="puedeVer(u)" pButton type="button" icon="pi pi-eye" class="p-button-rounded p-button-md p-button-success boton-ver"
+                      (click)="verUsuario(u)" style="margin-right:6px;"></button>
+              <button *ngIf="puedeEditar(u)" pButton type="button" icon="pi pi-pencil" class="p-button-rounded p-button-md p-button-primary boton-editar"
+                      (click)="irAEditar(u)" style="margin-right:6px;"></button>
+              <button *ngIf="puedeEliminar(u)" pButton type="button" icon="pi pi-trash" class="p-button-rounded p-button-md p-button-danger boton-eliminar"
                       (click)="irAEliminar(u)"></button>
             </td>
           </tr>

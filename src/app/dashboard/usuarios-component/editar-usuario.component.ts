@@ -29,10 +29,14 @@ export class EditarUsuarioComponent implements OnInit {
     telefono: ''
   };
   usuariosFiltrados: Usuario[] = [];
+  usuarioLogueado: Usuario | null = null;
 
   constructor(private usuariosService: UsuariosService) {}
 
   ngOnInit() {
+    // Simulación: obtener usuario logueado (reemplaza por tu AuthService real)
+    this.usuarioLogueado = { rol: 'ADMINISTRADOR' } as Usuario; // <-- Ajusta según tu lógica real
+
     if (this.correo) {
       this.usuariosService.getUsuarios().subscribe(usuarios => {
         this.usuario = usuarios.find(u => u.correo === this.correo) || null;
@@ -115,5 +119,22 @@ export class EditarUsuarioComponent implements OnInit {
     } else {
       dt.filterGlobal('', 'contains');
     }
+  }
+
+  puedeEditar(u: Usuario): boolean {
+    // Ejemplo: solo admins pueden editar
+    return this.usuarioLogueado?.rol === 'ADMINISTRADOR';
+  }
+  puedeEliminar(u: Usuario): boolean {
+    // Ejemplo: solo admins pueden eliminar
+    return this.usuarioLogueado?.rol === 'ADMINISTRADOR';
+  }
+  puedeVer(u: Usuario): boolean {
+    // Todos pueden ver
+    return true;
+  }
+  verUsuario(u: Usuario) {
+    // Lógica para ver detalles del usuario (puedes mostrar modal, navegar, etc)
+    this.mensaje = `Ver usuario: ${u.nombreCompleto}`;
   }
 }

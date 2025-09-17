@@ -129,7 +129,7 @@
   padding-right: 8px !important;
   font-size: 1.04rem !important;
   color: #23272f !important;
-  border-bottom: none !important;
+  border-bottom: 1px solid #e0e6ed !important;
   background: #fff !important;
   letter-spacing: 0.01em !important;
   transition: background 0.18s !important;
@@ -341,3 +341,39 @@
   width: 10% !important;
 }
 
+/* --- ESTILO MODERNO PARA LA BARRA DE BÚSQUEDA --- */
+.search-bar-modern {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border-radius: 10px;
+  border: none;
+  box-shadow: 0 2px 8px rgba(30,40,60,0.10);
+  padding: 8px 16px 8px 12px;
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto 12px auto;
+  transition: box-shadow 0.2s;
+}
+.search-bar-modern:focus-within {
+  box-shadow: 0 0 0 2px #4f8cff22;
+}
+.search-bar-modern .pi-search {
+  color: #4f8cff;
+  font-size: 1.3rem;
+  margin-right: 12px;
+}
+.search-bar-input {
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+  background: transparent !important;
+  font-size: 1.12rem;
+  color: #23272f;
+  width: 100%;
+  padding: 6px 0;
+  font-family: 'Inter', 'Segoe UI', 'Roboto', Arial, sans-serif;
+}
+.search-bar-input:focus {
+  background: transparent !important;
+}

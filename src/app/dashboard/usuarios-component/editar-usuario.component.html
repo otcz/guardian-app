@@ -69,10 +69,10 @@
                [globalFilterFields]="['nombreCompleto','documentoTipo','documentoNumero','correo','rol','estado','casa','telefono']"
                [resizableColumns]="true" columnResizeMode="expand">
         <ng-template pTemplate="caption">
-          <div class="p-input-icon-left" style="width:100%; max-width:350px;">
+          <div class="p-input-icon-left search-bar-modern">
             <i class="pi pi-search"></i>
             <input pInputText type="text" (input)="onGlobalFilterInput($event, dt)" placeholder="Buscar en la tabla..."
-                   class="p-inputtext-sm" style="width:100%;"/>
+                   class="p-inputtext-sm search-bar-input" />
           </div>
         </ng-template>
 

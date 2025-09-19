@@ -1,5 +1,13 @@
 <div class="form-center-wrapper">
   <div class="editar-usuario-form-horizontal">
+    <form class="buscar-usuario-form" (ngSubmit)="buscarUsuario()" style="margin: 0 auto 22px auto; max-width: 400px; display: flex; align-items: stretch; gap: 0; box-shadow: 0 4px 18px rgba(79,140,255,0.18); border-radius: 10px; overflow: hidden; background: #f8fafc; border: 2px solid #4f8cff;">
+      <input pInputText type="text" [(ngModel)]="busqueda" name="busqueda" placeholder="Correo o identificación del usuario..." required
+             style="flex: 1; min-width: 0; padding: 14px 14px; border: none; background: #f4f7fa; font-size: 1.05rem; outline: none; box-shadow: none; border-radius: 0;" />
+      <button pButton type="submit" style="background: linear-gradient(90deg, #4f8cff 60%, #23272f 100%); color: #fff; border: none; border-radius: 0 10px 10px 0; padding: 0 22px; font-size: 1.18rem; cursor: pointer; transition: background 0.2s; display: flex; align-items: center; justify-content: center;">
+        <i class="pi pi-search" style="font-size: 1.2rem; color: #fff;"></i>
+      </button>
+    </form>
+    <div *ngIf="mensaje && !usuario" class="mensaje" style="text-align:center; margin-bottom: 10px;">{{ mensaje }}</div>
     <form *ngIf="usuario" class="editar-usuario-form" (ngSubmit)="editarUsuario()">
       <h2>Editar usuario</h2>
       <div class="form-grid">
@@ -60,77 +68,7 @@
         </div>
       </div>
       <button type="submit">Guardar cambios</button>
-      <button type="button" class="btn-volver-tabla" (click)="mostrarTabla()" style="margin-left: 8px; background: transparent; border: none; cursor: pointer; vertical-align: middle;">
-        <i class="pi pi-users" style="font-size: 1.3rem; color: #2563eb;"></i>
-      </button>
       <div class="mensaje">{{ mensaje }}</div>
     </form>
-    <div *ngIf="usuarios.length > 0 && !usuario">
-      <p-table #dt class="tabla-usuarios-prime" [value]="usuariosFiltrados" [paginator]="true" [rows]="10"
-               [responsiveLayout]="'scroll'" [showCurrentPageReport]="true"
-               currentPageReportTemplate="{first} - {last} de {totalRecords}" [rowsPerPageOptions]="[5,10,20]"
-               [globalFilterFields]="['nombreCompleto','documentoTipo','documentoNumero','correo','rol','estado','casa','telefono']"
-               [resizableColumns]="true" columnResizeMode="expand">
-        <ng-template pTemplate="caption">
-          <div class="p-input-icon-left search-bar-modern">
-            <i class="pi pi-search"></i>
-            <input pInputText type="text" (input)="onGlobalFilterInput($event, dt)" placeholder="Buscar en la tabla..."
-                   class="p-inputtext-sm search-bar-input" />
-          </div>
-        </ng-template>
-
-        <ng-template pTemplate="header">
-          <tr>
-            <th class="td-contador">#</th>
-            <th pSortableColumn="nombreCompleto" class="td-nombre">Nombre
-              <p-sortIcon field="nombreCompleto"></p-sortIcon>
-            </th>
-            <th pSortableColumn="documentoTipo" class="td-corto">Tipo CC
-              <p-sortIcon field="documentoTipo"></p-sortIcon>
-            </th>
-            <th pSortableColumn="documentoNumero">N° Doc
-              <p-sortIcon field="documentoNumero"></p-sortIcon>
-            </th>
-            <th pSortableColumn="correo">Correo
-              <p-sortIcon field="correo"></p-sortIcon>
-            </th>
-            <th pSortableColumn="rol">Rol
-              <p-sortIcon field="rol"></p-sortIcon>
-            </th>
-            <th pSortableColumn="estado" class="td-estado">Estado
-              <p-sortIcon field="estado"></p-sortIcon>
-            </th>
-            <th pSortableColumn="casa" class="td-casa">Casa
-              <p-sortIcon field="casa"></p-sortIcon>
-            </th>
-            <th pSortableColumn="telefono">Teléfono
-              <p-sortIcon field="telefono"></p-sortIcon>
-            </th>
-            <th class="td-acciones">Acciones</th>
-          </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-u let-rowIndex="rowIndex">
-          <tr>
-            <td class="td-contador">{{ (dt.first || 0) + rowIndex + 1 }}</td>
-            <td class="td-nombre">{{ u.nombreCompleto }}</td>
-            <td class="td-corto">{{ u.documentoTipo }}</td>
-            <td>{{ u.documentoNumero }}</td>
-            <td>{{ u.correo }}</td>
-            <td>{{ u.rol }}</td>
-            <td class="td-estado">{{ u.estado }}</td>
-            <td class="td-casa">{{ u.casa }}</td>
-            <td>{{ u.telefono }}</td>
-            <td class="td-acciones">
-              <button *ngIf="puedeVer(u)" pButton type="button" icon="pi pi-eye" class="boton-accion boton-ver-minimal" pTooltip="Ver" tooltipPosition="top"
-                      (click)="verUsuario(u)" style="margin-right:6px;"></button>
-              <button *ngIf="puedeEditar(u)" pButton type="button" icon="pi pi-pencil" class="boton-accion boton-editar-minimal" pTooltip="Editar" tooltipPosition="top"
-                      (click)="irAEditar(u)" style="margin-right:6px;"></button>
-              <button *ngIf="puedeEliminar(u)" pButton type="button" icon="pi pi-trash" class="boton-accion boton-eliminar-minimal" pTooltip="Eliminar" tooltipPosition="top"
-                      (click)="irAEliminar(u)"></button>
-            </td>
-          </tr>
-        </ng-template>
-      </p-table>
-    </div>
   </div>
 </div>

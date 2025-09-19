@@ -1,6 +1,4 @@
-/* Estilos para editar usuario */
-
-/* --- SOLO FORMULARIO Y MENSAJES --- */
+/* Estilos solo para el formulario de edición de usuario */
 .editar-usuario-form {
   max-width: 480px;
   margin: 32px auto 0 auto;
@@ -70,4 +68,3 @@
   text-align: center;
   word-break: break-word;
 }
-

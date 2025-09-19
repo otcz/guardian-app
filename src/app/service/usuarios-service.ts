@@ -71,4 +71,13 @@ export class UsuariosService {
     });
     return this.http.delete<void>(`${this.apiUrl}/documento/${documentoNumero}`, { headers });
   }
+
+  buscarUsuarioPorCorreoOCedula(termino: string): Observable<Usuario> {
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+    // Se asume que el backend tiene un endpoint que permite buscar por correo o documento
+    return this.http.get<Usuario>(`${this.apiUrl}/buscar?termino=${encodeURIComponent(termino)}`, { headers });
+  }
 }

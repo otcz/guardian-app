@@ -17,7 +17,7 @@ export const appRoutes: Routes = [
         children: [
           { path: '', redirectTo: 'ver', pathMatch: 'full' },
           { path: 'crear', loadComponent: () => import('./dashboard/usuarios-component/crear-usuario.component').then(m => m.CrearUsuarioComponent) },
-          { path: 'ver', loadComponent: () => import('./dashboard/usuarios-component/editar-usuario.component').then(m => m.EditarUsuarioComponent) },
+          { path: 'ver', loadComponent: () => import('./dashboard/usuarios-component/editar-suaurio/editar-usuario-form.component').then(m => m.EditarUsuarioFormComponent) },
           { path: 'editar/:correo', loadComponent: () => import('./dashboard/usuarios-component/editar-usuario.component').then(m => m.EditarUsuarioComponent) },
           { path: 'editar', loadComponent: () => import('./dashboard/usuarios-component/editar-usuario.component').then(m => m.EditarUsuarioComponent) },
           { path: 'eliminar', loadComponent: () => import('./dashboard/usuarios-component/eliminar-usuario.component').then(m => m.EliminarUsuarioComponent) }

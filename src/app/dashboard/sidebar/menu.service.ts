@@ -41,7 +41,10 @@ export class MenuService {
       { label: 'Inicio', icon: 'pi pi-home', routerLink: '/inicio' },
       { label: 'Perfil', icon: 'pi pi-user', items: [ { label: 'Ver Perfil', icon: '', routerLink: '/perfil' } ] },
       { label: 'Usuarios', icon: 'pi pi-users', items: [
-        { label: 'Crear/editar/eliminar', icon: '', routerLink: '/dashboard/usuarios/crear' }
+        { label: 'Nuevo usuario', icon: 'pi pi-user-plus', routerLink: '/dashboard/usuarios/crear' },
+        { label: 'Ver usuarios', icon: 'pi pi-eye', routerLink: '/dashboard/usuarios' },
+        { label: 'Editar usuarios', icon: 'pi pi-user-edit', routerLink: '/dashboard/usuarios/editar' },
+        { label: 'Eliminar usuarios', icon: 'pi pi-user-minus', routerLink: '/dashboard/usuarios/eliminar' }
       ] },
       { label: 'Vehículos', icon: 'pi pi-car', items: [
         { label: 'Lista global', icon: '', routerLink: '/vehiculos/lista' },

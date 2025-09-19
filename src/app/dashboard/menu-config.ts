@@ -114,9 +114,27 @@ export const MENU_CONFIG: MenuItem[] = [
     roles: ['ADMIN'],
     children: [
       {
-        label: 'Crear/editar/eliminar',
+        label: 'Nuevo usuario',
+        icon: 'pi pi-user-plus',
+        route: '/dashboard/usuarios/crear',
+        roles: ['ADMIN']
+      },
+      {
+        label: 'Ver usuarios',
+        icon: 'pi pi-eye',
+        route: '/dashboard/usuarios/ver',
+        roles: ['ADMIN']
+      },
+      {
+        label: 'Editar usuarios',
         icon: 'pi pi-user-edit',
-        route: '/dashboard/usuarios',
+        route: '/dashboard/usuarios/editar',
+        roles: ['ADMIN']
+      },
+      {
+        label: 'Eliminar usuarios',
+        icon: 'pi pi-user-minus',
+        route: '/dashboard/usuarios/eliminar',
         roles: ['ADMIN']
       }
     ]

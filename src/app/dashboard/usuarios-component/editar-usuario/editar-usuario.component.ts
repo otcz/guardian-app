@@ -5,16 +5,17 @@ import { UsuariosService, Usuario } from '../../../service/usuarios-service';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { TooltipModule } from 'primeng/tooltip';
 import { DialogModule } from 'primeng/dialog';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
+import { BuscarUsuarioFormComponent } from '../buscar-suaurio/buscar-usuario-form.component';
 
 @Component({
   selector: 'app-editar-usuario',
   standalone: true,
-  imports: [CommonModule, FormsModule, TableModule, ButtonModule, InputTextModule, TooltipModule, DialogModule, ToastModule],
+  imports: [CommonModule, FormsModule, TableModule, ButtonModule, InputTextModule, TooltipModule, DialogModule, ToastModule, BuscarUsuarioFormComponent],
   providers: [MessageService],
   templateUrl: './editar-usuario.component.html',
   styleUrls: ['./editar-usuario.component.css']
@@ -27,22 +28,27 @@ export class EditarUsuarioComponent implements OnInit {
   usuariosFiltrados: Usuario[] = [];
   usuarioLogueado: Usuario | null = null;
 
-  constructor(private usuariosService: UsuariosService, private router: Router, private messageService: MessageService) {}
+  constructor(
+    private usuariosService: UsuariosService,
+    private router: Router,
+    private messageService: MessageService,
+    private route: ActivatedRoute
+  ) {}
 
   ngOnInit() {
-    // Simulación: obtener usuario logueado (reemplaza por tu AuthService real)
-    this.usuarioLogueado = { rol: 'ADMIN' } as Usuario; // <-- Ajusta según tu lógica real
+    this.usuarioLogueado = { rol: 'ADMIN' } as Usuario;
 
-    if (this.correo) {
-      this.usuariosService.getUsuarios().subscribe(usuarios => {
-        this.usuario = usuarios.find(u => u.correo === this.correo) || null;
-      });
-    } else {
-      this.usuariosService.getUsuarios().subscribe(usuarios => {
-        this.usuarios = usuarios;
-        this.usuariosFiltrados = [...usuarios];
-      });
-    }
+    this.route.paramMap.subscribe(params => {
+      this.correo = params.get('correo') || '';
+      if (this.correo) {
+        // No cargar usuario aquí, el formulario hijo lo hace
+      } else {
+        this.usuariosService.getUsuarios().subscribe(usuarios => {
+          this.usuarios = usuarios;
+          this.usuariosFiltrados = [...usuarios];
+        });
+      }
+    });
   }
 
 
@@ -61,7 +67,7 @@ export class EditarUsuarioComponent implements OnInit {
   }
 
   editarUsuario(u: Usuario) {
-    // Navega al formulario de edición (BuscarUsuarioFormComponent)
+    // Mostrar el formulario de edición tipo "buscar usuario"
     this.router.navigate(['/dashboard/usuarios/editar', u.correo]);
   }
 

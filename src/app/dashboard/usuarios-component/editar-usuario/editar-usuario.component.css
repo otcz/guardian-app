@@ -490,17 +490,69 @@
 }
 
 /* Ajustes visuales del diálogo para que quede acorde con tarjeta/estética */
+:host ::ng-deep .p-dialog {
+  border-radius: 12px !important;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(16,24,40,0.12) !important; /* sombra más pronunciada */
+}
 :host ::ng-deep .p-dialog .p-dialog-content {
   background: #fff;
   padding: 20px 22px;
   font-family: 'Inter', 'Segoe UI', 'Roboto', Arial, sans-serif;
 }
 :host ::ng-deep .p-dialog .p-dialog-header {
-  background: #f3f4f6; /* tono claro */
-  color: #1e293b;
-  font-weight: 700;
+  background: #f5f5f5; /* gris claro, similar a la imagen */
+  color: #0f172a;
+  font-weight: 600; /* menos pesado que 700 */
   border-bottom: 1px solid #e6edf8;
+  padding: 16px 22px !important; /* espacio más contenido */
+  align-items: center !important;
 }
 :host ::ng-deep .p-dialog .p-dialog-title {
   font-size: 1.05rem;
+  color: #1f2937; /* texto oscuro, gris-azulado */
+  font-weight: 600;
+  margin: 0 !important;
+}
+:host ::ng-deep .p-dialog .p-dialog-header .p-dialog-title {
+  display: block;
+  text-align: left;
+}
+
+/* Centrar footer y ajustar botones para que se parezcan más a la imagen */
+:host ::ng-deep .p-dialog .p-dialog-footer {
+  background: transparent;
+  padding: 18px 22px !important;
+}
+:host ::ng-deep .p-dialog .p-dialog-footer .confirm-actions {
+  display: flex;
+  justify-content: center; /* centrado */
+  gap: 18px;
+}
+:host ::ng-deep .confirm-actions .p-button {
+  min-width: 140px; /* botones más largos */
+  height: 44px;
+  border-radius: 6px;
+  font-size: 1.02rem;
+  font-weight: 600;
+}
+:host ::ng-deep .confirm-actions .confirm-yes.p-button-success {
+  background: #0f9d58; /* verde más profundo */
+  border: none;
+  color: #fff;
+}
+:host ::ng-deep .confirm-actions .confirm-no.p-button-danger {
+  background: #e53e3e; /* rojo intenso */
+  border: none;
+  color: #fff;
+}
+:host ::ng-deep .confirm-actions .confirm-cancel.p-button-secondary {
+  background: #6b7280; /* gris */
+  border: none;
+  color: #fff;
+}
+:host ::ng-deep .p-dialog .p-dialog-content p {
+  color: #24303a; /* mensaje ligeramente oscuro */
+  font-size: 1.02rem;
+  margin: 20px 0 28px 0;
 }

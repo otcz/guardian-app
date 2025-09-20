@@ -198,6 +198,7 @@ h2 {
 }
 .btn-crear {
   width: 100%;
+  box-sizing: border-box;
   background: linear-gradient(90deg, #4f8cff 60%, #23272f 100%);
   color: #fff;
   border: none;
@@ -257,7 +258,7 @@ h2 {
 .form-dropdown-group .input-icon {
   background: #fff;
   border: 1px solid #dbeafe;
-  border-radius: 8px 0 0 8px;
+  border-radius: 0 8px 8px 0;
   padding: 0 10px;
   display: flex;
   align-items: center;
@@ -337,7 +338,14 @@ h2 {
 .p-autocomplete .p-autocomplete-panel {
   width: 100% !important;
   min-width: 0 !important;
-  box-sizing: border-box;
+  box-sizing: border-box !important;
+}
+.p-autocomplete .p-autocomplete-input {
+  height: 46px !important;
+  padding: 0 14px !important;
+  border-radius: 8px !important;
+  border: none !important;
+  background: transparent !important;
 }
 .p-autocomplete .p-autocomplete-panel {
   left: 0 !important;

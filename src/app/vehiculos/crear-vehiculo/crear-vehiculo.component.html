@@ -33,7 +33,6 @@
           </label>
         </div>
         <div class="input-group form-dropdown-group" style="width: 100%; grid-column: 1 / -1;">
-          <span class="input-icon"><i class="pi pi-user"></i></span>
           <p-autoComplete
             [(ngModel)]="usuarioSeleccionado"
             [suggestions]="usuariosFiltrados"
@@ -61,8 +60,8 @@
             </ng-template>
           </p-autoComplete>
         </div>
+        <button type="submit" class="btn-crear" style="grid-column: 1 / -1; width: 100%;">Crear vehículo</button>
       </div>
-      <button type="submit" class="btn-crear">Crear vehículo</button>
       <div class="mensaje">{{mensaje}}</div>
     </form>
     <div *ngIf="snackbarVisible" class="snackbar">{{snackbarMensaje}}</div>

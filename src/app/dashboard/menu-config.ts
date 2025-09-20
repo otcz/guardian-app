@@ -145,21 +145,27 @@ export const MENU_CONFIG: MenuItem[] = [
     roles: ['ADMIN'],
     children: [
       {
-        label: 'Lista global',
+        label: 'Crear',
+        icon: 'pi pi-plus',
+        route: '/dashboard/vehiculos/crear',
+        roles: ['ADMIN']
+      },
+      {
+        label: 'Listar',
         icon: 'pi pi-list',
-        route: '/dashboard/vehiculos',
+        route: '/dashboard/vehiculos/listar',
         roles: ['ADMIN']
       },
       {
-        label: 'Cambiar estado',
-        icon: 'pi pi-refresh',
-        route: '/dashboard/cambiar-estado-vehiculo',
+        label: 'Editar',
+        icon: 'pi pi-pencil',
+        route: '/dashboard/vehiculos/editar',
         roles: ['ADMIN']
       },
       {
-        label: 'Reasignar propietario',
-        icon: 'pi pi-user-plus',
-        route: '/dashboard/reasignar-propietario',
+        label: 'Eliminar',
+        icon: 'pi pi-trash',
+        route: '/dashboard/vehiculos/eliminar',
         roles: ['ADMIN']
       }
     ]

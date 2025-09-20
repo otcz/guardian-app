@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { UsuariosService, Usuario } from '../../service/usuarios-service';
-import { Rol, EstadoUsuario, DocumentoTipo } from '../../service/usuario-enums';
+import { UsuariosService, Usuario } from '../../../service/usuarios-service';
+import { Rol, EstadoUsuario, DocumentoTipo } from '../../../service/usuario-enums';
 
 @Component({
   selector: 'app-crear-usuario',

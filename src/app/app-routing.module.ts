@@ -16,11 +16,11 @@ export const appRoutes: Routes = [
         path: 'usuarios',
         children: [
           { path: '', redirectTo: 'ver', pathMatch: 'full' },
-          { path: 'crear', loadComponent: () => import('./dashboard/usuarios-component/crear-usuario.component').then(m => m.CrearUsuarioComponent) },
-          { path: 'ver', loadComponent: () => import('./dashboard/usuarios-component/editar-suaurio/editar-usuario-form.component').then(m => m.EditarUsuarioFormComponent) },
-          { path: 'editar/:correo', loadComponent: () => import('./dashboard/usuarios-component/editar-usuario.component').then(m => m.EditarUsuarioComponent) },
-          { path: 'editar', loadComponent: () => import('./dashboard/usuarios-component/editar-usuario.component').then(m => m.EditarUsuarioComponent) },
-          { path: 'eliminar', loadComponent: () => import('./dashboard/usuarios-component/eliminar-usuario.component').then(m => m.EliminarUsuarioComponent) }
+          { path: 'crear', loadComponent: () => import('./dashboard/usuarios-component/crear-usuario/crear-usuario.component').then(m => m.CrearUsuarioComponent) },
+          { path: 'ver', loadComponent: () => import('./dashboard/usuarios-component/buscar-suaurio/buscar-usuario-form.component').then(m => m.BuscarUsuarioFormComponent) },
+          { path: 'editar/:correo', loadComponent: () => import('./dashboard/usuarios-component/editar-usuario/editar-usuario.component').then(m => m.EditarUsuarioComponent) },
+          { path: 'editar', loadComponent: () => import('./dashboard/usuarios-component/editar-usuario/editar-usuario.component').then(m => m.EditarUsuarioComponent) },
+          { path: 'eliminar', loadComponent: () => import('./dashboard/usuarios-component/eliminar-usuario/eliminar-usuario.component').then(m => m.EliminarUsuarioComponent) }
         ]
       }
     ]

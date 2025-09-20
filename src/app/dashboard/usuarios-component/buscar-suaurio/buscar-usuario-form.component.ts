@@ -11,10 +11,10 @@ import { Router } from '@angular/router';
   selector: 'app-editar-usuario-form',
   standalone: true,
   imports: [CommonModule, FormsModule, ButtonModule, InputTextModule, TooltipModule],
-  templateUrl: './editar-usuario-form.component.html',
-  styleUrls: ['./editar-usuario-form.component.css']
+  templateUrl: './buscar-usuario-form.component.html',
+  styleUrls: ['./buscar-usuario-form.component.css']
 })
-export class EditarUsuarioFormComponent implements OnInit {
+export class BuscarUsuarioFormComponent implements OnInit {
   @Input() correo: string = '';
   usuario: Usuario | null = null;
   mensaje: string = '';

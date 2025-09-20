@@ -1,0 +1,68 @@
+<div class="form-center-wrapper">
+  <div class="editar-usuario-form-horizontal">
+    <div *ngIf="usuarios.length > 0 && !usuario">
+      <p-table #dt class="tabla-usuarios-prime" [value]="usuariosFiltrados" [paginator]="true" [rows]="10"
+               [responsiveLayout]="'scroll'" [showCurrentPageReport]="true"
+               currentPageReportTemplate="{first} - {last} de {totalRecords}" [rowsPerPageOptions]="[5,10,20]"
+               [globalFilterFields]="['nombreCompleto','documentoTipo','documentoNumero','correo','rol','estado','casa','telefono']"
+               [resizableColumns]="true" columnResizeMode="expand">
+        <ng-template pTemplate="caption">
+          <div class="p-input-icon-left search-bar-modern">
+            <i class="pi pi-search"></i>
+            <input pInputText type="text" (input)="onGlobalFilterInput($event, dt)" placeholder="Buscar en la tabla..."
+                   class="p-inputtext-sm search-bar-input" />
+          </div>
+        </ng-template>
+
+        <ng-template pTemplate="header">
+          <tr>
+            <th class="td-contador">#</th>
+            <th pSortableColumn="nombreCompleto" class="td-nombre">Nombre
+              <p-sortIcon field="nombreCompleto"></p-sortIcon>
+            </th>
+            <th pSortableColumn="documentoTipo" class="td-corto">Tipo CC
+              <p-sortIcon field="documentoTipo"></p-sortIcon>
+            </th>
+            <th pSortableColumn="documentoNumero">N° Doc
+              <p-sortIcon field="documentoNumero"></p-sortIcon>
+            </th>
+            <th pSortableColumn="correo">Correo
+              <p-sortIcon field="correo"></p-sortIcon>
+            </th>
+            <th pSortableColumn="rol">Rol
+              <p-sortIcon field="rol"></p-sortIcon>
+            </th>
+            <th pSortableColumn="estado" class="td-estado">Estado
+              <p-sortIcon field="estado"></p-sortIcon>
+            </th>
+            <th pSortableColumn="casa" class="td-casa">Casa
+              <p-sortIcon field="casa"></p-sortIcon>
+            </th>
+            <th pSortableColumn="telefono">Teléfono
+              <p-sortIcon field="telefono"></p-sortIcon>
+            </th>
+            <th class="td-acciones">Acciones</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-u let-rowIndex="rowIndex">
+          <tr>
+            <td class="td-contador">{{ (dt.first || 0) + rowIndex + 1 }}</td>
+            <td class="td-nombre">{{ u.nombreCompleto }}</td>
+            <td class="td-corto">{{ u.documentoTipo }}</td>
+            <td>{{ u.documentoNumero }}</td>
+            <td>{{ u.correo }}</td>
+            <td>{{ u.rol }}</td>
+            <td class="td-estado">{{ u.estado }}</td>
+            <td class="td-casa">{{ u.casa }}</td>
+            <td>{{ u.telefono }}</td>
+            <td class="td-acciones">
+              <button pButton type="button" icon="pi pi-eye" class="boton-accion boton-ver-minimal" pTooltip="Ver" tooltipPosition="top" (click)="verUsuario(u)"></button>
+              <button pButton type="button" icon="pi pi-pencil" class="boton-accion boton-editar-minimal" pTooltip="Editar" tooltipPosition="top" (click)="editarUsuario(u)"></button>
+              <button pButton type="button" icon="pi pi-trash" class="boton-accion boton-eliminar-minimal" pTooltip="Eliminar" tooltipPosition="top" (click)="eliminarUsuario(u)"></button>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </div>
+</div>

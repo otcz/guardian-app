@@ -1,11 +1,11 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { UsuariosService, Usuario } from '../../../service/usuarios-service';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { TooltipModule } from 'primeng/tooltip';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { MessageService } from 'primeng/api';
 
 @Component({
@@ -16,7 +16,7 @@ import { MessageService } from 'primeng/api';
   styleUrls: ['./editar-usuario-form.component.css'],
   providers: [MessageService]
 })
-export class EditarUsuarioFormComponent implements OnInit {
+export class EditarUsuarioFormComponent implements OnInit, OnChanges {
   @Input() correo: string = '';
   usuario: Usuario | null = null;
   mensaje: string = '';
@@ -29,15 +29,39 @@ export class EditarUsuarioFormComponent implements OnInit {
   snackbarVisible: boolean = false;
   snackbarMensaje: string = '';
 
-  constructor(private usuariosService: UsuariosService, private router: Router, private messageService: MessageService) {}
+  constructor(
+    private usuariosService: UsuariosService,
+    private router: Router,
+    private messageService: MessageService,
+    private route: ActivatedRoute
+  ) {}
 
   ngOnInit() {
     this.usuarioLogueado = { rol: 'ADMIN' } as Usuario;
-    if (this.correo) {
-      this.usuariosService.getUsuarios().subscribe((usuarios: Usuario[]) => {
-        this.usuario = usuarios.find((u: Usuario) => u.correo === this.correo) || null;
-      });
+    // Si no hay input, obtener de la ruta
+    if (!this.correo) {
+      this.correo = this.route.snapshot.paramMap.get('correo') || '';
     }
+    if (this.correo) {
+      this.cargarUsuarioPorCorreo();
+    }
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['correo'] && changes['correo'].currentValue) {
+      this.cargarUsuarioPorCorreo();
+    }
+  }
+
+  cargarUsuarioPorCorreo() {
+    if (!this.correo) {
+      this.usuario = null;
+      return;
+    }
+    this.usuariosService.getUsuarios().subscribe((usuarios: Usuario[]) => {
+      this.usuario = usuarios.find((u: Usuario) => u.correo === this.correo) || null;
+      this.mensaje = this.usuario ? '' : 'Usuario no encontrado.';
+    });
   }
 
   editarUsuario() {
@@ -89,12 +113,6 @@ export class EditarUsuarioFormComponent implements OnInit {
     }
   }
 
-  mostrarTabla() {
-    this.usuario = null;
-    this.mensaje = '';
-    this.intentoGuardar = false;
-  }
-
   buscarUsuario() {
     if (!this.busqueda || this.busqueda.trim() === '') {
       this.mensaje = 'Ingrese un correo o identificación.';
@@ -119,6 +137,6 @@ export class EditarUsuarioFormComponent implements OnInit {
   }
 
   irMostrarTabla() {
-    this.router.navigate(['/dashboard/usuarios/mostrar']);
+    this.router.navigate(['/dashboard/usuarios/ver']);
   }
 }

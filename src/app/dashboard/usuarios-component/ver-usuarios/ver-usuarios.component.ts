@@ -61,14 +61,11 @@ export class VerUsuariosComponent implements OnInit {
     }
   }
 
-  verUsuario(u: Usuario) {
-    // Navega al componente de solo vista (EditarUsuarioComponent)
-    this.router.navigate(['/dashboard/usuarios/ver', u.correo]);
-  }
 
   editarUsuario(u: Usuario) {
     // Mostrar el formulario de edición tipo "buscar usuario"
-    this.router.navigate(['/dashboard/usuarios/editar', u.correo]);
+    console.log(u.correo);
+    this.router.navigate(['/dashboard/usuarios/editar/', u.correo]);
   }
 
   displayConfirm: boolean = false;
@@ -127,7 +124,4 @@ export class VerUsuariosComponent implements OnInit {
     this.confirmarEliminarUsuario(u);
   }
 
-  volverATabla() {
-    this.correo = '';
-  }
 }

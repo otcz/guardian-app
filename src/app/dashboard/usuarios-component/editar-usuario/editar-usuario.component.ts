@@ -10,12 +10,11 @@ import { TooltipModule } from 'primeng/tooltip';
 import { DialogModule } from 'primeng/dialog';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
-import { DropdownModule } from 'primeng/dropdown';
 
 @Component({
   selector: 'app-editar-usuario',
   standalone: true,
-  imports: [CommonModule, FormsModule, TableModule, ButtonModule, InputTextModule, TooltipModule, DialogModule, ToastModule, DropdownModule],
+  imports: [CommonModule, FormsModule, TableModule, ButtonModule, InputTextModule, TooltipModule, DialogModule, ToastModule],
   providers: [MessageService],
   templateUrl: './editar-usuario.component.html',
   styleUrls: ['./editar-usuario.component.css']
@@ -27,20 +26,6 @@ export class EditarUsuarioComponent implements OnInit {
   usuarios: Usuario[] = [];
   usuariosFiltrados: Usuario[] = [];
   usuarioLogueado: Usuario | null = null;
-  // Opciones para p-dropdown
-  documentoTipos = [
-    { label: 'CC', value: 'CC' },
-    { label: 'CE', value: 'CE' },
-    { label: 'PAS', value: 'PAS' }
-  ];
-  roles = [
-    { label: 'ADMIN', value: 'ADMIN' },
-    { label: 'USER', value: 'USER' }
-  ];
-  estados = [
-    { label: 'ACTIVO', value: 'ACTIVO' },
-    { label: 'INACTIVO', value: 'INACTIVO' }
-  ];
 
   constructor(private usuariosService: UsuariosService, private router: Router, private messageService: MessageService) {}
 
@@ -76,13 +61,8 @@ export class EditarUsuarioComponent implements OnInit {
   }
 
   editarUsuario(u: Usuario) {
-    // Abrir el formulario inline para editar
-    this.usuario = { ...u } as Usuario; // clonar para editar sin modificar la lista hasta guardar
-    // desplazar suavemente hacia el formulario si está fuera de vista
-    setTimeout(() => {
-      const el = document.querySelector('.editar-usuario-card');
-      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }, 50);
+    // Navega al formulario de edición (BuscarUsuarioFormComponent)
+    this.router.navigate(['/dashboard/usuarios/editar', u.correo]);
   }
 
   displayConfirm: boolean = false;
@@ -139,34 +119,5 @@ export class EditarUsuarioComponent implements OnInit {
   eliminarUsuario(u: Usuario) {
     // Mantengo el método por compatibilidad, ahora abre el diálogo
     this.confirmarEliminarUsuario(u);
-  }
-
-  // Guardar cambios del formulario de edición
-  saveChanges() {
-    if (!this.usuario || !this.usuario.correo) {
-      this.messageService.add({severity: 'warn', summary: 'Atención', detail: 'No hay usuario seleccionado.'});
-      return;
-    }
-
-    const correo = this.usuario.correo;
-    this.usuariosService.editarUsuario(correo, this.usuario).subscribe({
-      next: (updated) => {
-        this.usuarios = this.usuarios.map(u => u.correo === correo ? updated : u);
-        this.usuariosFiltrados = this.usuariosFiltrados.map(u => u.correo === correo ? updated : u);
-        this.messageService.add({severity: 'success', summary: 'Guardado', detail: 'Cambios guardados correctamente.'});
-        this.usuario = null;
-      },
-      error: (err) => {
-        console.error('Error guardando usuario', err);
-        this.messageService.add({severity: 'error', summary: 'Error', detail: 'No se pudieron guardar los cambios.'});
-      }
-    });
-  }
-
-  // Cancelar edición
-  cancelEdit() {
-    this.usuario = null;
-    this.selectedUsuario = null;
-    this.messageService.add({severity: 'info', summary: 'Cancelado', detail: 'Edición cancelada.'});
   }
 }

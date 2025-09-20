@@ -49,6 +49,12 @@ export class CrearVehiculoComponent implements OnInit {
       this.mensaje = 'Debe seleccionar un usuario.';
       return;
     }
+    // Transformar todos los campos de texto a mayúsculas antes de enviar
+    this.vehiculo.placa = this.vehiculo.placa.toUpperCase();
+    this.vehiculo.tipo = this.vehiculo.tipo.toUpperCase();
+    this.vehiculo.color = this.vehiculo.color.toUpperCase();
+    this.vehiculo.marca = this.vehiculo.marca.toUpperCase();
+    this.vehiculo.modelo = this.vehiculo.modelo.toUpperCase();
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders({ 'Authorization': `Bearer ${token}` });
     const vehiculoAEnviar = {

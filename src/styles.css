@@ -202,3 +202,13 @@
     font-size: 0.97rem !important;
   }
 }
+
+/* Texto en mayúsculas para campos de texto y áreas de texto */
+input[type="text"], textarea, .p-inputtext {
+  text-transform: uppercase !important;
+}
+input[type="text"]::placeholder, textarea::placeholder, .p-inputtext::placeholder {
+  text-transform: none !important;
+  color: #b0b8c1;
+  opacity: 1;
+}

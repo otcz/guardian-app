@@ -33,6 +33,12 @@ export class CrearUsuarioComponent {
   constructor(private usuariosService: UsuariosService) {}
 
   crearUsuario() {
+    // Transformar campos de texto a mayúsculas antes de enviar
+    this.usuario.nombreCompleto = this.usuario.nombreCompleto?.toUpperCase() || '';
+    this.usuario.documentoNumero = this.usuario.documentoNumero?.toUpperCase() || '';
+    this.usuario.correo = this.usuario.correo?.toUpperCase() || '';
+    this.usuario.casa = this.usuario.casa?.toUpperCase() || '';
+    this.usuario.telefono = this.usuario.telefono?.toUpperCase() || '';
     const token = localStorage.getItem('token');
     const usuarioAEnviar = {
       ...this.usuario,

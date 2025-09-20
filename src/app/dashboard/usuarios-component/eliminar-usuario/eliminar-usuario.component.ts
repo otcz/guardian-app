@@ -19,6 +19,8 @@ export class EliminarUsuarioComponent {
 
   eliminarUsuario() {
     if (this.correo) {
+      // Transformar a mayúsculas antes de enviar
+      this.correo = this.correo.toUpperCase();
       // Si contiene al menos una letra, eliminar por correo
       if (/[a-zA-Z]/.test(this.correo)) {
         const endpoint = `DELETE /api/usuarios/correo/${this.correo}`;

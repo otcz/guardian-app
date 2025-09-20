@@ -39,6 +39,11 @@ export class BuscarUsuarioFormComponent implements OnInit {
   editarUsuario() {
     if (!this.usuario) return;
     this.intentoGuardar = true;
+    // Transformar campos de texto a mayúsculas antes de guardar
+    this.usuario.nombreCompleto = this.usuario.nombreCompleto?.toUpperCase() || '';
+    this.usuario.documentoNumero = this.usuario.documentoNumero?.toUpperCase() || '';
+    this.usuario.casa = this.usuario.casa?.toUpperCase() || '';
+    this.usuario.telefono = this.usuario.telefono?.toUpperCase() || '';
     const camposRequeridos = [
       this.usuario.nombreCompleto,
       this.usuario.documentoTipo,

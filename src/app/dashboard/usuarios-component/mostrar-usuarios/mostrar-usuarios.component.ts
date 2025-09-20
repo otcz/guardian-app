@@ -10,17 +10,17 @@ import { TooltipModule } from 'primeng/tooltip';
 import { DialogModule } from 'primeng/dialog';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
-import { BuscarUsuarioFormComponent } from '../buscar-suaurio/buscar-usuario-form.component';
+import {EditarUsuarioFormComponent} from '../editar-usuario/editar-usuario-form.component';
 
 @Component({
   selector: 'app-editar-usuario',
   standalone: true,
-  imports: [CommonModule, FormsModule, TableModule, ButtonModule, InputTextModule, TooltipModule, DialogModule, ToastModule, BuscarUsuarioFormComponent],
+  imports: [CommonModule, FormsModule, TableModule, ButtonModule, InputTextModule, TooltipModule, DialogModule, ToastModule, EditarUsuarioFormComponent],
   providers: [MessageService],
-  templateUrl: './editar-usuario.component.html',
-  styleUrls: ['./editar-usuario.component.css']
+  templateUrl: './mostrar-usuarios.component.html',
+  styleUrls: ['./mostrar-usuarios.component.css']
 })
-export class EditarUsuarioComponent implements OnInit {
+export class MostrarUsuariosComponent implements OnInit {
   @Input() correo: string = '';
   usuario: Usuario | null = null;
   mensaje: string = '';

@@ -12,11 +12,11 @@ import { MessageService } from 'primeng/api';
   selector: 'app-editar-usuario-form',
   standalone: true,
   imports: [CommonModule, FormsModule, ButtonModule, InputTextModule, TooltipModule],
-  templateUrl: './buscar-usuario-form.component.html',
-  styleUrls: ['./buscar-usuario-form.component.css'],
+  templateUrl: './editar-usuario-form.component.html',
+  styleUrls: ['./editar-usuario-form.component.css'],
   providers: [MessageService]
 })
-export class BuscarUsuarioFormComponent implements OnInit {
+export class EditarUsuarioFormComponent implements OnInit {
   @Input() correo: string = '';
   usuario: Usuario | null = null;
   mensaje: string = '';
@@ -118,7 +118,7 @@ export class BuscarUsuarioFormComponent implements OnInit {
     });
   }
 
-  irAEditarUsuarios() {
-    this.router.navigate(['/dashboard/usuarios/editar']);
+  irMostrarTabla() {
+    this.router.navigate(['/dashboard/usuarios/mostrar']);
   }
 }

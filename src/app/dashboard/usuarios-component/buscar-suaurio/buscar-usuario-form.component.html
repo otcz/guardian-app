@@ -7,7 +7,8 @@
             <label for="busqueda" class="input-label search-label">Buscar usuario</label>
             <div class="input-icon-wrapper">
               <i class="pi pi-search search-icon"></i>
-              <input pInputText type="text" [(ngModel)]="busqueda" name="busqueda" id="busqueda" placeholder="Correo o identificación del usuario..." required />
+              <input pInputText type="text" [(ngModel)]="busqueda" name="busqueda" id="busqueda"
+                     placeholder="Correo o identificación del usuario..." required/>
             </div>
             <button pButton type="submit" class="btn-crear buscar-btn">
               Buscar
@@ -18,7 +19,12 @@
       <div *ngIf="mensaje && !usuario" class="mensaje mensaje-error">{{ mensaje }}</div>
     </div>
     <form *ngIf="usuario" class="editar-usuario-form" (ngSubmit)="editarUsuario()">
-      <h2>Editar usuario</h2>
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+        <h2 style="margin: 0;">Editar usuario</h2>
+        <button pButton type="button" (click)="irAEditarUsuarios()" icon="pi pi-users" label="Usuarios"
+                class="p-button-primary p-button-sm volver-btn"></button>
+      </div>
+
       <div class="form-grid">
         <div class="input-group">
           <label for="nombreCompleto" class="input-label">Nombre completo</label>

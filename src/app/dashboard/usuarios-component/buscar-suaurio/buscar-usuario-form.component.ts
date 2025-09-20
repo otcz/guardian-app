@@ -117,4 +117,8 @@ export class BuscarUsuarioFormComponent implements OnInit {
       }
     });
   }
+
+  irAEditarUsuarios() {
+    this.router.navigate(['/dashboard/usuarios/editar']);
+  }
 }

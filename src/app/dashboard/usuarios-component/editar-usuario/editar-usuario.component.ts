@@ -126,4 +126,8 @@ export class EditarUsuarioComponent implements OnInit {
     // Mantengo el método por compatibilidad, ahora abre el diálogo
     this.confirmarEliminarUsuario(u);
   }
+
+  volverATabla() {
+    this.correo = '';
+  }
 }

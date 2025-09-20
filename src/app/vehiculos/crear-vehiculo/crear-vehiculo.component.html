@@ -32,7 +32,8 @@
             <input type="checkbox" id="activo" name="activo" [(ngModel)]="vehiculo.activo"> Activo
           </label>
         </div>
-        <div class="form-dropdown-group" style="width: 100%; grid-column: 1 / -1;">
+        <div class="input-group form-dropdown-group" style="width: 100%; grid-column: 1 / -1;">
+          <span class="input-icon"><i class="pi pi-user"></i></span>
           <p-autoComplete
             [(ngModel)]="usuarioSeleccionado"
             [suggestions]="usuariosFiltrados"
@@ -44,13 +45,8 @@
             [showClear]="true"
             [forceSelection]="true"
             placeholder="Seleccione o busque un usuario por nombre o documento"
-            [style]="{width: '100%'}"
-            [panelStyle]="{width: '100%'}"
             name="usuarioId"
             required>
-            <ng-template pTemplate="pPrefix">
-              <span class="input-icon"><i class="pi pi-user"></i></span>
-            </ng-template>
             <ng-template let-user pTemplate="item">
               <div class="usuario-item-autocomplete">
                 <div class="usuario-nombre">{{ user.nombreCompletoMayus }}</div>
@@ -58,7 +54,7 @@
               </div>
             </ng-template>
             <ng-template let-user pTemplate="selectedItem">
-              <div class="usuario-item-autocomplete usuario-item-selected">
+              <div class="usuario-item-autocomplete">
                 <div class="usuario-nombre">{{ user?.nombreCompletoMayus }}</div>
                 <div class="usuario-doc">{{ user?.documentoTipo }}: {{ user?.documentoNumero }}</div>
               </div>

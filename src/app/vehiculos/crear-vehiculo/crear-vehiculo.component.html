@@ -1,3 +1,44 @@
 <h2>Crear Vehículo</h2>
-<!-- Aquí irá el formulario para crear un vehículo -->
-
+<form class="crear-vehiculo-form" (ngSubmit)="crearVehiculo()" #vehiculoForm="ngForm">
+  <div class="form-group">
+    <label for="usuario">Usuario:</label>
+    <select id="usuario" [(ngModel)]="vehiculo.usuarioId" name="usuarioId" required>
+      <option [ngValue]="null">Seleccione un usuario</option>
+      <option *ngFor="let u of usuarios" [ngValue]="u.id">{{u.nombreCompleto}} ({{u.correo}})</option>
+    </select>
+  </div>
+  <div class="form-group">
+    <label for="placa">Placa:</label>
+    <input id="placa" name="placa" [(ngModel)]="vehiculo.placa" required maxlength="10">
+  </div>
+  <div class="form-group">
+    <label for="tipo">Tipo:</label>
+    <select id="tipo" name="tipo" [(ngModel)]="vehiculo.tipo" required>
+      <option value="">Seleccione tipo</option>
+      <option *ngFor="let t of tipos" [value]="t">{{t}}</option>
+    </select>
+  </div>
+  <div class="form-group">
+    <label for="color">Color:</label>
+    <input id="color" name="color" [(ngModel)]="vehiculo.color" required maxlength="20">
+  </div>
+  <div class="form-group">
+    <label for="marca">Marca:</label>
+    <input id="marca" name="marca" [(ngModel)]="vehiculo.marca" required maxlength="30">
+  </div>
+  <div class="form-group">
+    <label for="modelo">Modelo:</label>
+    <input id="modelo" name="modelo" [(ngModel)]="vehiculo.modelo" required maxlength="30">
+  </div>
+  <div class="form-group">
+    <label for="activo">Activo:</label>
+    <input type="checkbox" id="activo" name="activo" [(ngModel)]="vehiculo.activo">
+  </div>
+  <div class="form-group">
+    <label for="fechaRegistro">Fecha de registro:</label>
+    <input id="fechaRegistro" name="fechaRegistro" type="datetime-local" [(ngModel)]="vehiculo.fechaRegistro" required>
+  </div>
+  <button type="submit">Crear Vehículo</button>
+</form>
+<div *ngIf="mensaje" class="mensaje-error">{{mensaje}}</div>
+<div *ngIf="snackbarVisible" class="snackbar">{{snackbarMensaje}}</div>

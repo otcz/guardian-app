@@ -18,15 +18,20 @@ export class MenuService {
       { label: 'Accesos', icon: 'pi pi-sign-in', routerLink: '/accesos' },
       { label: 'Consultar usuario/vehículo', icon: 'pi pi-search', routerLink: '/consulta' },
       { label: 'Historial de accesos', icon: 'pi pi-history', routerLink: '/historial-accesos' },
+      { label: 'Vehículos', icon: 'pi pi-car', items: [
+        { label: 'Registrar vehículo', icon: '', routerLink: '/dashboard/vehiculos/registrar' },
+        { label: 'Activar/Inactivar', icon: '', routerLink: '/dashboard/vehiculos/estado' },
+        { label: 'Historial de movimientos', icon: '', routerLink: '/dashboard/vehiculos/historial' }
+      ] },
       { label: 'Cerrar sesión', icon: 'pi pi-power-off', routerLink: '/logout' }
     ],
     usuario: [
       { label: 'Inicio', icon: 'pi pi-home', routerLink: '/inicio' },
       { label: 'Perfil', icon: 'pi pi-user', items: [ { label: 'Ver Perfil', icon: '', routerLink: '/perfil' } ] },
       { label: 'Mis vehículos', icon: 'pi pi-car', items: [
-        { label: 'Registrar vehículo', icon: '', routerLink: '/vehiculos/registrar' },
-        { label: 'Activar/Inactivar', icon: '', routerLink: '/vehiculos/estado' },
-        { label: 'Historial de movimientos', icon: '', routerLink: '/vehiculos/historial' }
+        { label: 'Registrar vehículo', icon: '', routerLink: '/dashboard/vehiculos/registrar' },
+        { label: 'Activar/Inactivar', icon: '', routerLink: '/dashboard/vehiculos/estado' },
+        { label: 'Historial de movimientos', icon: '', routerLink: '/dashboard/vehiculos/historial' }
       ] },
       { label: 'Mis invitados', icon: 'pi pi-users', items: [
         { label: 'Crear invitación', icon: '', routerLink: '/invitados/crear' },

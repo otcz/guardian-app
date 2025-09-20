@@ -25,7 +25,7 @@ export const appRoutes: Routes = [
       },
       {
         path: 'vehiculos',
-        loadChildren: () => import('./vehiculos/vehiculos.module').then(m => m.VehiculosModule)
+        loadChildren: () => import('./dashboard/vehiculos/vehiculos.module').then(m => m.VehiculosModule)
       }
     ]
   },

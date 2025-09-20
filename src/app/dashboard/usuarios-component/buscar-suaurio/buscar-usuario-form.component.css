@@ -1,4 +1,4 @@
-/* Estilos mejorados para el formulario de b����squeda y edición de usuario */
+/* Estilos mejorados para el formulario de b�����squeda y edición de usuario */
 
 .form-center-wrapper {
   display: flex;
@@ -167,6 +167,41 @@
   font-weight: 600;
   color: #203a43;
   margin-bottom: 0;
+}
+
+.snackbar {
+  position: fixed;
+  left: 50%;
+  bottom: 32px;
+  transform: translateX(-50%);
+  min-width: 240px;
+  max-width: 90vw;
+  background: linear-gradient(90deg, #4f8cff 60%, #23272f 100%);
+  color: #fff;
+  font-size: 1.08rem;
+  font-weight: 600;
+  border-radius: 10px;
+  box-shadow: 0 4px 24px rgba(30,40,60,0.18);
+  padding: 16px 32px;
+  text-align: center;
+  z-index: 9999;
+  opacity: 0.98;
+  animation: snackbar-fadein 0.3s, snackbar-fadeout 0.3s 3.2s;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.snackbar i {
+  font-size: 1.3rem;
+  color: #fff;
+}
+@keyframes snackbar-fadein {
+  from { bottom: 0; opacity: 0; }
+  to { bottom: 32px; opacity: 0.98; }
+}
+@keyframes snackbar-fadeout {
+  from { opacity: 0.98; }
+  to { opacity: 0; }
 }
 
 @media (max-width: 700px) {

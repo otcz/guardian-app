@@ -6,13 +6,15 @@ import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { TooltipModule } from 'primeng/tooltip';
 import { Router } from '@angular/router';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-editar-usuario-form',
   standalone: true,
   imports: [CommonModule, FormsModule, ButtonModule, InputTextModule, TooltipModule],
   templateUrl: './buscar-usuario-form.component.html',
-  styleUrls: ['./buscar-usuario-form.component.css']
+  styleUrls: ['./buscar-usuario-form.component.css'],
+  providers: [MessageService]
 })
 export class BuscarUsuarioFormComponent implements OnInit {
   @Input() correo: string = '';
@@ -24,8 +26,10 @@ export class BuscarUsuarioFormComponent implements OnInit {
   intentoGuardar: boolean = false;
   usuarioLogueado: Usuario | null = null;
   busqueda: string = '';
+  snackbarVisible: boolean = false;
+  snackbarMensaje: string = '';
 
-  constructor(private usuariosService: UsuariosService, private router: Router) {}
+  constructor(private usuariosService: UsuariosService, private router: Router, private messageService: MessageService) {}
 
   ngOnInit() {
     this.usuarioLogueado = { rol: 'ADMIN' } as Usuario;
@@ -64,11 +68,24 @@ export class BuscarUsuarioFormComponent implements OnInit {
     }
     if (this.usuario.id) {
       this.usuariosService.editarUsuarioPorId(this.usuario.id, usuarioAEnviar).subscribe({
-        next: () => this.mensaje = 'Usuario editado exitosamente.',
-        error: () => this.mensaje = 'Error al editar usuario.'
+        next: () => {
+          this.mensaje = '';
+          this.snackbarMensaje = 'Usuario editado exitosamente.';
+          this.snackbarVisible = true;
+          setTimeout(() => this.snackbarVisible = false, 3500);
+        },
+        error: () => {
+          this.mensaje = 'Error al editar usuario.';
+          this.snackbarMensaje = 'Error al editar usuario.';
+          this.snackbarVisible = true;
+          setTimeout(() => this.snackbarVisible = false, 3500);
+        }
       });
     } else {
       this.mensaje = 'No se encontró el ID del usuario.';
+      this.snackbarMensaje = 'No se encontró el ID del usuario.';
+      this.snackbarVisible = true;
+      setTimeout(() => this.snackbarVisible = false, 3500);
     }
   }
 

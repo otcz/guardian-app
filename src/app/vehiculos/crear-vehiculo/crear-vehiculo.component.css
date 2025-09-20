@@ -81,9 +81,279 @@ h2 {
   90% { opacity: 1; }
   100% { opacity: 0; }
 }
+
+/* Ajuste visual y de espaciado para igualar al formulario de usuario */
+.form-center-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: #f4f7fa;
+}
+.crear-vehiculo-form-horizontal {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 16px rgba(30,40,60,0.10);
+  padding: 32px 28px 24px 28px;
+  max-width: 440px;
+  width: 100%;
+  margin: 32px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.crear-usuario-form-grid {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px 18px;
+}
+.input-group {
+  display: flex;
+  align-items: center;
+  background: #f4f7fa;
+  border-radius: 8px;
+  border: 1px solid #dbeafe;
+  padding: 0 10px;
+  height: 44px;
+  position: relative;
+}
+.input-icon {
+  margin-right: 8px;
+  color: #4f8cff;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+}
+.input-group input,
+.input-group select {
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 1rem;
+  font-family: inherit;
+  width: 100%;
+  height: 40px;
+  padding: 0 2px;
+  color: #23272f;
+}
+.input-group input[type="checkbox"] {
+  width: auto;
+  margin-right: 6px;
+  height: auto;
+}
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  font-size: 1rem;
+  color: #23272f;
+  font-weight: 500;
+  margin-left: 4px;
+}
+.btn-crear {
+  width: 100%;
+  background: linear-gradient(90deg, #4f8cff 60%, #23272f 100%);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 13px 0;
+  font-size: 1.13rem;
+  font-weight: 600;
+  margin-top: 10px;
+  cursor: pointer;
+  transition: background 0.2s;
+  box-shadow: 0 2px 8px rgba(79,140,255,0.10);
+}
+.btn-crear:hover {
+  background: linear-gradient(90deg, #23272f 0%, #4f8cff 100%);
+}
+.mensaje {
+  color: #e74c3c;
+  font-size: 1rem;
+  margin-top: 8px;
+  text-align: center;
+}
+.snackbar {
+  position: fixed;
+  left: 50%;
+  bottom: 32px;
+  transform: translateX(-50%);
+  background: #4f8cff;
+  color: #fff;
+  padding: 14px 32px;
+  border-radius: 8px;
+  font-size: 1.08rem;
+  box-shadow: 0 2px 8px rgba(30,40,60,0.13);
+  z-index: 1000;
+  animation: fadeInUp 0.3s;
+}
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(30px) translateX(-50%); }
+  to { opacity: 1; transform: translateY(0) translateX(-50%); }
+}
+
+/* Ajustes para PrimeNG Dropdown */
+.form-dropdown-group {
+  display: flex;
+  align-items: stretch;
+  background: transparent;
+  border-radius: 8px;
+  border: none;
+  padding: 0;
+  height: auto;
+  position: relative;
+  grid-column: span 2;
+  margin-bottom: 0;
+  width: 100%;
+}
+.form-dropdown-group .input-icon {
+  background: #fff;
+  border: 1px solid #dbeafe;
+  border-radius: 8px 0 0 8px;
+  padding: 0 10px;
+  display: flex;
+  align-items: center;
+  height: 44px;
+  font-size: 1.2rem;
+  color: #4f8cff;
+}
+.form-dropdown-group .p-dropdown {
+  width: 100% !important;
+  border: 1px solid #dbeafe !important;
+  border-radius: 0 8px 8px 0 !important;
+  background: #fff !important;
+  min-height: 44px;
+  height: 44px;
+  box-shadow: none !important;
+  font-size: 1rem;
+  color: #23272f;
+  font-family: inherit;
+  margin-left: -1px;
+}
+.form-dropdown-group .p-dropdown-label {
+  font-size: 1rem;
+  color: #23272f;
+  background: transparent;
+  font-family: inherit;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+}
+.form-dropdown-group .p-dropdown-panel {
+  width: 100% !important;
+  min-width: 220px;
+  border-radius: 0 0 8px 8px !important;
+  box-shadow: 0 2px 8px rgba(30,40,60,0.13) !important;
+  border: 1px solid #dbeafe !important;
+  background: #fff !important;
+  padding: 0;
+  margin-top: 2px;
+}
+.form-dropdown-group .p-dropdown-items {
+  font-size: 1rem;
+  font-family: inherit;
+  background: #fff !important;
+}
+.form-dropdown-group .p-dropdown-item {
+  padding: 10px 16px;
+  border-radius: 6px;
+  transition: background 0.15s;
+  color: #23272f !important;
+  background: #fff !important;
+}
+.form-dropdown-group .p-dropdown-item.p-highlight,
+.form-dropdown-group .p-dropdown-item:hover {
+  background: #1976d2 !important;
+  color: #fff !important;
+  font-weight: bold;
+}
+.form-dropdown-group .p-dropdown-filter {
+  border-radius: 6px;
+  border: 1px solid #dbeafe;
+  padding: 8px 10px;
+  font-size: 1rem;
+  margin-bottom: 6px;
+  background: #f4f7fa;
+}
+.form-dropdown-group .p-dropdown-clear-icon {
+  color: #4f8cff !important;
+}
+.form-dropdown-group .p-dropdown-trigger {
+  color: #4f8cff !important;
+  font-size: 1.2rem;
+}
+
+/* Estilos para el autocompletado de usuario */
+.usuario-item-autocomplete {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 12px 8px 12px;
+  line-height: 1.2;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(30,40,60,0.07);
+  margin: 2px 0;
+}
+.usuario-nombre {
+  font-weight: 600;
+  color: #23272f;
+  font-size: 1rem;
+  letter-spacing: 0.5px;
+}
+.usuario-doc {
+  font-size: 0.92rem;
+  color: #4f8cff;
+  font-weight: 400;
+  margin-top: 1px;
+  letter-spacing: 0.2px;
+}
+
+.p-autocomplete .p-autocomplete-input {
+  font-size: 1rem;
+  padding: 8px 12px 8px 36px;
+  border-radius: 8px;
+}
+.p-autocomplete .p-autocomplete-dropdown {
+  border-radius: 8px;
+}
+.p-autocomplete .p-autocomplete-panel {
+  border-radius: 10px;
+  box-shadow: 0 4px 16px rgba(30,40,60,0.10);
+}
+.p-autocomplete .p-autocomplete-item {
+  padding: 8px 12px;
+}
+.p-autocomplete .p-autocomplete-item.p-highlight {
+  background: #eaf2ff;
+  color: #4f8cff;
+}
+
+/* Responsive */
 @media (max-width: 600px) {
-  .crear-vehiculo-form {
-    max-width: 98vw;
-    padding: 12px 4px;
+  .crear-vehiculo-form-horizontal {
+    padding: 16px 4vw 12px 4vw;
+    max-width: 99vw;
+  }
+  .form-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .form-dropdown-group {
+    padding: 0 0 0 6px;
+    min-width: 0;
+  }
+  .usuario-item-autocomplete {
+    font-size: 0.98rem;
+  }
+  .usuario-nombre {
+    font-size: 0.98rem;
+  }
+  .usuario-doc {
+    font-size: 0.90rem;
   }
 }

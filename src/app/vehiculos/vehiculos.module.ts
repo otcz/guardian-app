@@ -6,6 +6,9 @@ import { ListarVehiculosComponent } from './listar-vehiculos/listar-vehiculos.co
 import { CrearVehiculoComponent } from './crear-vehiculo/crear-vehiculo.component';
 import { EditarVehiculoComponent } from './editar-vehiculo/editar-vehiculo.component';
 import { EliminarVehiculoComponent } from './eliminar-vehiculo/eliminar-vehiculo.component';
+import { DropdownModule } from 'primeng/dropdown';
+import { MultiSelectModule } from 'primeng/multiselect';
+import { AutoCompleteModule } from 'primeng/autocomplete';
 
 @NgModule({
   declarations: [
@@ -17,7 +20,10 @@ import { EliminarVehiculoComponent } from './eliminar-vehiculo/eliminar-vehiculo
   imports: [
     CommonModule,
     FormsModule,
-    VehiculosRoutingModule
+    VehiculosRoutingModule,
+    DropdownModule,
+    MultiSelectModule,
+    AutoCompleteModule
   ]
 })
 export class VehiculosModule { }

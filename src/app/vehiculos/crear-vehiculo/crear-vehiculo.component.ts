@@ -2,6 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { UsuariosService, Usuario } from '../../service/usuarios-service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 
+interface UsuarioAutoComplete extends Usuario {
+  nombreCompletoMayus: string;
+}
+
 interface VehiculoForm {
   usuarioId: number | null;
   placa: string;
@@ -19,7 +23,7 @@ interface VehiculoForm {
   styleUrls: ['./crear-vehiculo.component.css']
 })
 export class CrearVehiculoComponent implements OnInit {
-  usuarios: Usuario[] = [];
+  usuarios: UsuarioAutoComplete[] = [];
   vehiculo: VehiculoForm = {
     usuarioId: null,
     placa: '',
@@ -34,14 +38,47 @@ export class CrearVehiculoComponent implements OnInit {
   mensaje = '';
   snackbarVisible = false;
   snackbarMensaje = '';
+  usuariosFiltrados: UsuarioAutoComplete[] = [];
+  usuarioSeleccionado: UsuarioAutoComplete | null = null;
 
   constructor(private usuariosService: UsuariosService, private http: HttpClient) {}
 
   ngOnInit() {
     this.usuariosService.getUsuarios().subscribe({
-      next: (usuarios: Usuario[]) => this.usuarios = usuarios,
-      error: () => this.mensaje = 'Error al cargar usuarios.'
+      next: (usuarios: Usuario[]) => {
+        this.usuarios = usuarios
+          .map(u => ({ ...u, nombreCompletoMayus: u.nombreCompleto.toUpperCase() }))
+          .sort((a, b) => a.nombreCompletoMayus.localeCompare(b.nombreCompletoMayus));
+        this.usuariosFiltrados = [...this.usuarios];
+        if (!usuarios || usuarios.length === 0) {
+          this.mensaje = 'No hay usuarios disponibles.';
+        }
+      },
+      error: (err) => {
+        console.error('Error al cargar usuarios:', err);
+        this.mensaje = err?.error?.mensaje || 'Error al cargar usuarios.';
+      }
     });
+  }
+
+  filtrarUsuarios(event: any) {
+    const query = (event.query || '').toLowerCase().replace(/\s+/g, '');
+    this.usuariosFiltrados = query.length === 0
+      ? [...this.usuarios]
+      : this.usuarios.filter(u =>
+          u.nombreCompletoMayus.replace(/\s+/g, '').toLowerCase().includes(query) ||
+          (u.documentoTipo + u.documentoNumero).replace(/\s+/g, '').toLowerCase().includes(query) ||
+          (u.documentoNumero || '').replace(/\s+/g, '').toLowerCase().includes(query)
+        );
+  }
+
+  limpiarSeleccionUsuario() {
+    this.usuarioSeleccionado = null;
+    this.vehiculo.usuarioId = null;
+  }
+
+  asignarUsuario(event: any) {
+    this.vehiculo.usuarioId = event.value?.id || null;
   }
 
   crearVehiculo() {
@@ -49,12 +86,7 @@ export class CrearVehiculoComponent implements OnInit {
       this.mensaje = 'Debe seleccionar un usuario.';
       return;
     }
-    // Transformar todos los campos de texto a mayúsculas antes de enviar
-    this.vehiculo.placa = this.vehiculo.placa.toUpperCase();
-    this.vehiculo.tipo = this.vehiculo.tipo.toUpperCase();
-    this.vehiculo.color = this.vehiculo.color.toUpperCase();
-    this.vehiculo.marca = this.vehiculo.marca.toUpperCase();
-    this.vehiculo.modelo = this.vehiculo.modelo.toUpperCase();
+    // Ya no se transforma a mayúsculas aquí, solo se envía el valor del modelo
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders({ 'Authorization': `Bearer ${token}` });
     const vehiculoAEnviar = {
@@ -88,5 +120,13 @@ export class CrearVehiculoComponent implements OnInit {
         this.mensaje = err?.error?.mensaje || 'Error al crear vehículo.';
       }
     });
+  }
+
+  // Si el usuario ya estaba seleccionado (por ejemplo, en edición), sincronizar selección
+  ngAfterViewInit() {
+    if (this.vehiculo.usuarioId) {
+      const user = this.usuarios.find(u => u.id === this.vehiculo.usuarioId);
+      if (user) this.usuarioSeleccionado = user;
+    }
   }
 }

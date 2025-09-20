@@ -1,44 +1,71 @@
-<h2>Crear Vehículo</h2>
-<form class="crear-vehiculo-form" (ngSubmit)="crearVehiculo()" #vehiculoForm="ngForm">
-  <div class="form-group">
-    <label for="usuario">Usuario:</label>
-    <select id="usuario" [(ngModel)]="vehiculo.usuarioId" name="usuarioId" required>
-      <option [ngValue]="null">Seleccione un usuario</option>
-      <option *ngFor="let u of usuarios" [ngValue]="u.id">{{u.nombreCompleto}} ({{u.correo}})</option>
-    </select>
+<div class="form-center-wrapper">
+  <div class="crear-vehiculo-form-horizontal">
+    <form class="crear-usuario-form-grid" (ngSubmit)="crearVehiculo()" #vehiculoForm="ngForm">
+      <h2>Crear vehículo</h2>
+      <div class="form-grid">
+        <div class="input-group">
+          <span class="input-icon"><i class="pi pi-id-card"></i></span>
+          <input id="placa" name="placa" [(ngModel)]="vehiculo.placa" required maxlength="10" placeholder="Placa" style="text-transform:uppercase" autocomplete="off" type="text">
+        </div>
+        <div class="input-group">
+          <span class="input-icon"><i class="pi pi-car"></i></span>
+          <select id="tipo" name="tipo" [(ngModel)]="vehiculo.tipo" required>
+            <option value="">Seleccione tipo</option>
+            <option *ngFor="let t of tipos" [value]="t">{{t}}</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <span class="input-icon"><i class="pi pi-palette"></i></span>
+          <input id="color" name="color" [(ngModel)]="vehiculo.color" required maxlength="20" placeholder="Color" style="text-transform:uppercase" autocomplete="off" type="text">
+        </div>
+        <div class="input-group">
+          <span class="input-icon"><i class="pi pi-flag"></i></span>
+          <input id="marca" name="marca" [(ngModel)]="vehiculo.marca" required maxlength="30" placeholder="Marca" style="text-transform:uppercase" autocomplete="off" type="text">
+        </div>
+        <div class="input-group">
+          <span class="input-icon"><i class="pi pi-calendar"></i></span>
+          <input id="modelo" name="modelo" [(ngModel)]="vehiculo.modelo" required maxlength="4" placeholder="Modelo" autocomplete="off" type="text" pattern="[0-9]*" inputmode="numeric" style="text-transform:uppercase">
+        </div>
+        <div class="input-group">
+          <span class="input-icon"><i class="pi pi-check"></i></span>
+          <label class="checkbox-label">
+            <input type="checkbox" id="activo" name="activo" [(ngModel)]="vehiculo.activo"> Activo
+          </label>
+        </div>
+        <div class="input-group form-dropdown-group">
+          <span class="input-icon"><i class="pi pi-user"></i></span>
+          <p-autoComplete
+            [(ngModel)]="usuarioSeleccionado"
+            [suggestions]="usuariosFiltrados"
+            (completeMethod)="filtrarUsuarios($event)"
+            (onClear)="limpiarSeleccionUsuario()"
+            (onSelect)="asignarUsuario($event)"
+            [optionLabel]="'nombreCompletoMayus'"
+            [dropdown]="true"
+            [showClear]="true"
+            [forceSelection]="true"
+            placeholder="Seleccione o busque un usuario por nombre o documento"
+            [style]="{width: '100%'}"
+            name="usuarioId"
+            required>
+            <ng-template let-user pTemplate="item">
+              <div class="usuario-item-autocomplete">
+                <div class="usuario-nombre">{{ user.nombreCompletoMayus }}</div>
+                <div class="usuario-doc">{{ user.documentoTipo }}: {{ user.documentoNumero }}</div>
+              </div>
+            </ng-template>
+            <ng-template let-user pTemplate="selectedItem">
+              <div class="usuario-item-autocomplete">
+                <div class="usuario-nombre">{{ user?.nombreCompletoMayus }}</div>
+                <div class="usuario-doc">{{ user?.documentoTipo }}: {{ user?.documentoNumero }}</div>
+              </div>
+            </ng-template>
+          </p-autoComplete>
+        </div>
+      </div>
+      <button type="submit" class="btn-crear">Crear vehículo</button>
+      <div class="mensaje">{{mensaje}}</div>
+    </form>
+    <div *ngIf="snackbarVisible" class="snackbar">{{snackbarMensaje}}</div>
   </div>
-  <div class="form-group">
-    <label for="placa">Placa:</label>
-    <input id="placa" name="placa" [(ngModel)]="vehiculo.placa" required maxlength="10">
-  </div>
-  <div class="form-group">
-    <label for="tipo">Tipo:</label>
-    <select id="tipo" name="tipo" [(ngModel)]="vehiculo.tipo" required>
-      <option value="">Seleccione tipo</option>
-      <option *ngFor="let t of tipos" [value]="t">{{t}}</option>
-    </select>
-  </div>
-  <div class="form-group">
-    <label for="color">Color:</label>
-    <input id="color" name="color" [(ngModel)]="vehiculo.color" required maxlength="20">
-  </div>
-  <div class="form-group">
-    <label for="marca">Marca:</label>
-    <input id="marca" name="marca" [(ngModel)]="vehiculo.marca" required maxlength="30">
-  </div>
-  <div class="form-group">
-    <label for="modelo">Modelo:</label>
-    <input id="modelo" name="modelo" [(ngModel)]="vehiculo.modelo" required maxlength="30">
-  </div>
-  <div class="form-group">
-    <label for="activo">Activo:</label>
-    <input type="checkbox" id="activo" name="activo" [(ngModel)]="vehiculo.activo">
-  </div>
-  <div class="form-group">
-    <label for="fechaRegistro">Fecha de registro:</label>
-    <input id="fechaRegistro" name="fechaRegistro" type="datetime-local" [(ngModel)]="vehiculo.fechaRegistro" required>
-  </div>
-  <button type="submit">Crear Vehículo</button>
-</form>
-<div *ngIf="mensaje" class="mensaje-error">{{mensaje}}</div>
-<div *ngIf="snackbarVisible" class="snackbar">{{snackbarMensaje}}</div>
+</div>

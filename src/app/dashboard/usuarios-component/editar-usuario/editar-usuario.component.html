@@ -58,9 +58,8 @@
             <td class="td-casa">{{ u.casa }}</td>
             <td>{{ u.telefono }}</td>
             <td class="td-acciones">
-              <button pButton type="button" icon="pi pi-eye" class="boton-accion boton-ver-minimal" pTooltip="Ver" tooltipPosition="top" (click)="verUsuario(u)"></button>
-              <button pButton type="button" icon="pi pi-pencil" class="boton-accion boton-editar-minimal" pTooltip="Editar" tooltipPosition="top" (click)="editarUsuario(u)"></button>
-              <button pButton type="button" icon="pi pi-trash" class="boton-accion boton-eliminar-minimal" pTooltip="Eliminar" tooltipPosition="top" (click)="eliminarUsuario(u)"></button>
+              <button pButton type="button" icon="pi pi-pencil" class="boton-accion boton-editar-minimal" (click)="editarUsuario(u)"></button>
+              <button pButton type="button" icon="pi pi-trash" class="boton-accion boton-eliminar-minimal" (click)="eliminarUsuario(u)"></button>
             </td>
           </tr>
         </ng-template>

@@ -47,9 +47,10 @@ export class MenuService {
         { label: 'Eliminar usuarios', icon: 'pi pi-user-minus', routerLink: '/dashboard/usuarios/eliminar' }
       ] },
       { label: 'Vehículos', icon: 'pi pi-car', items: [
-        { label: 'Lista global', icon: '', routerLink: '/vehiculos/lista' },
-        { label: 'Cambiar estado', icon: '', routerLink: '/vehiculos/estado' },
-        { label: 'Reasignar propietario', icon: '', routerLink: '/vehiculos/reasignar' }
+        { label: 'Listar vehículos', icon: 'pi pi-list', routerLink: '/dashboard/vehiculos/listar' },
+        { label: 'Crear vehículo', icon: 'pi pi-plus', routerLink: '/dashboard/vehiculos/crear' },
+        { label: 'Editar vehículo', icon: 'pi pi-pencil', routerLink: '/dashboard/vehiculos/editar' },
+        { label: 'Eliminar vehículo', icon: 'pi pi-trash', routerLink: '/dashboard/vehiculos/eliminar' }
       ] },
       { label: 'Guardias', icon: 'pi pi-id-card', items: [
         { label: 'Gestión de credenciales', icon: '', routerLink: '/guardias/credenciales' },

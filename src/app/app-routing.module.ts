@@ -22,6 +22,10 @@ export const appRoutes: Routes = [
           { path: 'editar', loadComponent: () => import('./dashboard/usuarios-component/editar-usuario/editar-usuario.component').then(m => m.EditarUsuarioComponent) },
           { path: 'eliminar', loadComponent: () => import('./dashboard/usuarios-component/eliminar-usuario/eliminar-usuario.component').then(m => m.EliminarUsuarioComponent) }
         ]
+      },
+      {
+        path: 'vehiculos',
+        loadChildren: () => import('./vehiculos/vehiculos.module').then(m => m.VehiculosModule)
       }
     ]
   },

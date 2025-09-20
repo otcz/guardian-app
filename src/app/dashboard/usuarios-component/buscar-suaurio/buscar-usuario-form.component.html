@@ -59,7 +59,7 @@
           <div class="input-icon-wrapper">
             <i class="pi pi-envelope"></i>
             <input id="correo" [(ngModel)]="usuario.correo" name="correo" required placeholder="Correo"
-                   autocomplete="username" readonly
+                   autocomplete="username"
                    [ngClass]="{'campo-requerido': intentoGuardar && (!usuario.correo || usuario.correo.trim() === '')}">
           </div>
         </div>

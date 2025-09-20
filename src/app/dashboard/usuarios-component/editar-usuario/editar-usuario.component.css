@@ -455,5 +455,52 @@
   filter: brightness(0.85) !important;
 }
 
+/* Estilos para el diálogo de confirmación */
+:host ::ng-deep .confirm-dialog-body p {
+  margin: 18px 0;
+  color: #1e293b; /* texto principal */
+  font-size: 1.05rem;
+}
 
-  background: transparent !important;
+/* Estilos para el footer del diálogo (botones) */
+:host ::ng-deep .confirm-actions .p-button {
+  min-width: 110px;
+  height: 40px;
+  border-radius: 8px;
+  font-weight: 600;
+  box-shadow: none;
+}
+:host ::ng-deep .confirm-actions .confirm-yes.p-button-success {
+  background: linear-gradient(90deg, #059669 60%, #10b981 100%); /* verde */
+  border: none;
+  color: #fff;
+}
+:host ::ng-deep .confirm-actions .confirm-no.p-button-danger {
+  background: linear-gradient(90deg, #ef4444 60%, #f87171 100%); /* rojo */
+  border: none;
+  color: #fff;
+}
+:host ::ng-deep .confirm-actions .confirm-cancel.p-button-secondary {
+  background: #6b7280; /* gris */
+  border: none;
+  color: #fff;
+}
+:host ::ng-deep .confirm-actions .p-button:hover {
+  filter: brightness(0.95);
+}
+
+/* Ajustes visuales del diálogo para que quede acorde con tarjeta/estética */
+:host ::ng-deep .p-dialog .p-dialog-content {
+  background: #fff;
+  padding: 20px 22px;
+  font-family: 'Inter', 'Segoe UI', 'Roboto', Arial, sans-serif;
+}
+:host ::ng-deep .p-dialog .p-dialog-header {
+  background: #f3f4f6; /* tono claro */
+  color: #1e293b;
+  font-weight: 700;
+  border-bottom: 1px solid #e6edf8;
+}
+:host ::ng-deep .p-dialog .p-dialog-title {
+  font-size: 1.05rem;
+}

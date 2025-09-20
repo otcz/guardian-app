@@ -1,4 +1,6 @@
 <div class="form-center-wrapper">
+  <!-- Toast para notificaciones -->
+  <p-toast></p-toast>
   <div class="editar-usuario-form-horizontal">
     <div *ngIf="usuarios.length > 0 && !usuario">
       <p-table #dt class="tabla-usuarios-prime" [value]="usuariosFiltrados" [paginator]="true" [rows]="10"
@@ -63,6 +65,21 @@
           </tr>
         </ng-template>
       </p-table>
+
+      <!-- Diálogo de confirmación para eliminar -->
+      <p-dialog [(visible)]="displayConfirm" modal="true" [closable]="false" [style]="{width: '520px'}" header="Confirmar eliminación">
+        <div class="confirm-dialog-body">
+          <p>{{ confirmMessage }}</p>
+        </div>
+        <ng-template pTemplate="footer">
+          <div class="confirm-actions" style="display:flex;gap:12px;justify-content:flex-end;align-items:center;">
+            <button pButton type="button" label="Sí" class="p-button-success confirm-yes" (click)="onConfirmYes()"></button>
+            <button pButton type="button" label="No" class="p-button-danger confirm-no" (click)="onConfirmNo()"></button>
+            <button pButton type="button" label="Cancelar" class="p-button-secondary confirm-cancel" (click)="onCancel()"></button>
+          </div>
+        </ng-template>
+      </p-dialog>
+
     </div>
   </div>
 </div>

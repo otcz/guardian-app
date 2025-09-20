@@ -1,0 +1,30 @@
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Observable } from 'rxjs';
+
+export interface VehiculoCrearRequest {
+  usuarioEntity: { id: number };
+  placa: string;
+  tipo: string;
+  color: string;
+  marca: string;
+  modelo: string;
+  activo: boolean;
+  fechaRegistro: string;
+}
+
+@Injectable({ providedIn: 'root' })
+export class VehiculosService {
+  private apiUrl = 'http://localhost:8080/api/vehiculos';
+
+  constructor(private http: HttpClient) {}
+
+  crearVehiculo(vehiculo: VehiculoCrearRequest): Observable<any> {
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+    return this.http.post(`${this.apiUrl}/crear`, vehiculo, { headers });
+  }
+}
+

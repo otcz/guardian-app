@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { UsuariosService, Usuario } from '../../../service/usuarios-service';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { UsuariosService, Usuario } from '../../../service/usuario-service/usuarios-service';
+import { VehiculosService, VehiculoCrearRequest } from '../../../service/vehiculos-service';
 
 interface UsuarioAutoComplete extends Usuario {
   nombreCompletoMayus: string;
@@ -41,7 +41,10 @@ export class CrearVehiculoComponent implements OnInit {
   usuariosFiltrados: UsuarioAutoComplete[] = [];
   usuarioSeleccionado: UsuarioAutoComplete | null = null;
 
-  constructor(private usuariosService: UsuariosService, private http: HttpClient) {}
+  constructor(
+    private usuariosService: UsuariosService,
+    private vehiculosService: VehiculosService
+  ) {}
 
   ngOnInit() {
     this.usuariosService.getUsuarios().subscribe({
@@ -82,26 +85,31 @@ export class CrearVehiculoComponent implements OnInit {
   }
 
   crearVehiculo() {
-    if (!this.vehiculo.usuarioId) {
-      this.mensaje = 'Debe seleccionar un usuario.';
+    // Validación de campos obligatorios
+    const camposFaltantes: string[] = [];
+    if (!this.vehiculo.placa) camposFaltantes.push('Placa');
+    if (!this.vehiculo.tipo) camposFaltantes.push('Tipo');
+    if (!this.vehiculo.color) camposFaltantes.push('Color');
+    if (!this.vehiculo.marca) camposFaltantes.push('Marca');
+    if (!this.vehiculo.modelo) camposFaltantes.push('Modelo');
+    if (!this.vehiculo.usuarioId) camposFaltantes.push('Usuario');
+    if (camposFaltantes.length > 0) {
+      this.mensaje = 'Debe completar: ' + camposFaltantes.join(', ');
       return;
     }
-    // Ya no se transforma a mayúsculas aquí, solo se envía el valor del modelo
-    const token = localStorage.getItem('token');
-    const headers = new HttpHeaders({ 'Authorization': `Bearer ${token}` });
-    const vehiculoAEnviar = {
-      usuarioEntity: { id: this.vehiculo.usuarioId },
-      placa: this.vehiculo.placa,
-      tipo: this.vehiculo.tipo,
-      color: this.vehiculo.color,
-      marca: this.vehiculo.marca,
-      modelo: this.vehiculo.modelo,
+    const vehiculoAEnviar: VehiculoCrearRequest = {
+      usuarioEntity: { id: this.vehiculo.usuarioId! }, // el ! asegura que no es null
+      placa: this.vehiculo.placa.toUpperCase(),
+      tipo: this.vehiculo.tipo.toUpperCase(),
+      color: this.vehiculo.color.toUpperCase(),
+      marca: this.vehiculo.marca.toUpperCase(),
+      modelo: this.vehiculo.modelo.toUpperCase(),
       activo: this.vehiculo.activo,
       fechaRegistro: this.vehiculo.fechaRegistro
     };
-    this.http.post('/api/vehiculos/crear', vehiculoAEnviar, { headers }).subscribe({
-      next: () => {
-        this.snackbarMensaje = 'Vehículo creado exitosamente.';
+    this.vehiculosService.crearVehiculo(vehiculoAEnviar).subscribe({
+      next: (resp) => {
+        this.snackbarMensaje = resp?.mensaje || 'Vehículo creado exitosamente.';
         this.snackbarVisible = true;
         setTimeout(() => this.snackbarVisible = false, 4000);
         this.mensaje = '';
@@ -115,6 +123,7 @@ export class CrearVehiculoComponent implements OnInit {
           activo: true,
           fechaRegistro: new Date().toISOString().slice(0, 16)
         };
+        this.usuarioSeleccionado = null;
       },
       error: (err) => {
         this.mensaje = err?.error?.mensaje || 'Error al crear vehículo.';

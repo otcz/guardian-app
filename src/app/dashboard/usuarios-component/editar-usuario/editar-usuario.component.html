@@ -81,5 +81,83 @@
       </p-dialog>
 
     </div>
+
+    <!-- Formulario de edición inline -->
+    <div *ngIf="usuario" class="editar-usuario-card-wrapper">
+      <div class="editar-usuario-card">
+        <h2>Editar usuario</h2>
+        <form (ngSubmit)="saveChanges()" class="form-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:14px 18px;">
+          <div class="form-row full" style="display:grid;grid-template-columns:48px 1fr;align-items:center;gap:12px 14px;grid-column:1 / -1;">
+            <label class="icon-label"><i class="pi pi-user"></i></label>
+            <input pInputText type="text" [(ngModel)]="usuario.nombreCompleto" name="nombreCompleto" placeholder="Nombre completo" class="form-control"
+                   style="padding:10px 12px;border-radius:8px;border:1px solid #e6eef9;background:#fbfdff;color:#0f172a;width:100%;box-shadow:none;" />
+          </div>
+
+          <div class="form-row" style="display:grid;grid-template-columns:48px 1fr;align-items:center;gap:12px 14px;">
+            <label class="icon-label"><i class="pi pi-id-card"></i></label>
+            <select [(ngModel)]="usuario.documentoTipo" name="documentoTipo" class="form-control select-control"
+                    style="padding:9px 12px;border-radius:8px;border:1px solid #e6eef9;background:#fbfdff;color:#0f172a;width:100%;box-shadow:none;">
+              <option value="CC">CC</option>
+              <option value="CE">CE</option>
+              <option value="PAS">PAS</option>
+            </select>
+          </div>
+
+          <div class="form-row" style="display:grid;grid-template-columns:48px 1fr;align-items:center;gap:12px 14px;">
+            <label class="icon-label"><i class="pi pi-id-badge"></i></label>
+            <input pInputText type="text" [(ngModel)]="usuario.documentoNumero" name="documentoNumero" placeholder="Número de documento" class="form-control"
+                   style="padding:10px 12px;border-radius:8px;border:1px solid #e6eef9;background:#fbfdff;color:#0f172a;width:100%;box-shadow:none;" />
+          </div>
+
+          <div class="form-row full" style="display:grid;grid-template-columns:48px 1fr;align-items:center;gap:12px 14px;grid-column:1 / -1;">
+            <label class="icon-label"><i class="pi pi-envelope"></i></label>
+            <input pInputText type="email" [(ngModel)]="usuario.correo" name="correo" placeholder="Correo" class="form-control"
+                   style="padding:10px 12px;border-radius:8px;border:1px solid #e6eef9;background:#fbfdff;color:#0f172a;width:100%;box-shadow:none;" />
+          </div>
+
+          <div class="form-row" style="display:grid;grid-template-columns:48px 1fr;align-items:center;gap:12px 14px;">
+            <label class="icon-label"><i class="pi pi-lock"></i></label>
+            <input pInputText type="password" [(ngModel)]="usuario.password" name="password" placeholder="Contraseña" class="form-control"
+                   style="padding:10px 12px;border-radius:8px;border:1px solid #e6eef9;background:#fbfdff;color:#0f172a;width:100%;box-shadow:none;" />
+          </div>
+
+          <div class="form-row" style="display:grid;grid-template-columns:48px 1fr;align-items:center;gap:12px 14px;">
+            <label class="icon-label"><i class="pi pi-briefcase"></i></label>
+            <select [(ngModel)]="usuario.rol" name="rol" class="form-control select-control"
+                    style="padding:9px 12px;border-radius:8px;border:1px solid #e6eef9;background:#fbfdff;color:#0f172a;width:100%;box-shadow:none;">
+              <option value="ADMIN">ADMIN</option>
+              <option value="USER">USER</option>
+            </select>
+          </div>
+
+          <div class="form-row" style="display:grid;grid-template-columns:48px 1fr;align-items:center;gap:12px 14px;">
+            <label class="icon-label"><i class="pi pi-check"></i></label>
+            <select [(ngModel)]="usuario.estado" name="estado" class="form-control select-control"
+                    style="padding:9px 12px;border-radius:8px;border:1px solid #e6eef9;background:#fbfdff;color:#0f172a;width:100%;box-shadow:none;">
+              <option value="ACTIVO">ACTIVO</option>
+              <option value="INACTIVO">INACTIVO</option>
+            </select>
+          </div>
+
+          <div class="form-row" style="display:grid;grid-template-columns:48px 1fr;align-items:center;gap:12px 14px;">
+            <label class="icon-label"><i class="pi pi-home"></i></label>
+            <input pInputText type="text" [(ngModel)]="usuario.casa" name="casa" placeholder="Casa" class="form-control"
+                   style="padding:10px 12px;border-radius:8px;border:1px solid #e6eef9;background:#fbfdff;color:#0f172a;width:100%;box-shadow:none;" />
+          </div>
+
+          <div class="form-row" style="display:grid;grid-template-columns:48px 1fr;align-items:center;gap:12px 14px;">
+            <label class="icon-label"><i class="pi pi-phone"></i></label>
+            <input pInputText type="text" [(ngModel)]="usuario.telefono" name="telefono" placeholder="Teléfono" class="form-control"
+                   style="padding:10px 12px;border-radius:8px;border:1px solid #e6eef9;background:#fbfdff;color:#0f172a;width:100%;box-shadow:none;" />
+          </div>
+
+          <div class="form-actions" style="grid-column:1 / -1;display:flex;justify-content:center;gap:16px;margin-top:6px;">
+            <button pButton type="submit" label="Guardar cambios" class="guardar-btn" style="background:linear-gradient(90deg,#4f8cff 20%,#23272f 100%);color:#fff;border:none;height:48px;border-radius:10px;"></button>
+            <button pButton type="button" label="Cancelar" class="cancelar-btn" (click)="cancelEdit()" style="background:transparent;color:#374151;border:1px solid #e6edf8;height:44px;border-radius:10px;"></button>
+          </div>
+        </form>
+      </div>
+    </div>
+
   </div>
 </div>

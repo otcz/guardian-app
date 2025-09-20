@@ -113,6 +113,44 @@ h2 {
   grid-template-columns: 1fr 1fr;
   gap: 16px 18px;
 }
+/* --- REVERT: Eliminar reglas que forzaban el 100% del ancho al combo de usuario --- */
+/* .input-group.form-dropdown-group {
+  grid-column: 1 / -1;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+.input-group.form-dropdown-group .p-autocomplete {
+  width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box;
+}
+.input-group.form-dropdown-group .p-autocomplete-input {
+  width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box;
+}
+.input-group.form-dropdown-group .p-autocomplete-panel {
+  width: 100% !important;
+  min-width: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  box-sizing: border-box;
+}
+@media (max-width: 600px) {
+  .input-group.form-dropdown-group {
+    grid-column: 1 / -1;
+    width: 100vw !important;
+    min-width: 0 !important;
+    left: 0 !important;
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+  }
+}
+*/
 .input-group {
   display: flex;
   align-items: center;
@@ -122,6 +160,9 @@ h2 {
   padding: 0 10px;
   height: 44px;
   position: relative;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 .input-icon {
   margin-right: 8px;
@@ -210,6 +251,8 @@ h2 {
   grid-column: span 2;
   margin-bottom: 0;
   width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 .form-dropdown-group .input-icon {
   background: #fff;
@@ -286,6 +329,21 @@ h2 {
 .form-dropdown-group .p-dropdown-trigger {
   color: #4f8cff !important;
   font-size: 1.2rem;
+}
+
+/* El dropdown y el panel del autocomplete deben tomar el ancho del contenedor */
+.p-autocomplete,
+.p-autocomplete .p-autocomplete-input,
+.p-autocomplete .p-autocomplete-panel {
+  width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box;
+}
+.p-autocomplete .p-autocomplete-panel {
+  left: 0 !important;
+  right: 0 !important;
+  min-width: 0 !important;
+  max-width: 100vw !important;
 }
 
 /* Efecto cuando el dropdown está abierto */
@@ -421,10 +479,6 @@ h2 {
   .form-grid {
     grid-template-columns: 1fr;
     gap: 12px;
-  }
-  .form-dropdown-group {
-    padding: 0 0 0 6px;
-    min-width: 0;
   }
   .usuario-item-autocomplete {
     font-size: 0.98rem;

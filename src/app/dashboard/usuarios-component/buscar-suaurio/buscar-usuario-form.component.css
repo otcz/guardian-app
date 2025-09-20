@@ -21,20 +21,20 @@
 .form-grid {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 10px;
 }
 
 .input-group {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
 }
 
 .input-label {
   font-size: 1rem;
   color: #203a43;
   font-weight: 500;
-  margin-bottom: 2px;
+  margin-bottom: 1px;
   letter-spacing: 0.01em;
 }
 
@@ -44,7 +44,7 @@
   background: #f4f7fa;
   border-radius: 8px;
   border: 1px solid #dbeafe;
-  padding: 0 10px;
+  padding: 0 8px;
   transition: border 0.2s;
 }
 .input-icon-wrapper:focus-within {
@@ -52,8 +52,8 @@
 }
 .input-icon-wrapper i {
   color: #4f8cff;
-  font-size: 1.2rem;
-  margin-right: 10px;
+  font-size: 1.1rem;
+  margin-right: 7px;
 }
 .input-icon-wrapper input,
 .input-icon-wrapper select {
@@ -61,7 +61,7 @@
   background: transparent;
   outline: none;
   font-size: 1rem;
-  padding: 12px 0;
+  padding: 8px 0;
   flex: 1;
   color: #23272f;
 }
@@ -71,7 +71,7 @@
   color: #b0b8c1;
 }
 .input-icon-wrapper select {
-  padding-right: 18px;
+  padding-right: 12px;
 }
 
 .campo-requerido {
@@ -80,12 +80,12 @@
 }
 
 .buscar-btn {
-  margin-left: 12px;
+  margin-left: 8px;
   background: linear-gradient(90deg, #4f8cff 60%, #203a43 100%);
   color: #fff;
   border: none;
   border-radius: 8px;
-  padding: 10px 22px;
+  padding: 8px 16px;
   font-weight: 600;
   font-size: 1rem;
   box-shadow: 0 2px 8px rgba(79,140,255,0.10);
@@ -98,12 +98,12 @@
 
 .guardar-btn {
   width: 100%;
-  margin-top: 18px;
+  margin-top: 10px;
   background: linear-gradient(90deg, #4f8cff 60%, #203a43 100%);
   color: #fff;
   border: none;
   border-radius: 8px;
-  padding: 14px 0;
+  padding: 10px 0;
   font-weight: 700;
   font-size: 1.08rem;
   box-shadow: 0 2px 8px rgba(79,140,255,0.10);
@@ -115,11 +115,11 @@
 }
 
 .mensaje {
-  margin-top: 10px;
+  margin-top: 6px;
   text-align: center;
   font-size: 1rem;
   border-radius: 8px;
-  padding: 10px 0;
+  padding: 7px 0;
 }
 .mensaje-error {
   color: #e53e3e;
@@ -191,5 +191,16 @@
   .search-group {
     gap: 8px;
   }
+  .form-grid {
+    gap: 6px;
+  }
+  .input-group {
+    gap: 2px;
+  }
+  .buscar-btn {
+    padding: 7px 10px;
+  }
+  .guardar-btn {
+    padding: 8px 0;
+  }
 }
-

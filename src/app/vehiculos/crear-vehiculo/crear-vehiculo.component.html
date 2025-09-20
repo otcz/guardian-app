@@ -32,7 +32,7 @@
             <input type="checkbox" id="activo" name="activo" [(ngModel)]="vehiculo.activo"> Activo
           </label>
         </div>
-        <div class="input-group form-dropdown-group" style="width: 100%; grid-column: 1 / -1;">
+        <div class="form-dropdown-group" style="width: 100vw; max-width: 700px; margin-left: calc(-50vw + 50%); grid-column: 1 / -1;">
           <p-autoComplete
             [(ngModel)]="usuarioSeleccionado"
             [suggestions]="usuariosFiltrados"
@@ -45,7 +45,9 @@
             [forceSelection]="true"
             placeholder="Seleccione o busque un usuario por nombre o documento"
             name="usuarioId"
-            required>
+            required
+            class="autocomplete-full-width"
+          >
             <ng-template let-user pTemplate="item">
               <div class="usuario-item-autocomplete">
                 <div class="usuario-nombre">{{ user.nombreCompletoMayus }}</div>

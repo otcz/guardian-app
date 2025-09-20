@@ -288,16 +288,69 @@ h2 {
   font-size: 1.2rem;
 }
 
+/* Efecto cuando el dropdown está abierto */
+.p-autocomplete.p-focus .p-autocomplete-input {
+  border: 2px solid #4f8cff !important;
+  box-shadow: 0 0 0 4px #e3eafc99;
+  background: #f7faff;
+  transition: box-shadow 0.25s, border 0.25s, background 0.25s;
+}
+
+/* Fondo animado y efecto hover/desvanecido para los items no seleccionados */
+.usuario-item-autocomplete {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 12px 8px 12px;
+  line-height: 1.2;
+  background: linear-gradient(90deg, #e3eafc 60%, #f7faff 100%);
+  background-size: 200% 100%;
+  background-position: left center;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(30,40,60,0.07);
+  margin: 2px 0;
+  transition: box-shadow 0.18s, background 0.35s, filter 0.18s;
+  opacity: 0.92;
+}
+.p-autocomplete .p-autocomplete-item:not(.p-highlight):hover .usuario-item-autocomplete {
+  background-position: right center;
+  filter: brightness(1.08) drop-shadow(0 0 8px #4f8cff33);
+  opacity: 1;
+  box-shadow: 0 4px 16px rgba(79,140,255,0.10);
+}
+
+/* Efecto animado para el item seleccionado */
+.p-autocomplete .p-autocomplete-item.p-highlight .usuario-item-autocomplete,
+.p-autocomplete .p-autocomplete-item:hover.p-highlight .usuario-item-autocomplete {
+  background: linear-gradient(90deg, #2563eb 60%, #4f8cff 100%);
+  background-size: 200% 100%;
+  background-position: right center;
+  box-shadow: 0 4px 16px rgba(79,140,255,0.18);
+  filter: brightness(1.08) drop-shadow(0 0 8px #4f8cff44);
+  animation: pulse-gradient 1.2s infinite alternate;
+  opacity: 1;
+}
+@keyframes pulse-gradient {
+  0% {
+    background-position: 0% 50%;
+    filter: brightness(1.08) drop-shadow(0 0 8px #4f8cff44);
+  }
+  100% {
+    background-position: 100% 50%;
+    filter: brightness(1.18) drop-shadow(0 0 16px #4f8cff88);
+  }
+}
+
 /* Estilos para el autocompletado de usuario */
 .usuario-item-autocomplete {
   display: flex;
   flex-direction: column;
   padding: 8px 12px 8px 12px;
   line-height: 1.2;
-  background: #fff;
+  background: #e3eafc; /* azul suave */
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(30,40,60,0.07);
   margin: 2px 0;
+  transition: box-shadow 0.18s, background 0.18s, filter 0.18s;
 }
 .usuario-nombre {
   font-weight: 600;
@@ -312,7 +365,6 @@ h2 {
   margin-top: 1px;
   letter-spacing: 0.2px;
 }
-
 .p-autocomplete .p-autocomplete-input {
   font-size: 1rem;
   padding: 8px 12px 8px 36px;
@@ -331,6 +383,33 @@ h2 {
 .p-autocomplete .p-autocomplete-item.p-highlight {
   background: #eaf2ff;
   color: #4f8cff;
+}
+.p-autocomplete .p-autocomplete-item.p-highlight .usuario-item-autocomplete,
+.p-autocomplete .p-autocomplete-item:hover .usuario-item-autocomplete {
+  background: linear-gradient(90deg, #2563eb 60%, #4f8cff 100%);
+  box-shadow: 0 4px 16px rgba(79,140,255,0.18);
+  filter: brightness(1.08) drop-shadow(0 0 8px #4f8cff44);
+  animation: pulse-gradient 1.2s infinite alternate;
+}
+@keyframes pulse-gradient {
+  0% {
+    background-position: 0% 50%;
+    filter: brightness(1.08) drop-shadow(0 0 8px #4f8cff44);
+  }
+  100% {
+    background-position: 100% 50%;
+    filter: brightness(1.18) drop-shadow(0 0 16px #4f8cff88);
+  }
+}
+.p-autocomplete .p-autocomplete-item.p-highlight .usuario-nombre,
+.p-autocomplete .p-autocomplete-item:hover .usuario-nombre {
+  color: #fff;
+  text-shadow: 0 2px 8px #23272f22;
+}
+.p-autocomplete .p-autocomplete-item.p-highlight .usuario-doc,
+.p-autocomplete .p-autocomplete-item:hover .usuario-doc {
+  color: #dbeafe;
+  text-shadow: 0 1px 4px #23272f22;
 }
 
 /* Responsive */

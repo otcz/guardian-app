@@ -1,11 +1,14 @@
 <div class="form-center-wrapper">
   <div class="editar-usuario-form-horizontal">
-    <form class="buscar-usuario-form" (ngSubmit)="buscarUsuario()" style="margin: 0 auto 22px auto; max-width: 400px; display: flex; align-items: stretch; gap: 0; box-shadow: 0 4px 18px rgba(79,140,255,0.18); border-radius: 10px; overflow: hidden; background: #f8fafc; border: 2px solid #4f8cff;">
-      <input pInputText type="text" [(ngModel)]="busqueda" name="busqueda" placeholder="Correo o identificación del usuario..." required
-             style="flex: 1; min-width: 0; padding: 14px 14px; border: none; background: #f4f7fa; font-size: 1.05rem; outline: none; box-shadow: none; border-radius: 0;" />
-      <button pButton type="submit" style="background: linear-gradient(90deg, #4f8cff 60%, #23272f 100%); color: #fff; border: none; border-radius: 0 10px 10px 0; padding: 0 22px; font-size: 1.18rem; cursor: pointer; transition: background 0.2s; display: flex; align-items: center; justify-content: center;">
-        <i class="pi pi-search" style="font-size: 1.2rem; color: #fff;"></i>
-      </button>
+    <form class="crear-usuario-form-grid buscar-usuario-form" (ngSubmit)="buscarUsuario()">
+      <div class="form-grid" style="margin-bottom:0;">
+        <div class="input-group" style="grid-column: 1 / -1;">
+          <input pInputText type="text" [(ngModel)]="busqueda" name="busqueda" placeholder="Correo o identificación del usuario..." required />
+          <button pButton type="submit" class="btn-crear" style="margin-left:8px; min-width:44px; padding:0 18px;">
+            <i class="pi pi-search" style="font-size: 1.2rem; color: #fff;"></i>
+          </button>
+        </div>
+      </div>
     </form>
     <div *ngIf="mensaje && !usuario" class="mensaje" style="text-align:center; margin-bottom: 10px;">{{ mensaje }}</div>
     <form *ngIf="usuario" class="editar-usuario-form" (ngSubmit)="editarUsuario()">

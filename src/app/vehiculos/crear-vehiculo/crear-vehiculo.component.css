@@ -85,33 +85,47 @@ h2 {
 /* Ajuste visual y de espaciado para igualar al formulario de usuario */
 .form-center-wrapper {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   min-height: 100vh;
   background: #f4f7fa;
 }
 .crear-vehiculo-form-horizontal {
   background: #fff;
-  border-radius: 16px;
-  box-shadow: 0 2px 16px rgba(30,40,60,0.10);
-  padding: 32px 28px 24px 28px;
-  max-width: 700px;
+  border-radius: 14px;
+  box-shadow: 0 4px 32px rgba(30,40,60,0.13);
+  padding: 16px 16px 20px 16px;
+  max-width: 600px;
   width: 100%;
-  margin: 32px 0;
+  margin: 24px auto 0 auto;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 .crear-usuario-form-grid {
+  box-sizing: border-box;
   width: 100%;
+  max-width: 600px;
+  min-width: 0;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: none;
+  padding: 0;
+  font-family: 'Inter', 'Segoe UI', 'Roboto', Arial, sans-serif;
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 16px;
+  align-items: center;
 }
 .form-grid {
+  width: 100%;
+  max-width: 500px;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 16px 18px;
+  column-gap: 16px;
+  row-gap: 12px;
+  margin-bottom: 0;
+  box-sizing: border-box;
 }
 @media (max-width: 800px) {
   .crear-vehiculo-form-horizontal {
@@ -123,54 +137,18 @@ h2 {
     gap: 12px;
   }
 }
-/* --- REVERT: Eliminar reglas que forzaban el 100% del ancho al combo de usuario --- */
-/* .input-group.form-dropdown-group {
-  grid-column: 1 / -1;
-  width: 100%;
-  min-width: 0;
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
-}
-.input-group.form-dropdown-group .p-autocomplete {
-  width: 100% !important;
-  min-width: 0 !important;
-  box-sizing: border-box;
-}
-.input-group.form-dropdown-group .p-autocomplete-input {
-  width: 100% !important;
-  min-width: 0 !important;
-  box-sizing: border-box;
-}
-.input-group.form-dropdown-group .p-autocomplete-panel {
-  width: 100% !important;
-  min-width: 0 !important;
-  left: 0 !important;
-  right: 0 !important;
-  box-sizing: border-box;
-}
-@media (max-width: 600px) {
-  .input-group.form-dropdown-group {
-    grid-column: 1 / -1;
-    width: 100vw !important;
-    min-width: 0 !important;
-    left: 0 !important;
-    box-sizing: border-box;
-    padding: 0;
-    margin: 0;
-  }
-}
-*/
 .input-group {
   display: flex;
   align-items: center;
   background: #f4f7fa;
-  border-radius: 8px;
+  border-radius: 7px;
   border: 1px solid #dbeafe;
   padding: 0 10px;
-  height: 44px;
-  position: relative;
+  height: 40px;
+  box-shadow: 0 1px 4px rgba(30,40,60,0.07);
+  gap: 8px;
   width: 100%;
+  max-width: 100%;
   min-width: 0;
   box-sizing: border-box;
 }
@@ -207,19 +185,23 @@ h2 {
   margin-left: 4px;
 }
 .btn-crear {
-  width: 100%;
-  box-sizing: border-box;
+  grid-column: 1 / -1 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
   background: linear-gradient(90deg, #4f8cff 60%, #23272f 100%);
   color: #fff;
   border: none;
   border-radius: 8px;
-  padding: 13px 0;
+  padding: 10px 0;
   font-size: 1.13rem;
   font-weight: 600;
   margin-top: 10px;
   cursor: pointer;
   transition: background 0.2s;
   box-shadow: 0 2px 8px rgba(79,140,255,0.10);
+  height: 40px;
 }
 .btn-crear:hover {
   background: linear-gradient(90deg, #23272f 0%, #4f8cff 100%);
@@ -587,4 +569,3 @@ h2 {
   min-width: 0;
   box-sizing: border-box;
 }
-

@@ -17,10 +17,10 @@ import {EditarUsuarioFormComponent} from '../editar-usuario/editar-usuario-form.
   standalone: true,
   imports: [CommonModule, FormsModule, TableModule, ButtonModule, InputTextModule, TooltipModule, DialogModule, ToastModule, EditarUsuarioFormComponent],
   providers: [MessageService],
-  templateUrl: './mostrar-usuarios.component.html',
-  styleUrls: ['./mostrar-usuarios.component.css']
+  templateUrl: './ver-usuarios.component.html',
+  styleUrls: ['./ver-usuarios.component.css']
 })
-export class MostrarUsuariosComponent implements OnInit {
+export class VerUsuariosComponent implements OnInit {
   @Input() correo: string = '';
   usuario: Usuario | null = null;
   mensaje: string = '';

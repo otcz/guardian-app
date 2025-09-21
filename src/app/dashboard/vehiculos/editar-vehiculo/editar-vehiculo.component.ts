@@ -98,7 +98,7 @@ export class EditarVehiculoComponent implements OnInit {
       this.vehiculo.modelo,
       this.vehiculo.color,
       this.vehiculo.activo,
-      this.vehiculo.usuarioEntity?.id
+      this.vehiculo.usuario?.id // CORRECTO: validar el usuario seleccionado
     ];
     if (campos.some(c => c === undefined || c === null || c.toString().trim() === '')) {
       this.mensaje = 'Todos los campos son obligatorios.';
@@ -109,6 +109,8 @@ export class EditarVehiculoComponent implements OnInit {
     this.vehiculo.marca = this.vehiculo.marca?.toUpperCase() || '';
     this.vehiculo.modelo = this.vehiculo.modelo?.toUpperCase() || '';
     this.vehiculo.color = this.vehiculo.color?.toUpperCase() || '';
+    // Asignar usuarioEntity para el backend
+    this.vehiculo.usuarioEntity = { id: this.vehiculo.usuario.id };
     this.vehiculosService.actualizarVehiculo(this.vehiculo.id, this.vehiculo).subscribe({
       next: () => {
         this.mensaje = '';

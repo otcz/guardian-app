@@ -32,7 +32,7 @@
             <input type="checkbox" id="activo" name="activo" [(ngModel)]="vehiculo.activo"> Activo
           </label>
         </div>
-        <div class="input-group">
+        <div class="input-group" style="width: 100%;">
           <span class="input-icon"><i class="pi pi-user"></i></span>
           <p-dropdown
             [options]="usuarios"
@@ -44,6 +44,7 @@
             [ngClass]="{'campo-requerido': intentoGuardar && (!usuarioSeleccionado?.id)}"
             placeholder="Seleccione o busque un usuario por nombre o documento"
             [style]="{width: '100%'}"
+            [panelStyle]="{width: '100%'}"
             [ngModelOptions]="{standalone: true}"
             required>
             <ng-template let-u pTemplate="item">

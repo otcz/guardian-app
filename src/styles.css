@@ -212,3 +212,60 @@ input[type="text"]::placeholder, textarea::placeholder, .p-inputtext::placeholde
   color: #b0b8c1;
   opacity: 1;
 }
+A
+S /* --- PrimeNG Dropdown: Forzar estilos globales para toda la app --- */
+.p-dropdown {
+  background: #f4f7fa !important;
+  border: 1px solid #dbeafe !important;
+  border-radius: 8px !important;
+  box-shadow: 0 1px 4px rgba(30,40,60,0.07) !important;
+  min-height: 40px !important;
+  height: 40px !important;
+  padding: 0 8px !important;
+  display: flex !important;
+  align-items: center !important;
+}
+.p-dropdown .p-dropdown-label {
+  background: #f4f7fa !important;
+  color: #23272f !important;
+  font-size: 1rem !important;
+  font-family: inherit !important;
+  padding-left: 0 !important;
+}
+.p-dropdown .p-dropdown-trigger {
+  color: #7a869a !important;
+}
+.p-dropdown:not(.p-disabled):hover,
+.p-dropdown:not(.p-disabled).p-focus {
+  background: #e3e8ee !important;
+  border-color: #4f8cff !important;
+}
+.p-dropdown-panel, .p-dropdown-items {
+  background: #f4f7fa !important;
+  border-radius: 8px !important;
+  box-shadow: 0 2px 8px rgba(30,40,60,0.10) !important;
+  border: 1px solid #dbeafe !important;
+  padding: 8px 0 !important;
+}
+.p-dropdown-item {
+  background: #eaf2ff !important;
+  color: #23272f !important;
+  border-radius: 10px !important;
+  margin: 2px 8px !important;
+  padding: 8px 12px !important;
+  font-size: 1.08rem !important;
+  font-weight: 600 !important;
+  transition: background 0.2s, color 0.2s;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+}
+.p-dropdown-item.p-highlight,
+.p-dropdown-item:hover {
+  background: linear-gradient(90deg, #4f8cff 60%, #203a43 100%) !important;
+  color: #fff !important;
+}
+.p-dropdown-label.p-placeholder {
+  color: #b0b8c1 !important;
+  background: #f4f7fa !important;
+}

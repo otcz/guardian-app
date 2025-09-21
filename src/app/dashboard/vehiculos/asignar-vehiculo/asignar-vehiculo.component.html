@@ -1,34 +1,70 @@
 <div class="form-center-wrapper">
-  <h2>Asignar Vehículo a Usuario</h2>
-  <form (ngSubmit)="asignarVehiculo()" #asignarForm="ngForm">
-    <div class="form-group">
-      <label for="usuario">Usuario</label>
-      <p-dropdown
-        [options]="usuarios"
-        [(ngModel)]="usuarioSeleccionado"
-        name="usuario"
-        optionLabel="nombreCompleto"
-        optionValue="id"
-        placeholder="Seleccione un usuario"
-        required>
-      </p-dropdown>
-    </div>
-    <div class="form-group">
-      <label for="vehiculo">Vehículo</label>
-      <p-dropdown
-        [options]="vehiculos"
-        [(ngModel)]="vehiculoSeleccionado"
-        name="vehiculo"
-        optionLabel="placa"
-        optionValue="id"
-        placeholder="Seleccione un vehículo"
-        required>
-      </p-dropdown>
-    </div>
-    <div class="form-group">
-      <button pButton type="submit" label="Asignar" [disabled]="!usuarioSeleccionado || !vehiculoSeleccionado"></button>
-    </div>
-  </form>
-  <p-toast></p-toast>
+  <div class="crear-usuario-form-grid">
+    <form (ngSubmit)="asignarVehiculo()" #asignarForm="ngForm">
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="usuario" class="input-label">Usuario</label>
+          <div class="input-icon-wrapper">
+            <i class="pi pi-user"></i>
+            <p-dropdown
+              [options]="usuarios"
+              [(ngModel)]="usuarioSeleccionado"
+              name="usuario"
+              optionLabel="nombreCompleto"
+              optionValue="id"
+              placeholder="Seleccione o busque un usuario"
+              [filter]="true"
+              [showClear]="true"
+              [style]="{width: '100%'}"
+              required>
+              <ng-template let-u pTemplate="item">
+                <div class="usuario-dropdown-option">
+                  <span class="usuario-nombre">{{ u.nombreCompleto }}</span>
+                  <span class="usuario-doc">CC: {{ u.documentoNumero }}</span>
+                </div>
+              </ng-template>
+              <ng-template let-u pTemplate="selectedItem">
+                <div class="usuario-dropdown-option">
+                  <span class="usuario-nombre">{{ u?.nombreCompleto }}</span>
+                  <span class="usuario-doc">CC: {{ u?.documentoNumero }}</span>
+                </div>
+              </ng-template>
+            </p-dropdown>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="vehiculo" class="input-label">Vehículo</label>
+          <div class="input-icon-wrapper">
+            <i class="pi pi-car"></i>
+            <p-dropdown
+              [options]="vehiculos"
+              [(ngModel)]="vehiculoSeleccionado"
+              name="vehiculo"
+              optionLabel="placa"
+              optionValue="id"
+              placeholder="Seleccione o busque un vehículo"
+              [filter]="true"
+              [showClear]="true"
+              [style]="{width: '100%'}"
+              required>
+              <ng-template let-v pTemplate="item">
+                <div class="vehiculo-dropdown-option">
+                  <span class="vehiculo-placa">{{ v.placa }}</span>
+                  <span class="vehiculo-detalle">{{ v.marca }} {{ v.modelo }}</span>
+                </div>
+              </ng-template>
+              <ng-template let-v pTemplate="selectedItem">
+                <div class="vehiculo-dropdown-option">
+                  <span class="vehiculo-placa">{{ v?.placa }}</span>
+                  <span class="vehiculo-detalle">{{ v?.marca }} {{ v?.modelo }}</span>
+                </div>
+              </ng-template>
+            </p-dropdown>
+          </div>
+        </div>
+      </div>
+      <button type="submit" class="btn-crear" [disabled]="!usuarioSeleccionado || !vehiculoSeleccionado">Asignar</button>
+    </form>
+    <p-toast></p-toast>
+  </div>
 </div>
-

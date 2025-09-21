@@ -28,7 +28,50 @@ export class EditarVehiculoComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    // Ya no se carga el vehículo automáticamente por id
+    // Si hay un id en la URL, cargar el vehículo automáticamente
+    const id = this.route.snapshot.paramMap.get('id');
+    if (id) {
+      this.usuariosService.getUsuarios().subscribe((usuarios: Usuario[]) => {
+        this.usuarios = usuarios;
+        this.cargarVehiculoPorId(Number(id));
+      });
+    }
+  }
+
+  cargarVehiculoPorId(id: number) {
+    this.vehiculosService.getVehiculos().subscribe((vehiculos: any[]) => {
+      const encontrado = vehiculos.find(v => v.id === id);
+      if (encontrado) {
+        this.vehiculo = { ...encontrado };
+        // Si existe 'usuario' y tiene id, poblar usuario con esos datos
+        if (this.vehiculo.usuario && this.vehiculo.usuario.id) {
+          let usuarioEnLista = this.usuarios.find(u => u.id === this.vehiculo.usuario.id);
+          if (!usuarioEnLista) {
+            usuarioEnLista = {
+              id: this.vehiculo.usuario.id,
+              nombreCompleto: this.vehiculo.usuario.nombreCompleto,
+              correo: this.vehiculo.usuario.correo,
+              documentoNumero: this.vehiculo.usuario.documentoNumero,
+              password: '',
+              rol: '',
+              estado: '',
+              documentoTipo: '',
+              casa: '',
+              telefono: ''
+            };
+            this.usuarios = [usuarioEnLista, ...this.usuarios];
+          }
+          this.vehiculo.usuario = usuarioEnLista;
+        } else {
+          this.vehiculo.usuario = { id: null };
+        }
+        this.mensaje = '';
+        this.intentoGuardar = false;
+      } else {
+        this.vehiculo = null;
+        this.mensaje = 'Vehículo no encontrado.';
+      }
+    });
   }
 
   buscarVehiculo() {

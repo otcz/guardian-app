@@ -9,6 +9,7 @@ const routes: Routes = [
   { path: '', redirectTo: 'listar', pathMatch: 'full' },
   { path: 'listar', component: VerVehiculosComponent },
   { path: 'crear', component: CrearVehiculoComponent },
+  { path: 'editar/:id', component: EditarVehiculoComponent },
   { path: 'editar', component: EditarVehiculoComponent },
   { path: 'eliminar', component: EliminarVehiculoComponent }
 ];

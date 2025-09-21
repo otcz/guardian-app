@@ -52,6 +52,7 @@ export class VerVehiculosComponent implements OnInit {
   }
 
   editarVehiculo(v: any) {
+    console.log(v.id);
     this.router.navigate(['/dashboard/vehiculos/editar', v.id]);
   }
 

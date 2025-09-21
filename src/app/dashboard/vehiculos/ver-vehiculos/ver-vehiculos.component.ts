@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { VehiculosService } from '../../../service/vehiculos-service';
 import { Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
+import { AuthService } from '../../../service/auth-service';
 
 @Component({
   selector: 'app-listar-vehiculos',
@@ -19,7 +20,8 @@ export class VerVehiculosComponent implements OnInit {
   constructor(
     private vehiculosService: VehiculosService,
     private router: Router,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private authService: AuthService
   ) {}
 
   ngOnInit() {
@@ -27,15 +29,28 @@ export class VerVehiculosComponent implements OnInit {
   }
 
   cargarVehiculos() {
-    this.vehiculosService.getVehiculos().subscribe({
-      next: (data) => {
-        this.vehiculos = data;
-        this.vehiculosFiltrados = [...data];
-      },
-      error: () => {
-        this.messageService.add({severity: 'error', summary: 'Error', detail: 'No se pudieron cargar los vehículos.'});
-      }
-    });
+    const rol = this.authService.getRol()?.toLowerCase();
+    if (rol === 'usuario') {
+      this.vehiculosService.getMisVehiculos().subscribe({
+        next: (data) => {
+          this.vehiculos = data;
+          this.vehiculosFiltrados = [...data];
+        },
+        error: () => {
+          this.messageService.add({severity: 'error', summary: 'Error', detail: 'No se pudieron cargar los vehículos.'});
+        }
+      });
+    } else {
+      this.vehiculosService.getVehiculos().subscribe({
+        next: (data) => {
+          this.vehiculos = data;
+          this.vehiculosFiltrados = [...data];
+        },
+        error: () => {
+          this.messageService.add({severity: 'error', summary: 'Error', detail: 'No se pudieron cargar los vehículos.'});
+        }
+      });
+    }
   }
 
   onGlobalFilterInput(event: Event, dt: any) {

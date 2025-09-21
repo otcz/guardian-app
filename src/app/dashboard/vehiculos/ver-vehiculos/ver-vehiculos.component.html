@@ -24,6 +24,7 @@
             <th pSortableColumn="color">Color <p-sortIcon field="color"></p-sortIcon></th>
             <th pSortableColumn="activo" class="td-estado">Activo <p-sortIcon field="activo"></p-sortIcon></th>
             <th pSortableColumn="usuario" class="td-usuario">Usuario asignado <p-sortIcon field="usuario"></p-sortIcon></th>
+            <th pSortableColumn="cc" class="td-cc">CC Usuario <p-sortIcon field="cc"></p-sortIcon></th>
             <th class="td-acciones">Acciones</th>
           </tr>
         </ng-template>
@@ -46,6 +47,14 @@
               </span>
               <ng-template #noUsuario>
                 <span class="text-muted">Sin usuario</span>
+              </ng-template>
+            </td>
+            <td class="td-cc">
+              <span *ngIf="v.usuario && v.usuario.documentoIdentidad; else noCC">
+                {{ v.usuario.documentoIdentidad }}
+              </span>
+              <ng-template #noCC>
+                <span class="text-muted">Sin CC</span>
               </ng-template>
             </td>
             <td class="td-acciones">

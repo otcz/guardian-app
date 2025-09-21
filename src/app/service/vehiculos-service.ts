@@ -66,4 +66,12 @@ export class VehiculosService {
     });
     return this.http.delete(`${this.apiUrl}/placa/${placa}`, { headers });
   }
+
+  getMisVehiculos(): Observable<any[]> {
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+    return this.http.get<any[]>(`${this.apiUrl}/mis-vehiculos`, { headers });
+  }
 }

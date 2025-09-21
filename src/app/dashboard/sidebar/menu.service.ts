@@ -26,12 +26,10 @@ export class MenuService {
       { label: 'Cerrar sesión', icon: 'pi pi-power-off', routerLink: '/logout' }
     ],
     usuario: [
-      { label: 'Inicio', icon: 'pi pi-home', routerLink: '/dashboard/inicio' },
+      // { label: 'Inicio', icon: 'pi pi-home', routerLink: '/dashboard/inicio' }, // Ocultamos Inicio para usuario
       { label: 'Perfil', icon: 'pi pi-user', items: [ { label: 'Ver Perfil', icon: '', routerLink: '/dashboard/perfil' } ] },
       { label: 'Mis vehículos', icon: 'pi pi-car', items: [
-        { label: 'Registrar vehículo', icon: '', routerLink: '/dashboard/vehiculos/registrar' },
-        { label: 'Activar/Inactivar', icon: '', routerLink: '/dashboard/vehiculos/estado' },
-        { label: 'Historial de movimientos', icon: '', routerLink: '/dashboard/vehiculos/historial' }
+        { label: 'Ver mis vehículos', icon: '', routerLink: '/dashboard/vehiculos/listar' }
       ] },
       { label: 'Mis invitados', icon: 'pi pi-users', items: [
         { label: 'Crear invitación', icon: '', routerLink: '/invitados/crear' },

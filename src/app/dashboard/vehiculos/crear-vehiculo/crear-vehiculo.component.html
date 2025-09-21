@@ -32,35 +32,33 @@
             <input type="checkbox" id="activo" name="activo" [(ngModel)]="vehiculo.activo"> Activo
           </label>
         </div>
-        <div class="form-dropdown-group" style="width: 100vw; max-width: 700px; margin-left: calc(-50vw + 50%); grid-column: 1 / -1;">
-          <p-autoComplete
+        <div class="input-group">
+          <span class="input-icon"><i class="pi pi-user"></i></span>
+          <p-dropdown
+            [options]="usuarios"
             [(ngModel)]="usuarioSeleccionado"
-            [suggestions]="usuariosFiltrados"
-            (completeMethod)="filtrarUsuarios($event)"
-            (onClear)="limpiarSeleccionUsuario()"
-            (onSelect)="asignarUsuario($event)"
-            [optionLabel]="'nombreCompletoMayus'"
-            [dropdown]="true"
-            [showClear]="true"
-            [forceSelection]="true"
-            placeholder="Seleccione o busque un usuario por nombre o documento"
             name="usuarioId"
-            required
-            class="autocomplete-full-width"
-          >
-            <ng-template let-user pTemplate="item">
-              <div class="usuario-item-autocomplete">
-                <div class="usuario-nombre">{{ user.nombreCompletoMayus }}</div>
-                <div class="usuario-doc">{{ user.documentoTipo }}: {{ user.documentoNumero }}</div>
+            optionLabel="nombreCompletoMayus"
+            [filter]="true"
+            [showClear]="true"
+            [ngClass]="{'campo-requerido': intentoGuardar && (!usuarioSeleccionado?.id)}"
+            placeholder="Seleccione o busque un usuario por nombre o documento"
+            [style]="{width: '100%'}"
+            [ngModelOptions]="{standalone: true}"
+            required>
+            <ng-template let-u pTemplate="item">
+              <div class="usuario-dropdown-option">
+                <span class="usuario-nombre">{{ u.nombreCompletoMayus }}</span>
+                <span class="usuario-doc">{{ u.documentoTipo }}: {{ u.documentoNumero }}</span>
               </div>
             </ng-template>
-            <ng-template let-user pTemplate="selectedItem">
-              <div class="usuario-item-autocomplete">
-                <div class="usuario-nombre">{{ user?.nombreCompletoMayus }}</div>
-                <div class="usuario-doc">{{ user?.documentoTipo }}: {{ user?.documentoNumero }}</div>
+            <ng-template let-u pTemplate="selectedItem">
+              <div class="usuario-dropdown-option">
+                <span class="usuario-nombre">{{ u?.nombreCompletoMayus }}</span>
+                <span class="usuario-doc">{{ u?.documentoTipo }}: {{ u?.documentoNumero }}</span>
               </div>
             </ng-template>
-          </p-autoComplete>
+          </p-dropdown>
         </div>
         <button type="submit" class="btn-crear" style="grid-column: 1 / -1; width: 100%;">Crear vehículo</button>
       </div>

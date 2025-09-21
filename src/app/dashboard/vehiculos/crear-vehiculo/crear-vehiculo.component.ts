@@ -40,6 +40,7 @@ export class CrearVehiculoComponent implements OnInit {
   snackbarMensaje = '';
   usuariosFiltrados: UsuarioAutoComplete[] = [];
   usuarioSeleccionado: UsuarioAutoComplete | null = null;
+  intentoGuardar: boolean = false;
 
   constructor(
     private usuariosService: UsuariosService,

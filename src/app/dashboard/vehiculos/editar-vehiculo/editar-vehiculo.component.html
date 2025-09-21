@@ -93,7 +93,8 @@
               placeholder="Seleccione o busque un usuario"
               [style]="{width: '100%'}"
               [ngModelOptions]="{standalone: true}"
-              required>
+              required
+              (onChange)="onUsuarioSeleccionado($event)">
               <ng-template let-u pTemplate="item">
                 <div class="usuario-dropdown-option">
                   <span class="usuario-nombre">{{ u.nombreCompleto }}</span>

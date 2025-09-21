@@ -43,27 +43,33 @@ export class EditarVehiculoComponent implements OnInit {
       const encontrado = vehiculos.find(v => v.id === id);
       if (encontrado) {
         this.vehiculo = { ...encontrado };
-        // Si existe 'usuario' y tiene id, poblar usuario con esos datos
-        if (this.vehiculo.usuario && this.vehiculo.usuario.id) {
-          let usuarioEnLista = this.usuarios.find(u => u.id === this.vehiculo.usuario.id);
+        // Extraer usuario asignado desde usuarios (nuevo formato)
+        let usuarioAsignado = null;
+        if (this.vehiculo.usuarios && this.vehiculo.usuarios.length > 0) {
+          usuarioAsignado = this.vehiculo.usuarios[0];
+        }
+        if (usuarioAsignado && usuarioAsignado.id) {
+          // Normalizar usuario asignado si es necesario
+          const usuarioNormalizado: Usuario = {
+            ...usuarioAsignado,
+            documentoNumero: usuarioAsignado.documentoNumero || usuarioAsignado.documentoIdentidad || '',
+          };
+          // Buscar el usuario en la lista de usuarios
+          let usuarioEnLista = this.usuarios.find(u => u.id === usuarioNormalizado.id);
           if (!usuarioEnLista) {
-            usuarioEnLista = {
-              id: this.vehiculo.usuario.id,
-              nombreCompleto: this.vehiculo.usuario.nombreCompleto,
-              correo: this.vehiculo.usuario.correo,
-              documentoNumero: this.vehiculo.usuario.documentoNumero,
-              password: '',
-              rol: '',
-              estado: '',
-              documentoTipo: '',
-              casa: '',
-              telefono: ''
-            };
-            this.usuarios = [usuarioEnLista, ...this.usuarios];
+            this.usuarios.push(usuarioNormalizado);
+            usuarioEnLista = this.usuarios.find(u => u.id === usuarioNormalizado.id);
           }
-          this.vehiculo.usuario = usuarioEnLista;
+          if (usuarioEnLista) {
+            this.vehiculo.usuario = usuarioEnLista;
+            this.vehiculo.usuarioId = usuarioEnLista.id;
+          } else {
+            this.vehiculo.usuario = { id: null };
+            this.vehiculo.usuarioId = null;
+          }
         } else {
           this.vehiculo.usuario = { id: null };
+          this.vehiculo.usuarioId = null;
         }
         this.mensaje = '';
         this.intentoGuardar = false;
@@ -93,32 +99,22 @@ export class EditarVehiculoComponent implements OnInit {
   buscarVehiculoInterno(placa: string) {
     this.vehiculosService.getVehiculos().subscribe((vehiculos: any[]) => {
       const encontrado = vehiculos.find(v => v.placa?.toUpperCase() === placa);
+      console.log('Respuesta del backend buscarVehiculo:', encontrado);
       if (encontrado) {
         this.vehiculo = { ...encontrado };
-        // Si existe 'usuario' y tiene id, poblar usuario con esos datos
-        if (this.vehiculo.usuario && this.vehiculo.usuario.id) {
-          // Buscar el usuario en la lista de usuarios
-          let usuarioEnLista = this.usuarios.find(u => u.id === this.vehiculo.usuario.id);
+        // Extraer usuario asignado desde vehiculoUsuarios si existe
+        let usuarioAsignado = null;
+        if (this.vehiculo.vehiculoUsuarios && this.vehiculo.vehiculoUsuarios.length > 0) {
+          usuarioAsignado = this.vehiculo.vehiculoUsuarios[0].usuario;
+        }
+        if (usuarioAsignado && usuarioAsignado.id) {
+          let usuarioEnLista = this.usuarios.find(u => u.id === usuarioAsignado.id);
           if (!usuarioEnLista) {
-            // Si no está, agregarlo con todos los campos relevantes
-            usuarioEnLista = {
-              id: this.vehiculo.usuario.id,
-              nombreCompleto: this.vehiculo.usuario.nombreCompleto,
-              correo: this.vehiculo.usuario.correo,
-              documentoNumero: this.vehiculo.usuario.documentoNumero,
-              password: '',
-              rol: '',
-              estado: '',
-              documentoTipo: '',
-              casa: '',
-              telefono: ''
-            };
+            usuarioEnLista = { ...usuarioAsignado } as Usuario;
             this.usuarios = [usuarioEnLista, ...this.usuarios];
           }
-          // Asignar el objeto exacto de la lista a vehiculo.usuario
           this.vehiculo.usuario = usuarioEnLista;
         } else {
-          // Si no tiene usuario, inicializarlo
           this.vehiculo.usuario = { id: null };
         }
         this.mensaje = '';
@@ -133,28 +129,58 @@ export class EditarVehiculoComponent implements OnInit {
   editarVehiculo() {
     if (!this.vehiculo) return;
     this.intentoGuardar = true;
-    // Validar campos requeridos
-    const campos = [
-      this.vehiculo.placa,
-      this.vehiculo.tipo,
-      this.vehiculo.marca,
-      this.vehiculo.modelo,
-      this.vehiculo.color,
-      this.vehiculo.activo,
-      this.vehiculo.usuario?.id // CORRECTO: validar el usuario seleccionado
-    ];
-    if (campos.some(c => c === undefined || c === null || c.toString().trim() === '')) {
-      this.mensaje = 'Todos los campos son obligatorios.';
+
+    // Limpiar y validar campos de texto
+    const placa = (this.vehiculo.placa || '').toString().trim().toUpperCase();
+    const tipo = this.vehiculo.tipo;
+    const marca = (this.vehiculo.marca || '').toString().trim().toUpperCase();
+    const modelo = (this.vehiculo.modelo || '').toString().trim().toUpperCase();
+    const color = (this.vehiculo.color || '').toString().trim().toUpperCase();
+    const activo = this.vehiculo.activo;
+    const usuarioId = Number(this.vehiculo.usuarioId);
+
+    // Validación robusta
+    if (!placa) {
+      this.mensaje = 'La placa es obligatoria.';
       return;
     }
-    // Transformar a mayúsculas los campos de texto
-    this.vehiculo.placa = this.vehiculo.placa?.toUpperCase() || '';
-    this.vehiculo.marca = this.vehiculo.marca?.toUpperCase() || '';
-    this.vehiculo.modelo = this.vehiculo.modelo?.toUpperCase() || '';
-    this.vehiculo.color = this.vehiculo.color?.toUpperCase() || '';
-    // Asignar usuarioEntity para el backend
-    this.vehiculo.usuarioEntity = { id: this.vehiculo.usuario.id };
-    this.vehiculosService.actualizarVehiculo(this.vehiculo.id, this.vehiculo).subscribe({
+    if (!tipo) {
+      this.mensaje = 'El tipo de vehículo es obligatorio.';
+      return;
+    }
+    if (!marca) {
+      this.mensaje = 'La marca es obligatoria.';
+      return;
+    }
+    if (!modelo) {
+      this.mensaje = 'El modelo es obligatorio.';
+      return;
+    }
+    if (!color) {
+      this.mensaje = 'El color es obligatorio.';
+      return;
+    }
+    if (activo === undefined || activo === null) {
+      this.mensaje = 'El estado activo es obligatorio.';
+      return;
+    }
+    // Validación corregida para usuarioId
+    if (isNaN(usuarioId) || usuarioId <= 0) {
+      this.mensaje = 'El usuario es obligatorio.';
+      return;
+    }
+
+    // Construir el objeto a enviar al backend con la estructura esperada
+    const vehiculoAEnviar = {
+      placa,
+      tipo,
+      color,
+      marca,
+      modelo,
+      activo,
+      usuarioId
+    };
+    this.vehiculosService.actualizarVehiculo(this.vehiculo.id, vehiculoAEnviar).subscribe({
       next: () => {
         this.mensaje = '';
         this.snackbarMensaje = 'Vehículo editado exitosamente.';
@@ -172,5 +198,9 @@ export class EditarVehiculoComponent implements OnInit {
 
   irMostrarTabla() {
     this.router.navigate(['/dashboard/vehiculos/ver']);
+  }
+
+  onUsuarioSeleccionado(event: any) {
+    this.vehiculo.usuarioId = event.value ? event.value.id : null;
   }
 }

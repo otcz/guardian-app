@@ -23,6 +23,7 @@
             <th pSortableColumn="modelo">Modelo <p-sortIcon field="modelo"></p-sortIcon></th>
             <th pSortableColumn="color">Color <p-sortIcon field="color"></p-sortIcon></th>
             <th pSortableColumn="activo" class="td-estado">Activo <p-sortIcon field="activo"></p-sortIcon></th>
+            <th pSortableColumn="usuario" class="td-usuario">Usuario asignado <p-sortIcon field="usuario"></p-sortIcon></th>
             <th class="td-acciones">Acciones</th>
           </tr>
         </ng-template>
@@ -38,6 +39,14 @@
               <span [ngClass]="{'text-success': v.activo, 'text-danger': !v.activo}">
                 {{ v.activo ? 'Sí' : 'No' }}
               </span>
+            </td>
+            <td class="td-usuario">
+              <span *ngIf="v.usuario && v.usuario.nombreCompleto; else noUsuario">
+                {{ v.usuario.nombreCompleto }}
+              </span>
+              <ng-template #noUsuario>
+                <span class="text-muted">Sin usuario</span>
+              </ng-template>
             </td>
             <td class="td-acciones">
               <button pButton type="button" icon="pi pi-pencil" class="boton-accion boton-editar-minimal" (click)="editarVehiculo(v)" pTooltip="Editar" tooltipPosition="top"></button>

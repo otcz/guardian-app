@@ -540,13 +540,6 @@
   font-weight: 600 !important;
   transition: background 0.2s, color 0.2s !important;
 }
-.p-dropdown-items .p-dropdown-item.p-highlight .usuario-dropdown-option,
-.p-dropdown-items .p-dropdown-item.p-highlight .vehiculo-dropdown-option,
-.usuario-dropdown-option:hover,
-.vehiculo-dropdown-option:hover {
-  background: linear-gradient(90deg, #4f8cff 60%, #203a43 100%) !important;
-  color: #fff !important;
-}
 /* selectedItem visual igual a item */
 .p-dropdown-label .usuario-dropdown-option,
 .p-dropdown-label .vehiculo-dropdown-option {
@@ -568,4 +561,22 @@
 .p-dropdown-label .vehiculo-dropdown-option .vehiculo-detalle {
   color: #2563eb !important;
   margin-left: 10px;
+}
+
+/* Forzar que las opciones y el selectedItem no se salgan del contenedor */
+.usuario-dropdown-option,
+.vehiculo-dropdown-option {
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+}
+.p-dropdown-label .usuario-dropdown-option,
+.p-dropdown-label .vehiculo-dropdown-option {
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
 }

@@ -57,10 +57,10 @@ export class MenuService {
         { label: 'Editar Vehículo', icon: 'pi pi-pencil', routerLink: '/dashboard/vehiculos/editar' },
         { label: 'Eliminar Vehículo', icon: 'pi pi-trash', routerLink: '/dashboard/vehiculos/eliminar' }
       ] },
-      { label: 'Guardias', icon: 'pi pi-id-card', items: [
-        { label: 'Gestión de credenciales', icon: '', routerLink: '/guardias/credenciales' },
-        { label: 'Turnos', icon: '', routerLink: '/guardias/turnos' }
-      ] },
+      // { label: 'Guardias', icon: 'pi pi-id-card', items: [
+      //   { label: 'Gestión de credenciales', icon: '', routerLink: '/guardias/credenciales' },
+      //   { label: 'Turnos', icon: '', routerLink: '/guardias/turnos' }
+      // ] },
       { label: 'Reportes', icon: 'pi pi-chart-bar', items: [
         { label: 'Entradas/Salidas por fecha', icon: '', routerLink: '/reportes/entradas-salidas' },
         { label: 'Invitados por usuario', icon: '', routerLink: '/reportes/invitados' },

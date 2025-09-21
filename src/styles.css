@@ -247,7 +247,7 @@ S /* --- PrimeNG Dropdown: Forzar estilos globales para toda la app --- */
   border: 1px solid #dbeafe !important;
   padding: 8px 0 !important;
 }
-.p-dropdown-item {
+.p-dropdown-items .p-dropdown-item {
   background: #eaf2ff !important;
   color: #23272f !important;
   border-radius: 10px !important;
@@ -259,13 +259,17 @@ S /* --- PrimeNG Dropdown: Forzar estilos globales para toda la app --- */
   display: flex !important;
   justify-content: space-between !important;
   align-items: center !important;
+  box-shadow: 0 1px 4px rgba(30,40,60,0.04) !important;
 }
-.p-dropdown-item.p-highlight,
-.p-dropdown-item:hover {
+.p-dropdown-items .p-dropdown-item.p-highlight,
+.p-dropdown-items .p-dropdown-item:hover {
   background: linear-gradient(90deg, #4f8cff 60%, #203a43 100%) !important;
   color: #fff !important;
 }
-.p-dropdown-label.p-placeholder {
-  color: #b0b8c1 !important;
+.p-dropdown-items {
   background: #f4f7fa !important;
+  border-radius: 8px !important;
+  box-shadow: 0 2px 8px rgba(30,40,60,0.10) !important;
+  border: none !important;
+  padding: 4px 0 !important;
 }

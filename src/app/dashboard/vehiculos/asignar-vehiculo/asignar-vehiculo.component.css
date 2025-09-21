@@ -524,3 +524,48 @@
   color: #b0b8c1 !important;
   background: #f4f7fa !important;
 }
+
+/* --- ESTILOS FORZADOS PARA OPCIONES DE USUARIO Y VEHÍCULO EN DROPDOWN PRIME NG --- */
+.usuario-dropdown-option,
+.vehiculo-dropdown-option {
+  background: #eaf2ff !important;
+  color: #23272f !important;
+  border-radius: 10px !important;
+  margin: 2px 0 !important;
+  padding: 8px 12px !important;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  font-size: 1.08rem !important;
+  font-weight: 600 !important;
+  transition: background 0.2s, color 0.2s !important;
+}
+.p-dropdown-items .p-dropdown-item.p-highlight .usuario-dropdown-option,
+.p-dropdown-items .p-dropdown-item.p-highlight .vehiculo-dropdown-option,
+.usuario-dropdown-option:hover,
+.vehiculo-dropdown-option:hover {
+  background: linear-gradient(90deg, #4f8cff 60%, #203a43 100%) !important;
+  color: #fff !important;
+}
+/* selectedItem visual igual a item */
+.p-dropdown-label .usuario-dropdown-option,
+.p-dropdown-label .vehiculo-dropdown-option {
+  background: #eaf2ff !important;
+  color: #23272f !important;
+  border-radius: 10px !important;
+  padding: 8px 12px !important;
+  font-size: 1.08rem !important;
+  font-weight: 600 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px;
+}
+.p-dropdown-label .usuario-dropdown-option .usuario-nombre,
+.p-dropdown-label .vehiculo-dropdown-option .vehiculo-placa {
+  color: #23272f !important;
+}
+.p-dropdown-label .usuario-dropdown-option .usuario-doc,
+.p-dropdown-label .vehiculo-dropdown-option .vehiculo-detalle {
+  color: #2563eb !important;
+  margin-left: 10px;
+}

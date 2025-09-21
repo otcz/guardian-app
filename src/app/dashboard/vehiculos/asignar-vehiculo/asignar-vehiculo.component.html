@@ -18,13 +18,13 @@
               [style]="{width: '100%'}"
               required>
               <ng-template let-u pTemplate="item">
-                <div class="usuario-dropdown-option">
+                <div class="usuario-dropdown-option" style="flex-direction: row; gap: 10px; align-items: center;">
                   <span class="usuario-nombre">{{ u.nombreCompleto }}</span>
                   <span class="usuario-doc">CC: {{ u.documentoNumero }}</span>
                 </div>
               </ng-template>
               <ng-template let-u pTemplate="selectedItem">
-                <div class="usuario-dropdown-option">
+                <div class="usuario-dropdown-option" style="flex-direction: row; gap: 10px; align-items: center;">
                   <span class="usuario-nombre">{{ u?.nombreCompleto }}</span>
                   <span class="usuario-doc">CC: {{ u?.documentoNumero }}</span>
                 </div>
@@ -48,13 +48,13 @@
               [style]="{width: '100%'}"
               required>
               <ng-template let-v pTemplate="item">
-                <div class="vehiculo-dropdown-option">
+                <div class="vehiculo-dropdown-option" style="flex-direction: row; gap: 10px; align-items: center;">
                   <span class="vehiculo-placa">{{ v.placa }}</span>
                   <span class="vehiculo-detalle">{{ v.marca }} {{ v.modelo }}</span>
                 </div>
               </ng-template>
               <ng-template let-v pTemplate="selectedItem">
-                <div class="vehiculo-dropdown-option">
+                <div class="vehiculo-dropdown-option" style="flex-direction: row; gap: 10px; align-items: center;">
                   <span class="vehiculo-placa">{{ v?.placa }}</span>
                   <span class="vehiculo-detalle">{{ v?.marca }} {{ v?.modelo }}</span>
                 </div>

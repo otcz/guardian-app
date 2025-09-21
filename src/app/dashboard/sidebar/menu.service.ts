@@ -52,6 +52,7 @@ export class MenuService {
       { label: 'Vehículos', icon: 'pi pi-car', items: [
         { label: 'Crear Vehículo', icon: 'pi pi-plus', routerLink: '/dashboard/vehiculos/crear' },
         { label: 'Listar Vehículos', icon: 'pi pi-list', routerLink: '/dashboard/vehiculos/listar' },
+        { label: 'Asignar Vehículo', icon: 'pi pi-user-plus', routerLink: '/dashboard/vehiculos/asignar' },
         { label: 'Editar Vehículo', icon: 'pi pi-pencil', routerLink: '/dashboard/vehiculos/editar' },
         { label: 'Eliminar Vehículo', icon: 'pi pi-trash', routerLink: '/dashboard/vehiculos/eliminar' }
       ] },

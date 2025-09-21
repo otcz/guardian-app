@@ -3,7 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 export interface VehiculoCrearRequest {
-  usuarioEntity: { id: number };
+  usuarioId: number;
   placa: string;
   tipo: string;
   color: string;

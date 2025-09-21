@@ -1,6 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {UsuariosService, Usuario} from '../../../service/usuario-service/usuarios-service';
 import {VehiculosService, VehiculoCrearRequest} from '../../../service/vehiculos-service';
+import { AuthService } from '../../../service/auth-service';
 
 interface UsuarioAutoComplete extends Usuario {
   nombreCompletoMayus: string;
@@ -44,7 +45,8 @@ export class CrearVehiculoComponent implements OnInit {
 
   constructor(
     private usuariosService: UsuariosService,
-    private vehiculosService: VehiculosService
+    private vehiculosService: VehiculosService,
+    private authService: AuthService
   ) {
   }
 
@@ -83,14 +85,14 @@ export class CrearVehiculoComponent implements OnInit {
   }
 
   asignarUsuario(event: any) {
+    this.usuarioSeleccionado = event.value || null;
     this.vehiculo.usuarioId = event.value?.id || null;
   }
 
   crearVehiculo() {
-    // Asegurarse de que el usuario seleccionado se asigne al modelo antes de validar
-    if (this.usuarioSeleccionado && this.usuarioSeleccionado.id) {
-      this.vehiculo.usuarioId = this.usuarioSeleccionado.id;
-    }
+    // Tomar el ID del usuario seleccionado o del usuario autenticado
+    let usuarioIdFinal = this.usuarioSeleccionado?.id || this.authService.getUsuarioId();
+    this.vehiculo.usuarioId = usuarioIdFinal;
     // Validación de campos obligatorios
     const camposFaltantes: string[] = [];
     if (!this.vehiculo.placa) camposFaltantes.push('Placa');
@@ -110,8 +112,8 @@ export class CrearVehiculoComponent implements OnInit {
     this.vehiculo.marca = this.vehiculo.marca?.toUpperCase() || '';
     this.vehiculo.modelo = this.vehiculo.modelo?.toUpperCase() || '';
     // Construir el objeto de petición con la estructura esperada por el backend
-    const vehiculoAEnviar = {
-      usuarioEntity: {id: this.vehiculo.usuarioId!},
+    const vehiculoAEnviar: VehiculoCrearRequest = {
+      usuarioId: this.vehiculo.usuarioId!,
       placa: this.vehiculo.placa,
       tipo: this.vehiculo.tipo,
       color: this.vehiculo.color,

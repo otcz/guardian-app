@@ -6,6 +6,7 @@ import { VerVehiculosComponent } from './ver-vehiculos/ver-vehiculos.component';
 import { CrearVehiculoComponent } from './crear-vehiculo/crear-vehiculo.component';
 import { EditarVehiculoComponent } from './editar-vehiculo/editar-vehiculo.component';
 import { EliminarVehiculoComponent } from './eliminar-vehiculo/eliminar-vehiculo.component';
+import { AsignarVehiculoComponent } from './asignar-vehiculo/asignar-vehiculo.component';
 import { DropdownModule } from 'primeng/dropdown';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { AutoCompleteModule } from 'primeng/autocomplete';
@@ -20,7 +21,8 @@ import { ToastModule } from 'primeng/toast';
     VerVehiculosComponent,
     CrearVehiculoComponent,
     EditarVehiculoComponent,
-    EliminarVehiculoComponent
+    EliminarVehiculoComponent,
+    AsignarVehiculoComponent
   ],
   imports: [
     CommonModule,

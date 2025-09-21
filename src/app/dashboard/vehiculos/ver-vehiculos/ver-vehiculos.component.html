@@ -42,19 +42,19 @@
               </span>
             </td>
             <td class="td-usuario">
-              <span *ngIf="v.usuario && v.usuario.nombreCompleto; else noUsuario">
-                {{ v.usuario.nombreCompleto }}
+              <span *ngIf="v.usuarios && v.usuarios.length > 0; else noUsuario">
+                {{ v.usuarios[0].nombreCompleto }}
               </span>
               <ng-template #noUsuario>
                 <span class="text-muted">Sin usuario</span>
               </ng-template>
             </td>
             <td class="td-cc">
-              <span *ngIf="v.usuario && v.usuario.documentoIdentidad; else noCC">
-                {{ v.usuario.documentoIdentidad }}
+              <span *ngIf="v.usuarios && v.usuarios.length > 0; else noCC">
+                {{ v.usuarios[0].documentoIdentidad }} {{ v.usuarios[0].documentoNumero }}
               </span>
               <ng-template #noCC>
-                <span class="text-muted">Sin CC</span>
+                <span class="text-muted">-</span>
               </ng-template>
             </td>
             <td class="td-acciones">

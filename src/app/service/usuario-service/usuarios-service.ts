@@ -80,4 +80,13 @@ export class UsuariosService {
     // Se asume que el backend tiene un endpoint que permite buscar por correo o documento
     return this.http.get<Usuario>(`${this.apiUrl}/buscar?termino=${encodeURIComponent(termino)}`, { headers });
   }
+
+  asignarVehiculo(usuarioId: number, vehiculoId: number): Observable<any> {
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+    // Ajusta el endpoint según tu backend
+    return this.http.post(`${this.apiUrl}/${usuarioId}/asignar-vehiculo`, { vehiculoId }, { headers });
+  }
 }

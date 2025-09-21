@@ -36,8 +36,12 @@ export class VerVehiculosComponent implements OnInit {
           this.vehiculos = data;
           this.vehiculosFiltrados = [...data];
         },
-        error: () => {
-          this.messageService.add({severity: 'error', summary: 'Error', detail: 'No se pudieron cargar los vehículos.'});
+        error: (error) => {
+          if (error.status === 403) {
+            this.messageService.add({severity: 'warn', summary: 'Acceso restringido', detail: 'Para editar debe comunicarse con el ADMINISTRADOR.'});
+          } else {
+            this.messageService.add({severity: 'error', summary: 'Error', detail: 'No se pudieron cargar los vehículos.'});
+          }
         }
       });
     } else {
@@ -46,8 +50,12 @@ export class VerVehiculosComponent implements OnInit {
           this.vehiculos = data;
           this.vehiculosFiltrados = [...data];
         },
-        error: () => {
-          this.messageService.add({severity: 'error', summary: 'Error', detail: 'No se pudieron cargar los vehículos.'});
+        error: (error) => {
+          if (error.status === 403) {
+            this.messageService.add({severity: 'warn', summary: 'Acceso restringido', detail: 'Para editar debe comunicarse con el ADMINISTRADOR.'});
+          } else {
+            this.messageService.add({severity: 'error', summary: 'Error', detail: 'No se pudieron cargar los vehículos.'});
+          }
         }
       });
     }

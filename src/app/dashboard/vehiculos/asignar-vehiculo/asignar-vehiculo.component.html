@@ -1,0 +1,34 @@
+<div class="form-center-wrapper">
+  <h2>Asignar Vehículo a Usuario</h2>
+  <form (ngSubmit)="asignarVehiculo()" #asignarForm="ngForm">
+    <div class="form-group">
+      <label for="usuario">Usuario</label>
+      <p-dropdown
+        [options]="usuarios"
+        [(ngModel)]="usuarioSeleccionado"
+        name="usuario"
+        optionLabel="nombreCompleto"
+        optionValue="id"
+        placeholder="Seleccione un usuario"
+        required>
+      </p-dropdown>
+    </div>
+    <div class="form-group">
+      <label for="vehiculo">Vehículo</label>
+      <p-dropdown
+        [options]="vehiculos"
+        [(ngModel)]="vehiculoSeleccionado"
+        name="vehiculo"
+        optionLabel="placa"
+        optionValue="id"
+        placeholder="Seleccione un vehículo"
+        required>
+      </p-dropdown>
+    </div>
+    <div class="form-group">
+      <button pButton type="submit" label="Asignar" [disabled]="!usuarioSeleccionado || !vehiculoSeleccionado"></button>
+    </div>
+  </form>
+  <p-toast></p-toast>
+</div>
+

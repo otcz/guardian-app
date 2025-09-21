@@ -80,6 +80,14 @@ export class AuthService {
   }
 
   /**
+   * Devuelve el id del usuario autenticado si está disponible en el localStorage
+   */
+  public getUsuarioId(): number | null {
+    const id = localStorage.getItem('usuarioId');
+    return id ? Number(id) : null;
+  }
+
+  /**
    * Maneja los errores de las peticiones HTTP.
    * @param error Error HTTP recibido.
    * @returns Observable<never> Lanza un error con mensaje personalizado.

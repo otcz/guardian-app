@@ -4,3 +4,132 @@ h2 {
   margin-bottom: 16px;
 }
 
+/* Estilos para eliminar vehículo (copiados de eliminar usuario) */
+.eliminar-usuario-form {
+  max-width: 400px;
+  margin: 32px auto 0 auto;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 2px 8px rgba(30,40,60,0.10);
+  padding: 32px 24px 24px 24px;
+  font-family: 'Inter', 'Segoe UI', 'Roboto', Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.eliminar-usuario-form h2 {
+  color: #23272f;
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+  text-align: center;
+}
+.eliminar-usuario-form form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.eliminar-usuario-form label {
+  font-size: 0.97rem;
+  color: #23272f;
+  font-weight: 500;
+}
+.eliminar-usuario-form input {
+  padding: 10px 12px;
+  border: 1px solid #dbeafe;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-family: inherit;
+  background: #f4f7fa;
+  color: #23272f;
+  outline: none;
+  transition: border 0.2s;
+}
+.eliminar-usuario-form input:focus {
+  border-color: #4f8cff;
+}
+.eliminar-usuario-form button[type="submit"] {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(90deg, #ff4f4f 60%, #23272f 100%);
+  color: #fff;
+  font-size: 1.08rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  margin-top: 10px;
+  box-shadow: 0 2px 8px rgba(255,79,79,0.10);
+  transition: background 0.2s;
+}
+.eliminar-usuario-form button[type="submit"]:hover {
+  background: linear-gradient(90deg, #23272f 60%, #ff4f4f 100%);
+}
+.mensaje {
+  margin-top: 10px;
+  font-size: 0.98rem;
+  color: #ff4f4f;
+  text-align: center;
+  word-break: break-word;
+}
+@media (max-width: 900px) {
+  .eliminar-usuario-form {
+    padding: 18px 8px 12px 8px;
+    border-radius: 10px;
+    margin: 16px auto 0 auto;
+    gap: 10px;
+  }
+  .eliminar-usuario-form h2 {
+    font-size: 1.1rem;
+    margin-bottom: 6px;
+  }
+  .eliminar-usuario-form button[type="submit"] {
+    font-size: 0.98rem;
+    padding: 10px 0;
+  }
+}
+@media (max-width: 600px) {
+  .eliminar-usuario-form {
+    max-width: 85vw !important;
+    width: 100%;
+    margin: 12px auto 0 auto !important;
+    padding: 2px 3vw 12px 3vw !important;
+    border-radius: 4px !important;
+    gap: 2px !important;
+    box-shadow: 0 1px 4px rgba(30,40,60,0.08) !important;
+    background: #fff;
+  }
+  .eliminar-usuario-form h2 {
+    font-size: 0.95rem !important;
+    margin-bottom: 6px !important;
+  }
+  .eliminar-usuario-form label {
+    font-size: 0.89rem !important;
+  }
+  .eliminar-usuario-form input {
+    font-size: 0.89rem !important;
+    padding: 6px 6px !important;
+    height: 28px !important;
+    border-radius: 4px !important;
+  }
+  .eliminar-usuario-form button[type="submit"] {
+    width: 100% !important;
+    font-size: 1.08rem !important;
+    padding: 14px !important;
+    border-radius: 10px !important;
+    margin-top: 10px !important;
+    background: linear-gradient(90deg, #ff4f4f 60%, #23272f 100%) !important;
+    color: #fff !important;
+    font-weight: 600 !important;
+    box-shadow: 0 2px 8px rgba(255,79,79,0.10) !important;
+    transition: background 0.2s !important;
+    display: block !important;
+  }
+  .eliminar-usuario-form button[type="submit"]:hover {
+    background: linear-gradient(90deg, #23272f 60%, #ff4f4f 100%) !important;
+  }
+  .mensaje {
+    font-size: 0.89rem !important;
+    margin-top: 4px !important;
+  }
+}

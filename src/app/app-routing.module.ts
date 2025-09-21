@@ -6,7 +6,7 @@ export const appRoutes: Routes = [
     path: 'login',
     loadComponent: () => import('./auth-module/login/login').then(m => m.Login)
   },
-  { path: '', redirectTo: 'login', pathMatch: 'full' },
+  { path: '', redirectTo: 'dashboard/perfil', pathMatch: 'full' },
   {
     path: 'dashboard',
     canActivate: [AuthGuard],
@@ -26,6 +26,19 @@ export const appRoutes: Routes = [
       {
         path: 'vehiculos',
         loadChildren: () => import('./dashboard/vehiculos/vehiculos.module').then(m => m.VehiculosModule)
+      },
+      {
+        path: 'perfil',
+        loadComponent: () => import('./dashboard/perfil/perfil.component').then(m => m.PerfilComponent)
+      },
+      {
+        path: 'inicio',
+        loadComponent: () => import('./dashboard/inicio/inicio.component').then(m => m.InicioComponent)
+      },
+      {
+        path: '',
+        redirectTo: 'perfil',
+        pathMatch: 'full'
       }
     ]
   },

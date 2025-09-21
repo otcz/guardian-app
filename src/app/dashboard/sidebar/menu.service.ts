@@ -12,8 +12,8 @@ export class MenuService {
   // Simulación de menú por rol. En producción, esto puede venir de una API.
   private menus: Record<string, MenuItem[]> = {
     guardia: [
-      { label: 'Inicio', icon: 'pi pi-home', routerLink: '/inicio' },
-      { label: 'Perfil', icon: 'pi pi-user', items: [ { label: 'Ver Perfil', icon: '', routerLink: '/perfil' } ] },
+      { label: 'Inicio', icon: 'pi pi-home', routerLink: '/dashboard/inicio' },
+      { label: 'Perfil', icon: 'pi pi-user', items: [ { label: 'Ver Perfil', icon: '', routerLink: '/dashboard/perfil' } ] },
       { label: 'Escanear QR', icon: 'pi pi-qrcode', routerLink: '/escanear' },
       { label: 'Accesos', icon: 'pi pi-sign-in', routerLink: '/accesos' },
       { label: 'Consultar usuario/vehículo', icon: 'pi pi-search', routerLink: '/consulta' },
@@ -26,8 +26,8 @@ export class MenuService {
       { label: 'Cerrar sesión', icon: 'pi pi-power-off', routerLink: '/logout' }
     ],
     usuario: [
-      { label: 'Inicio', icon: 'pi pi-home', routerLink: '/inicio' },
-      { label: 'Perfil', icon: 'pi pi-user', items: [ { label: 'Ver Perfil', icon: '', routerLink: '/perfil' } ] },
+      { label: 'Inicio', icon: 'pi pi-home', routerLink: '/dashboard/inicio' },
+      { label: 'Perfil', icon: 'pi pi-user', items: [ { label: 'Ver Perfil', icon: '', routerLink: '/dashboard/perfil' } ] },
       { label: 'Mis vehículos', icon: 'pi pi-car', items: [
         { label: 'Registrar vehículo', icon: '', routerLink: '/dashboard/vehiculos/registrar' },
         { label: 'Activar/Inactivar', icon: '', routerLink: '/dashboard/vehiculos/estado' },
@@ -43,8 +43,8 @@ export class MenuService {
       { label: 'Cerrar sesión', icon: 'pi pi-power-off', routerLink: '/logout' }
     ],
     admin: [
-      { label: 'Inicio', icon: 'pi pi-home', routerLink: '/inicio' },
-      { label: 'Perfil', icon: 'pi pi-user', items: [ { label: 'Ver Perfil', icon: '', routerLink: '/perfil' } ] },
+      { label: 'Inicio', icon: 'pi pi-home', routerLink: '/dashboard/inicio' },
+      { label: 'Perfil', icon: 'pi pi-user', items: [ { label: 'Ver Perfil', icon: '', routerLink: '/dashboard/perfil' } ] },
       { label: 'Usuarios', icon: 'pi pi-users', items: [
         { label: 'Nuevo usuario', icon: 'pi pi-user-plus', routerLink: '/dashboard/usuarios/crear' },
         { label: 'Ver usuarios', icon: 'pi pi-eye', routerLink: '/dashboard/usuarios' },

@@ -122,3 +122,8 @@ export class Dashboard implements OnDestroy {
     this.router.navigate(['/login']);
   }
 }
+
+const routes = [
+  { path: '', redirectTo: 'dashboard/perfil', pathMatch: 'full' },
+  // otras rutas
+];

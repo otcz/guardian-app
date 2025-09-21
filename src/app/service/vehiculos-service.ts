@@ -26,5 +26,36 @@ export class VehiculosService {
     });
     return this.http.post(`${this.apiUrl}/crear`, vehiculo, { headers });
   }
-}
 
+  getVehiculos(): Observable<any[]> {
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+    return this.http.get<any[]>(`${this.apiUrl}`, { headers });
+  }
+
+  getVehiculoPorId(id: number): Observable<any> {
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+    return this.http.get<any>(`${this.apiUrl}/${id}`, { headers });
+  }
+
+  actualizarVehiculo(id: number, vehiculo: any): Observable<any> {
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+    return this.http.put(`${this.apiUrl}/${id}`, vehiculo, { headers });
+  }
+
+  eliminarVehiculo(id: number): Observable<any> {
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+    return this.http.delete(`${this.apiUrl}/${id}`, { headers });
+  }
+}

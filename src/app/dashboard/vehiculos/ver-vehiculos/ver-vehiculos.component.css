@@ -1,0 +1,417 @@
+/* Estilos básicos para el listado de vehículos */
+h2 {
+  color: #23272f;
+  margin-bottom: 16px;
+}
+
+/* --- ESTILO MODERNO PARA p-table (PrimeNG) --- */
+:host ::ng-deep .tabla-usuarios-prime .p-datatable {
+  font-family: 'Inter', 'Segoe UI', 'Roboto', Arial, sans-serif !important;
+  background: #f8fafc !important;
+  border-radius: 18px !important;
+  box-shadow: 0 4px 24px 0 rgba(30,40,60,0.13) !important;
+  overflow: hidden !important;
+  margin-top: 32px !important;
+  margin-bottom: 32px !important;
+  border: none !important;
+  transition: box-shadow 0.2s !important;
+}
+:host ::ng-deep .tabla-usuarios-prime .p-datatable,
+:host ::ng-deep .tabla-usuarios-prime .p-datatable-thead > tr > th,
+:host ::ng-deep .tabla-usuarios-prime .p-datatable-tbody > tr > td,
+:host ::ng-deep .tabla-usuarios-prime .p-datatable-tfoot > tr > td,
+:host ::ng-deep .tabla-usuarios-prime .p-datatable-tfoot > tr > th {
+  border: none !important;
+  box-shadow: none !important;
+}
+:host ::ng-deep .tabla-usuarios-prime .p-datatable-header {
+  border-style: none !important;
+  border-width: 0 !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+:host ::ng-deep .tabla-usuarios-prime .p-datatable-caption {
+  background: #eaf2ff !important;
+  border-radius: 18px 18px 0 0 !important;
+  padding: 24px 32px 16px 32px !important;
+  border-bottom: none !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 1.5rem !important;
+}
+:host ::ng-deep .tabla-usuarios-prime .p-datatable-thead > tr > th {
+  color: #1e293b !important;
+  font-weight: 700 !important;
+  font-size: 1.12rem !important;
+  border-bottom: none !important;
+  padding-top: 4px !important;
+  padding-bottom: 2px !important;
+  padding-left: 8px !important;
+  padding-right: 8px !important;
+  vertical-align: middle !important;
+  letter-spacing: 0.01em !important;
+  transition: background 0.2s !important;
+  text-align: left !important;
+  position: relative !important;
+}
+:host ::ng-deep .tabla-usuarios-prime .p-datatable-thead > tr > th .pi {
+  color: #4f8cff !important;
+  margin-left: 6px !important;
+  font-size: 1.1em !important;
+}
+:host ::ng-deep .tabla-usuarios-prime .p-datatable-tbody > tr > td {
+  color: #23272f !important;
+  padding-bottom: 4px !important;
+  padding-left: 8px !important;
+  padding-right: 8px !important;
+  font-size: 1.04rem !important;
+  border-bottom: 1px solid #e0e6ed !important;
+  background: #fff !important;
+  letter-spacing: 0.01em !important;
+  transition: background 0.18s !important;
+  text-align: left !important;
+}
+:host ::ng-deep .tabla-usuarios-prime .p-datatable-tbody > tr {
+  transition: background 0.18s !important;
+}
+:host ::ng-deep .tabla-usuarios-prime .p-datatable-tbody > tr:hover {
+  background: #eaf2ff !important;
+}
+:host ::ng-deep .tabla-usuarios-prime .p-datatable-tbody > tr:last-child > td {
+  border-bottom: none !important;
+}
+:host ::ng-deep .tabla-usuarios-prime .p-datatable-tfoot > tr > td,
+:host ::ng-deep .tabla-usuarios-prime .p-datatable-tfoot > tr > th {
+  border-top: none !important;
+}
+:host ::ng-deep .tabla-usuarios-prime .p-datatable-thead > tr > th,
+:host ::ng-deep .tabla-usuarios-prime .p-datatable-tbody > tr > td {
+  min-width: 120px !important;
+}
+:host ::ng-deep .tabla-usuarios-prime .p-paginator {
+  background: #eaf2ff !important;
+  border-radius: 0 0 18px 18px !important;
+  border: none !important;
+  color: #23272f !important;
+  font-size: 1.04rem !important;
+  margin-top: 0 !important;
+  box-shadow: none !important;
+  padding: 14px 32px !important;
+}
+:host ::ng-deep .tabla-usuarios-prime .p-paginator .p-paginator-pages .p-paginator-page.p-highlight {
+  background: #4f8cff !important;
+  color: #fff !important;
+  border-radius: 7px !important;
+}
+:host ::ng-deep .tabla-usuarios-prime .p-paginator .p-paginator-page {
+  border-radius: 7px !important;
+  margin: 0 2px !important;
+}
+:host ::ng-deep .tabla-usuarios-prime .p-paginator .p-paginator-page:not(.p-highlight):hover {
+  background: #eaf2ff !important;
+  color: #4f8cff !important;
+}
+:host ::ng-deep .tabla-usuarios-prime .p-datatable-tbody .p-button {
+  margin: 0 4px !important;
+  box-shadow: none !important;
+}
+:host ::ng-deep .tabla-usuarios-prime .p-datatable-tbody .p-button-info {
+  background: linear-gradient(90deg, #4f8cff 60%, #38bdf8 100%) !important;
+  border: none !important;
+  color: #fff !important;
+}
+:host ::ng-deep .tabla-usuarios-prime .p-datatable-tbody .p-button-danger {
+  background: linear-gradient(90deg, #ff4d4f 60%, #f87171 100%) !important;
+  border: none !important;
+  color: #fff !important;
+}
+:host ::ng-deep .tabla-usuarios-prime .p-datatable-tbody .p-button-info:hover {
+  background: #23272f !important;
+}
+:host ::ng-deep .tabla-usuarios-prime .p-datatable-tbody .p-button-danger:hover {
+  background: #d90429 !important;
+}
+:host ::ng-deep .tabla-usuarios-prime .p-datatable-wrapper {
+  overflow-x: auto !important;
+  scrollbar-width: thin !important;
+  scrollbar-color: #4f8cff #eaf2ff !important;
+}
+:host ::ng-deep .tabla-usuarios-prime .p-datatable-wrapper::-webkit-scrollbar {
+  height: 8px !important;
+  background: #eaf2ff !important;
+}
+:host ::ng-deep .tabla-usuarios-prime .p-datatable-wrapper::-webkit-scrollbar-thumb {
+  background: #4f8cff !important;
+  border-radius: 8px !important;
+}
+:host ::ng-deep .tabla-usuarios-prime .p-datatable .p-datatable-tbody > tr > td:last-child {
+  text-align: right !important;
+}
+:host ::ng-deep .tabla-usuarios-prime .p-datatable-caption .p-input-icon-left {
+  display: flex !important;
+  align-items: center !important;
+  background: #fff !important;
+  border-radius: 10px !important;
+  border: none !important;
+  box-shadow: 0 2px 8px rgba(30,40,60,0.10);
+  padding: 8px 16px 8px 12px;
+  width: 100% !important;
+  max-width: 400px !important;
+  margin: 0 auto 12px auto;
+  transition: box-shadow 0.2s !important;
+}
+:host ::ng-deep .tabla-usuarios-prime .p-datatable-caption .p-input-icon-left:focus-within {
+  box-shadow: 0 0 0 2px #4f8cff22 !important;
+}
+:host ::ng-deep .tabla-usuarios-prime .p-datatable-caption .p-input-icon-left i.pi {
+  color: #4f8cff !important;
+  font-size: 1.3rem !important;
+  margin-right: 12px !important;
+}
+:host ::ng-deep .tabla-usuarios-prime .p-datatable-caption .p-inputtext-sm {
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+  background: transparent !important;
+  font-size: 1.12rem !important;
+  color: #23272f !important;
+  width: 100% !important;
+  padding: 7px 0 !important;
+  font-family: 'Inter', 'Segoe UI', 'Roboto', Arial, sans-serif !important;
+  height: 32px !important;
+}
+:host ::ng-deep .tabla-usuarios-prime .p-datatable-caption .p-inputtext-sm:focus {
+  background: transparent !important;
+}
+:host ::ng-deep .tabla-usuarios-prime .p-datatable-caption .p-inputtext-sm::placeholder {
+  color: #94a3b8 !important;
+  opacity: 1 !important;
+  font-size: 1.08rem !important;
+}
+:host ::ng-deep .tabla-usuarios-prime .p-datatable-thead > tr > th.td-contador,
+:host ::ng-deep .tabla-usuarios-prime .p-datatable-tbody > tr > td.td-contador {
+  min-width: 32px !important;
+  max-width: 40px !important;
+  width: 1% !important;
+  text-align: center !important;
+}
+:host ::ng-deep .tabla-usuarios-prime .p-datatable-thead > tr > th.td-acciones,
+:host ::ng-deep .tabla-usuarios-prime .p-datatable-tbody > tr > td.td-acciones {
+  min-width: 140px !important;
+  max-width: 200px !important;
+  width: 10% !important;
+  text-align: center !important;
+  padding-left: 8px !important;
+  padding-right: 8px !important;
+}
+:host ::ng-deep .tabla-usuarios-prime .boton-editar-minimal {
+  background: #2563eb !important;
+}
+:host ::ng-deep .tabla-usuarios-prime .boton-editar-minimal .pi {
+  color: #fff !important;
+  font-size: 1.1rem !important;
+}
+:host ::ng-deep .tabla-usuarios-prime .boton-editar-minimal:hover {
+  filter: brightness(0.85) !important;
+}
+:host ::ng-deep .tabla-usuarios-prime .boton-eliminar-minimal {
+  background: #ef4444 !important;
+}
+:host ::ng-deep .tabla-usuarios-prime .boton-eliminar-minimal .pi {
+  color: #fff !important;
+  font-size: 1.1rem !important;
+}
+:host ::ng-deep .tabla-usuarios-prime .boton-eliminar-minimal:hover {
+  filter: brightness(0.85) !important;
+}
+
+/* --- ESTILO MODERNO PARA LA BARRA DE BÚSQUEDA Y COLUMNAS --- */
+.search-bar-modern {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border-radius: 10px;
+  border: none;
+  box-shadow: 0 2px 8px rgba(30,40,60,0.10);
+  padding: 8px 16px 8px 12px;
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto 12px auto;
+  transition: box-shadow 0.2s;
+}
+.search-bar-modern:focus-within {
+  box-shadow: 0 0 0 2px #4f8cff22;
+}
+.search-bar-modern .pi-search {
+  color: #4f8cff;
+  font-size: 1.3rem;
+  margin-right: 12px;
+}
+.search-bar-input {
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+  background: transparent !important;
+  font-size: 1.12rem;
+  color: #23272f;
+  width: 100%;
+  padding: 6px 0;
+  font-family: 'Inter', 'Segoe UI', 'Roboto', Arial, sans-serif;
+}
+.search-bar-input:focus {
+  background: transparent !important;
+}
+
+:host ::ng-deep .tabla-usuarios-prime .td-contador {
+  min-width: 32px !important;
+  max-width: 40px !important;
+  width: 1% !important;
+  text-align: center !important;
+  padding-left: 2px !important;
+  padding-right: 2px !important;
+  font-size: 0.98em !important;
+}
+:host ::ng-deep .tabla-usuarios-prime .td-nombre {
+  min-width: 110px !important;
+  max-width: 180px !important;
+  width: 15% !important;
+  font-size: 1.04em !important;
+  font-weight: 500 !important;
+  white-space: normal !important;
+}
+:host ::ng-deep .tabla-usuarios-prime .td-corto {
+  min-width: 40px !important;
+  max-width: 60px !important;
+  width: 1% !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  padding-left: 2px !important;
+  padding-right: 2px !important;
+  font-size: 0.98em !important;
+}
+:host ::ng-deep .tabla-usuarios-prime .td-estado {
+  min-width: 60px !important;
+  max-width: 90px !important;
+  width: 7% !important;
+}
+:host ::ng-deep .tabla-usuarios-prime .td-acciones {
+  min-width: 140px !important;
+  max-width: 200px !important;
+  width: 10% !important;
+  text-align: center !important;
+  padding-left: 8px !important;
+  padding-right: 8px !important;
+  vertical-align: middle !important;
+}
+:host ::ng-deep .tabla-usuarios-prime .boton-accion {
+  border-radius: 50% !important;
+  min-width: 32px !important;
+  min-height: 32px !important;
+  width: 32px !important;
+  height: 32px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-shadow: 0 2px 8px rgba(30,40,60,0.07) !important;
+  transition: background 0.18s, border 0.18s, color 0.18s, box-shadow 0.18s, filter 0.18s !important;
+  padding: 0 !important;
+  border: none !important;
+}
+
+/* Estilos para el diálogo de confirmación */
+:host ::ng-deep .confirm-dialog-body p {
+  margin: 18px 0;
+  color: #1e293b;
+  font-size: 1.05rem;
+}
+:host ::ng-deep .confirm-actions .p-button {
+  min-width: 110px;
+  height: 40px;
+  border-radius: 8px;
+  font-weight: 600;
+  box-shadow: none;
+}
+:host ::ng-deep .confirm-actions .confirm-yes.p-button-success {
+  background: linear-gradient(90deg, #059669 60%, #10b981 100%);
+  border: none;
+  color: #fff;
+}
+:host ::ng-deep .confirm-actions .confirm-no.p-button-danger {
+  background: linear-gradient(90deg, #ef4444 60%, #f87171 100%);
+  border: none;
+  color: #fff;
+}
+:host ::ng-deep .confirm-actions .confirm-cancel.p-button-secondary {
+  background: #6b7280;
+  border: none;
+  color: #fff;
+}
+:host ::ng-deep .confirm-actions .p-button:hover {
+  filter: brightness(0.95);
+}
+:host ::ng-deep .p-dialog {
+  border-radius: 12px !important;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(16,24,40,0.12) !important;
+}
+:host ::ng-deep .p-dialog .p-dialog-content {
+  background: #fff;
+  padding: 20px 22px;
+  font-family: 'Inter', 'Segoe UI', 'Roboto', Arial, sans-serif;
+}
+:host ::ng-deep .p-dialog .p-dialog-header {
+  background: #f5f5f5;
+  color: #0f172a;
+  font-weight: 600;
+  border-bottom: 1px solid #e6edf8;
+  padding: 16px 22px !important;
+  align-items: center !important;
+}
+:host ::ng-deep .p-dialog .p-dialog-title {
+  font-size: 1.05rem;
+  color: #1f2937;
+  font-weight: 600;
+  margin: 0 !important;
+}
+:host ::ng-deep .p-dialog .p-dialog-header .p-dialog-title {
+  display: block;
+  text-align: left;
+}
+:host ::ng-deep .p-dialog .p-dialog-footer {
+  background: transparent;
+  padding: 18px 22px !important;
+}
+:host ::ng-deep .p-dialog .p-dialog-footer .confirm-actions {
+  display: flex;
+  justify-content: center;
+  gap: 18px;
+}
+:host ::ng-deep .confirm-actions .p-button {
+  min-width: 140px;
+  height: 44px;
+  border-radius: 6px;
+  font-size: 1.02rem;
+  font-weight: 600;
+}
+:host ::ng-deep .confirm-actions .confirm-yes.p-button-success {
+  background: #0f9d58;
+  border: none;
+  color: #fff;
+}
+:host ::ng-deep .confirm-actions .confirm-no.p-button-danger {
+  background: #e53e3e;
+  border: none;
+  color: #fff;
+}
+:host ::ng-deep .confirm-actions .confirm-cancel.p-button-secondary {
+  background: #6b7280;
+  border: none;
+  color: #fff;
+}
+:host ::ng-deep .p-dialog .p-dialog-content p {
+  color: #24303a;
+  font-size: 1.02rem;
+  margin: 20px 0 28px 0;
+}

@@ -1,0 +1,67 @@
+<h2>Listado de Vehículos</h2>
+<div class="form-center-wrapper">
+  <p-toast></p-toast>
+  <div class="editar-usuario-form-horizontal">
+    <div *ngIf="vehiculos.length > 0">
+      <p-table #dt class="tabla-usuarios-prime" [value]="vehiculosFiltrados" [paginator]="true" [rows]="10"
+               [responsiveLayout]="'scroll'" [showCurrentPageReport]="true"
+               currentPageReportTemplate="{first} - {last} de {totalRecords}"
+               [rowsPerPageOptions]="[5,10,20]"
+               [globalFilterFields]="['placa','tipo','marca','modelo','color','activo']"
+               [resizableColumns]="true" columnResizeMode="expand">
+        <ng-template pTemplate="caption">
+          <div class="p-input-icon-left search-bar-modern">
+            <i class="pi pi-search"></i>
+            <input pInputText type="text" (input)="onGlobalFilterInput($event, dt)" placeholder="Buscar en la tabla..." class="p-inputtext-sm search-bar-input" />
+          </div>
+        </ng-template>
+        <ng-template pTemplate="header">
+          <tr>
+            <th class="td-contador">#</th>
+            <th pSortableColumn="placa" class="td-nombre">Placa <p-sortIcon field="placa"></p-sortIcon></th>
+            <th pSortableColumn="tipo" class="td-corto">Tipo <p-sortIcon field="tipo"></p-sortIcon></th>
+            <th pSortableColumn="marca">Marca <p-sortIcon field="marca"></p-sortIcon></th>
+            <th pSortableColumn="modelo">Modelo <p-sortIcon field="modelo"></p-sortIcon></th>
+            <th pSortableColumn="color">Color <p-sortIcon field="color"></p-sortIcon></th>
+            <th pSortableColumn="activo" class="td-estado">Activo <p-sortIcon field="activo"></p-sortIcon></th>
+            <th class="td-acciones">Acciones</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-v let-rowIndex="rowIndex">
+          <tr>
+            <td class="td-contador">{{ (dt.first || 0) + rowIndex + 1 }}</td>
+            <td class="td-nombre">{{ v.placa }}</td>
+            <td class="td-corto">{{ v.tipo }}</td>
+            <td>{{ v.marca }}</td>
+            <td>{{ v.modelo }}</td>
+            <td>{{ v.color }}</td>
+            <td class="td-estado">
+              <span [ngClass]="{'text-success': v.activo, 'text-danger': !v.activo}">
+                {{ v.activo ? 'Sí' : 'No' }}
+              </span>
+            </td>
+            <td class="td-acciones">
+              <button pButton type="button" icon="pi pi-pencil" class="boton-accion boton-editar-minimal" (click)="editarVehiculo(v)" pTooltip="Editar" tooltipPosition="top"></button>
+              <button pButton type="button" icon="pi pi-trash" class="boton-accion boton-eliminar-minimal" (click)="confirmarEliminarVehiculo(v)" pTooltip="Eliminar" tooltipPosition="top"></button>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+      <p-dialog [(visible)]="displayConfirm" modal="true" [closable]="false" [style]="{width: '520px'}" header="Confirmar eliminación">
+        <div class="confirm-dialog-body">
+          <p>¿Deseas eliminar el vehículo con placa "{{ selectedVehiculo?.placa }}"?</p>
+        </div>
+        <ng-template pTemplate="footer">
+          <div class="confirm-actions" style="display:flex;gap:12px;justify-content:flex-end;align-items:center;">
+            <button pButton type="button" label="Sí" class="p-button-success confirm-yes" (click)="onConfirmYes()"></button>
+            <button pButton type="button" label="No" class="p-button-danger confirm-no" (click)="onConfirmNo()"></button>
+            <button pButton type="button" label="Cancelar" class="p-button-secondary confirm-cancel" (click)="onCancel()"></button>
+          </div>
+        </ng-template>
+      </p-dialog>
+    </div>
+    <div *ngIf="vehiculos.length === 0" style="margin: 32px 0; text-align: center; color: #888; font-size: 1.1em;">
+      No hay vehículos registrados.
+    </div>
+  </div>
+</div>

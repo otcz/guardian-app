@@ -56,6 +56,14 @@ export class VehiculosService {
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${token}`
     });
-    return this.http.delete(`${this.apiUrl}/${id}`, { headers });
+    return this.http.delete(`${this.apiUrl}/id/${id}`, { headers });
+  }
+
+  eliminarVehiculoPorPlaca(placa: string): Observable<any> {
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+    return this.http.delete(`${this.apiUrl}/placa/${placa}`, { headers });
   }
 }

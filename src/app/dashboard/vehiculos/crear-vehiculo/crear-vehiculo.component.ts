@@ -1,6 +1,6 @@
-import { Component, OnInit } from '@angular/core';
-import { UsuariosService, Usuario } from '../../../service/usuario-service/usuarios-service';
-import { VehiculosService, VehiculoCrearRequest } from '../../../service/vehiculos-service';
+import {Component, OnInit} from '@angular/core';
+import {UsuariosService, Usuario} from '../../../service/usuario-service/usuarios-service';
+import {VehiculosService, VehiculoCrearRequest} from '../../../service/vehiculos-service';
 
 interface UsuarioAutoComplete extends Usuario {
   nombreCompletoMayus: string;
@@ -45,13 +45,14 @@ export class CrearVehiculoComponent implements OnInit {
   constructor(
     private usuariosService: UsuariosService,
     private vehiculosService: VehiculosService
-  ) {}
+  ) {
+  }
 
   ngOnInit() {
     this.usuariosService.getUsuarios().subscribe({
       next: (usuarios: Usuario[]) => {
         this.usuarios = usuarios
-          .map(u => ({ ...u, nombreCompletoMayus: u.nombreCompleto.toUpperCase() }))
+          .map(u => ({...u, nombreCompletoMayus: u.nombreCompleto.toUpperCase()}))
           .sort((a, b) => a.nombreCompletoMayus.localeCompare(b.nombreCompletoMayus));
         this.usuariosFiltrados = [...this.usuarios];
         if (!usuarios || usuarios.length === 0) {
@@ -70,10 +71,10 @@ export class CrearVehiculoComponent implements OnInit {
     this.usuariosFiltrados = query.length === 0
       ? [...this.usuarios]
       : this.usuarios.filter(u =>
-          u.nombreCompletoMayus.replace(/\s+/g, '').toLowerCase().includes(query) ||
-          (u.documentoTipo + u.documentoNumero).replace(/\s+/g, '').toLowerCase().includes(query) ||
-          (u.documentoNumero || '').replace(/\s+/g, '').toLowerCase().includes(query)
-        );
+        u.nombreCompletoMayus.replace(/\s+/g, '').toLowerCase().includes(query) ||
+        (u.documentoTipo + u.documentoNumero).replace(/\s+/g, '').toLowerCase().includes(query) ||
+        (u.documentoNumero || '').replace(/\s+/g, '').toLowerCase().includes(query)
+      );
   }
 
   limpiarSeleccionUsuario() {
@@ -86,6 +87,10 @@ export class CrearVehiculoComponent implements OnInit {
   }
 
   crearVehiculo() {
+    // Asegurarse de que el usuario seleccionado se asigne al modelo antes de validar
+    if (this.usuarioSeleccionado && this.usuarioSeleccionado.id) {
+      this.vehiculo.usuarioId = this.usuarioSeleccionado.id;
+    }
     // Validación de campos obligatorios
     const camposFaltantes: string[] = [];
     if (!this.vehiculo.placa) camposFaltantes.push('Placa');
@@ -98,13 +103,20 @@ export class CrearVehiculoComponent implements OnInit {
       this.mensaje = 'Debe completar: ' + camposFaltantes.join(', ');
       return;
     }
-    const vehiculoAEnviar: VehiculoCrearRequest = {
-      usuarioEntity: { id: this.vehiculo.usuarioId! }, // el ! asegura que no es null
-      placa: this.vehiculo.placa.toUpperCase(),
-      tipo: this.vehiculo.tipo.toUpperCase(),
-      color: this.vehiculo.color.toUpperCase(),
-      marca: this.vehiculo.marca.toUpperCase(),
-      modelo: this.vehiculo.modelo.toUpperCase(),
+    // Transformar campos a mayúsculas antes de enviar
+    this.vehiculo.placa = this.vehiculo.placa?.toUpperCase() || '';
+    this.vehiculo.tipo = this.vehiculo.tipo?.toUpperCase() || '';
+    this.vehiculo.color = this.vehiculo.color?.toUpperCase() || '';
+    this.vehiculo.marca = this.vehiculo.marca?.toUpperCase() || '';
+    this.vehiculo.modelo = this.vehiculo.modelo?.toUpperCase() || '';
+    // Construir el objeto de petición con la estructura esperada por el backend
+    const vehiculoAEnviar = {
+      usuarioEntity: {id: this.vehiculo.usuarioId!},
+      placa: this.vehiculo.placa,
+      tipo: this.vehiculo.tipo,
+      color: this.vehiculo.color,
+      marca: this.vehiculo.marca,
+      modelo: this.vehiculo.modelo,
       activo: this.vehiculo.activo,
       fechaRegistro: this.vehiculo.fechaRegistro
     };

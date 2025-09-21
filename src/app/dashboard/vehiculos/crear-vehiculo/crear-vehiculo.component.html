@@ -48,13 +48,13 @@
             [ngModelOptions]="{standalone: true}"
             required>
             <ng-template let-u pTemplate="item">
-              <div class="usuario-dropdown-option">
+              <div class="usuario-dropdown-option" style="flex-direction: row; gap: 10px; align-items: center;">
                 <span class="usuario-nombre">{{ u.nombreCompletoMayus }}</span>
                 <span class="usuario-doc">{{ u.documentoTipo }}: {{ u.documentoNumero }}</span>
               </div>
             </ng-template>
             <ng-template let-u pTemplate="selectedItem">
-              <div class="usuario-dropdown-option">
+              <div class="usuario-dropdown-option" style="flex-direction: row; gap: 10px; align-items: center;">
                 <span class="usuario-nombre">{{ u?.nombreCompletoMayus }}</span>
                 <span class="usuario-doc">{{ u?.documentoTipo }}: {{ u?.documentoNumero }}</span>
               </div>

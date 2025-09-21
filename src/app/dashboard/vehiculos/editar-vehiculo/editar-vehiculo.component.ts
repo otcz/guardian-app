@@ -54,38 +54,29 @@ export class EditarVehiculoComponent implements OnInit {
         this.vehiculo = { ...encontrado };
         // Si existe 'usuario' y tiene id, poblar usuario con esos datos
         if (this.vehiculo.usuario && this.vehiculo.usuario.id) {
-          this.vehiculo.usuario = {
-            id: this.vehiculo.usuario.id,
-            nombreCompleto: this.vehiculo.usuario.nombreCompleto,
-            correo: this.vehiculo.usuario.correo
-          };
-        }
-        // Si no tiene usuario, inicializarlo
-        if (!this.vehiculo.usuario) {
-          this.vehiculo.usuario = { id: null };
-        }
-        // Si el usuario asignado no está en la lista, agregarlo al inicio
-        const usuarioAsignado = this.usuarios.find(u => u.id === this.vehiculo.usuario.id);
-        if (!usuarioAsignado && this.vehiculo.usuario.id) {
-          this.usuarios = [
-            {
+          // Buscar el usuario en la lista de usuarios
+          let usuarioEnLista = this.usuarios.find(u => u.id === this.vehiculo.usuario.id);
+          if (!usuarioEnLista) {
+            // Si no está, agregarlo con todos los campos relevantes
+            usuarioEnLista = {
               id: this.vehiculo.usuario.id,
-              nombreCompleto: this.vehiculo.usuario.nombreCompleto || `ID ${this.vehiculo.usuario.id} (no encontrado)`,
-              correo: this.vehiculo.usuario.correo || '',
+              nombreCompleto: this.vehiculo.usuario.nombreCompleto,
+              correo: this.vehiculo.usuario.correo,
+              documentoNumero: this.vehiculo.usuario.documentoNumero,
               password: '',
               rol: '',
               estado: '',
               documentoTipo: '',
-              documentoNumero: '',
               casa: '',
               telefono: ''
-            },
-            ...this.usuarios
-          ];
-        }
-        // Forzar el tipo de id a number para evitar problemas de comparación
-        if (this.vehiculo.usuario.id) {
-          this.vehiculo.usuario.id = Number(this.vehiculo.usuario.id);
+            };
+            this.usuarios = [usuarioEnLista, ...this.usuarios];
+          }
+          // Asignar el objeto exacto de la lista a vehiculo.usuario
+          this.vehiculo.usuario = usuarioEnLista;
+        } else {
+          // Si no tiene usuario, inicializarlo
+          this.vehiculo.usuario = { id: null };
         }
         this.mensaje = '';
         this.intentoGuardar = false;

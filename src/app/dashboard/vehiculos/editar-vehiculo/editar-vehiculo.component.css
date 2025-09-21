@@ -177,6 +177,34 @@ h2 {
   font-weight: bold;
 }
 
+.usuario-dropdown-option {
+  background: #eaf2ff;
+  border-radius: 10px;
+  margin: 2px 0;
+  padding: 8px 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1.08rem;
+  font-weight: 600;
+  color: #23272f;
+  transition: background 0.2s;
+}
+.usuario-dropdown-option:hover,
+.p-dropdown-items .p-dropdown-item.p-highlight .usuario-dropdown-option {
+  background: linear-gradient(90deg, #4f8cff 60%, #203a43 100%);
+  color: #fff;
+}
+.usuario-nombre {
+  font-weight: 600;
+  color: #23272f;
+}
+.usuario-doc {
+  font-size: 0.98em;
+  color: #2563eb;
+  margin-left: 10px;
+}
+
 @media (max-width: 700px) {
   .editar-usuario-form-horizontal {
     padding: 16px 4vw 16px 4vw;

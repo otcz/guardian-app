@@ -82,14 +82,31 @@
           <label for="usuarioEntity" class="input-label">Usuario asignado</label>
           <div class="input-icon-wrapper">
             <i class="pi pi-user"></i>
-            <select id="usuarioEntity" name="usuarioEntity" required
-                    [(ngModel)]="vehiculo.usuario.id"
-                    [ngClass]="{'campo-requerido': intentoGuardar && (!vehiculo.usuario?.id)}">
-              <option value="">Seleccione usuario</option>
-              <option *ngFor="let u of usuarios" [value]="u.id" [ngClass]="{'usuario-asignado-option': vehiculo.usuario && u.id === vehiculo.usuario.id}">
-                {{ u.nombreCompleto }} ({{ u.correo }})
-              </option>
-            </select>
+            <p-dropdown
+              [options]="usuarios"
+              [(ngModel)]="vehiculo.usuario"
+              name="usuarioEntity"
+              optionLabel="nombreCompleto"
+              [filter]="true"
+              [showClear]="true"
+              [ngClass]="{'campo-requerido': intentoGuardar && (!vehiculo.usuario?.id)}"
+              placeholder="Seleccione o busque un usuario"
+              [style]="{width: '100%'}"
+              [ngModelOptions]="{standalone: true}"
+              required>
+              <ng-template let-u pTemplate="item">
+                <div class="usuario-dropdown-option">
+                  <span class="usuario-nombre">{{ u.nombreCompleto }}</span>
+                  <span class="usuario-doc">CC: {{ u.documentoNumero }}</span>
+                </div>
+              </ng-template>
+              <ng-template let-u pTemplate="selectedItem">
+                <div class="usuario-dropdown-option">
+                  <span class="usuario-nombre">{{ u?.nombreCompleto }}</span>
+                  <span class="usuario-doc">CC: {{ u?.documentoNumero }}</span>
+                </div>
+              </ng-template>
+            </p-dropdown>
           </div>
         </div>
       </div>

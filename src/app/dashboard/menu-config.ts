@@ -102,9 +102,9 @@ export const MENU_CONFIG: MenuItem[] = [
     roles: ['USUARIO']
   },
   {
-    label: 'Generar invitación QR',
+    label: 'Generar QR',
     icon: 'pi pi-qrcode',
-    route: '/dashboard/generar-invitacion-qr',
+    route: '/dashboard/generar-qr',
     roles: ['USUARIO', 'ADMIN']
   },
   // ADMINISTRADOR
@@ -232,9 +232,9 @@ export const MENU_CONFIG: MenuItem[] = [
         roles: ['ADMIN']
       },
       {
-        label: 'Generar invitación QR',
+        label: 'Generar QR',
         icon: 'pi pi-qrcode',
-        route: '/dashboard/generar-invitacion-qr',
+        route: '/dashboard/generar-qr',
         roles: ['ADMIN']
       }
     ]

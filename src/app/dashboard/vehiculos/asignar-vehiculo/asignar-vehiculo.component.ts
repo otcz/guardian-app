@@ -14,6 +14,7 @@ export class AsignarVehiculoComponent implements OnInit {
   vehiculos: any[] = [];
   usuarioSeleccionado: number | null = null;
   vehiculoSeleccionado: number | null = null;
+  mensajeBackend: string = '';
 
   constructor(
     private usuariosService: UsuariosService,
@@ -43,13 +44,17 @@ export class AsignarVehiculoComponent implements OnInit {
   asignarVehiculo() {
     if (!this.usuarioSeleccionado || !this.vehiculoSeleccionado) return;
     this.usuariosService.asignarVehiculo(this.usuarioSeleccionado, this.vehiculoSeleccionado).subscribe({
-      next: () => {
-        this.messageService.add({severity: 'success', summary: 'Éxito', detail: 'Vehículo asignado correctamente.'});
+      next: (resp: any) => {
+        this.messageService.add({severity: 'success', summary: 'Éxito', detail: resp?.mensaje || 'Vehículo asignado correctamente.'});
+        this.mensajeBackend = resp?.mensaje || 'Vehículo asignado correctamente.';
         this.usuarioSeleccionado = null;
         this.vehiculoSeleccionado = null;
       },
-      error: () => this.messageService.add({severity: 'error', summary: 'Error', detail: 'No se pudo asignar el vehículo.'})
+      error: (err) => {
+        const msg = err?.error?.mensaje || 'No se pudo asignar el vehículo.';
+        this.messageService.add({severity: 'error', summary: 'Error', detail: msg});
+        this.mensajeBackend = msg;
+      }
     });
   }
 }
-

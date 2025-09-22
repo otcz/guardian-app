@@ -65,6 +65,7 @@
       </div>
       <button type="submit" class="btn-crear" [disabled]="!usuarioSeleccionado || !vehiculoSeleccionado">Asignar</button>
     </form>
+    <div *ngIf="mensajeBackend" class="mensaje">{{ mensajeBackend }}</div>
     <p-toast></p-toast>
   </div>
 </div>

@@ -16,6 +16,7 @@ export class VerVehiculosComponent implements OnInit {
   displayConfirm = false;
   selectedVehiculo: any = null;
   filtro: string = '';
+  esUsuarioLogueado = false;
 
   constructor(
     private vehiculosService: VehiculosService,
@@ -25,6 +26,7 @@ export class VerVehiculosComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    this.esUsuarioLogueado = this.authService.getRol()?.toLowerCase() === 'usuario';
     this.cargarVehiculos();
   }
 

@@ -36,6 +36,10 @@ export const appRoutes: Routes = [
         loadComponent: () => import('./dashboard/inicio/inicio.component').then(m => m.InicioComponent)
       },
       {
+        path: 'generar-qr',
+        loadComponent: () => import('./dashboard/generar-qr/generar-qr.component').then(m => m.GenerarQrComponent)
+      },
+      {
         path: '',
         redirectTo: 'perfil',
         pathMatch: 'full'

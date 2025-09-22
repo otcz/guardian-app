@@ -37,7 +37,7 @@ export class MenuService {
         { label: 'Historial de invitados', icon: '', routerLink: '/invitados/historial' }
       ] },
       { label: 'Historial personal', icon: 'pi pi-list', routerLink: '/historial' },
-      { label: 'Generar invitación QR', icon: 'pi pi-qrcode', routerLink: '/qr' },
+      { label: 'Generar QR', icon: 'pi pi-qrcode', routerLink: '/dashboard/generar-qr' },
       { label: 'Cerrar sesión', icon: 'pi pi-power-off', routerLink: '/logout' }
     ],
     admin: [
@@ -68,7 +68,7 @@ export class MenuService {
       ] },
       { label: 'Configuración del sistema', icon: 'pi pi-cog', items: [
         { label: 'Parámetros de seguridad', icon: '', routerLink: '/config/seguridad' },
-        { label: 'Generar invitación QR', icon: '', routerLink: '/config/qr' }
+        { label: 'Generar QR', icon: '', routerLink: '/dashboard/generar-qr' }
       ] },
       { label: 'Cerrar sesión', icon: 'pi pi-power-off', routerLink: '/logout' }
     ]

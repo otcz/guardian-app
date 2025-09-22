@@ -58,7 +58,7 @@
               </ng-template>
             </td>
             <td class="td-acciones">
-              <button pButton type="button" icon="pi pi-pencil" class="boton-accion boton-editar-minimal" (click)="editarVehiculo(v)" pTooltip="Editar" tooltipPosition="top"></button>
+              <button *ngIf="!esUsuarioLogueado" pButton type="button" icon="pi pi-pencil" class="boton-accion boton-editar-minimal" (click)="editarVehiculo(v)" pTooltip="Editar" tooltipPosition="top"></button>
               <button pButton type="button" icon="pi pi-trash" class="boton-accion boton-eliminar-minimal" (click)="confirmarEliminarVehiculo(v)" pTooltip="Eliminar" tooltipPosition="top"></button>
             </td>
           </tr>

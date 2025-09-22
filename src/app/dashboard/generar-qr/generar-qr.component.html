@@ -1,0 +1,35 @@
+<div class="form-center-wrapper">
+  <div class="generar-qr-form-grid">
+    <h2 class="titulo-qr">Generar QR</h2>
+    <form (ngSubmit)="generarQR()" #qrForm="ngForm" class="form-qr">
+      <label for="placa" class="label-qr label-vehiculo-qr">
+        <i class="pi pi-car icono-label-vehiculo"></i>
+        <span>Vehículo para el QR de acceso</span>
+      </label>
+      <div class="selector-vehiculo-wrapper">
+        <select id="placa" name="placa" [(ngModel)]="placa" class="input-qr selector-vehiculo-qr" style="margin-bottom: 18px;">
+          <option *ngFor="let v of vehiculos" [ngValue]="v.placa">
+            {{ v.placa }} - {{ v.marca }} {{ v.modelo }} ({{ v.color }})
+          </option>
+        </select>
+      </div>
+      <button pButton type="submit" class="btn-crear-qr" [disabled]="cargando">
+        <i *ngIf="cargando" class="pi pi-spin pi-spinner"></i>
+        <span *ngIf="!cargando">Generar QR</span>
+        <span *ngIf="cargando">Generando...</span>
+      </button>
+    </form>
+    <div *ngIf="mensaje" class="mensaje-qr" [ngClass]="{'mensaje-exito-qr': qrBase64, 'mensaje-error-qr': !qrBase64}">
+      <i *ngIf="qrBase64" class="pi pi-check-circle icono-exito"></i>
+      <i *ngIf="!qrBase64" class="pi pi-times-circle icono-error"></i>
+      {{ mensaje }}
+    </div>
+    <div *ngIf="qrBase64" class="qr-resultado-qr">
+      <img [src]="'data:image/png;base64,' + qrBase64" alt="QR generado" class="qr-img-qr" />
+      <div class="qr-info-qr">
+        <div><b>Estado Usuario:</b> <span class="dato-qr">{{ usuario }}</span></div>
+        <div><b>Vehículo asignado:</b> <span class="dato-qr">{{ vehiculo }}</span></div>
+      </div>
+    </div>
+  </div>
+</div>

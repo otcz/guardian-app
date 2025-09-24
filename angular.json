@@ -28,8 +28,6 @@
             "styles": [
               "node_modules/primeflex/primeflex.css",
               "node_modules/primeicons/primeicons.css",
-              "@primeng/themes/lara-light-blue/theme.css",
-              "primeng/resources/primeng.min.css",
               "src/styles.scss"
             ],
             "outputPath": "dist/guardian",
@@ -96,8 +94,6 @@
             "styles": [
               "node_modules/primeflex/primeflex.css",
               "node_modules/primeicons/primeicons.css",
-              "@primeng/themes/lara-light-blue/theme.css",
-              "primeng/resources/primeng.min.css",
               "src/styles.scss"
             ]
           }

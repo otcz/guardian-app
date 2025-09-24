@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
+import { ThemeService } from './service/theme.service';
 
 @Component({
   standalone: true,
@@ -10,4 +11,5 @@ import { RouterModule } from '@angular/router';
 })
 export class AppComponent {
   title = 'guardian';
+  constructor(private theme: ThemeService) {}
 }

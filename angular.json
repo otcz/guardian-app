@@ -26,8 +26,11 @@
               "src/assets"
             ],
             "styles": [
+              "node_modules/primeflex/primeflex.css",
               "node_modules/primeicons/primeicons.css",
-              "src/styles.css"
+              "@primeng/themes/lara-light-blue/theme.css",
+              "primeng/resources/primeng.min.css",
+              "src/styles.scss"
             ],
             "outputPath": "dist/guardian",
             "index": "src/index.html"
@@ -37,13 +40,13 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "500kB",
-                  "maximumError": "1MB"
+                  "maximumWarning": "1.5MB",
+                  "maximumError": "2MB"
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "4kB",
-                  "maximumError": "8kB"
+                  "maximumWarning": "32kB",
+                  "maximumError": "64kB"
                 }
               ],
               "outputHashing": "all"
@@ -60,7 +63,8 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
             "browserTarget": "guardian:build",
-            "port": 4200
+            "port": 4200,
+            "proxyConfig": "proxy.conf.json"
           },
           "configurations": {
             "production": {
@@ -90,7 +94,11 @@
               }
             ],
             "styles": [
-              "src/styles.css"
+              "node_modules/primeflex/primeflex.css",
+              "node_modules/primeicons/primeicons.css",
+              "@primeng/themes/lara-light-blue/theme.css",
+              "primeng/resources/primeng.min.css",
+              "src/styles.scss"
             ]
           }
         }

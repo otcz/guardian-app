@@ -1,0 +1,77 @@
+<div style="display:flex; height:100vh;">
+  <aside class="sidebar" [style.width.px]="sidebarOpen ? 260 : 60" style="transition:width .2s; padding:12px;">
+    <button pButton type="button" class="p-button p-button-text" (click)="sidebarOpen = !sidebarOpen" aria-label="Colapsar sidebar">
+      <i class="pi" [ngClass]="sidebarOpen ? 'pi-angle-left' : 'pi-angle-right'"></i>
+    </button>
+    <div *ngIf="sidebarOpen" style="margin-top:12px; display:flex; flex-direction:column; gap:8px;">
+      <a routerLink="/dashboard" class="menu-link" style="color:#fff;">Inicio</a>
+      <a class="menu-link" style="color:#fff; opacity:.8;">Usuarios</a>
+      <a class="menu-link" style="color:#fff; opacity:.8;">Vehículos</a>
+      <a class="menu-link" style="color:#fff; opacity:.8;">Reportes</a>
+    </div>
+  </aside>
+  <div style="display:flex; flex-direction:column; flex:1; min-width:0;">
+    <header class="header">
+      <img src="assets/logo.png" alt="Logo" style="height:28px;" />
+      <div class="spacer"></div>
+      <button pButton type="button" class="p-button p-button-text" aria-label="Notificaciones"><i class="pi pi-bell"></i></button>
+      <button pButton type="button" class="p-button p-button-text" aria-label="Usuario"><i class="pi pi-user"></i></button>
+    </header>
+    <main class="main" style="padding:16px;">
+      <section class="kpi-grid">
+        <div class="card kpi">
+          <div style="display:flex; align-items:center; gap:12px;">
+            <i class="pi pi-users" style="font-size:1.5rem; color:var(--primary)"></i>
+            <div>
+              <div style="font-size:1.8rem; font-weight:800;">128</div>
+              <div style="color:var(--muted)">Usuarios</div>
+            </div>
+          </div>
+        </div>
+        <div class="card kpi">
+          <div style="display:flex; align-items:center; gap:12px;">
+            <i class="pi pi-car" style="font-size:1.5rem; color:var(--primary)"></i>
+            <div>
+              <div style="font-size:1.8rem; font-weight:800;">342</div>
+              <div style="color:var(--muted)">Vehículos</div>
+            </div>
+          </div>
+        </div>
+        <div class="card kpi">
+          <div style="display:flex; align-items:center; gap:12px;">
+            <i class="pi pi-chart-line" style="font-size:1.5rem; color:var(--primary)"></i>
+            <div>
+              <div style="font-size:1.8rem; font-weight:800;">96%</div>
+              <div style="color:var(--muted)">Disponibilidad</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card" style="margin-top:16px; padding:16px;">
+        <h3 style="margin:0 0 12px 0;">Actividad reciente</h3>
+        <p-table [value]="activities" [tableStyle]="{ 'min-width': '480px' }">
+          <ng-template pTemplate="header">
+            <tr>
+              <th>Fecha</th>
+              <th>Evento</th>
+              <th>Detalle</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-row>
+            <tr>
+              <td>{{ row.fecha }}</td>
+              <td>{{ row.evento }}</td>
+              <td>{{ row.detalle }}</td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </section>
+    </main>
+  </div>
+</div>
+
+<!-- Switch de tema flotante visible en todo el dashboard -->
+<div class="theme-fab">
+  <app-theme-toggle mode="cycle"></app-theme-toggle>
+</div>

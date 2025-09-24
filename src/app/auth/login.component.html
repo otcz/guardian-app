@@ -1,0 +1,37 @@
+<div class="container" style="display:grid; place-items:center; min-height:100vh;">
+  <div class="card" style="width:min(420px, 92vw); overflow:hidden;">
+    <div style="background: linear-gradient(120deg, var(--primary) 0%, var(--secondary) 100%); height: 84px; display:flex; align-items:center; justify-content:space-between; padding:0 16px;">
+      <img src="assets/logo.png" alt="Logo" style="height:36px; filter: drop-shadow(0 2px 6px rgba(0,0,0,.25));" />
+      <app-theme-toggle mode="cycle"></app-theme-toggle>
+    </div>
+
+    <div style="padding:24px;">
+      <h2 style="margin:0 0 8px 0; color:var(--text)">Iniciar sesión</h2>
+      <p style="margin:0 0 16px 0; color:var(--muted)">Accede con tus credenciales.</p>
+
+      <form [formGroup]="form" (ngSubmit)="submit()" style="display:flex; flex-direction:column; gap:12px;">
+        <div style="position:relative;">
+          <input pInputText type="text" formControlName="username" placeholder="Usuario" style="width:100%; padding-right:86px;" />
+          <span *ngIf="isSysadmin" style="position:absolute; right:8px; top:50%; transform: translateY(-50%); background:#e3f0ff; color:var(--primary-600); border:1px solid var(--border); border-radius:999px; padding:4px 10px; font-size:.78rem; font-weight:700;">SYSTEM</span>
+        </div>
+        <div style="position:relative;">
+          <input pInputText [type]="showPassword ? 'text' : 'password'" formControlName="password" placeholder="Contraseña" style="width:100%; padding-right:40px;" />
+          <button type="button" pButton class="p-button-text" (click)="togglePassword()" style="position:absolute; right:0; top:0; height:100%;">
+            <i class="pi" [ngClass]="showPassword ? 'pi-eye-slash' : 'pi-eye'"></i>
+          </button>
+        </div>
+
+        <div style="display:flex; justify-content:flex-end;">
+          <a href="#">¿Olvidaste tu contraseña?</a>
+        </div>
+
+        <button pButton type="submit" class="p-button p-button-primary" [disabled]="form.invalid || loading">
+          <span *ngIf="!loading">Entrar</span>
+          <span *ngIf="loading"><i class="pi pi-spin pi-spinner"></i></span>
+        </button>
+
+        <div *ngIf="errorMsg" class="snackbar snackbar-error" style="margin-top:8px;">{{ errorMsg }}</div>
+      </form>
+    </div>
+  </div>
+</div>

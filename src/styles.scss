@@ -1,0 +1,302 @@
+/* Design tokens y temas (claro, oscuro, negro) */
+:root.theme-light {
+  --bg: #f4f7fa;
+  --surface: #ffffff;
+  --text: #23272f;
+  --muted: #7a869a;
+  --primary: #4f8cff;
+  --primary-600: #2563eb;
+  --secondary: #203a43;
+  --border: #dbeafe;
+  --success: #16a34a;
+  --success-100: #e7f6ec;
+  --danger: #e53e3e;
+  --danger-100: #fff0f0;
+}
+:root.theme-dark {
+  --bg: #181824;
+  --surface: #232336;
+  --text: #e0e6ed;
+  --muted: #9aa3b2;
+  --primary: #6ba2ff;
+  --primary-600: #4f8cff;
+  --secondary: #0d2030;
+  --border: #2e3445;
+  --success: #2dd27b;
+  --success-100: #0b2d1c;
+  --danger: #ff6b6b;
+  --danger-100: #3a1f1f;
+}
+:root.theme-black {
+  --bg: #0b0b0b;
+  --surface: #131313;
+  --text: #e6e6e6;
+  --muted: #9a9a9a;
+  --primary: #6ba2ff;
+  --primary-600: #4f8cff;
+  --secondary: #080b10;
+  --border: #262626;
+  --success: #2dd27b;
+  --success-100: #0d2218;
+  --danger: #ff6b6b;
+  --danger-100: #2a1414;
+}
+
+/* Base */
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  font-family: Inter, Segoe UI, Roboto, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* Links, focus y helpers */
+a { color: var(--primary); text-decoration: none; }
+a:hover { text-decoration: underline; }
+:focus-visible { outline: 3px solid color-mix(in srgb, var(--primary) 65%, white); outline-offset: 2px; }
+
+/* Contenedores utilitarios */
+.container { width: min(1024px, 92vw); margin: 0 auto; }
+.card {
+  background: var(--surface);
+  border: none; /* borderless */
+  border-radius: 14px;
+  box-shadow: 0 10px 24px rgba(0,0,0,0.08), 0 2px 8px rgba(79,140,255,0.06);
+}
+/* Elevación en hover para tarjetas */
+.card:hover { box-shadow: 0 14px 32px rgba(0,0,0,0.12), 0 4px 14px rgba(79,140,255,0.10); }
+
+/* Botones PrimeNG override básico */
+.p-button { border: none; border-radius: 10px; }
+.p-button.p-button-primary { background: linear-gradient(90deg, var(--primary) 60%, var(--secondary) 100%); }
+.p-button.p-button-primary:hover { background: linear-gradient(90deg, var(--secondary) 0%, var(--primary) 100%); }
+
+/* Inputs PrimeNG borderless con contorno por sombra */
+.p-inputtext {
+  background: var(--surface);
+  border: none; /* borderless */
+  border-radius: 10px;
+  color: var(--text);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--border) 60%, transparent);
+  transition: box-shadow .15s ease, background .15s ease;
+}
+.p-inputtext:hover {
+  background: color-mix(in srgb, var(--surface) 94%, var(--bg));
+  box-shadow: inset 0 0 0 1.25px color-mix(in srgb, var(--primary) 18%, var(--border));
+}
+.p-inputtext:focus {
+  /* halo + refuerzo de contorno sin usar border */
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary) 20%, transparent), inset 0 0 0 1.5px color-mix(in srgb, var(--primary) 50%, var(--border));
+}
+
+/* Dropdowns PrimeNG borderless */
+.p-dropdown {
+  background: var(--surface);
+  border: none; /* borderless */
+  border-radius: 10px;
+  color: var(--text);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--border) 60%, transparent);
+  transition: box-shadow .15s ease, background .15s ease;
+}
+.p-dropdown:hover {
+  background: color-mix(in srgb, var(--surface) 94%, var(--bg));
+  box-shadow: inset 0 0 0 1.25px color-mix(in srgb, var(--primary) 18%, var(--border));
+}
+.p-dropdown.p-focus {
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary) 20%, transparent), inset 0 0 0 1.5px color-mix(in srgb, var(--primary) 50%, var(--border));
+}
+.p-dropdown-panel {
+  background: var(--surface);
+  border: none; /* borderless */
+  box-shadow: 0 12px 28px rgba(0,0,0,0.18), 0 6px 12px rgba(79,140,255,0.10);
+}
+/* Items del panel con hover sin borde */
+.p-dropdown-items .p-dropdown-item {
+  border-radius: 8px;
+}
+
+/* Snackbar/toast base (si se usan) */
+.snackbar { background: linear-gradient(90deg, var(--primary) 60%, var(--secondary) 100%); color: #fff; }
+.snackbar.snackbar-error { background: linear-gradient(90deg, var(--danger) 60%, #7f1d1d 100%); }
+
+/* Layout básicos para header y sidebar */
+.header {
+  height: 56px; display: flex; align-items: center; gap: 12px;
+  padding: 0 16px; background: var(--secondary); color: #fff;
+}
+.header .spacer { flex: 1 1 auto; }
+.sidebar { width: 260px; background: linear-gradient(135deg, var(--secondary) 0%, color-mix(in srgb, var(--secondary) 70%, black) 100%); color: #fff; }
+.main { flex: 1; background: var(--bg); }
+
+/* KPI cards */
+.kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+.kpi { padding: 16px; }
+
+/* Selector de tema (p-selectButton) */
+.theme-select .p-buttonset .p-button,
+.theme-select .p-selectbutton .p-button {
+  border: none !important;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--border) 60%, transparent);
+}
+.theme-select .p-button.p-highlight {
+  box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--primary) 60%, var(--border)), 0 4px 16px rgba(79,140,255,0.18);
+}
+.theme-select .p-button:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--primary) 65%, white);
+  outline-offset: 2px;
+}
+.theme-select .p-button:hover:not(.p-highlight) {
+  background: color-mix(in srgb, var(--primary) 12%, var(--surface));
+}
+
+/* Tarjetas y cabeceras (look tecnológico) */
+.card {
+  border-radius: 14px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+}
+.header {
+  background: linear-gradient(120deg, var(--secondary) 0%, color-mix(in srgb, var(--secondary) 70%, black) 100%);
+}
+
+/* Inputs: halo de seguridad al focus */
+.p-inputtext:focus {
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary) 20%, transparent);
+}
+
+/* FAB de tema visible en todo el dashboard */
+.theme-fab {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 2000;
+}
+.theme-fab .p-button {
+  width: 52px;
+  height: 52px;
+  border-radius: 50% !important;
+  padding: 0 !important;
+  background: linear-gradient(120deg, var(--primary) 0%, var(--secondary) 100%);
+  color: #fff;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.18), 0 4px 12px rgba(79,140,255,0.18);
+  transition: transform .15s ease, box-shadow .15s ease, background .2s ease;
+}
+.theme-fab .p-button:hover {
+  transform: translateY(-1px);
+  background: linear-gradient(120deg, var(--secondary) 0%, var(--primary) 100%);
+  box-shadow: 0 12px 28px rgba(0,0,0,0.22), 0 6px 16px rgba(79,140,255,0.22);
+}
+.theme-fab .p-button:active { transform: translateY(0); }
+.theme-fab .p-button span { display: none; }
+.theme-fab .p-button .pi { font-size: 1.2rem; }
+
+/* Botones: variantes y estados claros */
+.p-button { font-weight: 700; letter-spacing: .2px; }
+.p-button.p-button-text { background: transparent; color: var(--text); }
+.p-button.p-button-text:hover { background: color-mix(in srgb, var(--primary) 12%, transparent); }
+.p-button.p-button-rounded { border-radius: 999px; }
+/* Variantes semánticas */
+.p-button.p-button-success { background: linear-gradient(90deg, var(--success) 60%, #138a4f 100%); color:#fff; }
+.p-button.p-button-success:hover { background: linear-gradient(90deg, #138a4f 0%, var(--success) 100%); }
+.p-button.p-button-danger { background: linear-gradient(90deg, var(--danger) 60%, #7f1d1d 100%); color:#fff; }
+.p-button.p-button-danger:hover { background: linear-gradient(90deg, #7f1d1d 0%, var(--danger) 100%); }
+.p-button.p-button-outlined { background: transparent; border:1px solid var(--border); color: var(--text); }
+.p-button.p-button-outlined:hover { background: color-mix(in srgb, var(--primary) 10%, transparent); }
+.p-button:disabled, .p-button.p-disabled { opacity: .6; cursor: not-allowed; box-shadow: none; }
+
+/* Inputs: estados, placeholders y accesibilidad */
+.p-inputtext::placeholder { color: color-mix(in srgb, var(--muted) 80%, white); opacity: 1; }
+.p-inputtext:disabled { background: color-mix(in srgb, var(--surface) 70%, var(--bg)); color: var(--muted); }
+/* Invalid PrimeNG */
+.p-inputtext.p-invalid, .p-element.p-invalid .p-inputtext { box-shadow: 0 0 0 3px color-mix(in srgb, var(--danger) 20%, transparent) !important; }
+/* Invalid Angular */
+.ng-invalid.ng-touched .p-inputtext { box-shadow: 0 0 0 3px color-mix(in srgb, var(--danger) 20%, transparent) !important; }
+
+/* Campos con etiqueta y ayuda (si se usan) */
+.form-field { display: flex; flex-direction: column; gap: 6px; }
+.form-field label { font-weight: 600; color: var(--text); }
+.form-field .helper { font-size: .86rem; color: var(--muted); }
+
+/* Glass/blur header */
+.header {
+  background: linear-gradient(120deg, color-mix(in srgb, var(--secondary) 70%, transparent) 0%, color-mix(in srgb, var(--secondary) 40%, transparent) 100%);
+  backdrop-filter: blur(10px) saturate(140%);
+  -webkit-backdrop-filter: blur(10px) saturate(140%);
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
+}
+
+/* Animación al cambiar de tema */
+@keyframes theme-fade {
+  0% { opacity: .2; filter: saturate(85%); }
+  100% { opacity: 1; filter: saturate(100%); }
+}
+.theme-change body,
+.theme-change .main,
+.theme-change .header,
+.theme-change .sidebar,
+.theme-change .card {
+  animation: theme-fade .35s ease both;
+}
+
+/* Micro-animaciones: KPIs y filas de tabla */
+.kpi { transition: transform .15s ease, box-shadow .15s ease; }
+.kpi:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(0,0,0,0.12), 0 6px 16px rgba(79,140,255,0.15); }
+/* PrimeNG Table hover */
+.p-datatable .p-datatable-wrapper table tbody tr:hover,
+.p-table .p-datatable-wrapper table tbody tr:hover,
+.p-table table tbody tr:hover {
+  background: color-mix(in srgb, var(--primary) 8%, transparent) !important;
+}
+
+/* Tamaños confortables (inputs, dropdowns, botones) */
+.p-inputtext {
+  min-height: 48px;
+  padding: 10px 14px;
+  font-size: 1.02rem;
+}
+.p-dropdown {
+  min-height: 48px;
+  padding: 2px 12px;
+  font-size: 1.02rem;
+}
+.p-dropdown .p-dropdown-label {
+  padding: 10px 0;
+}
+.p-button {
+  min-height: 48px;
+  padding: 12px 18px;
+  font-size: 1.02rem;
+}
+/* Botón flotante mantiene tamaño compacto */
+.theme-fab .p-button { min-height: 52px; padding: 0; font-size: 1rem; }
+
+/* Intensificar glows por tema y estado */
+:root.theme-light {
+  /* Halo azul más visible en foco (inputs/dropdowns) — menos grueso */
+  .p-inputtext:focus,
+  .p-dropdown.p-focus {
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary) 28%, transparent), inset 0 0 0 1.5px color-mix(in srgb, var(--primary) 55%, var(--border));
+  }
+  /* Tarjetas con sutil glow azul en hover */
+  .card:hover {
+    box-shadow: 0 14px 32px rgba(0,0,0,0.12), 0 6px 18px rgba(79,140,255,0.18), 0 0 0 2px color-mix(in srgb, var(--primary) 10%, transparent);
+  }
+}
+
+/* Rojo que brilla — estados de error más intensos pero menos grueso */
+.p-inputtext.p-invalid,
+.p-element.p-invalid .p-inputtext,
+.ng-invalid.ng-touched .p-inputtext {
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--danger) 28%, transparent), inset 0 0 0 1.5px var(--danger) !important;
+}
+/* Dropdown inválido (cuando aplique la clase de PrimeNG) */
+.p-dropdown.p-invalid {
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--danger) 28%, transparent), inset 0 0 0 1.5px var(--danger) !important;
+}
+/* Snackbar de error con el mismo borde que los botones y tipografía más gruesa */
+.snackbar.snackbar-error {
+  border-radius: 10px; /* mismo borde que p-button */
+  font-weight: 800;    /* etiqueta más gruesa */
+  padding: 14px 20px;  /* un poco más de presencia */
+}

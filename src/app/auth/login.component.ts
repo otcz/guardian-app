@@ -40,10 +40,10 @@ export class LoginComponent {
     this.loading = true;
     const { username, password } = this.form.value as { username: string; password: string };
     const isSys = (username || '').trim().toLowerCase() === 'sysadmin';
-    const payload: any = isSys ? { username, password } : { username, password, orgCode: 'SYSTEM' };
+    const payload: any = { username, password };
+    if (isSys) payload.orgCode = 'SYSTEM';
 
-    const obs = isSys ? this.auth.loginSystem(payload) : this.auth.login(payload);
-    obs.subscribe({
+    this.auth.login(payload).subscribe({
       next: (resp: any) => {
         const token = resp?.data?.token;
         if (!resp?.success || !token) {
@@ -61,8 +61,8 @@ export class LoginComponent {
         this.loading = false;
       },
       error: (e: any) => {
-        if (e?.status === 0) this.errorMsg = 'No fue posible conectar con el servidor. Revisa el backend en http://localhost:8081 y el proxy.';
-        else if (e?.status === 404) this.errorMsg = 'Endpoint no encontrado (404). Verifica /auth/login o /system/login en el Gateway.';
+        if (e?.status === 0) this.errorMsg = 'No fue posible conectar con el servidor. Verifica el backend en http://localhost:8081/auth/login.';
+        else if (e?.status === 404) this.errorMsg = 'Endpoint no encontrado (404): http://localhost:8081/auth/login';
         else if (e?.status === 401) this.errorMsg = 'Credenciales incorrectas.';
         else this.errorMsg = e?.error?.message || 'Error de autenticación.';
         this.loading = false;

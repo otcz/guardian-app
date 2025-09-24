@@ -11,12 +11,8 @@ export class AuthService {
   constructor(private http: HttpClient) {}
 
   login(data: LoginPayload): Observable<ApiResponse<LoginData>> {
-    // Usa el proxy de Angular (proxy.conf.json) para evitar CORS y atar al mismo origen
-    return this.http.post<ApiResponse<LoginData>>('/auth/login', data);
-  }
-
-  loginSystem(data: { username: string; password: string }): Observable<ApiResponse<LoginData>> {
-    return this.http.post<ApiResponse<LoginData>>('/system/login', data);
+    // Endpoint directo del backend (sin proxy)
+    return this.http.post<ApiResponse<LoginData>>('http://localhost:8081/auth/login', data);
   }
 
   isAuthenticated(): boolean {

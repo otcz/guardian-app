@@ -323,3 +323,17 @@ a:hover { text-decoration: underline; }
 .p-dropdown.p-focus {
   box-shadow: unset !important;
 }
+
+/* Tipografía blanca en inputs/dropdowns para temas oscuro y negro */
+:root.theme-dark, :root.theme-black {
+  .p-inputtext,
+  .p-inputtextarea,
+  .p-password input,
+  .p-dropdown .p-dropdown-label {
+    color: #ffffff !important;
+  }
+  .p-inputtext::placeholder,
+  .p-inputtextarea::placeholder {
+    color: rgba(255,255,255,0.75) !important;
+  }
+}

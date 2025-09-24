@@ -300,3 +300,26 @@ a:hover { text-decoration: underline; }
   font-weight: 800;    /* etiqueta más gruesa */
   padding: 14px 20px;  /* un poco más de presencia */
 }
+
+/* Revertir inputs y dropdowns al estilo del tema por defecto */
+.p-inputtext,
+.p-inputtextarea {
+  background: unset !important;
+  border: unset !important;
+  box-shadow: unset !important;
+  border-radius: unset !important;
+}
+.p-inputtext:hover,
+.p-inputtext:focus {
+  box-shadow: unset !important;
+}
+.p-dropdown {
+  background: unset !important;
+  border: unset !important;
+  box-shadow: unset !important;
+  border-radius: unset !important;
+}
+.p-dropdown:hover,
+.p-dropdown.p-focus {
+  box-shadow: unset !important;
+}

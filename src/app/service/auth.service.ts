@@ -15,6 +15,10 @@ export class AuthService {
     return this.http.post<ApiResponse<LoginData>>('/auth/login', data);
   }
 
+  loginSystem(data: { username: string; password: string }): Observable<ApiResponse<LoginData>> {
+    return this.http.post<ApiResponse<LoginData>>('/system/login', data);
+  }
+
   isAuthenticated(): boolean {
     return !!localStorage.getItem('token');
   }

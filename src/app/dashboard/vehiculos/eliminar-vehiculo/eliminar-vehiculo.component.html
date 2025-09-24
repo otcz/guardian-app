@@ -5,6 +5,5 @@
     <input [(ngModel)]="id" name="id" required>
     <button type="submit">Eliminar vehículo</button>
   </form>
-  <div class="mensaje">{{mensaje}}</div>
+  <div class="mensaje" [ngClass]="{'mensaje-error': mensaje && (mensaje.includes('no existe') || mensaje.toLowerCase().includes('error'))}">{{mensaje}}</div>
 </div>
-

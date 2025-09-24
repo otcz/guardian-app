@@ -72,6 +72,16 @@ h2 {
   text-align: center;
   word-break: break-word;
 }
+.mensaje-error {
+  color: #e53e3e;
+  background: #fff0f0;
+  border: 1px solid #e53e3e;
+  border-radius: 8px;
+  padding: 7px 0;
+  margin-top: 6px;
+  text-align: center;
+  font-size: 1rem;
+}
 @media (max-width: 900px) {
   .eliminar-usuario-form {
     padding: 18px 8px 12px 8px;

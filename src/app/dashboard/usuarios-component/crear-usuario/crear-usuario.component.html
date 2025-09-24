@@ -47,10 +47,15 @@
         </div>
       </div>
       <button type="submit" class="btn-crear">Crear usuario</button>
-      <div class="mensaje">{{mensaje}}</div>
+      <div *ngIf="mensaje"
+           [ngClass]="(mensaje.toLowerCase().includes('error') || mensaje.toLowerCase().includes('no existe')) ? 'mensaje-error' : 'mensaje'">
+        {{mensaje}}
+      </div>
     </form>
   </div>
-  <div class="snackbar" *ngIf="snackbarVisible">
+  <div class="snackbar"
+       [ngClass]="(mensaje.toLowerCase().includes('error') || mensaje.toLowerCase().includes('no existe')) ? 'snackbar-error' : 'snackbar-success'"
+       *ngIf="snackbarVisible">
     {{ snackbarMensaje }}
   </div>
 </div>

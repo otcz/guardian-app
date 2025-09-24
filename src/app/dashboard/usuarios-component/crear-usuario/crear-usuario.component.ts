@@ -54,16 +54,16 @@ export class CrearUsuarioComponent {
         setTimeout(() => this.snackbarVisible = false, 4000);
       },
       error: (err) => {
-        this.mensaje = 'Error al crear usuario.';
         let backendMsg = '';
         if (err.error) {
           try {
             const errorObj = typeof err.error === 'string' ? JSON.parse(err.error) : err.error;
-            backendMsg = errorObj.message || errorObj.mensaje || this.mensaje;
+            backendMsg = errorObj.message || errorObj.mensaje || 'Error al crear usuario.';
           } catch (e) {
             backendMsg = err.error;
           }
         }
+        this.mensaje = backendMsg || 'Error al crear usuario.';
         this.snackbarMensaje = backendMsg;
         this.snackbarVisible = true;
         setTimeout(() => this.snackbarVisible = false, 4000);

@@ -11,7 +11,7 @@
 
       <form [formGroup]="form" (ngSubmit)="submit()" style="display:flex; flex-direction:column; gap:12px;">
         <div style="position:relative;">
-          <input pInputText type="text" formControlName="username" placeholder="Usuario" style="width:100%; padding-right:86px;" />
+          <input pInputText appUppercase type="text" formControlName="username" placeholder="Usuario" style="width:100%; padding-right:86px;" />
           <span *ngIf="isSysadmin" style="position:absolute; right:8px; top:50%; transform: translateY(-50%); background:#e3f0ff; color:var(--primary-600); border:1px solid var(--border); border-radius:999px; padding:4px 10px; font-size:.78rem; font-weight:700;">SYSTEM</span>
         </div>
         <div style="position:relative;">
@@ -29,6 +29,17 @@
           <span *ngIf="!loading">Entrar</span>
           <span *ngIf="loading"><i class="pi pi-spin pi-spinner"></i></span>
         </button>
+
+        <!-- Separador y acción de registro -->
+        <div style="display:flex; align-items:center; gap:12px; margin-top:4px;">
+          <span style="flex:1; height:1px; background: color-mix(in srgb, var(--border) 75%, transparent);"></span>
+          <span style="color:var(--muted); font-size:.92rem;">o</span>
+          <span style="flex:1; height:1px; background: color-mix(in srgb, var(--border) 75%, transparent);"></span>
+        </div>
+        <a routerLink="/register" class="p-button p-button-outlined" style="text-decoration:none; display:inline-flex; align-items:center; justify-content:center; gap:8px;">
+          <i class="pi pi-user-plus"></i>
+          <span>Registrarse</span>
+        </a>
 
         <div *ngIf="errorMsg" class="snackbar snackbar-error" style="margin-top:8px;">{{ errorMsg }}</div>
       </form>

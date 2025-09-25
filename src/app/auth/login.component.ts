@@ -1,16 +1,17 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators, FormGroup } from '@angular/forms';
-import { Router } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { AuthService } from '../service/auth.service';
 import { ThemeToggleComponent } from '../shared/theme-toggle.component';
+import { UppercaseDirective } from '../shared/formatting.directives';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, InputTextModule, ButtonModule, ThemeToggleComponent],
+  imports: [CommonModule, RouterModule, ReactiveFormsModule, InputTextModule, ButtonModule, ThemeToggleComponent, UppercaseDirective],
   templateUrl: './login.component.html'
 })
 export class LoginComponent {

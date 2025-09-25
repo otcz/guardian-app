@@ -1,0 +1,83 @@
+<div class="container" style="display:grid; place-items:center; min-height:100vh;">
+  <div class="card" style="width:min(720px, 95vw); overflow:hidden;">
+    <div style="background: linear-gradient(120deg, var(--primary) 0%, var(--secondary) 100%); height: 84px; display:flex; align-items:center; justify-content:space-between; padding:0 16px;">
+      <img src="assets/logo.png" alt="Logo" style="height:36px; filter: drop-shadow(0 2px 6px rgba(0,0,0,.25));" />
+      <app-theme-toggle mode="cycle"></app-theme-toggle>
+    </div>
+
+    <div style="padding:24px;">
+      <h2 style="margin:0 0 8px 0; color:var(--text)">Crear cuenta</h2>
+      <p style="margin:0 0 16px 0; color:var(--muted)">Completa tus datos para registrarte.</p>
+
+      <form [formGroup]="form" (ngSubmit)="submit()" style="display:flex; flex-direction:column; gap:16px;">
+        <!-- Organización (opcional) -->
+        <div class="form-field">
+          <label for="orgCode">Código de organización (opcional)</label>
+          <input id="orgCode" pInputText appUppercase type="text" formControlName="orgCode" placeholder="ORG-001" />
+        </div>
+
+        <!-- Identificación: tipo + número en una fila -->
+        <div style="display:grid; grid-template-columns: 220px 1fr; gap:12px; align-items:end;">
+          <div class="form-field">
+            <label for="tipoDocumento">Tipo de documento</label>
+            <p-dropdown id="tipoDocumento" formControlName="tipoDocumento" [options]="tiposDocumento" optionLabel="label" optionValue="value" placeholder="Selecciona..." styleClass="doc-type-control" [overlayOptions]="{ styleClass: 'doc-type-panel' }" [autoDisplayFirst]="true"></p-dropdown>
+          </div>
+          <div class="form-field">
+            <label for="documentoIdentidad">Número de documento</label>
+            <input id="documentoIdentidad" pInputText appDigitsOnly type="text" formControlName="documentoIdentidad" placeholder="1234567890" />
+          </div>
+        </div>
+
+        <!-- Nombres y apellidos -->
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+          <div class="form-field">
+            <label for="nombres">Nombres</label>
+            <input id="nombres" pInputText appUppercase type="text" formControlName="nombres" placeholder="NOMBRES" />
+          </div>
+          <div class="form-field">
+            <label for="apellidos">Apellidos</label>
+            <input id="apellidos" pInputText appUppercase type="text" formControlName="apellidos" placeholder="APELLIDOS" />
+          </div>
+        </div>
+
+        <!-- Usuario y contraseña -->
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+          <div class="form-field">
+            <label for="username">Usuario</label>
+            <input id="username" pInputText appUppercase type="text" formControlName="username" placeholder="USUARIO" />
+          </div>
+          <div class="form-field" style="position:relative;">
+            <label for="password">Contraseña</label>
+            <input id="password" pInputText type="password" formControlName="password" placeholder="••••••••" />
+          </div>
+        </div>
+
+        <!-- Contacto -->
+        <div style="display:grid; grid-template-columns: 1fr 280px; gap:12px;">
+          <div class="form-field">
+            <label for="email">Email (opcional)</label>
+            <input id="email" pInputText appLowercase type="email" formControlName="email" placeholder="correo@dominio.com" />
+          </div>
+          <div class="form-field">
+            <label for="telefono">Teléfono (opcional)</label>
+            <input id="telefono" pInputText appDigitsOnly type="tel" formControlName="telefono" placeholder="3001234567" />
+          </div>
+        </div>
+
+        <!-- Acciones -->
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
+          <a routerLink="/login" class="p-button p-button-outlined" style="text-decoration:none; display:inline-flex; align-items:center; gap:8px;">
+            <i class="pi pi-arrow-left"></i>
+            <span>Volver</span>
+          </a>
+          <button pButton type="submit" class="p-button p-button-primary" [disabled]="form.invalid || loading">
+            <span *ngIf="!loading">Crear cuenta</span>
+            <span *ngIf="loading"><i class="pi pi-spin pi-spinner"></i></span>
+          </button>
+        </div>
+
+        <div *ngIf="errorMsg" class="snackbar snackbar-error" style="margin-top:8px;">{{ errorMsg }}</div>
+      </form>
+    </div>
+  </div>
+</div>

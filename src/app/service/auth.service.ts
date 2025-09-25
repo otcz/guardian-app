@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { MenuService } from './menu.service';
 
 export type LoginPayload = { username: string; password: string; orgCode?: string };
 export type RegisterPayload = {
@@ -15,11 +16,21 @@ export type RegisterPayload = {
   telefono?: string;
 };
 export interface ApiResponse<T> { success: boolean; message: string | null; data: T; timestamp?: string; path?: string }
-export interface LoginData { token: string; refreshToken?: string; expiresAt?: string; userId?: number; orgId?: number; username?: string; roles?: string[] }
+export interface LoginData {
+  token: string;
+  refreshToken?: string;
+  expiresAt?: string;
+  userId?: number;
+  orgId?: number;
+  username?: string;
+  roles?: string[];
+  opciones?: string[];
+  opcionesDetalle?: { codigo: string; descripcion: string; path: string; icon: string }[];
+}
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private menu: MenuService) {}
 
   login(data: LoginPayload): Observable<ApiResponse<LoginData>> {
     // Endpoint directo del backend (sin proxy)
@@ -41,5 +52,7 @@ export class AuthService {
     localStorage.removeItem('username');
     localStorage.removeItem('orgId');
     localStorage.removeItem('roles');
+    // limpiar opciones persistidas
+    this.menu.clear();
   }
 }

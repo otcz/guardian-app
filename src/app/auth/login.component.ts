@@ -7,6 +7,7 @@ import { ButtonModule } from 'primeng/button';
 import { AuthService } from '../service/auth.service';
 import { ThemeToggleComponent } from '../shared/theme-toggle.component';
 import { UppercaseDirective } from '../shared/formatting.directives';
+import { MenuService } from '../service/menu.service';
 
 @Component({
   selector: 'app-login',
@@ -22,7 +23,7 @@ export class LoginComponent {
 
   form!: FormGroup;
 
-  constructor(private fb: FormBuilder, private auth: AuthService, private router: Router) {
+  constructor(private fb: FormBuilder, private auth: AuthService, private router: Router, private menu: MenuService) {
     this.form = this.fb.group({
       username: ['', Validators.required],
       password: ['', Validators.required]
@@ -58,6 +59,9 @@ export class LoginComponent {
         if (resp?.data?.username) localStorage.setItem('username', resp.data.username);
         if (resp?.data?.orgId != null) localStorage.setItem('orgId', String(resp.data.orgId));
         if (Array.isArray(resp?.data?.roles)) localStorage.setItem('roles', JSON.stringify(resp.data.roles));
+        // Guardar opciones de navegación del backend
+        this.menu.setFromLogin({ opciones: resp?.data?.opciones, opcionesDetalle: resp?.data?.opcionesDetalle });
+        // Navegar al dashboard
         this.router.navigate(['/dashboard']);
         this.loading = false;
       },

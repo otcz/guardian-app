@@ -5,6 +5,7 @@ import { DashboardComponent } from './dashboard/dashboard.component';
 import { RegisterComponent } from './auth/register.component';
 import { PermissionGuard } from './service/permission.guard';
 import { PagePlaceholderComponent } from './page-placeholder.component';
+import { ParametrosComponent } from './admin/parametros/parametros.component';
 
 export const appRoutes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -14,6 +15,7 @@ export const appRoutes: Routes = [
     path: 'admin',
     canActivate: [AuthGuard],
     children: [
+      { path: 'parametros', component: ParametrosComponent, canActivate: [PermissionGuard], data: { code: 'PARAMETROS' } },
       { path: '**', component: PagePlaceholderComponent, canActivate: [PermissionGuard] }
     ]
   },

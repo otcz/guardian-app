@@ -358,3 +358,17 @@ a:hover { text-decoration: underline; }
   border-radius: 12px;
   overflow: hidden;
 }
+
+/* Refuerzo final para login en tema claro: texto/caret negros y placeholder gris */
+:root.theme-light app-login input:not([type="checkbox"]):not([type="radio"]),
+:root.theme-light app-login .p-inputtext,
+:root.theme-light app-login .p-password input,
+:root.theme-light app-login textarea {
+  color: #000 !important;
+  caret-color: #000 !important;
+}
+:root.theme-light app-login input::placeholder,
+:root.theme-light app-login textarea::placeholder,
+:root.theme-light app-login .p-inputtext::placeholder {
+  color: #4b5563 !important; /* gris legible */
+}

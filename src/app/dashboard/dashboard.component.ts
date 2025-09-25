@@ -22,7 +22,7 @@ import { Observable } from 'rxjs';
 })
 export class DashboardComponent {
   sidebarOpen = true;
-  options$: Observable<MenuOption[]> = this.menu.list$;
+  get options$(): Observable<MenuOption[]> { return this.menu.list$; }
   activities = [
     { fecha: '2025-09-24 10:21', evento: 'Login', detalle: 'sysadmin' },
     { fecha: '2025-09-24 10:25', evento: 'Creó usuario', detalle: 'juan.perez' },

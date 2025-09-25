@@ -364,6 +364,48 @@ a:hover { text-decoration: underline; }
   overflow: hidden;
 }
 
+/* Tabla 'Actividad reciente' en modo oscuro */
+:root.theme-dark app-dashboard .recent-activity .p-datatable-wrapper table {
+  background: var(--surface) !important; /* #232336 */
+  color: var(--text) !important;         /* #e0e6ed */
+}
+:root.theme-dark app-dashboard .recent-activity .p-datatable-thead > tr > th {
+  background: color-mix(in srgb, var(--surface) 88%, var(--primary) 12%) !important;
+  color: var(--text) !important;
+  border-bottom: 1px solid var(--border) !important; /* #2e3445 */
+  font-weight: 700 !important;
+}
+:root.theme-dark app-dashboard .recent-activity .p-datatable-tbody > tr > td {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+  border-top: 1px solid var(--border) !important;
+}
+:root.theme-dark app-dashboard .recent-activity {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+/* Tabla 'Actividad reciente' en modo negro */
+:root.theme-black app-dashboard .recent-activity .p-datatable-wrapper table {
+  background: var(--surface) !important; /* #131313 */
+  color: var(--text) !important;         /* #e6e6e6 */
+}
+:root.theme-black app-dashboard .recent-activity .p-datatable-thead > tr > th {
+  background: color-mix(in srgb, var(--surface) 88%, var(--primary) 12%) !important;
+  color: var(--text) !important;
+  border-bottom: 1px solid var(--border) !important; /* #262626 */
+  font-weight: 700 !important;
+}
+:root.theme-black app-dashboard .recent-activity .p-datatable-tbody > tr > td {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+  border-top: 1px solid var(--border) !important;
+}
+:root.theme-black app-dashboard .recent-activity {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
 /* Refuerzo final para login en tema claro: texto/caret negros y placeholder gris */
 :root.theme-light app-login input:not([type="checkbox"]):not([type="radio"]),
 :root.theme-light app-login .p-inputtext,
@@ -477,4 +519,3 @@ a:hover { text-decoration: underline; }
 :root.theme-light .p-dropdown-panel.doc-type-panel .p-dropdown-item:not(.p-highlight):hover {
   background: color-mix(in srgb, var(--primary) 12%, #ffffff) !important;
 }
-

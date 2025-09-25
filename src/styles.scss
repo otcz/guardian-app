@@ -338,3 +338,23 @@ a:hover { text-decoration: underline; }
   }
 }
 
+/* Tabla 'Actividad reciente' en modo claro (scoped a app-dashboard) */
+:root.theme-light app-dashboard .recent-activity .p-datatable-wrapper table {
+  background: var(--surface) !important;
+  color: #000 !important;
+}
+:root.theme-light app-dashboard .recent-activity .p-datatable-thead > tr > th {
+  background: color-mix(in srgb, var(--surface) 96%, var(--primary) 4%) !important;
+  color: #000 !important;
+  border-bottom: 1px solid var(--border) !important;
+  font-weight: 700 !important;
+}
+:root.theme-light app-dashboard .recent-activity .p-datatable-tbody > tr > td {
+  background: var(--surface) !important;
+  color: #000 !important;
+  border-top: 1px solid var(--border) !important;
+}
+:root.theme-light app-dashboard .recent-activity {
+  border-radius: 12px;
+  overflow: hidden;
+}

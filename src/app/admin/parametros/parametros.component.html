@@ -18,6 +18,7 @@
       <div style="display:flex; gap:8px; align-items:center;">
         <button pButton type="button" class="p-button p-button-outlined" (click)="nuevo()"><i class="pi pi-plus"></i><span style="margin-left:8px;">Nuevo</span></button>
         <app-theme-toggle mode="cycle"></app-theme-toggle>
+        <app-user-avatar></app-user-avatar>
       </div>
     </header>
     <p class="muted" style="margin:0 0 12px 0;">Gestiona las definiciones de parámetros (Nombre, Descripción y Tipo).</p>
@@ -37,15 +38,15 @@
       <ng-template pTemplate="body" let-row let-i="rowIndex">
         <tr>
           <td style="text-align:center;">{{ i + 1 }}</td>
-          <td>{{ row.orgId }}</td>
+          <td>{{ row.orgIdDef ?? row.orgId }}</td>
           <td><code>{{ row.nombre }}</code></td>
           <td>{{ row.descripcion }}</td>
           <td>{{ row.tipo === 'NUM' ? 'Número' : row.tipo === 'TEXT' ? 'Texto' : 'Lista' }}</td>
           <td>{{ row.porDefecto | yesNo }}</td>
           <td style="text-align:right; display:flex; justify-content:flex-end; gap:6px;">
-            <button pButton type="button" class="p-button p-button-text" (click)="editar(row)"><i class="pi pi-pencil"></i></button>
+            <button pButton type="button" class="p-button p-button-text" (click)="editar(row)" title="Editar"><i class="pi pi-pencil"></i></button>
             <button pButton type="button" class="p-button p-button-text" (click)="configurar(row)" title="Configurar"><i class="pi pi-cog"></i></button>
-            <button pButton type="button" class="p-button p-button-text danger" (click)="confirmarEliminar(row)"><i class="pi pi-trash"></i></button>
+            <button pButton type="button" class="p-button p-button-text danger" (click)="confirmarEliminar(row)" title="Eliminar"><i class="pi pi-trash"></i></button>
           </td>
         </tr>
       </ng-template>

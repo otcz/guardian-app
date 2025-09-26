@@ -6,11 +6,12 @@ import { ThemeToggleComponent } from '../shared/theme-toggle.component';
 import { RouterModule } from '@angular/router';
 import { MenuService, MenuOption } from '../service/menu.service';
 import { Observable } from 'rxjs';
+import { UserAvatarComponent } from '../shared/user-avatar.component';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule, ButtonModule, TableModule, ThemeToggleComponent],
+  imports: [CommonModule, RouterModule, ButtonModule, TableModule, ThemeToggleComponent, UserAvatarComponent],
   templateUrl: './dashboard.component.html',
   styles: [`
     /* Solo en modo claro, aplicar look claro a la tabla 'Actividad reciente' */

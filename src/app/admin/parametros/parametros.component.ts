@@ -15,11 +15,12 @@ import { UppercaseDirective } from '../../shared/formatting.directives';
 import { YesNoPipe } from '../../shared/yes-no.pipe';
 import { MenuService, MenuOption } from '../../service/menu.service';
 import { Observable } from 'rxjs';
+import { UserAvatarComponent } from '../../shared/user-avatar.component';
 
 @Component({
   selector: 'app-parametros',
   standalone: true,
-  imports: [CommonModule, RouterModule, ReactiveFormsModule, TableModule, ButtonModule, InputTextModule, DropdownModule, SidebarModule, ConfirmDialogModule, ThemeToggleComponent, UppercaseDirective, YesNoPipe],
+  imports: [CommonModule, RouterModule, ReactiveFormsModule, TableModule, ButtonModule, InputTextModule, DropdownModule, SidebarModule, ConfirmDialogModule, ThemeToggleComponent, UppercaseDirective, YesNoPipe, UserAvatarComponent],
   templateUrl: './parametros.component.html',
   styles: [`
     :host { display:block; }

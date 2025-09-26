@@ -6,126 +6,107 @@ import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { DropdownModule } from 'primeng/dropdown';
-import { InputSwitchModule } from 'primeng/inputswitch';
-import { SliderModule } from 'primeng/slider';
+import { SidebarModule } from 'primeng/sidebar';
 import { ParametrosService, Parametro, ParamTipo } from '../../service/parametros.service';
 import { ThemeToggleComponent } from '../../shared/theme-toggle.component';
+import { UppercaseDirective } from '../../shared/formatting.directives';
+import { YesNoPipe } from '../../shared/yes-no.pipe';
+import { MenuService, MenuOption } from '../../service/menu.service';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-parametros',
   standalone: true,
-  imports: [CommonModule, RouterModule, ReactiveFormsModule, TableModule, ButtonModule, InputTextModule, DropdownModule, InputSwitchModule, SliderModule, ThemeToggleComponent],
+  imports: [CommonModule, RouterModule, ReactiveFormsModule, TableModule, ButtonModule, InputTextModule, DropdownModule, SidebarModule, ThemeToggleComponent, UppercaseDirective, YesNoPipe],
   templateUrl: './parametros.component.html',
   styles: [`
     :host { display:block; }
-    .grid { display:grid; grid-template-columns: 360px 1fr; gap: 16px; align-items: start; }
+    .admin-grid { display:grid; grid-template-columns: 260px 1fr; gap: 16px; align-items: start; }
     .card { background: var(--surface); color: var(--text); border-radius: 12px; padding: 16px; }
+    .nav { background: linear-gradient(135deg, var(--secondary) 0%, color-mix(in srgb, var(--secondary) 70%, black) 100%); color: #fff; border-radius: 12px; padding: 12px; }
+    .nav a { color:#fff; opacity:.92; text-decoration:none; display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:8px; }
+    .nav a:hover { background: rgba(255,255,255,.08); }
+    .nav .section-title { font-weight:800; opacity:.95; letter-spacing:.2px; padding:6px 10px; }
     .form-field { display:flex; flex-direction:column; gap:6px; }
     .muted { color: var(--muted); font-size: .9rem; }
-    .p-slider .p-slider-range, .p-slider .p-slider-handle { background: var(--primary) !important; border-color: var(--primary) !important; }
     .danger { color: var(--danger); }
   `]
 })
 export class ParametrosComponent implements OnInit {
   tipos = [
-    { label: 'Número', value: 'numero' },
-    { label: 'Texto', value: 'texto' },
-    { label: 'Booleano', value: 'booleano' },
-    { label: 'Lista', value: 'lista' },
+    { label: 'Número', value: 'NUM' },
+    { label: 'Texto', value: 'TEXT' },
+    { label: 'Lista', value: 'LIST' },
   ] as {label:string; value: ParamTipo}[];
 
   form!: FormGroup;
-  editando = signal<Parametro | null>(null);
+  editandoId = signal<number | null>(null);
+  panelAbierto = signal<boolean>(false);
 
-  // Rango del slider para "minutos" por defecto
-  min = 0;
-  max = 2880; // 48h en minutos
-
-  // Reemplazar propiedad por getter para evitar uso antes de inicialización
   get lista$() { return this.params.list$; }
+  get menu$(): Observable<MenuOption[]> { return this.menu.list$; }
 
-  constructor(private fb: FormBuilder, private params: ParametrosService) {
+  constructor(private fb: FormBuilder, private params: ParametrosService, private menu: MenuService) {
     this.form = this.fb.group({
-      clave: ['', [Validators.required, Validators.pattern(/^[A-Z0-9_]+$/)]],
-      descripcion: ['', [Validators.required, Validators.maxLength(200)]],
-      tipo: ['numero' as ParamTipo, Validators.required],
-      // valor dinámico según tipo
-      valorTexto: [''],
-      valorNumero: [0, [Validators.min(0)]],
-      valorBooleano: [false],
-      valorListaTexto: ['']
+      nombre: ['', [Validators.required, Validators.pattern(/^[A-Z0-9_]+$/), Validators.maxLength(64)]],
+      descripcion: ['', [Validators.maxLength(255)]],
+      tipo: ['NUM' as ParamTipo, Validators.required]
     });
   }
 
   ngOnInit(): void {
-    this.form.get('tipo')!.valueChanges.subscribe((t: ParamTipo) => {
-      const clave = String(this.form.get('clave')!.value || '');
-      if (t === 'numero') {
-        if (/TOKEN|EXPIRACION|DURACION/i.test(clave)) { this.min = 0; this.max = 4320; }
-        else { this.min = 0; this.max = 10000; }
-      }
+    const orgId = Number(localStorage.getItem('orgId') ?? '1');
+    this.params.fetchDefs(orgId).subscribe({
+      error: () => { /* silencioso: respaldo local */ }
     });
   }
 
   editar(p: Parametro) {
-    this.editando.set(p);
-    this.form.patchValue({
-      clave: p.clave,
-      descripcion: p.descripcion,
-      tipo: p.tipo,
-      valorTexto: p.tipo === 'texto' ? String(p.valor || '') : '',
-      valorNumero: p.tipo === 'numero' ? Number(p.valor || 0) : 0,
-      valorBooleano: p.tipo === 'booleano' ? Boolean(p.valor) : false,
-      valorListaTexto: p.tipo === 'lista' ? (Array.isArray(p.valor) ? (p.valor as string[]).join(', ') : '') : ''
+    this.editandoId.set(p.id ?? null);
+    this.form.reset({
+      nombre: p.nombre,
+      descripcion: p.descripcion ?? '',
+      tipo: p.tipo
     });
-    this.form.get('clave')!.disable();
-    this.form.get('tipo')!.disable();
+    this.form.get('nombre')!.enable();
+    this.panelAbierto.set(true);
   }
 
   nuevo() {
-    this.editando.set(null);
-    this.form.reset({ tipo: 'numero', valorNumero: 0, valorBooleano: false, valorListaTexto: '' });
-    this.form.get('clave')!.enable();
-    this.form.get('tipo')!.enable();
+    this.editandoId.set(null);
+    this.form.reset({ tipo: 'NUM' });
+    this.form.get('nombre')!.enable();
+    this.panelAbierto.set(true);
   }
+
+  cerrarPanel() { this.panelAbierto.set(false); }
 
   guardar() {
     if (this.form.invalid) return;
     const raw = this.form.getRawValue();
-    const tipo = raw.tipo as ParamTipo;
-    let valor: any = null;
-    switch (tipo) {
-      case 'texto': valor = String(raw.valorTexto || ''); break;
-      case 'numero': valor = Number(raw.valorNumero || 0); break;
-      case 'booleano': valor = Boolean(raw.valorBooleano); break;
-      case 'lista': {
-        const src = String(raw.valorListaTexto || '');
-        const tokens = src.split(/[,\n]/g).map(s => s.trim()).filter((v: string) => v.length > 0);
-        // dedupe
-        valor = Array.from(new Set(tokens));
-        break;
-      }
+    const orgId = Number(localStorage.getItem('orgId') ?? '1');
+    const dto = { orgId, nombre: String(raw.nombre).trim(), descripcion: (raw.descripcion || '').trim(), tipo: raw.tipo as ParamTipo };
+
+    const id = this.editandoId();
+    if (id != null) {
+      this.params.update(id, { nombre: dto.nombre, descripcion: dto.descripcion, tipo: dto.tipo }).subscribe({
+        next: () => { this.cerrarPanel(); this.nuevo(); },
+        error: () => {/* opcional: notificar */}
+      });
+    } else {
+      this.params.create(dto).subscribe({
+        next: () => { this.cerrarPanel(); this.nuevo(); },
+        error: () => {/* opcional: notificar */}
+      });
     }
-    const item: Parametro = {
-      clave: String(raw.clave).trim(),
-      descripcion: String(raw.descripcion).trim(),
-      tipo,
-      valor
-    };
-    this.params.upsert(item);
-    this.nuevo();
   }
 
   eliminar(p?: Parametro) {
-    const target = p || this.editando();
-    if (!target) return;
-    this.params.remove(target.clave);
-    if (this.editando()?.clave === target.clave) this.nuevo();
+    const id = (p?.id ?? this.editandoId()) as number | null;
+    if (id == null) return;
+    this.params.delete(id).subscribe({
+      next: () => { if (this.editandoId() === id) this.nuevo(); },
+      error: () => {/* opcional: notificar */}
+    });
   }
-
-  // Helpers UI
-  esNumero() { return this.form.get('tipo')!.value === 'numero'; }
-  esTexto() { return this.form.get('tipo')!.value === 'texto'; }
-  esBool() { return this.form.get('tipo')!.value === 'booleano'; }
-  esLista() { return this.form.get('tipo')!.value === 'lista'; }
 }

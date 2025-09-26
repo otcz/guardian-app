@@ -1,16 +1,18 @@
 import { inject } from '@angular/core';
-import { CanActivateFn, Router, RouterStateSnapshot } from '@angular/router';
-import { AuthService } from './auth.service';
+import { CanActivateFn, Router } from '@angular/router';
 import { MenuService } from './menu.service';
 
-export const PermissionGuard: CanActivateFn = (_route, state: RouterStateSnapshot) => {
-  const auth = inject(AuthService);
+// Permite proteger rutas por código (data.code) o por path actual.
+export const PermissionGuard: CanActivateFn = (route, state) => {
   const menu = inject(MenuService);
   const router = inject(Router);
 
-  if (!auth.isAuthenticated()) return router.createUrlTree(['/login']);
+  const code = route.data?.['code'] as string | undefined;
+  const allowed = code ? menu.canAccessCode(code) : menu.canAccessPath(state.url);
 
-  const url = state.url || '';
-  return menu.canAccessPath(url) ? true : router.createUrlTree(['/dashboard']);
+  if (allowed) return true;
+
+  router.navigate(['/dashboard']);
+  return false;
 };
 

@@ -1,0 +1,88 @@
+<div class="grid">
+  <!-- Lado izquierdo: Formulario -->
+  <section class="card">
+    <header style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+      <h2 style="margin:0;">Parámetros</h2>
+      <app-theme-toggle mode="cycle"></app-theme-toggle>
+    </header>
+    <p class="muted" style="margin:0 0 12px 0;">Crea, edita o elimina parámetros del sistema. Para valores numéricos, usa el control deslizante.</p>
+
+    <form [formGroup]="form" (ngSubmit)="guardar()" style="display:flex; flex-direction:column; gap:12px;">
+      <div class="form-field">
+        <label for="clave">Clave (MAYÚSCULAS y _)</label>
+        <input id="clave" pInputText type="text" formControlName="clave" placeholder="DURACION_TOKEN_INGRESO" />
+      </div>
+      <div class="form-field">
+        <label for="descripcion">Descripción</label>
+        <input id="descripcion" pInputText type="text" formControlName="descripcion" placeholder="Duración token de ingreso (min)" />
+      </div>
+
+      <div class="form-field">
+        <label for="tipo">Tipo</label>
+        <p-dropdown id="tipo" formControlName="tipo" [options]="tipos" optionLabel="label" optionValue="value"></p-dropdown>
+      </div>
+
+      <!-- Valor según tipo -->
+      <div class="form-field" *ngIf="esNumero()">
+        <label>Valor (número)</label>
+        <div style="display:grid; grid-template-columns: 1fr 86px; gap:8px; align-items:center;">
+          <p-slider [min]="min" [max]="max" [step]="1" formControlName="valorNumero"></p-slider>
+          <input pInputText type="number" formControlName="valorNumero" />
+        </div>
+        <div class="muted">Rango: {{ min }} - {{ max }}</div>
+      </div>
+
+      <div class="form-field" *ngIf="esTexto()">
+        <label>Valor (texto)</label>
+        <input pInputText type="text" formControlName="valorTexto" />
+      </div>
+
+      <div class="form-field" *ngIf="esBool()">
+        <label>Valor (booleano)</label>
+        <p-inputSwitch formControlName="valorBooleano"></p-inputSwitch>
+      </div>
+
+      <div class="form-field" *ngIf="esLista()">
+        <label>Valores (lista)</label>
+        <textarea pInputText rows="3" formControlName="valorListaTexto" placeholder="Escribe valores separados por coma o salto de línea"></textarea>
+        <div class="muted">Ej.: Verde, Amarillo, Rojo</div>
+      </div>
+
+      <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:4px;">
+        <button pButton type="button" class="p-button p-button-outlined" (click)="nuevo()">Nuevo</button>
+        <button pButton type="submit" class="p-button p-button-primary" [disabled]="form.invalid">Guardar</button>
+        <button pButton type="button" class="p-button p-button-danger" (click)="eliminar()" [disabled]="!editando()">Eliminar</button>
+      </div>
+    </form>
+  </section>
+
+  <!-- Lado derecho: Tabla -->
+  <section class="card">
+    <header style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+      <h3 style="margin:0;">Listado</h3>
+    </header>
+
+    <p-table [value]="(lista$ | async) || []" [tableStyle]="{ 'min-width': '520px' }" [paginator]="true" [rows]="8">
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width: 260px;">Clave</th>
+          <th>Descripción</th>
+          <th style="width: 110px;">Tipo</th>
+          <th style="width: 120px; text-align:right;">Acciones</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-row>
+        <tr>
+          <td><code>{{ row.clave }}</code></td>
+          <td>{{ row.descripcion }}</td>
+          <td style="text-transform:capitalize;">{{ row.tipo }}</td>
+          <td style="text-align:right; display:flex; justify-content:flex-end; gap:6px;">
+            <button pButton type="button" class="p-button p-button-text" (click)="editar(row)"><i class="pi pi-pencil"></i></button>
+            <button pButton type="button" class="p-button p-button-text danger" (click)="eliminar(row)"><i class="pi pi-trash"></i></button>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </section>
+</div>
+

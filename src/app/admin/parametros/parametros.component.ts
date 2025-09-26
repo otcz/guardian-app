@@ -1,12 +1,14 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators, FormGroup } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { DropdownModule } from 'primeng/dropdown';
 import { SidebarModule } from 'primeng/sidebar';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ConfirmationService } from 'primeng/api';
 import { ParametrosService, Parametro, ParamTipo } from '../../service/parametros.service';
 import { ThemeToggleComponent } from '../../shared/theme-toggle.component';
 import { UppercaseDirective } from '../../shared/formatting.directives';
@@ -17,7 +19,7 @@ import { Observable } from 'rxjs';
 @Component({
   selector: 'app-parametros',
   standalone: true,
-  imports: [CommonModule, RouterModule, ReactiveFormsModule, TableModule, ButtonModule, InputTextModule, DropdownModule, SidebarModule, ThemeToggleComponent, UppercaseDirective, YesNoPipe],
+  imports: [CommonModule, RouterModule, ReactiveFormsModule, TableModule, ButtonModule, InputTextModule, DropdownModule, SidebarModule, ConfirmDialogModule, ThemeToggleComponent, UppercaseDirective, YesNoPipe],
   templateUrl: './parametros.component.html',
   styles: [`
     :host { display:block; }
@@ -30,7 +32,8 @@ import { Observable } from 'rxjs';
     .form-field { display:flex; flex-direction:column; gap:6px; }
     .muted { color: var(--muted); font-size: .9rem; }
     .danger { color: var(--danger); }
-  `]
+  `],
+  providers: [ConfirmationService]
 })
 export class ParametrosComponent implements OnInit {
   tipos = [
@@ -46,7 +49,7 @@ export class ParametrosComponent implements OnInit {
   get lista$() { return this.params.list$; }
   get menu$(): Observable<MenuOption[]> { return this.menu.list$; }
 
-  constructor(private fb: FormBuilder, private params: ParametrosService, private menu: MenuService) {
+  constructor(private fb: FormBuilder, private params: ParametrosService, private menu: MenuService, private confirm: ConfirmationService, private router: Router) {
     this.form = this.fb.group({
       nombre: ['', [Validators.required, Validators.pattern(/^[A-Z0-9_]+$/), Validators.maxLength(64)]],
       descripcion: ['', [Validators.maxLength(255)]],
@@ -101,12 +104,32 @@ export class ParametrosComponent implements OnInit {
     }
   }
 
-  eliminar(p?: Parametro) {
+  confirmarEliminar(p?: Parametro) {
+    const target = (p ?? null);
+    if (!target) return;
+    this.confirm.confirm({
+      message: `¿Seguro que deseas eliminar el parámetro "${target.nombre}"?`,
+      header: 'Confirmar eliminación',
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Eliminar',
+      rejectLabel: 'Cancelar',
+      acceptButtonStyleClass: 'p-button p-button-danger',
+      rejectButtonStyleClass: 'p-button p-button-outlined',
+      accept: () => this.eliminar(target)
+    });
+  }
+
+  eliminar(p: Parametro) {
     const id = (p?.id ?? this.editandoId()) as number | null;
     if (id == null) return;
     this.params.delete(id).subscribe({
       next: () => { if (this.editandoId() === id) this.nuevo(); },
       error: () => {/* opcional: notificar */}
     });
+  }
+
+  configurar(p: Parametro) {
+    const nombre = encodeURIComponent(p.nombre);
+    this.router.navigate(['/admin/parameters/configure', nombre]);
   }
 }

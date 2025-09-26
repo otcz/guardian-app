@@ -1,0 +1,112 @@
+<div class="admin-grid">
+  <!-- Sidebar izquierda: navegación -->
+  <aside class="nav">
+    <div class="section-title">Administración</div>
+    <a routerLink="/admin/parameters"><i class="pi pi-list"></i><span>Volver a parámetros</span></a>
+    <a routerLink="/dashboard"><i class="pi pi-home"></i><span>Inicio</span></a>
+    <ng-container *ngIf="(menu$ | async) as opts">
+      <a *ngFor="let opt of opts" [routerLink]="opt.path">
+        <i class="mdi" [ngClass]="opt.icon"></i>
+        <span>{{ opt.descripcion }}</span>
+      </a>
+    </ng-container>
+  </aside>
+
+  <!-- Contenido principal: valores del parámetro -->
+  <section class="card">
+    <div class="toolbar">
+      <div>
+        <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+          <nav style="display:flex; align-items:center; gap:8px; font-weight:700;">
+            <a routerLink="/admin/parameters">Parámetros</a>
+            <span>/</span>
+            <span>{{ nombre() }}</span>
+          </nav>
+          <span class="muted">{{ descripcion() }}</span>
+        </div>
+        <div class="steps" style="margin-top:6px;">
+          <span class="active"><i class="pi pi-list"></i> Valores</span>
+          <span>›</span>
+          <span><i class="pi pi-sliders-h"></i> Avanzado</span>
+        </div>
+      </div>
+      <div style="display:flex; gap:8px;">
+        <button pButton type="button" class="p-button p-button-outlined" (click)="backToList()"><i class="pi pi-arrow-left"></i><span style="margin-left:8px;">Volver</span></button>
+        <button pButton type="button" class="p-button p-button-primary" (click)="abrirNuevo()"><i class="pi pi-plus"></i><span style="margin-left:8px;">Nuevo</span></button>
+        <app-theme-toggle mode="cycle"></app-theme-toggle>
+      </div>
+    </div>
+
+    <!-- Tabla de valores -->
+    <p-table [value]="(valores$ | async) || []" [tableStyle]="{ 'min-width': '760px' }" [paginator]="true" [rows]="10">
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width: 60px; text-align:center;">#</th>
+          <!-- Eliminado: Orden -->
+          <th *ngIf="tipo() === 'LIST'">Etiqueta</th>
+          <th *ngIf="tipo() === 'TEXT'">Valor (texto)</th>
+          <th style="width: 140px;" *ngIf="tipo() === 'NUM'">Valor (número)</th>
+          <th style="width: 120px;">Activo</th>
+          <th style="width: 150px; text-align:right;">Acciones</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-row let-i="rowIndex">
+        <tr>
+          <td style="text-align:center;">{{ i + 1 }}</td>
+          <!-- Eliminado: celda Orden -->
+          <td *ngIf="tipo() === 'LIST'">{{ row.label }}</td>
+          <td *ngIf="tipo() === 'TEXT'">{{ row.valueText }}</td>
+          <td *ngIf="tipo() === 'NUM'">{{ row.valueNum }}</td>
+          <td>
+            <p-inputSwitch [ngModel]="row.activo" (onChange)="toggleActivo(row)"></p-inputSwitch>
+          </td>
+          <td style="text-align:right; display:flex; justify-content:flex-end; gap:6px;">
+            <!-- Eliminadas flechas subir/bajar -->
+            <button pButton type="button" class="p-button p-button-text" (click)="abrirEditar(row)" title="Editar"><i class="pi pi-pencil"></i></button>
+            <button pButton type="button" class="p-button p-button-text danger" (click)="confirmarEliminar(row)" title="Eliminar"><i class="pi pi-trash"></i></button>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </section>
+</div>
+
+<!-- Panel lateral derecho: Formulario de nuevo/editar valor -->
+<p-sidebar [visible]="panelAbierto()" position="right" [modal]="true" (onHide)="cerrarPanel()" styleClass="p-sidebar-sm" [dismissible]="false" [closeOnEscape]="false" [showCloseIcon]="true" [blockScroll]="true" [style]="{ width: '560px' }">
+  <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
+    <h3 style="margin:0;">{{ editId() ? 'Editar valor' : 'Nuevo valor' }}</h3>
+    <button pButton type="button" class="p-button p-button-text" (click)="cerrarPanel()"><i class="pi pi-times"></i></button>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="guardar()" style="display:flex; flex-direction:column; gap:12px;">
+    <div class="form-field" *ngIf="tipo() === 'LIST'">
+      <label for="label">Etiqueta</label>
+      <input id="label" pInputText type="text" formControlName="label" placeholder="Valor de la lista" />
+      <span class="muted">Valores ejemplo: Activo, Inactivo, Bloqueado, Pendiente</span>
+    </div>
+
+    <div class="form-field" *ngIf="tipo() === 'TEXT'">
+      <label for="valueText">Valor (texto)</label>
+      <input id="valueText" pInputText type="text" formControlName="valueText" placeholder="Ej: 08:00-18:00" />
+    </div>
+
+    <div class="form-field" *ngIf="tipo() === 'NUM'">
+      <label for="valueNum">Valor (número)</label>
+      <p-inputNumber id="valueNum" formControlName="valueNum" [min]="0" [useGrouping]="false"></p-inputNumber>
+    </div>
+
+    <!-- Eliminado: campo visual de Orden; dejamos solo Activo -->
+    <div class="form-field" style="align-items:flex-start;">
+      <label>Activo</label>
+      <p-inputSwitch formControlName="activo"></p-inputSwitch>
+    </div>
+
+    <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:4px;">
+      <button pButton type="button" class="p-button p-button-outlined" (click)="cerrarPanel()">Cancelar</button>
+      <button pButton type="submit" class="p-button p-button-primary">Guardar</button>
+    </div>
+  </form>
+</p-sidebar>
+
+<!-- Diálogo de confirmación -->
+<p-confirmDialog></p-confirmDialog>

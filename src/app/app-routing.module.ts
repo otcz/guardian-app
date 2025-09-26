@@ -6,6 +6,7 @@ import { RegisterComponent } from './auth/register.component';
 import { PermissionGuard } from './service/permission.guard';
 import { PagePlaceholderComponent } from './page-placeholder.component';
 import { ParametrosComponent } from './admin/parametros/parametros.component';
+import { ParamConfigComponent } from './admin/parametros/param-config.component';
 
 export const appRoutes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -17,6 +18,7 @@ export const appRoutes: Routes = [
     children: [
       // Parámetros (path del backend) + alias en español
       { path: 'parameters', component: ParametrosComponent, canActivate: [PermissionGuard], data: { code: 'PRM_DEF' } },
+      { path: 'parameters/configure/:name', component: ParamConfigComponent, canActivate: [PermissionGuard], data: { code: 'PRM_DEF' } },
       { path: 'parametros', redirectTo: 'parameters', pathMatch: 'full' },
 
       // Configuración del sistema

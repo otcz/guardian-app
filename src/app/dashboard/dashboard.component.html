@@ -1,22 +1,7 @@
-<div style="display:flex; height:100vh;">
-  <aside class="sidebar" [style.width.px]="sidebarOpen ? 260 : 60" style="transition:width .2s; padding:12px;">
-    <button pButton type="button" class="p-button p-button-text" (click)="sidebarOpen = !sidebarOpen" aria-label="Colapsar sidebar">
-      <i class="pi" [ngClass]="sidebarOpen ? 'pi-angle-left' : 'pi-angle-right'"></i>
-    </button>
-    <div *ngIf="sidebarOpen" style="margin-top:12px; display:flex; flex-direction:column; gap:8px;">
-      <a routerLink="/dashboard" class="menu-link" style="color:#fff; display:flex; align-items:center; gap:10px;">
-        <i class="pi pi-home"></i>
-        <span>Inicio</span>
-      </a>
-      <ng-container *ngIf="(options$ | async) as opts">
-        <a *ngFor="let opt of opts" [routerLink]="opt.path" class="menu-link" style="color:#fff; opacity:.9; display:flex; align-items:center; gap:10px;">
-          <i class="mdi" [ngClass]="opt.icon"></i>
-          <span>{{ opt.descripcion }}</span>
-        </a>
-      </ng-container>
-    </div>
-  </aside>
-  <div style="display:flex; flex-direction:column; flex:1; min-width:0;">
+<div class="admin-grid">
+  <app-side-nav title="Administración"></app-side-nav>
+
+  <div style="display:flex; flex-direction:column; min-width:0;">
     <header class="header">
       <img src="assets/logo.png" alt="Logo" style="height:28px;" />
       <div class="spacer"></div>

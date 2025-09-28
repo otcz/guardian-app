@@ -7,13 +7,15 @@ import { RouterModule } from '@angular/router';
 import { MenuService, MenuOption } from '../service/menu.service';
 import { Observable } from 'rxjs';
 import { UserAvatarComponent } from '../shared/user-avatar.component';
+import { SideNavComponent } from '../shared/side-nav.component';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule, ButtonModule, TableModule, ThemeToggleComponent, UserAvatarComponent],
+  imports: [CommonModule, RouterModule, ButtonModule, TableModule, ThemeToggleComponent, UserAvatarComponent, SideNavComponent],
   templateUrl: './dashboard.component.html',
   styles: [`
+    .admin-grid { display:grid; grid-template-columns: auto 1fr; gap: 16px; align-items: stretch; }
     /* Solo en modo claro, aplicar look claro a la tabla 'Actividad reciente' */
     :host-context(.theme-light) .recent-activity .p-datatable-wrapper table { background: var(--surface); color: var(--text); }
     :host-context(.theme-light) .recent-activity .p-datatable-thead > tr > th { background: color-mix(in srgb, var(--surface) 96%, var(--primary) 4%); color: var(--text); border-bottom: 1px solid var(--border); font-weight: 700; }

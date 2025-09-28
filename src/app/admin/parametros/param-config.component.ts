@@ -20,16 +20,17 @@ import { UppercaseDirective } from '../../shared/formatting.directives';
 import { NotificationService } from '../../service/notification.service';
 import { PermissionService } from '../../service/permission.service';
 import { TooltipModule } from 'primeng/tooltip';
+import { SideNavComponent } from '../../shared/side-nav.component';
 
 @Component({
   selector: 'app-param-config',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, ReactiveFormsModule, TableModule, ButtonModule, InputTextModule, InputNumberModule, InputSwitchModule, DropdownModule, SidebarModule, ConfirmDialogModule, ThemeToggleComponent, UppercaseDirective, TooltipModule],
+  imports: [CommonModule, RouterModule, FormsModule, ReactiveFormsModule, TableModule, ButtonModule, InputTextModule, InputNumberModule, InputSwitchModule, DropdownModule, SidebarModule, ConfirmDialogModule, ThemeToggleComponent, UppercaseDirective, TooltipModule, SideNavComponent],
   templateUrl: './param-config.component.html',
   styles: [
     `
     :host { display:block; }
-    .admin-grid { display:grid; grid-template-columns: 260px 1fr; gap: 16px; align-items:start; }
+    .admin-grid { display:grid; grid-template-columns: auto 1fr; gap: 16px; align-items: stretch; }
     .card { background: var(--surface); color: var(--text); border-radius: 12px; padding: 16px; }
     .nav { background: linear-gradient(135deg, var(--secondary) 0%, color-mix(in srgb, var(--secondary) 70%, black) 100%); color: #fff; border-radius: 12px; padding: 12px; }
     .nav a { color:#fff; opacity:.92; text-decoration:none; display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:8px; }
@@ -47,7 +48,42 @@ import { TooltipModule } from 'primeng/tooltip';
     :root.theme-light .light-sidebar .p-sidebar-content,
     :root.theme-light .light-sidebar .p-sidebar-footer { background: #ffffff !important; color: #000000 !important; }
     :root.theme-light .white-theme { background: #ffffff !important; color: #000000 !important; }
-  `
+
+    /* Acciones: sin fondo cuando no hay botones */
+    td.actions-cell { background: transparent !important; }
+    .actions-container { display:flex; justify-content:flex-end; gap:6px; background: transparent; }
+
+    /* ============== Drawer (slider) mejorado ============== */
+    /* Full height and no inner paddings from p-sidebar */
+    .config-drawer .p-sidebar { height: 100vh; box-shadow: -6px 0 16px rgba(0,0,0,.12); border-left: 1px solid color-mix(in srgb, var(--text) 8%, transparent); }
+    .config-drawer .p-sidebar-content { padding: 0 !important; height: 100%; display: flex; }
+
+    .edit-drawer { display:flex; flex-direction:column; width:100%; min-height:100%; }
+
+    .drawer-header { display:flex; align-items:center; justify-content:space-between; padding: 16px 18px; border-bottom: 1px solid color-mix(in srgb, var(--text) 12%, transparent); background: color-mix(in srgb, var(--secondary) 6%, var(--surface)); }
+    .drawer-header .title h3 { margin:0; font-size: 1.25rem; font-weight: 800; letter-spacing:.2px; }
+    .drawer-header .title small { display:block; margin-top:2px; font-size: .85rem; color: var(--muted); }
+    .drawer-header .header-actions button { color: var(--text); }
+
+    .drawer-body { flex:1; overflow:auto; padding: 16px 18px 8px; }
+    .drawer-form { display:flex; flex-direction:column; gap:14px; }
+    .drawer-form .form-grid { display:grid; grid-template-columns: 1fr 1fr; gap: 14px; align-items:end; }
+
+    .drawer-form label { font-weight: 700; font-size:.9rem; color: var(--text); letter-spacing:.2px; }
+    .drawer-form .help { color: var(--muted); font-size: .85rem; }
+
+    /* Inputs más cómodos */
+    .drawer-form :is(input.p-inputtext, .p-inputnumber input) { height: 44px; border-radius: 10px; padding: 10px 12px; font-size: .95rem; }
+    .drawer-form .p-inputswitch { transform: scale(1.1); }
+
+    .drawer-footer { display:flex; justify-content:flex-end; gap:10px; padding: 12px 18px; border-top: 1px solid color-mix(in srgb, var(--text) 12%, transparent); background: color-mix(in srgb, var(--surface) 94%, black 6%); position: sticky; bottom: 0; }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .config-drawer .p-sidebar { width: 100vw !important; }
+      .drawer-form .form-grid { grid-template-columns: 1fr; }
+    }
+    `
   ],
   providers: [ConfirmationService]
 })

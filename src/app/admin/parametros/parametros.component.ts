@@ -8,7 +8,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { SidebarModule } from 'primeng/sidebar';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
-import { ParametrosService, Parametro, ParamTipo } from '../../service/parametros.service';
+import { ParametrosService, Parametro } from '../../service/parametros.service';
 import { ThemeToggleComponent } from '../../shared/theme-toggle.component';
 import { UppercaseDirective } from '../../shared/formatting.directives';
 import { YesNoPipe } from '../../shared/yes-no.pipe';
@@ -21,16 +21,17 @@ import { PermissionService } from '../../service/permission.service';
 import { NotificationService } from '../../service/notification.service';
 import { TooltipModule } from 'primeng/tooltip';
 import { ParamValoresService } from '../../service/param-valores.service';
+import { SideNavComponent } from '../../shared/side-nav.component';
 
 @Component({
   selector: 'app-parametros',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, ReactiveFormsModule, TableModule, ButtonModule, InputTextModule, InputSwitchModule, SidebarModule, ConfirmDialogModule, ThemeToggleComponent, UppercaseDirective, YesNoPipe, UserAvatarComponent, TooltipModule],
+  imports: [CommonModule, RouterModule, FormsModule, ReactiveFormsModule, TableModule, ButtonModule, InputTextModule, InputSwitchModule, SidebarModule, ConfirmDialogModule, ThemeToggleComponent, UppercaseDirective, YesNoPipe, UserAvatarComponent, TooltipModule, SideNavComponent],
   templateUrl: './parametros.component.html',
   styles: [
     `
     :host { display:block; }
-    .admin-grid { display:grid; grid-template-columns: 260px 1fr; gap: 16px; align-items: start; }
+    .admin-grid { display:grid; grid-template-columns: auto 1fr; gap: 16px; align-items: stretch; }
     .card { background: var(--surface); color: var(--text); border-radius: 12px; padding: 16px; }
     .nav { background: linear-gradient(135deg, var(--secondary) 0%, color-mix(in srgb, var(--secondary) 70%, black) 100%); color: #fff; border-radius: 12px; padding: 12px; }
     .nav a { color:#fff; opacity:.92; text-decoration:none; display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:8px; }
@@ -50,8 +51,6 @@ export class ParametrosComponent implements OnInit {
   panelAbierto = signal<boolean>(false);
 
   get lista$() { return this.params.list$; }
-  get menu$(): Observable<MenuOption[]> { return this.menu.list$; }
-  get isBackend(): boolean { return this.params.sourceIsBackend; }
 
   constructor(
     private fb: FormBuilder,

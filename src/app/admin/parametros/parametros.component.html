@@ -1,15 +1,6 @@
 <div class="admin-grid">
   <!-- Sidebar izquierda: navegación -->
-  <aside class="nav">
-    <div class="section-title">Administración</div>
-    <a routerLink="/dashboard"><i class="pi pi-home"></i><span>Inicio</span></a>
-    <ng-container *ngIf="(menu$ | async) as opts">
-      <a *ngFor="let opt of opts" [routerLink]="opt.path">
-        <i class="mdi" [ngClass]="opt.icon"></i>
-        <span>{{ opt.descripcion }}</span>
-      </a>
-    </ng-container>
-  </aside>
+  <app-side-nav title="Administración"></app-side-nav>
 
   <!-- Contenido principal: listado -->
   <section class="card">

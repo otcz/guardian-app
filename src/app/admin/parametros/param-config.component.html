@@ -1,16 +1,6 @@
 <div class="admin-grid">
   <!-- Sidebar izquierda: navegación -->
-  <aside class="nav">
-    <div class="section-title">Administración</div>
-    <a routerLink="/admin/parameters"><i class="pi pi-list"></i><span>Volver a parámetros</span></a>
-    <a routerLink="/dashboard"><i class="pi pi-home"></i><span>Inicio</span></a>
-    <ng-container *ngIf="(menu$ | async) as opts">
-      <a *ngFor="let opt of opts" [routerLink]="opt.path">
-        <i class="mdi" [ngClass]="opt.icon"></i>
-        <span>{{ opt.descripcion }}</span>
-      </a>
-    </ng-container>
-  </aside>
+  <app-side-nav title="Administración"></app-side-nav>
 
   <!-- Contenido principal: valores del parámetro -->
   <section class="card">
@@ -67,8 +57,8 @@
               <p-inputSwitch [(ngModel)]="row.activo" (onChange)="toggleActivo(row, $event.checked)" [disabled]="!canToggleValue(row)"></p-inputSwitch>
             </ng-template>
           </td>
-          <td style="text-align:right;">
-            <div *ngIf="canEditValue(row) || canDeleteValue(row)" style="display:flex; justify-content:flex-end; gap:6px; background:#ffffff;">
+          <td class="actions-cell" style="text-align:right;" [ngStyle]="(canEditValue(row) || canDeleteValue(row)) ? {} : {'background':'transparent','display':'table-cell'}">
+            <div *ngIf="canEditValue(row) || canDeleteValue(row)" class="actions-container">
               <button *ngIf="canEditValue(row)" pButton type="button" class="p-button p-button-text" (click)="abrirEditar(row)" title="Editar"><i class="pi pi-pencil"></i></button>
               <button *ngIf="canDeleteValue(row)" pButton type="button" class="p-button p-button-text danger" (click)="confirmarEliminar(row)" title="Eliminar"><i class="pi pi-trash"></i></button>
             </div>
@@ -80,55 +70,58 @@
 </div>
 
 <!-- Panel lateral derecho: Formulario de nuevo/editar valor -->
-<p-sidebar [visible]="panelAbierto()" position="right" [modal]="true" (onHide)="cerrarPanel()" styleClass="p-sidebar-sm light-sidebar" [dismissible]="false" [closeOnEscape]="false" [showCloseIcon]="true" [blockScroll]="true" [style]="{ width: '560px' }">
-  <div class="sidebar-panel white-theme">
-    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
-      <h3 style="margin:0;">{{ editId() ? 'Editar valor' : 'Nuevo valor' }}</h3>
-      <div style="display:flex; gap:6px;">
-        <button pButton type="button" class="p-button p-button-text" (click)="abrirNuevo()" title="Nuevo"><i class="pi pi-plus"></i></button>
-        <button pButton type="button" class="p-button p-button-text" [disabled]="!editId()" title="Editar"><i class="pi pi-pencil"></i></button>
-        <button pButton type="button" class="p-button p-button-text danger" [disabled]="!editId()" (click)="confirmarEliminarActual()" title="Eliminar"><i class="pi pi-trash"></i></button>
-        <button pButton type="button" class="p-button p-button-text" (click)="cerrarPanel()"><i class="pi pi-times"></i></button>
+<p-sidebar [visible]="panelAbierto()" position="right" [modal]="true" (onHide)="cerrarPanel()" styleClass="config-drawer light-sidebar" [dismissible]="false" [closeOnEscape]="false" [showCloseIcon]="true" [blockScroll]="true" [style]="{ width: '600px' }">
+  <div class="edit-drawer">
+    <div class="drawer-header">
+      <div class="title">
+        <h3>{{ editId() ? 'Editar valor' : 'Nuevo valor' }}</h3>
+        <small class="muted">{{ nombre() }}</small>
+      </div>
+      <div class="header-actions">
+        <button pButton type="button" class="p-button p-button-text" (click)="cerrarPanel()" title="Cerrar"><i class="pi pi-times"></i></button>
       </div>
     </div>
 
-    <form [formGroup]="form" (ngSubmit)="guardar()" style="display:flex; flex-direction:column; gap:12px;">
-      <div class="form-field" *ngIf="tipo() === 'LIST'">
-        <label for="label">Etiqueta</label>
-        <input id="label" pInputText appUppercase type="text" formControlName="label" placeholder="Valor de la lista" />
-        <span class="muted">Valores ejemplo: Activo, Inactivo, Bloqueado, Pendiente</span>
-      </div>
+    <div class="drawer-body">
+      <form [formGroup]="form" (ngSubmit)="guardar()" class="drawer-form">
+        <div class="form-field" *ngIf="tipo() === 'LIST'">
+          <label for="label">Etiqueta</label>
+          <input id="label" pInputText appUppercase type="text" formControlName="label" placeholder="Valor de la lista" />
+          <span class="help">Valores ejemplo: Activo, Inactivo, Bloqueado, Pendiente</span>
+        </div>
 
-      <div class="form-field" *ngIf="tipo() === 'TEXT'">
-        <label for="valueText">Valor (texto)</label>
-        <input id="valueText" pInputText appUppercase type="text" formControlName="valueText" placeholder="Ej: 08:00-18:00" />
-      </div>
+        <div class="form-field" *ngIf="tipo() === 'TEXT'">
+          <label for="valueText">Valor (texto)</label>
+          <input id="valueText" pInputText appUppercase type="text" formControlName="valueText" placeholder="Ej: 08:00-18:00" />
+        </div>
 
-      <div class="form-field" *ngIf="tipo() === 'NUM'">
-        <label for="valueNum">Valor (número)</label>
-        <p-inputNumber id="valueNum" formControlName="valueNum" [min]="0" [useGrouping]="false"></p-inputNumber>
-      </div>
+        <div class="form-field" *ngIf="tipo() === 'NUM'">
+          <label for="valueNum">Valor (número)</label>
+          <p-inputNumber id="valueNum" formControlName="valueNum" [min]="0" [useGrouping]="false"></p-inputNumber>
+        </div>
 
-      <div class="form-field">
-        <label for="sectionId">Sección (opcional, obligatorio para ADMIN)</label>
-        <p-inputNumber id="sectionId" formControlName="sectionId" [min]="0" [useGrouping]="false" [showButtons]="true"></p-inputNumber>
-      </div>
+        <div class="form-grid">
+          <div class="form-field">
+            <label for="sectionId">Sección (opcional, obligatorio para ADMIN)</label>
+            <p-inputNumber id="sectionId" formControlName="sectionId" [min]="0" [useGrouping]="false" [showButtons]="true"></p-inputNumber>
+          </div>
+          <div class="form-field">
+            <label>Activo</label>
+            <p-inputSwitch formControlName="activo"></p-inputSwitch>
+          </div>
+        </div>
 
-      <div class="form-field">
-        <label for="desc">Descripción (opcional)</label>
-        <input id="desc" pInputText type="text" formControlName="desc" placeholder="Descripción del valor" />
-      </div>
+        <div class="form-field">
+          <label for="desc">Descripción (opcional)</label>
+          <input id="desc" pInputText type="text" formControlName="desc" placeholder="Descripción del valor" />
+        </div>
+      </form>
+    </div>
 
-      <div class="form-field" style="align-items:flex-start;">
-        <label>Activo</label>
-        <p-inputSwitch formControlName="activo"></p-inputSwitch>
-      </div>
-
-      <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:4px;">
-        <button pButton type="button" class="p-button p-button-outlined" (click)="cerrarPanel()">Cancelar</button>
-        <button pButton type="submit" class="p-button p-button-primary">{{ editId() ? 'Editar' : 'Guardar' }}</button>
-      </div>
-    </form>
+    <div class="drawer-footer">
+      <button pButton type="button" class="p-button p-button-outlined" (click)="cerrarPanel()">Cancelar</button>
+      <button pButton type="submit" class="p-button p-button-primary" [disabled]="form.invalid" (click)="guardar()">{{ editId() ? 'Editar' : 'Guardar' }}</button>
+    </div>
   </div>
 </p-sidebar>
 

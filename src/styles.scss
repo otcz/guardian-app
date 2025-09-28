@@ -1,3 +1,110 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+/* Global theme tokens and app-wide styling */
+
+/* Typography base */
+:root {
+  --font-sans: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+    Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', Arial, sans-serif;
+  --radius: 12px;
+  --shadow: 0 6px 18px rgba(0,0,0,.08);
+}
+
+:root.theme-light {
+  --surface: #ffffff;
+  --text: #0f172a; /* slate-900 */
+  --primary: #16a34a; /* emerald-600 */
+  --secondary: #2563eb; /* blue-600 */
+  --muted: #64748b; /* slate-500 */
+  --danger: #e11d48; /* rose-600 */
+  --border: rgba(15,23,42,.12);
+}
+
+:root.theme-dark {
+  --surface: #0b0f1a; /* deep navy */
+  --text: #f1f5f9; /* slate-100 */
+  --primary: #22c55e; /* emerald-500 */
+  --secondary: #60a5fa; /* blue-400 */
+  --muted: #94a3b8; /* slate-400 */
+  --danger: #fb7185; /* rose-400 */
+  --border: rgba(148,163,184,.2);
+}
+
+html, body {
+  height: 100%;
+}
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  color: var(--text);
+  background: color-mix(in srgb, var(--surface) 98%, black 2%);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 { margin: 0 0 8px; font-weight: 800; letter-spacing: .2px; color: var(--text); }
+h1 { font-size: 1.75rem; }
+h2 { font-size: 1.45rem; }
+h3 { font-size: 1.25rem; }
+h4 { font-size: 1.1rem; }
+small, .muted { color: var(--muted); }
+
+/* Cards and panels */
+.card {
+  background: var(--surface);
+  color: var(--text);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+}
+
+/* PrimeNG: Buttons */
+.p-button { border-radius: 10px; font-weight: 700; letter-spacing:.2px; }
+.p-button.p-button-text { border-radius: 8px; }
+.p-button.p-button-outlined { border-color: var(--border); }
+
+/* PrimeNG: Inputs */
+.p-inputtext, .p-inputnumber input { height: 44px; border-radius: 10px; padding: 10px 12px; font-size: .95rem; }
+.p-dropdown { border-radius: 10px; }
+
+/* PrimeNG: InputSwitch */
+.p-inputswitch { transform: scale(1.08); transform-origin: center; }
+.p-inputswitch .p-inputswitch-slider { background: color-mix(in srgb, var(--text) 16%, transparent); }
+.p-inputswitch.p-inputswitch-checked .p-inputswitch-slider { background: var(--primary); }
+
+/* PrimeNG: Sidebar (drawer) */
+.p-sidebar { height: 100vh; box-shadow: -6px 0 16px rgba(0,0,0,.12); border-left: 1px solid var(--border); }
+.p-sidebar .p-sidebar-content { padding: 0 !important; height: 100%; display: flex; }
+
+/* Tables */
+.p-datatable .p-datatable-header { background: transparent; border: none; }
+.p-datatable .p-datatable-thead > tr > th {
+  padding: 12px 14px; font-weight: 800; color: var(--text);
+  background: color-mix(in srgb, var(--surface) 94%, black 6%);
+  border-bottom: 1px solid var(--border);
+}
+.p-datatable .p-datatable-tbody > tr > td { padding: 10px 14px; border-bottom: 1px solid var(--border); }
+.p-datatable .p-paginator { border-top: 1px solid var(--border); background: transparent; }
+
+/* Links */
+a { color: var(--secondary); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* Utility */
+hr { border: none; border-top: 1px solid var(--border); }
+code, pre { background: color-mix(in srgb, var(--surface) 92%, black 8%); color: var(--text); border-radius: 8px; padding: 2px 6px; }
+
+/* Light sidebar helper already used en componentes */
+:root.theme-light .light-sidebar .p-sidebar,
+:root.theme-light .light-sidebar .p-sidebar-header,
+:root.theme-light .light-sidebar .p-sidebar-content,
+:root.theme-light .light-sidebar .p-sidebar-footer { background: #ffffff !important; color: #000000 !important; }
+
+/* Actions cell transparent when empty */
+.p-datatable .p-datatable-tbody td.actions-cell { background: transparent !important; }
+
+/* Form labels */
+label { font-weight: 700; color: var(--text); }
+
 /* Design tokens y temas (claro, oscuro, negro) */
 :root.theme-light {
   --bg: #f4f7fa;
@@ -328,6 +435,7 @@ a:hover { text-decoration: underline; }
 }
 
 /* Revertir inputs y dropdowns al estilo del tema por defecto */
+/* Deshabilitado: este bloque deshacía el rediseño global de inputs y dropdowns
 .p-inputtext,
 .p-inputtextarea {
   background: unset !important;
@@ -349,6 +457,7 @@ a:hover { text-decoration: underline; }
 .p-dropdown.p-focus {
   box-shadow: unset !important;
 }
+*/
 
 /* Tipografía blanca en inputs/dropdowns para temas oscuro y negro */
 :root.theme-dark, :root.theme-black {
@@ -825,4 +934,3 @@ a:hover { text-decoration: underline; }
 
 /* Panel lateral interno utilitario */
 .white-theme { background: #ffffff !important; color: #000000 !important; }
-

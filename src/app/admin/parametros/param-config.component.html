@@ -32,7 +32,7 @@
       </div>
       <div style="display:flex; gap:8px;">
         <button pButton type="button" class="p-button p-button-outlined" (click)="backToList()"><i class="pi pi-arrow-left"></i><span style="margin-left:8px;">Volver</span></button>
-        <button pButton type="button" class="p-button p-button-primary" (click)="abrirNuevo()"><i class="pi pi-plus"></i><span style="margin-left:8px;">Nuevo</span></button>
+        <button *ngIf="!paramsService.sourceIsBackend" pButton type="button" class="p-button p-button-primary" (click)="abrirNuevo()"><i class="pi pi-plus"></i><span style="margin-left:8px;">Nuevo</span></button>
         <app-theme-toggle mode="cycle"></app-theme-toggle>
       </div>
     </div>
@@ -58,12 +58,11 @@
           <td *ngIf="tipo() === 'TEXT'">{{ row.valueText }}</td>
           <td *ngIf="tipo() === 'NUM'">{{ row.valueNum }}</td>
           <td>
-            <p-inputSwitch [ngModel]="row.activo" (onChange)="toggleActivo(row)"></p-inputSwitch>
+            <p-inputSwitch [ngModel]="row.activo" (onChange)="toggleActivo(row)" [disabled]="paramsService.sourceIsBackend"></p-inputSwitch>
           </td>
           <td style="text-align:right; display:flex; justify-content:flex-end; gap:6px;">
-            <!-- Eliminadas flechas subir/bajar -->
-            <button pButton type="button" class="p-button p-button-text" (click)="abrirEditar(row)" title="Editar"><i class="pi pi-pencil"></i></button>
-            <button pButton type="button" class="p-button p-button-text danger" (click)="confirmarEliminar(row)" title="Eliminar"><i class="pi pi-trash"></i></button>
+            <button *ngIf="!paramsService.sourceIsBackend" pButton type="button" class="p-button p-button-text" (click)="abrirEditar(row)" title="Editar"><i class="pi pi-pencil"></i></button>
+            <button *ngIf="!paramsService.sourceIsBackend" pButton type="button" class="p-button p-button-text danger" (click)="confirmarEliminar(row)" title="Eliminar"><i class="pi pi-trash"></i></button>
           </td>
         </tr>
       </ng-template>
@@ -72,7 +71,7 @@
 </div>
 
 <!-- Panel lateral derecho: Formulario de nuevo/editar valor -->
-<p-sidebar [visible]="panelAbierto()" position="right" [modal]="true" (onHide)="cerrarPanel()" styleClass="p-sidebar-sm light-sidebar" [dismissible]="false" [closeOnEscape]="false" [showCloseIcon]="true" [blockScroll]="true" [style]="{ width: '560px' }">
+<p-sidebar [visible]="panelAbierto() && !paramsService.sourceIsBackend" position="right" [modal]="true" (onHide)="cerrarPanel()" styleClass="p-sidebar-sm light-sidebar" [dismissible]="false" [closeOnEscape]="false" [showCloseIcon]="true" [blockScroll]="true" [style]="{ width: '560px' }">
   <div class="sidebar-panel white-theme">
     <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
       <h3 style="margin:0;">{{ editId() ? 'Editar valor' : 'Nuevo valor' }}</h3>
@@ -82,13 +81,13 @@
     <form [formGroup]="form" (ngSubmit)="guardar()" style="display:flex; flex-direction:column; gap:12px;">
       <div class="form-field" *ngIf="tipo() === 'LIST'">
         <label for="label">Etiqueta</label>
-        <input id="label" pInputText type="text" formControlName="label" placeholder="Valor de la lista" />
+        <input id="label" pInputText appLowercase type="text" formControlName="label" placeholder="Valor de la lista" />
         <span class="muted">Valores ejemplo: Activo, Inactivo, Bloqueado, Pendiente</span>
       </div>
 
       <div class="form-field" *ngIf="tipo() === 'TEXT'">
         <label for="valueText">Valor (texto)</label>
-        <input id="valueText" pInputText type="text" formControlName="valueText" placeholder="Ej: 08:00-18:00" />
+        <input id="valueText" pInputText appLowercase type="text" formControlName="valueText" placeholder="Ej: 08:00-18:00" />
       </div>
 
       <div class="form-field" *ngIf="tipo() === 'NUM'">

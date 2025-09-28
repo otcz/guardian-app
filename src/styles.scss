@@ -712,3 +712,73 @@ a:hover { text-decoration: underline; }
   color: #4b5563 !important;
 }
 
+/* Tema claro: contenedor interno opcional para forzar blanco dentro del sidebar */
+:root.theme-light body .sidebar-panel.white-theme {
+  background: #ffffff !important;
+  color: #000000 !important;
+  width: 100% !important;
+  height: 100% !important;
+  padding: 16px !important;
+}
+
+/* Limpieza: corregir selector mal escrito (app_parametros) */
+:root.theme-light app-parametros .p-sidebar,
+:root.theme-light app-parametros .p-sidebar .p-sidebar-header,
+:root.theme-light app_parametros .p-sidebar .p-sidebar-content,
+:root.theme-light app-param-config .p-sidebar,
+:root.theme-light app-param-config .p-sidebar .p-sidebar-header,
+:root.theme-light app-param-config .p-sidebar .p-sidebar-content {
+  background: #ffffff !important;
+  color: #000 !important;
+}
+:root.theme-light body .p-sidebar.light-sidebar .p-sidebar-header .p-sidebar-close {
+  background: transparent !important;
+  border: none !important;
+  color: #000 !important;
+  box-shadow: none !important;
+}
+:root.theme-light body .p-sidebar.light-sidebar {
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+:root.theme-light body .p-sidebar.light-sidebar .p-sidebar-header {
+  background: #ffffff !important;
+  padding: 8px 8px 0 8px !important;
+}
+:root.theme-light body .p-sidebar.light-sidebar .p-sidebar-content {
+  background: #ffffff !important;
+  padding: 0 !important;
+  height: 100% !important;
+}
+:root.theme-light body .p-sidebar.light-sidebar.p-sidebar-right,
+:root.theme-light body .p-sidebar.p-sidebar-sm.light-sidebar {
+  background: #ffffff !important;
+  border-left: 1px solid var(--border) !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+/* Tema claro: scrollbars claros dentro del sidebar para evitar franja oscura */
+:root.theme-light body .p-sidebar.light-sidebar .p-sidebar-content {
+  scrollbar-color: #c7c7c7 #ffffff; /* Firefox */
+}
+:root.theme-light body .p-sidebar.light-sidebar .p-sidebar-content::-webkit-scrollbar {
+  width: 12px; height: 12px;
+}
+:root.theme-light body .p-sidebar.light-sidebar .p-sidebar-content::-webkit-scrollbar-track {
+  background: #ffffff;
+}
+:root.theme-light body .p-sidebar.light-sidebar .p-sidebar-content::-webkit-scrollbar-thumb {
+  background-color: #c7c7c7; border-radius: 999px; border: 3px solid #ffffff;
+}
+:root.theme-light body .p-sidebar.light-sidebar .p-sidebar-content {
+  display: flex !important;
+  align-items: stretch !important;
+}
+:root.theme-light body .p-sidebar.light-sidebar .p-sidebar-content > * {
+  flex: 1 1 auto !important;
+  margin: 0 !important;
+}
+:root.theme-light body .p-sidebar { box-shadow: none !important; }
+:root.theme-light body .p-sidebar-mask { background: rgba(255, 255, 255, 0.65) !important; }

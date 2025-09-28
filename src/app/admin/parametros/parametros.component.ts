@@ -1,29 +1,30 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, Validators, FormGroup } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, Validators, FormGroup, FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
-import { DropdownModule } from 'primeng/dropdown';
 import { SidebarModule } from 'primeng/sidebar';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
 import { ParametrosService, Parametro, ParamTipo } from '../../service/parametros.service';
 import { ThemeToggleComponent } from '../../shared/theme-toggle.component';
-import { UppercaseDirective } from '../../shared/formatting.directives';
+import { LowercaseDirective } from '../../shared/formatting.directives';
 import { YesNoPipe } from '../../shared/yes-no.pipe';
 import { MenuService, MenuOption } from '../../service/menu.service';
 import { Observable } from 'rxjs';
 import { UserAvatarComponent } from '../../shared/user-avatar.component';
 import { ThemeService } from '../../service/theme.service';
+import { InputSwitchModule } from 'primeng/inputswitch';
 
 @Component({
   selector: 'app-parametros',
   standalone: true,
-  imports: [CommonModule, RouterModule, ReactiveFormsModule, TableModule, ButtonModule, InputTextModule, DropdownModule, SidebarModule, ConfirmDialogModule, ThemeToggleComponent, UppercaseDirective, YesNoPipe, UserAvatarComponent],
+  imports: [CommonModule, RouterModule, FormsModule, ReactiveFormsModule, TableModule, ButtonModule, InputTextModule, InputSwitchModule, SidebarModule, ConfirmDialogModule, ThemeToggleComponent, LowercaseDirective, YesNoPipe, UserAvatarComponent],
   templateUrl: './parametros.component.html',
-  styles: [`
+  styles: [
+    `
     :host { display:block; }
     .admin-grid { display:grid; grid-template-columns: 260px 1fr; gap: 16px; align-items: start; }
     .card { background: var(--surface); color: var(--text); border-radius: 12px; padding: 16px; }
@@ -34,15 +35,11 @@ import { ThemeService } from '../../service/theme.service';
     .form-field { display:flex; flex-direction:column; gap:6px; }
     .muted { color: var(--muted); font-size: .9rem; }
     .danger { color: var(--danger); }
-  `],
+  `
+  ],
   providers: [ConfirmationService]
 })
 export class ParametrosComponent implements OnInit {
-  tipos = [
-    { label: 'Número', value: 'NUM' },
-    { label: 'Texto', value: 'TEXT' },
-    { label: 'Lista', value: 'LIST' },
-  ] as {label:string; value: ParamTipo}[];
 
   form!: FormGroup;
   editandoId = signal<number | null>(null);
@@ -50,12 +47,12 @@ export class ParametrosComponent implements OnInit {
 
   get lista$() { return this.params.list$; }
   get menu$(): Observable<MenuOption[]> { return this.menu.list$; }
+  get isBackend(): boolean { return this.params.sourceIsBackend; }
 
   constructor(private fb: FormBuilder, private params: ParametrosService, private menu: MenuService, private confirm: ConfirmationService, private router: Router, public theme: ThemeService) {
     this.form = this.fb.group({
-      nombre: ['', [Validators.required, Validators.pattern(/^[A-Z0-9_]+$/), Validators.maxLength(64)]],
-      descripcion: ['', [Validators.maxLength(255)]],
-      tipo: ['NUM' as ParamTipo, Validators.required]
+      nombre: ['', [Validators.required, Validators.pattern(/^[a-z0-9_]+$/), Validators.maxLength(64)]],
+      descripcion: ['', [Validators.maxLength(255)]]
     });
   }
 
@@ -69,9 +66,8 @@ export class ParametrosComponent implements OnInit {
   editar(p: Parametro) {
     this.editandoId.set(p.id ?? null);
     this.form.reset({
-      nombre: p.nombre,
-      descripcion: p.descripcion ?? '',
-      tipo: p.tipo
+      nombre: (p.nombre || '').toLowerCase(),
+      descripcion: p.descripcion ?? ''
     });
     this.form.get('nombre')!.enable();
     this.panelAbierto.set(true);
@@ -79,7 +75,7 @@ export class ParametrosComponent implements OnInit {
 
   nuevo() {
     this.editandoId.set(null);
-    this.form.reset({ tipo: 'NUM' });
+    this.form.reset();
     this.form.get('nombre')!.enable();
     this.panelAbierto.set(true);
   }
@@ -90,20 +86,37 @@ export class ParametrosComponent implements OnInit {
     if (this.form.invalid) return;
     const raw = this.form.getRawValue();
     const orgId = Number(localStorage.getItem('orgId') ?? '1');
-    const dto = { orgId, nombre: String(raw.nombre).trim(), descripcion: (raw.descripcion || '').trim(), tipo: raw.tipo as ParamTipo };
+    const dto = { orgId, nombre: String(raw.nombre).trim(), descripcion: (raw.descripcion || '').trim() };
 
     const id = this.editandoId();
     if (id != null) {
-      this.params.update(id, { nombre: dto.nombre, descripcion: dto.descripcion, tipo: dto.tipo }).subscribe({
+      // conservar el tipo actual al editar, si está disponible
+      const tipoActual: ParamTipo | undefined = (this.params.list.find(x => x.id === id)?.tipo) || (this.params.list.find(x => x.nombre === dto.nombre)?.tipo);
+      const payload: Partial<Parametro> = { nombre: dto.nombre, descripcion: dto.descripcion };
+      if (tipoActual) (payload as any).tipo = tipoActual;
+      this.params.update(id, payload).subscribe({
         next: () => { this.cerrarPanel(); this.nuevo(); },
         error: () => {/* opcional: notificar */}
       });
     } else {
-      this.params.create(dto).subscribe({
+      // crear con tipo por defecto (sin selector en UI)
+      const tipoDefault: ParamTipo = 'TEXT';
+      this.params.create({ orgId, nombre: dto.nombre, descripcion: dto.descripcion, tipo: tipoDefault } as any).subscribe({
         next: () => { this.cerrarPanel(); this.nuevo(); },
         error: () => {/* opcional: notificar */}
       });
     }
+  }
+
+  toggleActivo(row: Parametro, ev?: any) {
+    const checked = typeof ev?.checked === 'boolean' ? ev.checked : !(row.activo ?? row.activoValor ?? row.activoDef ?? true);
+    const id = row.id ?? this.params.list.find(x => x.nombre === row.nombre)?.id;
+    if (id) {
+      this.params.update(id, { activo: checked }).subscribe({ next: () => {}, error: () => {} });
+      return;
+    }
+    const orgId = (row.orgIdDef ?? row.orgId ?? Number(localStorage.getItem('orgId') ?? '1')) as number;
+    this.params.setActivo(orgId, row.nombre, checked).subscribe({ next: () => {}, error: () => {} });
   }
 
   confirmarEliminar(p?: Parametro) {

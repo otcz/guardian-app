@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, map, tap } from 'rxjs';
+import { BehaviorSubject, Observable, map, tap, switchMap, of } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import type { ApiResponse } from './auth.service';
 
@@ -18,6 +18,7 @@ export interface Parametro {
   valor?: string; // valor agregado (string)
   activoDef?: boolean;
   activoValor?: boolean;
+  activo?: boolean; // agregado para endpoint /params/admin/defs
   valores?: ParametroValorDetalle[];
   createdAt?: string;
   createdBy?: number;
@@ -30,34 +31,35 @@ export interface Parametro {
 export class ParametrosService {
   private readonly STORAGE_KEY = 'app:parametros.v2';
   private readonly params$ = new BehaviorSubject<Parametro[]>([]);
+  private readonly fromBackend$ = new BehaviorSubject<boolean>(false);
   private readonly baseUrl = 'http://localhost:8081/admin/parameters';
   private readonly defsUrl = 'http://localhost:8081/params/admin/defs';
-  private readonly defsValuesUrl = 'http://localhost:8081/params/admin/defs/values';
 
   constructor(private http: HttpClient) {
     const loaded = this.load();
     if (!loaded || loaded.length === 0) {
-      this.seed();
+
     }
   }
 
   get list$() { return this.params$.asObservable(); }
   get list(): Parametro[] { return this.params$.value; }
+  get sourceIsBackend$() { return this.fromBackend$.asObservable(); }
+  get sourceIsBackend(): boolean { return this.fromBackend$.value; }
 
   // Endpoint actualizado: definiciones con valores
   fetchDefs(orgId: number): Observable<Parametro[]> {
-    const url = `${this.defsValuesUrl}?orgId=${encodeURIComponent(String(orgId))}`;
+    const url = `${this.defsUrl}?orgId=${encodeURIComponent(String(orgId))}`;
     return this.http.get<ApiResponse<Parametro[]>>(url).pipe(
-      map(resp => Array.isArray((resp as any)?.data) ? (resp as any).data as Parametro[] : (resp as any) as any[]),
-      tap(arr => this.persist(arr))
-    );
-  }
-
-  // CRUD base (cuando exista id)
-  fetchAll(): Observable<Parametro[]> {
-    return this.http.get<ApiResponse<Parametro[]>>(this.baseUrl).pipe(
-      map(resp => Array.isArray((resp as any)?.data) ? (resp as any).data as Parametro[] : (resp as any) as any[]),
-      tap(arr => this.persist(arr))
+      map(resp => Array.isArray((resp as any)?.data) ? (resp as any).data as any[] : (resp as any) as any[]),
+      map((arr: any[]) => (arr || []).map(it => ({
+        orgId: it.orgId,
+        nombre: it.nombre,
+        descripcion: it.descripcion,
+        porDefecto: !!it.porDefecto,
+        activo: typeof it.activo === 'boolean' ? it.activo : true
+      }) as Parametro)),
+      tap(arr => { this.persist(arr); this.fromBackend$.next(true); })
     );
   }
 
@@ -70,7 +72,11 @@ export class ParametrosService {
   }
 
   update(id: number, p: Partial<Parametro>): Observable<Parametro> {
-    const body: any = { nombre: p.nombre, descripcion: p.descripcion, tipo: p.tipo };
+    const body: any = { nombre: p.nombre, descripcion: p.descripcion };
+    if (typeof p.tipo !== 'undefined') body.tipo = p.tipo;
+    if (typeof p.activo !== 'undefined') body.activo = p.activo;
+    if (typeof p.activoValor !== 'undefined') body.activoValor = p.activoValor;
+    if (typeof p.activoDef !== 'undefined') body.activoDef = p.activoDef;
     return this.http.put<ApiResponse<Parametro>>(`${this.baseUrl}/${id}`, body).pipe(
       map(resp => (resp as any)?.data ?? (resp as any)),
       tap(item => this.upsertLocal(item))
@@ -81,6 +87,32 @@ export class ParametrosService {
     return this.http.delete<ApiResponse<void>>(`${this.baseUrl}/${id}`).pipe(
       map(() => void 0),
       tap(() => this.removeLocal(id))
+    );
+  }
+
+  // Obtiene todas las definiciones completas (incluye id); uso interno para resolver id
+  private fetchAll(): Observable<Parametro[]> {
+    return this.http.get<ApiResponse<Parametro[]>>(this.baseUrl).pipe(
+      map(resp => Array.isArray((resp as any)?.data) ? (resp as any).data as any[] : (resp as any) as any[])
+    );
+  }
+
+  // Cambia el estado activo por nombre (resuelve id si es necesario)
+  setActivo(orgId: number, nombre: string, activo: boolean): Observable<Parametro | void> {
+    const local = this.list.find(p => p.nombre === nombre && (p.orgId === orgId || p.orgIdDef === orgId || p.orgId == null));
+    const idLocal = local?.id;
+    if (idLocal != null) {
+      return this.update(idLocal, { activo });
+    }
+    return this.fetchAll().pipe(
+      map(arr => (arr || []).find((x: any) => x?.nombre === nombre && (x?.orgId === orgId || typeof x?.orgId === 'undefined'))?.id as number | undefined),
+      switchMap(resolvedId => {
+        if (resolvedId) return this.update(resolvedId, { activo });
+        // fallback: actualizar cache local por nombre
+        const next = this.list.map(p => p.nombre === nombre ? ({ ...p, activo }) as Parametro : p);
+        this.persist(next as Parametro[]);
+        return of(void 0);
+      })
     );
   }
 
@@ -120,25 +152,6 @@ export class ParametrosService {
     } catch {
       return null;
     }
-  }
-
-  private seed() {
-    const orgId = Number(localStorage.getItem('orgId') ?? '1');
-    const now = new Date().toISOString();
-    const defaults: Parametro[] = [
-      { nombre: 'TIPOS_LUGAR', descripcion: 'Tipos de lugar', tipo: 'LIST', porDefecto: true, orgIdDef: orgId, valor: 'Casa,Apartamento,Oficina,Bodega', activoDef: true, activoValor: true, orgId, createdAt: now },
-      { nombre: 'DURACION_TOKEN_INGRESO', descripcion: 'Duración token de ingreso (min)', tipo: 'NUM', porDefecto: true, orgIdDef: orgId, valor: '1080', activoDef: true, activoValor: true, orgId, createdAt: now },
-      { nombre: 'DURACION_TOKEN_ACCESO_SISTEMA', descripcion: 'Duración token de acceso (min)', tipo: 'NUM', porDefecto: true, orgIdDef: orgId, valor: '180', activoDef: true, activoValor: true, orgId, createdAt: now },
-      { nombre: 'TIPOS_DOCUMENTO_IDENTIDAD', descripcion: 'Tipos de documento', tipo: 'LIST', porDefecto: true, orgIdDef: orgId, valor: 'CC,TI,RC,Pasaporte', activoDef: true, activoValor: true, orgId, createdAt: now },
-      { nombre: 'ESTADO_USUARIO', descripcion: 'Estados de usuario', tipo: 'LIST', porDefecto: true, orgIdDef: orgId, valor: 'Activo,Inactivo,Bloqueado,Pendiente', activoDef: true, activoValor: true, orgId, createdAt: now },
-      { nombre: 'ESTADO_VEHICULO', descripcion: 'Estados de vehículo', tipo: 'LIST', porDefecto: true, orgIdDef: orgId, valor: 'Activo,Inactivo,Bloqueado', activoDef: true, activoValor: true, orgId, createdAt: now },
-      { nombre: 'HORARIO_PERMITIDO_ACCESO', descripcion: 'Horario permitido (ej. 08:00-18:00)', tipo: 'TEXT', porDefecto: true, orgIdDef: orgId, valor: '08:00-18:00', activoDef: true, activoValor: true, orgId, createdAt: now },
-      { nombre: 'NIVELES_ALERTA', descripcion: 'Niveles de alerta', tipo: 'LIST', porDefecto: true, orgIdDef: orgId, valor: 'Verde,Amarillo,Rojo', activoDef: true, activoValor: true, orgId, createdAt: now },
-      { nombre: 'TIEMPO_EXPIRACION_INVITADO', descripcion: 'Expiración de invitado (min)', tipo: 'NUM', porDefecto: true, orgIdDef: orgId, valor: '1440', activoDef: true, activoValor: true, orgId, createdAt: now },
-      { nombre: 'MAX_SECCIONES_POR_USUARIO', descripcion: 'Máx. secciones por usuario', tipo: 'NUM', porDefecto: true, orgIdDef: orgId, valor: '3', activoDef: true, activoValor: true, orgId, createdAt: now }
-    ];
-    defaults.forEach((d, i) => d.id = i + 1);
-    this.persist(defaults);
   }
 
   private genId(arr: Parametro[]): number {

@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 
-export type ParamValueTipo = 'LIST' | 'TEXT' | 'NUM';
 export interface ParamValue {
   id: number;
   orgId: number;
@@ -24,15 +23,6 @@ export class ParamValoresService {
       this.subjects.set(key, new BehaviorSubject<ParamValue[]>(this.load(orgId, paramName)));
     }
     return this.subjects.get(key)!;
-  }
-
-  seedIfEmpty(orgId: number, paramName: string, tipo: ParamValueTipo) {
-    const current = this.load(orgId, paramName);
-    if (current.length === 0) {
-      const seeded = this.defaultSeed(orgId, paramName, tipo);
-      this.persist(orgId, paramName, seeded);
-      this.subject(orgId, paramName).next(seeded);
-    }
   }
 
   // upsert flexible: si viene id, fusiona con existente; si no, crea con defaults
@@ -123,37 +113,4 @@ export class ParamValoresService {
   }
 
   private nextOrden(list: ParamValue[]): number { return list.reduce((m, x) => Math.max(m, x.orden || 0), 0) + 1; }
-
-  private defaultSeed(orgId: number, paramName: string, tipo: ParamValueTipo): ParamValue[] {
-    const mk = (label: string, orden: number, activo = true): ParamValue => ({ id: orden, orgId, paramName, label, activo, orden });
-    const singleNum = (val: number): ParamValue => ({ id: 1, orgId, paramName, valueNum: val, activo: true, orden: 1 });
-    const singleText = (val: string): ParamValue => ({ id: 1, orgId, paramName, valueText: val, activo: true, orden: 1 });
-
-    switch (paramName) {
-      case 'TIPOS_LUGAR':
-        return ['Casa','Apartamento','Oficina','Bodega'].map((v, i) => mk(v, i + 1));
-      case 'TIPOS_DOCUMENTO_IDENTIDAD':
-        return ['CC','TI','RC','Pasaporte'].map((v, i) => mk(v, i + 1));
-      case 'ESTADO_USUARIO':
-        return ['Activo','Inactivo','Bloqueado','Pendiente'].map((v, i) => mk(v, i + 1));
-      case 'ESTADO_VEHICULO':
-        return ['Activo','Inactivo','Bloqueado'].map((v, i) => mk(v, i + 1));
-      case 'NIVELES_ALERTA':
-        return ['Verde','Amarillo','Rojo'].map((v, i) => mk(v, i + 1));
-      case 'HORARIO_PERMITIDO_ACCESO':
-        return [singleText('08:00-18:00')];
-      case 'DURACION_TOKEN_INGRESO':
-        return [singleNum(1080)];
-      case 'DURACION_TOKEN_ACCESO_SISTEMA':
-        return [singleNum(180)];
-      case 'TIEMPO_EXPIRACION_INVITADO':
-        return [singleNum(1440)];
-      case 'MAX_SECCIONES_POR_USUARIO':
-        return [singleNum(3)];
-      default:
-        if (tipo === 'LIST') return [];
-        if (tipo === 'NUM') return [singleNum(0)];
-        return [singleText('')];
-    }
-  }
 }

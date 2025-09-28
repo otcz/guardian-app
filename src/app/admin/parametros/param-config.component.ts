@@ -13,15 +13,15 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
 import { ThemeToggleComponent } from '../../shared/theme-toggle.component';
 import { ParametrosService, ParamTipo } from '../../service/parametros.service';
-import { ParamValoresService, ParamValue, ParamValueTipo } from '../../service/param-valores.service';
+import { ParamValoresService, ParamValue } from '../../service/param-valores.service';
 import { MenuService, MenuOption } from '../../service/menu.service';
 import { Observable } from 'rxjs';
-import { UserAvatarComponent } from '../../shared/user-avatar.component';
+import { LowercaseDirective } from '../../shared/formatting.directives';
 
 @Component({
   selector: 'app-param-config',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, ReactiveFormsModule, TableModule, ButtonModule, InputTextModule, InputNumberModule, InputSwitchModule, DropdownModule, SidebarModule, ConfirmDialogModule, ThemeToggleComponent, UserAvatarComponent],
+  imports: [CommonModule, RouterModule, FormsModule, ReactiveFormsModule, TableModule, ButtonModule, InputTextModule, InputNumberModule, InputSwitchModule, DropdownModule, SidebarModule, ConfirmDialogModule, ThemeToggleComponent, LowercaseDirective],
   templateUrl: './param-config.component.html',
   styles: [`
     :host { display:block; }
@@ -49,6 +49,8 @@ export class ParamConfigComponent implements OnInit {
   editId = signal<number | null>(null);
 
   get menu$(): Observable<MenuOption[]> { return this.menu.list$; }
+  // Exponer bandera de backend para la plantilla y lógica
+  get isBackend(): boolean { return this.paramsService.sourceIsBackend; }
 
   valores$!: import('rxjs').Observable<ParamValue[]>;
 
@@ -60,7 +62,7 @@ export class ParamConfigComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private fb: FormBuilder,
-    private paramsService: ParametrosService,
+    public paramsService: ParametrosService,
     private valuesService: ParamValoresService,
     private confirm: ConfirmationService,
     private menu: MenuService
@@ -79,19 +81,31 @@ export class ParamConfigComponent implements OnInit {
     if (!name) { this.router.navigate(['/admin/parameters']); return; }
     this.nombre.set(name);
 
+    // Cargar desde backend siempre al entrar para asegurar bandera y datos
+    this.paramsService.fetchDefs(this.orgId).subscribe({
+      next: () => {
+        const after = this.paramsService.findByNombre(name);
+        if (after) {
+          if (after.tipo) this.tipo.set(after.tipo);
+          this.descripcion.set(after.descripcion || '');
+        }
+      },
+      error: () => { /* silencioso */ }
+    });
+
+    // Si ya hay datos en memoria, mostrarlos de inmediato
     const def = this.paramsService.findByNombre(name);
     if (def) {
-      this.tipo.set(def.tipo);
+      if (def.tipo) this.tipo.set(def.tipo);
       this.descripcion.set(def.descripcion || '');
     }
 
-    const tipoValor: ParamValueTipo = this.tipo() as any;
-    this.valuesService.seedIfEmpty(this.orgId, this.nombre(), tipoValor);
-
+    // Ya no se siembran valores por defecto en el front: deben venir del backend
     this.valores$ = this.valuesService.list$(this.orgId, this.nombre()).asObservable();
   }
 
   abrirNuevo() {
+    if (this.isBackend) return;
     this.editId.set(null);
     const list = (this.valuesService.list$(this.orgId, this.nombre()).value || []);
     const nextOrden = list.reduce((m, x) => Math.max(m, x.orden || 0), 0) + 1;
@@ -100,6 +114,7 @@ export class ParamConfigComponent implements OnInit {
   }
 
   abrirEditar(v: ParamValue) {
+    if (this.isBackend) return;
     this.editId.set(v.id);
     this.form.reset({
       label: v.label || '',
@@ -114,6 +129,7 @@ export class ParamConfigComponent implements OnInit {
   cerrarPanel() { this.panelAbierto.set(false); }
 
   guardar() {
+    if (this.isBackend) return;
     if (this.form.invalid) return;
     const raw = this.form.getRawValue();
     const payload: any = { activo: !!raw.activo, orden: Number(raw.orden || 1) };
@@ -126,6 +142,7 @@ export class ParamConfigComponent implements OnInit {
   }
 
   confirmarEliminar(v: ParamValue) {
+    if (this.isBackend) return;
     this.confirm.confirm({
       message: `¿Eliminar este valor?`,
       header: 'Confirmar eliminación',
@@ -139,10 +156,12 @@ export class ParamConfigComponent implements OnInit {
   }
 
   toggleActivo(v: ParamValue) {
+    if (this.isBackend) return;
     this.valuesService.upsert(this.orgId, this.nombre(), { id: v.id, activo: !v.activo });
   }
 
   mover(v: ParamValue, dir: 1 | -1) {
+    if (this.isBackend) return;
     const list = this.valuesService.list$(this.orgId, this.nombre()).value.slice();
     const idx = list.findIndex(x => x.id === v.id);
     if (idx < 0) return;

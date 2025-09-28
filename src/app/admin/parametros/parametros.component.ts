@@ -19,11 +19,12 @@ import { ThemeService } from '../../service/theme.service';
 import { InputSwitchModule } from 'primeng/inputswitch';
 import { PermissionService } from '../../service/permission.service';
 import { NotificationService } from '../../service/notification.service';
+import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
   selector: 'app-parametros',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, ReactiveFormsModule, TableModule, ButtonModule, InputTextModule, InputSwitchModule, SidebarModule, ConfirmDialogModule, ThemeToggleComponent, UppercaseDirective, YesNoPipe, UserAvatarComponent],
+  imports: [CommonModule, RouterModule, FormsModule, ReactiveFormsModule, TableModule, ButtonModule, InputTextModule, InputSwitchModule, SidebarModule, ConfirmDialogModule, ThemeToggleComponent, UppercaseDirective, YesNoPipe, UserAvatarComponent, TooltipModule],
   templateUrl: './parametros.component.html',
   styles: [
     `
@@ -119,9 +120,25 @@ export class ParametrosComponent implements OnInit {
   }
 
   toggleActivo(row: Parametro, ev?: any) {
+    const allowed = this.canToggleParam(row);
+    if (!allowed) { this.notify.warn('No tienes permisos para cambiar el estado.'); return; }
+
     const checked = typeof ev?.checked === 'boolean' ? ev.checked : !(row.activo ?? row.activoValor ?? row.activoDef ?? true);
     const orgId = (row.orgIdDef ?? row.orgId ?? Number(localStorage.getItem('orgId') ?? '1')) as number;
-    this.params.setActivo(orgId, row.nombre, checked).subscribe({ next: () => {}, error: () => {} });
+    this.params.setActivo(orgId, row.nombre, checked).subscribe({
+      next: (resp: any) => this.notify.fromApiResponse(resp, 'Estado actualizado.'),
+      error: (err) => this.notify.fromApiError(err, 'No fue posible actualizar el estado.')
+    });
+  }
+
+  getParamToggleReason(p: Parametro): string {
+    if (this.canToggleParam(p)) return '';
+    if (p.porDefecto) {
+      if (this.perm.has('SUPER_ADMIN')) return 'No permitido sobre parámetros por defecto.';
+      return 'Solo SYSTEM_ADMIN puede cambiar parámetros por defecto.';
+    }
+    if (!this.perm.has('SUPER_ADMIN') && !this.perm.has('SYSTEM_ADMIN')) return 'No permitido para tu rol.';
+    return 'Acción no permitida.';
   }
 
   confirmarEliminar(p?: Parametro) {

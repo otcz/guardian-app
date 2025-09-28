@@ -31,13 +31,13 @@ export class PermissionService {
   canCreateValue(paramPorDefecto?: boolean): boolean {
     if (this.has('SYSTEM_ADMIN')) return true;
     if (this.has('SUPER_ADMIN')) return paramPorDefecto !== true;
-    if (this.has('ADMIN')) return true; // ADMIN puede crear valores de su sección (frontend no filtra section)
+    if (this.has('ADMIN')) return true; // ADMIN puede crear valores de su sección (frontend verifica section)
     return false;
   }
   canEditValue(paramPorDefecto?: boolean, valuePorDefecto?: boolean): boolean {
     if (this.has('SYSTEM_ADMIN')) return true;
     if (this.has('SUPER_ADMIN')) return (paramPorDefecto !== true) && (valuePorDefecto !== true);
-    if (this.has('ADMIN')) return true;
+    if (this.has('ADMIN')) return valuePorDefecto !== true; // ADMIN no puede tocar valores por defecto
     return false;
   }
   canDeleteValue(paramPorDefecto?: boolean, valuePorDefecto?: boolean): boolean {
@@ -48,4 +48,3 @@ export class PermissionService {
   canToggleParam(porDefecto?: boolean) { return this.canEditParam(porDefecto); }
   canToggleValue(paramPorDefecto?: boolean, valuePorDefecto?: boolean) { return this.canEditValue(paramPorDefecto, valuePorDefecto); }
 }
-

@@ -19,13 +19,15 @@ import { Observable } from 'rxjs';
 import { UppercaseDirective } from '../../shared/formatting.directives';
 import { NotificationService } from '../../service/notification.service';
 import { PermissionService } from '../../service/permission.service';
+import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
   selector: 'app-param-config',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, ReactiveFormsModule, TableModule, ButtonModule, InputTextModule, InputNumberModule, InputSwitchModule, DropdownModule, SidebarModule, ConfirmDialogModule, ThemeToggleComponent, UppercaseDirective],
+  imports: [CommonModule, RouterModule, FormsModule, ReactiveFormsModule, TableModule, ButtonModule, InputTextModule, InputNumberModule, InputSwitchModule, DropdownModule, SidebarModule, ConfirmDialogModule, ThemeToggleComponent, UppercaseDirective, TooltipModule],
   templateUrl: './param-config.component.html',
-  styles: [`
+  styles: [
+    `
     :host { display:block; }
     .admin-grid { display:grid; grid-template-columns: 260px 1fr; gap: 16px; align-items:start; }
     .card { background: var(--surface); color: var(--text); border-radius: 12px; padding: 16px; }
@@ -45,7 +47,8 @@ import { PermissionService } from '../../service/permission.service';
     :root.theme-light .light-sidebar .p-sidebar-content,
     :root.theme-light .light-sidebar .p-sidebar-footer { background: #ffffff !important; color: #000000 !important; }
     :root.theme-light .white-theme { background: #ffffff !important; color: #000000 !important; }
-  `],
+  `
+  ],
   providers: [ConfirmationService]
 })
 export class ParamConfigComponent implements OnInit {
@@ -53,6 +56,7 @@ export class ParamConfigComponent implements OnInit {
   nombre = signal<string>('');
   tipo = signal<ParamTipo>('LIST');
   descripcion = signal<string>('');
+  paramPorDefecto = signal<boolean>(false);
 
   panelAbierto = signal<boolean>(false);
   editId = signal<number | null>(null);
@@ -108,15 +112,17 @@ export class ParamConfigComponent implements OnInit {
     // inferencia de tipo y metadata
     this.tipo.set(def.tipo ?? this.inferTipo(def));
     this.descripcion.set(def.descripcion || '');
+    this.paramPorDefecto.set(!!def.porDefecto);
 
     // Si backend entregó valores, sembrarlos una vez en el store local
     const vals = Array.isArray(def.valores) ? def.valores : [];
     if (vals.length > 0) {
       const t = this.tipo();
       let idx = 0;
-      const mapped = vals.map(v => {
+      const mapped = vals.map((v: any) => {
         const id = ++idx;
-        const base: ParamValue = { id, orgId: v.orgId, paramName: def.nombre, activo: !!v.activo, orden: id, sectionId: (typeof v.sectionId === 'number' ? v.sectionId : (v.sectionId ?? null)) } as ParamValue;
+        const porDef = !!def.porDefecto && (v.orgId === def.orgIdDef);
+        const base: ParamValue = { id, orgId: v.orgId, paramName: def.nombre, activo: !!v.activo, orden: id, sectionId: (typeof v.sectionId === 'number' ? v.sectionId : (v.sectionId ?? null)), porDefecto: porDef, descripcion: v.descripcion } as ParamValue;
         if (t === 'NUM') return { ...base, valueNum: Number(v.valor) } as ParamValue;
         if (t === 'TEXT') return { ...base, valueText: String(v.valor) } as ParamValue;
         return { ...base, label: String(v.valor) } as ParamValue;
@@ -145,8 +151,8 @@ export class ParamConfigComponent implements OnInit {
   abrirEditar(v: ParamValue) {
     this.editId.set(v.id);
     this.form.reset({
-      label: v.label || '',
-      valueText: v.valueText || '',
+      label: (v.label || '').toUpperCase(),
+      valueText: (v.valueText || '').toUpperCase(),
       valueNum: v.valueNum ?? null,
       activo: v.activo,
       orden: v.orden || 1,
@@ -161,13 +167,19 @@ export class ParamConfigComponent implements OnInit {
   private buildValorFromForm(): string {
     const raw = this.form.getRawValue();
     if (this.tipo() === 'LIST') return String(raw.label || '').trim().toUpperCase();
-    if (this.tipo() === 'TEXT') return String(raw.valueText || '').trim();
+    if (this.tipo() === 'TEXT') return String(raw.valueText || '').trim().toUpperCase();
     return String(raw.valueNum ?? '').trim();
   }
 
   private valorFromRow(v: ParamValue): string {
     if (this.tipo() === 'LIST') return String(v.label || '').trim().toUpperCase();
-    if (this.tipo() === 'TEXT') return String(v.valueText || '').trim();
+    if (this.tipo() === 'TEXT') return String(v.valueText || '').trim().toUpperCase();
+    return String(v.valueNum ?? '').trim();
+  }
+
+  private valorIdentityFromRow(v: ParamValue): string {
+    if (this.tipo() === 'LIST') return String(v.label ?? '').trim();
+    if (this.tipo() === 'TEXT') return String(v.valueText ?? '').trim();
     return String(v.valueNum ?? '').trim();
   }
 
@@ -196,14 +208,14 @@ export class ParamConfigComponent implements OnInit {
         // Actualizar store local para reflejar
         const payload: Partial<ParamValue> = {
           label: this.tipo() === 'LIST' ? String(raw.label || '').trim().toUpperCase() : undefined,
-          valueText: this.tipo() === 'TEXT' ? String(raw.valueText || '').trim() : undefined,
+          valueText: this.tipo() === 'TEXT' ? String(raw.valueText || '').trim().toUpperCase() : undefined,
           valueNum: this.tipo() === 'NUM' ? Number(raw.valueNum ?? 0) : undefined,
           activo: !!raw.activo,
           orden: Number(raw.orden || 1),
           sectionId: (raw.sectionId === null || raw.sectionId === '' ? null : Number(raw.sectionId)),
           descripcion: desc || undefined
         };
-        const updated = this.valuesService.upsert(this.orgId, this.nombre(), this.editId() != null ? { id: this.editId()!, ...payload } : payload);
+        this.valuesService.upsert(this.orgId, this.nombre(), this.editId() != null ? { id: this.editId()!, ...payload } : payload);
         this.notify.fromApiResponse(resp, this.editId() != null ? 'Valor actualizado.' : 'Valor creado.');
         this.cerrarPanel();
       },
@@ -245,17 +257,50 @@ export class ParamConfigComponent implements OnInit {
   }
 
   toggleActivo(v: ParamValue, value?: boolean) {
+    // RBAC: bloquear si no tiene permiso o si ADMIN intenta operar a nivel org (sectionId null)
+    const adminTryingOrgLevel = this.perm.has('ADMIN') && !(typeof v.sectionId === 'number');
+    const allowed = this.perm.canToggleValue(this.paramPorDefecto(), v.porDefecto) && !adminTryingOrgLevel;
+    if (!allowed) { this.notify.warn('No tienes permisos para cambiar el estado.'); return; }
+
     const nuevo = typeof value === 'boolean' ? value : !v.activo;
-    const body = {
+    const valStr = this.valorIdentityFromRow(v);
+    const body: any = {
       orgId: this.orgId,
-      sectionId: (typeof v.sectionId === 'number' ? v.sectionId : null),
-      valor: this.valorFromRow(v),
-      activo: nuevo
+      activo: nuevo,
+      valor: valStr,
+      value: valStr
     };
-    this.valuesService.upsertValue(this.nombre(), body).subscribe({
+    if (typeof v.sectionId === 'number') body.sectionId = v.sectionId;
+
+    this.valuesService.setActiveValue(this.nombre(), body).subscribe({
       next: () => this.valuesService.upsert(this.orgId, this.nombre(), { id: v.id, activo: nuevo }),
-      error: () => { /* opcional: revertir UI */ }
+      error: (err) => { this.notify.fromApiError(err, 'No fue posible actualizar el estado.'); }
     });
+  }
+
+  // Helper para plantilla
+  canToggleValue(v: ParamValue): boolean {
+    const adminTryingOrgLevel = this.perm.has('ADMIN') && !(typeof v.sectionId === 'number');
+    return this.perm.canToggleValue(this.paramPorDefecto(), v.porDefecto) && !adminTryingOrgLevel;
+  }
+  canEditValue(v: ParamValue): boolean {
+    const adminTryingOrgLevel = this.perm.has('ADMIN') && !(typeof v.sectionId === 'number');
+    return this.perm.canEditValue(this.paramPorDefecto(), v.porDefecto) && !adminTryingOrgLevel;
+  }
+  canDeleteValue(v: ParamValue): boolean {
+    const adminTryingOrgLevel = this.perm.has('ADMIN') && !(typeof v.sectionId === 'number');
+    return this.perm.canDeleteValue(this.paramPorDefecto(), v.porDefecto) && !adminTryingOrgLevel;
+  }
+  canCreateValue(): boolean { return this.perm.canCreateValue(this.paramPorDefecto()); }
+
+  getValueToggleReason(v: ParamValue): string {
+    if (this.canToggleValue(v)) return '';
+    if (v.porDefecto) {
+      if (this.perm.has('SUPER_ADMIN') || this.perm.has('ADMIN')) return 'No permitido sobre valores por defecto.';
+      return 'Solo SYSTEM_ADMIN puede cambiar valores por defecto.';
+    }
+    if (this.perm.has('ADMIN') && !(typeof v.sectionId === 'number')) return 'ADMIN requiere sección para operar.';
+    return 'No permitido para tu rol.';
   }
 
   backToList() { this.router.navigate(['/admin/parameters']); }

@@ -14,6 +14,7 @@ export interface ParamValue {
   orden: number;
   sectionId?: number | null;
   descripcion?: string;
+  porDefecto?: boolean; // agregado: true si proviene de SYSTEM (solo lectura para SUPER_ADMIN/ADMIN)
 }
 
 @Injectable({ providedIn: 'root' })
@@ -44,10 +45,19 @@ export class ParamValoresService {
       activo: v.activo ?? true,
       orden: v.orden ?? (i + 1),
       sectionId: typeof v.sectionId === 'number' ? v.sectionId : (v.sectionId ?? null),
-      descripcion: v.descripcion
+      descripcion: v.descripcion,
+      porDefecto: v.porDefecto === true
     })) as ParamValue[];
-    this.persist(orgId, paramName, normalized);
-    this.subject(orgId, paramName).next(normalized);
+    // Dedupe por (orgId, sectionId, valor)
+    const seen = new Set<string>();
+    const dedup: ParamValue[] = [];
+    for (const it of normalized) {
+      const valKey = (it.label ?? it.valueText ?? (typeof it.valueNum === 'number' ? String(it.valueNum) : ''));
+      const key = `${it.orgId}|${typeof it.sectionId === 'number' ? it.sectionId : 'null'}|${valKey}`;
+      if (!seen.has(key)) { seen.add(key); dedup.push(it); }
+    }
+    this.persist(orgId, paramName, dedup);
+    this.subject(orgId, paramName).next(dedup);
   }
 
   // upsert local (para reflejar cambios inmediatos si se desea)
@@ -66,7 +76,8 @@ export class ParamValoresService {
           paramName,
           id: nextList[idx].id,
           activo: item.activo ?? nextList[idx].activo,
-          orden: item.orden ?? nextList[idx].orden
+          orden: item.orden ?? nextList[idx].orden,
+          porDefecto: typeof item.porDefecto === 'boolean' ? item.porDefecto : nextList[idx].porDefecto
         };
         nextList[idx] = merged;
         target = merged;
@@ -82,7 +93,8 @@ export class ParamValoresService {
           activo: item.activo ?? true,
           orden: item.orden ?? (this.nextOrden(nextList)),
           sectionId: typeof item.sectionId === 'number' ? item.sectionId : (item.sectionId ?? null),
-          descripcion: item.descripcion
+          descripcion: item.descripcion,
+          porDefecto: item.porDefecto === true
         };
         nextList.push(nuevo);
         target = nuevo;
@@ -98,7 +110,8 @@ export class ParamValoresService {
         activo: item.activo ?? true,
         orden: item.orden ?? (this.nextOrden(nextList)),
         sectionId: typeof item.sectionId === 'number' ? item.sectionId : (item.sectionId ?? null),
-        descripcion: item.descripcion
+        descripcion: item.descripcion,
+        porDefecto: item.porDefecto === true
       };
       nextList.push(nuevo);
       target = nuevo;
@@ -128,6 +141,15 @@ export class ParamValoresService {
     if (typeof sectionId === 'number') q.set('sectionId', String(sectionId));
     const url = `${this.defsUrl}/${encodeURIComponent(nombre)}/values?${q.toString()}`;
     return this.http.delete<ApiResponse<any>>(url);
+  }
+
+  // Remoto: Activar/Desactivar valor (PATCH)
+  setActiveValue(nombre: string, body: { orgId: number; sectionId?: number | null; activo: boolean }): Observable<ApiResponse<any>> {
+    const url = `${this.defsUrl}/${encodeURIComponent(nombre)}/values/active`;
+    // No enviar sectionId si es null/undefined
+    const payload: any = { orgId: body.orgId, activo: body.activo };
+    if (typeof body.sectionId === 'number') payload.sectionId = body.sectionId;
+    return this.http.patch<ApiResponse<any>>(url, payload);
   }
 
   private subject(orgId: number, paramName: string): BehaviorSubject<ParamValue[]> {

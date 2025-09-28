@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, map, tap, switchMap, of } from 'rxjs';
+import { BehaviorSubject, Observable, map, tap } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import type { ApiResponse } from './auth.service';
 
 export type ParamTipo = 'NUM' | 'TEXT' | 'LIST';
-export interface ParametroValorDetalle { orgId: number; sectionId?: number | null; valor: string; activo: boolean }
+export interface ParametroValorDetalle { orgId: number; sectionId?: number | null; valor: string; activo: boolean; descripcion?: string }
 export interface Parametro {
   id?: number;
   // en defs/values no viene id, pero mantenemos opcional para CRUD
@@ -38,7 +38,7 @@ export class ParametrosService {
   constructor(private http: HttpClient) {
     const loaded = this.load();
     if (!loaded || loaded.length === 0) {
-
+      // sin-op: la lista se llenará desde backend cuando se invoque fetchDefs
     }
   }
 
@@ -62,8 +62,17 @@ export class ParametrosService {
         activoDef: typeof it.activoDef === 'boolean' ? it.activoDef : undefined,
         activoValor: typeof it.activoValor === 'boolean' ? it.activoValor : undefined,
         activo: typeof it.activo === 'boolean' ? it.activo : (typeof it.activoValor === 'boolean' ? it.activoValor : true),
-        valores: Array.isArray(it.valores) ? it.valores.map((v: any) => ({ orgId: v.orgId, sectionId: v.sectionId ?? null, valor: String(v.valor), activo: !!v.activo })) : []
+        valores: Array.isArray(it.valores) ? it.valores.map((v: any) => ({ orgId: v.orgId, sectionId: v.sectionId ?? null, valor: String(v.valor), activo: !!v.activo, descripcion: v.descripcion })) : []
       }) as Parametro)),
+      map((items: Parametro[]) => {
+        const seen = new Set<string>();
+        const dedup: Parametro[] = [];
+        for (const it of items) {
+          const key = `${it.orgId ?? ''}|${it.nombre}`;
+          if (!seen.has(key)) { seen.add(key); dedup.push(it); }
+        }
+        return dedup;
+      }),
       tap(arr => { this.persist(arr); this.fromBackend$.next(true); })
     );
   }
@@ -147,10 +156,46 @@ export class ParametrosService {
     );
   }
 
-  // Cambia el estado activo por nombre (resuelve id si es necesario)
-  setActivo(orgId: number, nombre: string, activo: boolean): Observable<Parametro | void> {
-    // preferir endpoint por nombre si está disponible
-    return this.updateByNombre(orgId, nombre, { activo }) as any;
+  // Cambia el estado activo por nombre usando endpoint PATCH
+  setActiveByNombre(orgId: number, nombre: string, activo: boolean): Observable<ApiResponse<any>> {
+    const url = `${this.defsUrl}/${encodeURIComponent(nombre)}/active?orgId=${encodeURIComponent(String(orgId))}`;
+    return this.http.patch<ApiResponse<any>>(url, { activo }).pipe(
+      tap((resp: any) => {
+        const it = (resp?.data ?? {}) as any;
+        const activeFromResp = typeof it?.activo === 'boolean' ? it.activo : activo;
+        const current = this.findByNombre(nombre);
+        if (current) {
+          // Actualizar solo 'activo' (y banderas relacionadas si vienen) preservando el resto
+          const updated: Parametro = {
+            ...current,
+            activo: activeFromResp,
+            activoDef: typeof it?.activoDef === 'boolean' ? it.activoDef : current.activoDef,
+            activoValor: typeof it?.activoValor === 'boolean' ? it.activoValor : current.activoValor,
+            porDefecto: typeof it?.porDefecto === 'boolean' ? it.porDefecto : current.porDefecto
+          };
+          this.upsertLocal(updated);
+        } else {
+          // Si no existe localmente, insertar un mínimo sin tocar campos desconocidos
+          const minimal: Parametro = {
+            orgId: it?.orgId ?? orgId,
+            orgIdDef: it?.orgIdDef ?? orgId,
+            nombre,
+            descripcion: it?.descripcion,
+            porDefecto: !!it?.porDefecto,
+            activo: activeFromResp,
+            activoDef: typeof it?.activoDef === 'boolean' ? it.activoDef : undefined,
+            activoValor: typeof it?.activoValor === 'boolean' ? it.activoValor : undefined,
+            valores: Array.isArray(it?.valores) ? it.valores.map((v: any) => ({ orgId: v.orgId, sectionId: v.sectionId ?? null, valor: String(v.valor), activo: !!v.activo })) : []
+          } as Parametro;
+          this.upsertLocal(minimal);
+        }
+      })
+    );
+  }
+
+  // Alias retrocompatible
+  setActivo(orgId: number, nombre: string, activo: boolean) {
+    return this.setActiveByNombre(orgId, nombre, activo);
   }
 
   // Local helpers

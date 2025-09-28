@@ -58,13 +58,20 @@
           <td *ngIf="tipo() === 'TEXT'">{{ row.valueText }}</td>
           <td *ngIf="tipo() === 'NUM'">{{ row.valueNum }}</td>
           <td>
-            <span pTooltip="{{ getValueToggleReason(row) }}" [tooltipDisabled]="canToggleValue(row)" tooltipPosition="top">
+            <ng-container *ngIf="paramActivo() && !canToggleValue(row); else plainToggle">
+              <span pTooltip="{{ getValueToggleReason(row) }}" tooltipPosition="top">
+                <p-inputSwitch [(ngModel)]="row.activo" (onChange)="toggleActivo(row, $event.checked)" [disabled]="true"></p-inputSwitch>
+              </span>
+            </ng-container>
+            <ng-template #plainToggle>
               <p-inputSwitch [(ngModel)]="row.activo" (onChange)="toggleActivo(row, $event.checked)" [disabled]="!canToggleValue(row)"></p-inputSwitch>
-            </span>
+            </ng-template>
           </td>
-          <td style="text-align:right; display:flex; justify-content:flex-end; gap:6px; background:#ffffff;">
-            <button *ngIf="canEditValue(row)" pButton type="button" class="p-button p-button-text" (click)="abrirEditar(row)" title="Editar"><i class="pi pi-pencil"></i></button>
-            <button *ngIf="canDeleteValue(row)" pButton type="button" class="p-button p-button-text danger" (click)="confirmarEliminar(row)" title="Eliminar"><i class="pi pi-trash"></i></button>
+          <td style="text-align:right;">
+            <div *ngIf="canEditValue(row) || canDeleteValue(row)" style="display:flex; justify-content:flex-end; gap:6px; background:#ffffff;">
+              <button *ngIf="canEditValue(row)" pButton type="button" class="p-button p-button-text" (click)="abrirEditar(row)" title="Editar"><i class="pi pi-pencil"></i></button>
+              <button *ngIf="canDeleteValue(row)" pButton type="button" class="p-button p-button-text danger" (click)="confirmarEliminar(row)" title="Eliminar"><i class="pi pi-trash"></i></button>
+            </div>
           </td>
         </tr>
       </ng-template>

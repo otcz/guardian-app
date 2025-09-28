@@ -57,6 +57,7 @@ export class ParamConfigComponent implements OnInit {
   tipo = signal<ParamTipo>('LIST');
   descripcion = signal<string>('');
   paramPorDefecto = signal<boolean>(false);
+  paramActivo = signal<boolean>(true);
 
   panelAbierto = signal<boolean>(false);
   editId = signal<number | null>(null);
@@ -113,6 +114,7 @@ export class ParamConfigComponent implements OnInit {
     this.tipo.set(def.tipo ?? this.inferTipo(def));
     this.descripcion.set(def.descripcion || '');
     this.paramPorDefecto.set(!!def.porDefecto);
+    this.paramActivo.set(!!(typeof def.activo === 'boolean' ? def.activo : true));
 
     // Si backend entregó valores, sembrarlos una vez en el store local
     const vals = Array.isArray(def.valores) ? def.valores : [];
@@ -141,6 +143,7 @@ export class ParamConfigComponent implements OnInit {
   }
 
   abrirNuevo() {
+    if (!this.paramActivo()) { this.notify.warn('No puedes crear valores mientras el parámetro esté inactivo.'); return; }
     this.editId.set(null);
     const list = (this.valuesService.list$(this.orgId, this.nombre()).value || []);
     const nextOrden = list.reduce((m, x) => Math.max(m, x.orden || 0), 0) + 1;
@@ -149,6 +152,7 @@ export class ParamConfigComponent implements OnInit {
   }
 
   abrirEditar(v: ParamValue) {
+    if (!this.paramActivo()) { this.notify.warn('No puedes editar valores mientras el parámetro esté inactivo.'); return; }
     this.editId.set(v.id);
     this.form.reset({
       label: (v.label || '').toUpperCase(),
@@ -184,6 +188,7 @@ export class ParamConfigComponent implements OnInit {
   }
 
   guardar() {
+    if (!this.paramActivo()) { this.notify.warn('No puedes modificar valores mientras el parámetro esté inactivo.'); return; }
     if (this.form.invalid) return;
     const raw = this.form.getRawValue();
 
@@ -226,6 +231,7 @@ export class ParamConfigComponent implements OnInit {
   }
 
   confirmarEliminar(v: ParamValue) {
+    if (!this.paramActivo()) { this.notify.warn('No puedes eliminar valores mientras el parámetro esté inactivo.'); return; }
     this.confirm.confirm({
       message: `¿Eliminar este valor?`,
       header: 'Confirmar eliminación',
@@ -239,6 +245,7 @@ export class ParamConfigComponent implements OnInit {
   }
 
   private eliminar(v: ParamValue) {
+    if (!this.paramActivo()) { this.notify.warn('No puedes eliminar valores mientras el parámetro esté inactivo.'); return; }
     this.valuesService.deleteValue(this.nombre(), this.orgId, (typeof v.sectionId === 'number' ? v.sectionId : undefined)).subscribe({
       next: (resp: any) => {
         this.valuesService.remove(this.orgId, this.nombre(), v.id);
@@ -257,10 +264,10 @@ export class ParamConfigComponent implements OnInit {
   }
 
   toggleActivo(v: ParamValue, value?: boolean) {
-    // RBAC: bloquear si no tiene permiso o si ADMIN intenta operar a nivel org (sectionId null)
+    // RBAC + parámetro activo
     const adminTryingOrgLevel = this.perm.has('ADMIN') && !(typeof v.sectionId === 'number');
-    const allowed = this.perm.canToggleValue(this.paramPorDefecto(), v.porDefecto) && !adminTryingOrgLevel;
-    if (!allowed) { this.notify.warn('No tienes permisos para cambiar el estado.'); return; }
+    const allowed = this.paramActivo() && this.perm.canToggleValue(this.paramPorDefecto(), v.porDefecto) && !adminTryingOrgLevel;
+    if (!allowed) { this.notify.warn('No tienes permisos o el parámetro está inactivo.'); return; }
 
     const nuevo = typeof value === 'boolean' ? value : !v.activo;
     const valStr = this.valorIdentityFromRow(v);
@@ -281,20 +288,21 @@ export class ParamConfigComponent implements OnInit {
   // Helper para plantilla
   canToggleValue(v: ParamValue): boolean {
     const adminTryingOrgLevel = this.perm.has('ADMIN') && !(typeof v.sectionId === 'number');
-    return this.perm.canToggleValue(this.paramPorDefecto(), v.porDefecto) && !adminTryingOrgLevel;
+    return this.paramActivo() && this.perm.canToggleValue(this.paramPorDefecto(), v.porDefecto) && !adminTryingOrgLevel;
   }
   canEditValue(v: ParamValue): boolean {
     const adminTryingOrgLevel = this.perm.has('ADMIN') && !(typeof v.sectionId === 'number');
-    return this.perm.canEditValue(this.paramPorDefecto(), v.porDefecto) && !adminTryingOrgLevel;
+    return this.paramActivo() && this.perm.canEditValue(this.paramPorDefecto(), v.porDefecto) && !adminTryingOrgLevel;
   }
   canDeleteValue(v: ParamValue): boolean {
     const adminTryingOrgLevel = this.perm.has('ADMIN') && !(typeof v.sectionId === 'number');
-    return this.perm.canDeleteValue(this.paramPorDefecto(), v.porDefecto) && !adminTryingOrgLevel;
+    return this.paramActivo() && this.perm.canDeleteValue(this.paramPorDefecto(), v.porDefecto) && !adminTryingOrgLevel;
   }
-  canCreateValue(): boolean { return this.perm.canCreateValue(this.paramPorDefecto()); }
+  canCreateValue(): boolean { return this.paramActivo() && this.perm.canCreateValue(this.paramPorDefecto()); }
 
   getValueToggleReason(v: ParamValue): string {
     if (this.canToggleValue(v)) return '';
+    if (!this.paramActivo()) return 'Parámetro inactivo: no se pueden modificar valores.';
     if (v.porDefecto) {
       if (this.perm.has('SUPER_ADMIN') || this.perm.has('ADMIN')) return 'No permitido sobre valores por defecto.';
       return 'Solo SYSTEM_ADMIN puede cambiar valores por defecto.';

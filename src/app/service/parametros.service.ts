@@ -68,10 +68,21 @@ export class ParametrosService {
     );
   }
 
-  create(p: Omit<Parametro, 'id' | 'createdAt' | 'updatedAt' | 'deletedAt' | 'porDefecto' | 'orgIdDef' | 'valor' | 'activoDef' | 'activoValor' | 'valores'>): Observable<Parametro> {
-    const body = { orgId: p.orgId, nombre: p.nombre, descripcion: p.descripcion, tipo: p.tipo, activo: p.activo };
-    return this.http.post<ApiResponse<Parametro>>(this.baseUrl, body).pipe(
+  create(p: { orgId: number; nombre: string; descripcion?: string }): Observable<Parametro> {
+    const body = { orgId: p.orgId, nombre: p.nombre, descripcion: p.descripcion };
+    return this.http.post<ApiResponse<any>>(this.defsUrl, body).pipe(
       map(resp => (resp as any)?.data ?? (resp as any)),
+      map((it: any) => ({
+        orgId: it?.orgId ?? p.orgId,
+        orgIdDef: it?.orgIdDef ?? p.orgId,
+        nombre: it?.nombre ?? p.nombre,
+        descripcion: it?.descripcion ?? p.descripcion,
+        porDefecto: !!(it?.porDefecto),
+        activo: typeof it?.activo === 'boolean' ? it.activo : (typeof it?.activoValor === 'boolean' ? it.activoValor : true),
+        activoDef: typeof it?.activoDef === 'boolean' ? it.activoDef : undefined,
+        activoValor: typeof it?.activoValor === 'boolean' ? it.activoValor : undefined,
+        valores: Array.isArray(it?.valores) ? it.valores.map((v: any) => ({ orgId: v.orgId, sectionId: v.sectionId ?? null, valor: String(v.valor), activo: !!v.activo })) : []
+      }) as Parametro),
       tap(item => this.upsertLocal(item))
     );
   }

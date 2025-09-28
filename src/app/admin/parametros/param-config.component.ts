@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, computed } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FormsModule, ReactiveFormsModule, FormBuilder, Validators, FormGroup } from '@angular/forms';
@@ -15,14 +15,13 @@ import { ThemeToggleComponent } from '../../shared/theme-toggle.component';
 import { ParametrosService, ParamTipo, Parametro } from '../../service/parametros.service';
 import { ParamValoresService, ParamValue } from '../../service/param-valores.service';
 import { MenuService, MenuOption } from '../../service/menu.service';
-import { Observable, map } from 'rxjs';
-import { LowercaseDirective } from '../../shared/formatting.directives';
-import { UserAvatarComponent } from '../../shared/user-avatar.component';
+import { Observable } from 'rxjs';
+import { UppercaseDirective } from '../../shared/formatting.directives';
 
 @Component({
   selector: 'app-param-config',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, ReactiveFormsModule, TableModule, ButtonModule, InputTextModule, InputNumberModule, InputSwitchModule, DropdownModule, SidebarModule, ConfirmDialogModule, ThemeToggleComponent, UserAvatarComponent, LowercaseDirective],
+  imports: [CommonModule, RouterModule, FormsModule, ReactiveFormsModule, TableModule, ButtonModule, InputTextModule, InputNumberModule, InputSwitchModule, DropdownModule, SidebarModule, ConfirmDialogModule, ThemeToggleComponent, UppercaseDirective],
   templateUrl: './param-config.component.html',
   styles: [`
     :host { display:block; }
@@ -63,8 +62,6 @@ export class ParamConfigComponent implements OnInit {
   valores$!: Observable<ParamValue[]>;
 
   form!: FormGroup;
-
-  campoPrincipal = computed(() => this.tipo() === 'NUM' ? 'Valor (número)' : this.tipo() === 'TEXT' ? 'Valor (texto)' : 'Etiqueta');
 
   constructor(
     private route: ActivatedRoute,
@@ -122,13 +119,6 @@ export class ParamConfigComponent implements OnInit {
     }
   }
 
-  private syncDef() {
-    const def = this.paramsService.findByNombre(this.nombre());
-    if (!def) return;
-    this.tipo.set(def.tipo ?? this.inferTipo(def));
-    this.descripcion.set(def.descripcion || '');
-  }
-
   private inferTipo(def: Parametro): ParamTipo {
     const n = (def.nombre || '').toUpperCase();
     const v = def.valor || '';
@@ -164,8 +154,8 @@ export class ParamConfigComponent implements OnInit {
     if (this.form.invalid) return;
     const raw = this.form.getRawValue();
     const payload: any = { activo: !!raw.activo, orden: Number(raw.orden || 1) };
-    if (this.tipo() === 'LIST') payload.label = String(raw.label || '').trim();
-    if (this.tipo() === 'TEXT') payload.valueText = String(raw.valueText || '').trim();
+    if (this.tipo() === 'LIST') payload.label = String(raw.label || '').trim().toUpperCase();
+    if (this.tipo() === 'TEXT') payload.valueText = String(raw.valueText || '').trim().toUpperCase();
     if (this.tipo() === 'NUM') payload.valueNum = Number(raw.valueNum || 0);
 
     this.valuesService.upsert(this.orgId, this.nombre(), this.editId() != null ? { id: this.editId()!, ...payload } : payload);
@@ -196,18 +186,6 @@ export class ParamConfigComponent implements OnInit {
   toggleActivo(v: ParamValue, value?: boolean) {
     const nuevo = typeof value === 'boolean' ? value : !v.activo;
     this.valuesService.upsert(this.orgId, this.nombre(), { id: v.id, activo: nuevo });
-  }
-
-  mover(v: ParamValue, dir: 1 | -1) {
-    const list = this.valuesService.list$(this.orgId, this.nombre()).value.slice();
-    const idx = list.findIndex(x => x.id === v.id);
-    if (idx < 0) return;
-    const swapIdx = idx + dir;
-    if (swapIdx < 0 || swapIdx >= list.length) return;
-    const a = list[idx], b = list[swapIdx];
-    const tmp = a.orden; a.orden = b.orden; b.orden = tmp;
-    this.valuesService.upsert(this.orgId, this.nombre(), { id: a.id, orden: a.orden });
-    this.valuesService.upsert(this.orgId, this.nombre(), { id: b.id, orden: b.orden });
   }
 
   backToList() { this.router.navigate(['/admin/parameters']); }

@@ -65,12 +65,12 @@
     </div>
     <form [formGroup]="form" (ngSubmit)="guardar()" style="display:flex; flex-direction:column; gap:12px;">
       <div class="form-field">
-        <label for="nombre">Nombre (minúsculas y _)</label>
-        <input id="nombre" pInputText appLowercase type="text" formControlName="nombre" placeholder="duracion_token_ingreso" />
+        <label for="nombre">Nombre (MAYÚSCULAS y _)</label>
+        <input id="nombre" pInputText appUppercase type="text" formControlName="nombre" placeholder="DURACION_TOKEN_INGRESO" />
       </div>
       <div class="form-field">
         <label for="descripcion">Descripción</label>
-        <input id="descripcion" pInputText type="text" formControlName="descripcion" placeholder="Descripción" />
+        <input id="descripcion" pInputText appUppercase type="text" formControlName="descripcion" placeholder="DESCRIPCIÓN" />
       </div>
       <div class="form-field" style="align-items:flex-start;">
         <label>Activo</label>

@@ -10,7 +10,7 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
 import { ParametrosService, Parametro, ParamTipo } from '../../service/parametros.service';
 import { ThemeToggleComponent } from '../../shared/theme-toggle.component';
-import { LowercaseDirective } from '../../shared/formatting.directives';
+import { UppercaseDirective } from '../../shared/formatting.directives';
 import { YesNoPipe } from '../../shared/yes-no.pipe';
 import { MenuService, MenuOption } from '../../service/menu.service';
 import { Observable } from 'rxjs';
@@ -21,7 +21,7 @@ import { InputSwitchModule } from 'primeng/inputswitch';
 @Component({
   selector: 'app-parametros',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, ReactiveFormsModule, TableModule, ButtonModule, InputTextModule, InputSwitchModule, SidebarModule, ConfirmDialogModule, ThemeToggleComponent, LowercaseDirective, YesNoPipe, UserAvatarComponent],
+  imports: [CommonModule, RouterModule, FormsModule, ReactiveFormsModule, TableModule, ButtonModule, InputTextModule, InputSwitchModule, SidebarModule, ConfirmDialogModule, ThemeToggleComponent, UppercaseDirective, YesNoPipe, UserAvatarComponent],
   templateUrl: './parametros.component.html',
   styles: [
     `
@@ -51,7 +51,7 @@ export class ParametrosComponent implements OnInit {
 
   constructor(private fb: FormBuilder, private params: ParametrosService, private menu: MenuService, private confirm: ConfirmationService, private router: Router, public theme: ThemeService) {
     this.form = this.fb.group({
-      nombre: ['', [Validators.required, Validators.pattern(/^[a-z0-9_]+$/), Validators.maxLength(64)]],
+      nombre: ['', [Validators.required, Validators.pattern(/^[A-Z0-9_]+$/), Validators.maxLength(64)]],
       descripcion: ['', [Validators.maxLength(255)]],
       activo: [true]
     });
@@ -67,8 +67,8 @@ export class ParametrosComponent implements OnInit {
   editar(p: Parametro) {
     this.editandoId.set(p.id ?? null);
     this.form.reset({
-      nombre: (p.nombre || '').toLowerCase(),
-      descripcion: p.descripcion ?? '',
+      nombre: (p.nombre || '').toUpperCase(),
+      descripcion: (p.descripcion || '').toUpperCase(),
       activo: (p.activo ?? p.activoValor ?? p.activoDef ?? true)
     });
     this.form.get('nombre')!.enable();
@@ -88,7 +88,7 @@ export class ParametrosComponent implements OnInit {
     if (this.form.invalid) return;
     const raw = this.form.getRawValue();
     const orgId = Number(localStorage.getItem('orgId') ?? '1');
-    const dto = { orgId, nombre: String(raw.nombre).trim(), descripcion: (raw.descripcion || '').trim(), activo: !!raw.activo };
+    const dto = { orgId, nombre: String(raw.nombre).trim().toUpperCase(), descripcion: String(raw.descripcion || '').trim().toUpperCase(), activo: !!raw.activo };
 
     const id = this.editandoId();
     if (id != null) {
@@ -101,9 +101,8 @@ export class ParametrosComponent implements OnInit {
         error: () => {/* opcional: notificar */}
       });
     } else {
-      // crear con tipo por defecto (sin selector en UI)
-      const tipoDefault: ParamTipo = 'TEXT';
-      this.params.create({ orgId, nombre: dto.nombre, descripcion: dto.descripcion, tipo: tipoDefault, activo: dto.activo } as any).subscribe({
+      // crear en backend de definiciones (solo orgId, nombre, descripcion)
+      this.params.create({ orgId, nombre: dto.nombre, descripcion: dto.descripcion }).subscribe({
         next: () => { this.cerrarPanel(); this.nuevo(); },
         error: () => {/* opcional: notificar */}
       });

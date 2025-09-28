@@ -17,6 +17,13 @@
   --p-text-color: #000000;
   --p-inputtext-color: #000000;
   --p-inputtext-placeholder-color: #4b5563;
+
+  /* PrimeNG surface tokens */
+  --surface-ground: var(--bg);
+  --surface-section: var(--surface);
+  --surface-card: var(--surface);
+  --surface-overlay: #ffffff;
+  --text-color: #000000;
 }
 :root.theme-dark {
   --bg: #181824;
@@ -31,6 +38,13 @@
   --success-100: #0b2d1c;
   --danger: #ff6b6b;
   --danger-100: #3a1f1f;
+
+  /* PrimeNG surface tokens */
+  --surface-ground: var(--bg);
+  --surface-section: var(--surface);
+  --surface-card: var(--surface);
+  --surface-overlay: #232336; /* mismo que surface */
+  --text-color: #e0e6ed;
 }
 :root.theme-black {
   --bg: #0b0b0b;
@@ -45,6 +59,13 @@
   --success-100: #0d2218;
   --danger: #ff6b6b;
   --danger-100: #2a1414;
+
+  /* PrimeNG surface tokens */
+  --surface-ground: var(--bg);
+  --surface-section: var(--surface);
+  --surface-card: var(--surface);
+  --surface-overlay: #131313; /* mismo que surface */
+  --text-color: #e6e6e6;
 }
 
 /* Base */
@@ -572,4 +593,122 @@ a:hover { text-decoration: underline; }
 :root.theme-black body .p-select-panel.doc-type-panel .p-select-item { color: var(--text) !important; border-radius: 8px; }
 :root.theme-black body .p-select-panel.doc-type-panel .p-select-item.p-highlight { background: color-mix(in srgb, var(--primary) 18%, transparent) !important; color: var(--text) !important; }
 :root.theme-black body .p-select-panel.doc-type-panel .p-select-item:not(.p-highlight):hover { background: color-mix(in srgb, var(--primary) 12%, transparent) !important; }
+
+/* Tema claro: tablas PrimeNG (p-table / p-datatable) con fondo blanco y texto negro */
+:root.theme-light body .p-datatable-wrapper table,
+:root.theme-light body .p-table table {
+  background: #ffffff !important;
+  color: #000 !important;
+}
+:root.theme-light body .p-datatable-thead > tr > th,
+:root.theme-light body .p-table-thead > tr > th,
+:root.theme-light body .p-datatable .p-datatable-thead > tr > th {
+  background: color-mix(in srgb, var(--surface) 96%, var(--primary) 4%) !important;
+  color: #000 !important;
+  border-bottom: 1px solid var(--border) !important;
+  font-weight: 700 !important;
+}
+:root.theme-light body .p-datatable-tbody > tr > td,
+:root.theme-light body .p-table-tbody > tr > td,
+:root.theme-light body .p-datatable .p-datatable-tbody > tr > td {
+  background: #ffffff !important;
+  color: #000 !important;
+  border-top: 1px solid var(--border) !important;
+}
+:root.theme-light body .p-datatable .p-datatable-footer,
+:root.theme-light body .p-datatable .p-datatable-header,
+:root.theme-light body .p-table .p-datatable-footer,
+:root.theme-light body .p-table .p-datatable-header {
+  background: #ffffff !important;
+  color: #000 !important;
+  border-color: var(--border) !important;
+}
+:root.theme-light body .p-paginator {
+  background: #ffffff !important;
+  color: #000 !important;
+  border-top: 1px solid var(--border) !important;
+}
+:root.theme-light body .p-paginator .p-paginator-page,
+:root.theme-light body .p-paginator .p-paginator-next,
+:root.theme-light body .p-paginator .p-paginator-prev,
+:root.theme-light body .p-paginator .p-paginator-first,
+:root.theme-light body .p-paginator .p-paginator-last {
+  color: #000 !important;
+}
+:root.theme-light body .p-paginator .p-highlight {
+  background: color-mix(in srgb, var(--primary) 12%, transparent) !important;
+  color: #000 !important;
+}
+
+/* Ajuste de hover de fila para tema claro (más suave) */
+:root.theme-light body .p-datatable-wrapper table tbody tr:hover,
+:root.theme-light body .p-table table tbody tr:hover {
+  background: color-mix(in srgb, var(--primary) 8%, #ffffff) !important;
+}
+
+/* Tema claro: Sidebar (formularios editar/nuevo) y diálogos con fondo blanco */
+:root.theme-light body .p-sidebar {
+  background: #ffffff !important;
+  color: #000 !important;
+  border-left: 1px solid var(--border) !important;
+}
+:root.theme-light body .p-sidebar .p-sidebar-header,
+:root.theme-light body .p-sidebar .p-sidebar-content {
+  background: #ffffff !important;
+  color: #000 !important;
+}
+:root.theme-light body .p-sidebar .p-button.p-button-text { color: #000 !important; }
+
+/* Tema claro: p-dialog y confirmDialog */
+:root.theme-light body .p-dialog,
+:root.theme-light body .p-confirm-dialog {
+  background: #ffffff !important;
+  color: #000 !important;
+}
+:root.theme-light body .p-dialog .p-dialog-header,
+:root.theme-light body .p-dialog .p-dialog-content,
+:root.theme-light body .p-dialog .p-dialog-footer,
+:root.theme-light body .p-confirm-dialog .p-dialog-header,
+:root.theme-light body .p-confirm-dialog .p-dialog-content,
+:root.theme-light body .p-confirm-dialog .p-dialog-footer {
+  background: #ffffff !important;
+  color: #000 !important;
+}
+
+/* Reforzar panel de dropdown dentro del sidebar en tema claro */
+:root.theme-light body .p-sidebar ~ .p-dropdown-panel,
+:root.theme-light body .p-dropdown-panel { /* overlay global */
+  background: #ffffff !important;
+  color: #000 !important;
+}
+
+/* Refuerzo extra: sidebars de edición blancos en tema claro dentro de componentes admin */
+:root.theme-light app-parametros .p-sidebar,
+:root.theme-light app_parametros .p-sidebar .p-sidebar-header,
+:root.theme-light app_parametros .p-sidebar .p-sidebar-content,
+:root.theme-light app-param-config .p-sidebar,
+:root.theme-light app-param-config .p-sidebar .p-sidebar-header,
+:root.theme-light app-param-config .p-sidebar .p-sidebar-content {
+  background: #ffffff !important;
+  color: #000 !important;
+}
+
+/* Tema claro: forzar sidebars marcados como light-sidebar a blanco absoluto */
+:root.theme-light body .p-sidebar.light-sidebar,
+:root.theme-light body .p-sidebar.light-sidebar .p-sidebar-header,
+:root.theme-light body .p-sidebar.light-sidebar .p-sidebar-content {
+  background: #ffffff !important;
+  color: #000000 !important;
+}
+:root.theme-light body .p-sidebar.light-sidebar .p-button.p-button-text { color: #000000 !important; }
+:root.theme-light body .p-sidebar.light-sidebar .form-field label { color: #000000 !important; }
+:root.theme-light body .p-sidebar.light-sidebar .p-inputtext,
+:root.theme-light body .p-sidebar.light-sidebar input,
+:root.theme-light body .p-sidebar.light-sidebar .p-dropdown .p-dropdown-label {
+  color: #000000 !important;
+}
+:root.theme-light body .p-sidebar.light-sidebar .p-inputtext::placeholder,
+:root.theme-light body .p-sidebar.light-sidebar input::placeholder {
+  color: #4b5563 !important;
+}
 

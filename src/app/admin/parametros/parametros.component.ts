@@ -16,6 +16,7 @@ import { YesNoPipe } from '../../shared/yes-no.pipe';
 import { MenuService, MenuOption } from '../../service/menu.service';
 import { Observable } from 'rxjs';
 import { UserAvatarComponent } from '../../shared/user-avatar.component';
+import { ThemeService } from '../../service/theme.service';
 
 @Component({
   selector: 'app-parametros',
@@ -50,7 +51,7 @@ export class ParametrosComponent implements OnInit {
   get lista$() { return this.params.list$; }
   get menu$(): Observable<MenuOption[]> { return this.menu.list$; }
 
-  constructor(private fb: FormBuilder, private params: ParametrosService, private menu: MenuService, private confirm: ConfirmationService, private router: Router) {
+  constructor(private fb: FormBuilder, private params: ParametrosService, private menu: MenuService, private confirm: ConfirmationService, private router: Router, public theme: ThemeService) {
     this.form = this.fb.group({
       nombre: ['', [Validators.required, Validators.pattern(/^[A-Z0-9_]+$/), Validators.maxLength(64)]],
       descripcion: ['', [Validators.maxLength(255)]],

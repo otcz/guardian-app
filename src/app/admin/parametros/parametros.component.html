@@ -55,30 +55,32 @@
 </div>
 
 <!-- Panel lateral derecho: Formulario de edición/creación -->
-<p-sidebar [visible]="panelAbierto()" position="right" [modal]="true" (onHide)="cerrarPanel()" styleClass="p-sidebar-sm" [dismissible]="false" [closeOnEscape]="false" [showCloseIcon]="true" [blockScroll]="true" [style]="{ width: '480px' }">
-  <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
-    <h3 style="margin:0;">{{ editandoId() ? 'Editar parámetro' : 'Nuevo parámetro' }}</h3>
-    <button pButton type="button" class="p-button p-button-text" (click)="cerrarPanel()"><i class="pi pi-times"></i></button>
-  </div>
-  <form [formGroup]="form" (ngSubmit)="guardar()" style="display:flex; flex-direction:column; gap:12px;">
-    <div class="form-field">
-      <label for="nombre">Nombre (MAYÚSCULAS y _)</label>
-      <input id="nombre" pInputText appUppercase type="text" formControlName="nombre" placeholder="DURACION_TOKEN_INGRESO" />
+<p-sidebar [visible]="panelAbierto()" position="right" [modal]="true" (onHide)="cerrarPanel()" styleClass="p-sidebar-sm light-sidebar" [dismissible]="false" [closeOnEscape]="false" [showCloseIcon]="true" [blockScroll]="true" [style]="{ width: '480px' }">
+  <div class="sidebar-panel white-theme">
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
+      <h3 style="margin:0;">{{ editandoId() ? 'Editar parámetro' : 'Nuevo parámetro' }}</h3>
+      <button pButton type="button" class="p-button p-button-text" (click)="cerrarPanel()"><i class="pi pi-times"></i></button>
     </div>
-    <div class="form-field">
-      <label for="descripcion">Descripción</label>
-      <input id="descripcion" pInputText type="text" formControlName="descripcion" placeholder="Descripción" />
-    </div>
-    <div class="form-field">
-      <label for="tipo">Tipo</label>
-      <p-dropdown id="tipo" formControlName="tipo" [options]="tipos" optionLabel="label" optionValue="value"></p-dropdown>
-    </div>
+    <form [formGroup]="form" (ngSubmit)="guardar()" style="display:flex; flex-direction:column; gap:12px;">
+      <div class="form-field">
+        <label for="nombre">Nombre (MAYÚSCULAS y _)</label>
+        <input id="nombre" pInputText appUppercase type="text" formControlName="nombre" placeholder="DURACION_TOKEN_INGRESO" />
+      </div>
+      <div class="form-field">
+        <label for="descripcion">Descripción</label>
+        <input id="descripcion" pInputText type="text" formControlName="descripcion" placeholder="Descripción" />
+      </div>
+      <div class="form-field">
+        <label for="tipo">Tipo</label>
+        <p-dropdown id="tipo" formControlName="tipo" [options]="tipos" optionLabel="label" optionValue="value"></p-dropdown>
+      </div>
 
-    <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:4px;">
-      <button pButton type="button" class="p-button p-button-outlined" (click)="cerrarPanel()">Cancelar</button>
-      <button pButton type="submit" class="p-button p-button-primary" [disabled]="form.invalid">Guardar</button>
-    </div>
-  </form>
+      <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:4px;">
+        <button pButton type="button" class="p-button p-button-outlined" (click)="cerrarPanel()">Cancelar</button>
+        <button pButton type="submit" class="p-button p-button-primary" [disabled]="form.invalid">Guardar</button>
+      </div>
+    </form>
+  </div>
 </p-sidebar>
 
 <!-- Diálogo de confirmación global -->

@@ -12,17 +12,16 @@ import { SidebarModule } from 'primeng/sidebar';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
 import { ThemeToggleComponent } from '../../shared/theme-toggle.component';
-import { UppercaseDirective } from '../../shared/formatting.directives';
-import { YesNoPipe } from '../../shared/yes-no.pipe';
 import { ParametrosService, ParamTipo } from '../../service/parametros.service';
 import { ParamValoresService, ParamValue, ParamValueTipo } from '../../service/param-valores.service';
 import { MenuService, MenuOption } from '../../service/menu.service';
 import { Observable } from 'rxjs';
+import { UserAvatarComponent } from '../../shared/user-avatar.component';
 
 @Component({
   selector: 'app-param-config',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, ReactiveFormsModule, TableModule, ButtonModule, InputTextModule, InputNumberModule, InputSwitchModule, DropdownModule, SidebarModule, ConfirmDialogModule, ThemeToggleComponent, UppercaseDirective, YesNoPipe],
+  imports: [CommonModule, RouterModule, FormsModule, ReactiveFormsModule, TableModule, ButtonModule, InputTextModule, InputNumberModule, InputSwitchModule, DropdownModule, SidebarModule, ConfirmDialogModule, ThemeToggleComponent, UserAvatarComponent],
   templateUrl: './param-config.component.html',
   styles: [`
     :host { display:block; }

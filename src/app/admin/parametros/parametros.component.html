@@ -44,7 +44,7 @@
           <td>{{ row.porDefecto | yesNo }}</td>
           <td>
             <span pTooltip="{{ getParamToggleReason(row) }}" [tooltipDisabled]="canToggleParam(row)" tooltipPosition="top">
-              <p-inputSwitch [ngModel]="(row.activo ?? row.activoValor ?? row.activoDef ?? true)" (onChange)="toggleActivo(row, $event)" [disabled]="!canToggleParam(row)"></p-inputSwitch>
+              <p-inputSwitch [ngModel]="(row.activo ?? row.activoValor ?? row.activoDef ?? true)" (onChange)="toggleActivo(row, $event.checked)" [disabled]="!canToggleParam(row)"></p-inputSwitch>
             </span>
           </td>
           <td style="text-align:right; display:flex; justify-content:flex-end; gap:6px;">

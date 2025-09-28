@@ -61,7 +61,7 @@ export class ParametrosService {
         valor: typeof it.valor !== 'undefined' ? String(it.valor) : undefined,
         activoDef: typeof it.activoDef === 'boolean' ? it.activoDef : undefined,
         activoValor: typeof it.activoValor === 'boolean' ? it.activoValor : undefined,
-        activo: typeof it.activo === 'boolean' ? it.activo : (typeof it.activoValor === 'boolean' ? it.activoValor : true),
+        activo: (typeof it.activo === 'boolean') ? it.activo : ((typeof it.activoValor === 'boolean') ? it.activoValor : ((typeof it.activoDef === 'boolean') ? it.activoDef : true)),
         valores: Array.isArray(it.valores) ? it.valores.map((v: any) => ({ orgId: v.orgId, sectionId: v.sectionId ?? null, valor: String(v.valor), activo: !!v.activo, descripcion: v.descripcion })) : []
       }) as Parametro)),
       map((items: Parametro[]) => {
@@ -90,7 +90,7 @@ export class ParametrosService {
           nombre: it?.nombre ?? p.nombre,
           descripcion: it?.descripcion ?? p.descripcion,
           porDefecto: !!it?.porDefecto,
-          activo: typeof it?.activo === 'boolean' ? it.activo : (typeof it?.activoValor === 'boolean' ? it.activoValor : (typeof p.activo === 'boolean' ? p.activo : true)),
+          activo: (typeof it?.activo === 'boolean') ? it.activo : ((typeof it?.activoValor === 'boolean') ? it.activoValor : ((typeof it?.activoDef === 'boolean') ? it.activoDef : (typeof p.activo === 'boolean' ? p.activo : true))),
           activoDef: typeof it?.activoDef === 'boolean' ? it.activoDef : undefined,
           activoValor: typeof it?.activoValor === 'boolean' ? it.activoValor : undefined,
           valores: Array.isArray(it?.valores) ? it.valores.map((v: any) => ({ orgId: v.orgId, sectionId: v.sectionId ?? null, valor: String(v.valor), activo: !!v.activo })) : []
@@ -112,7 +112,7 @@ export class ParametrosService {
           nombre: it?.nombre ?? nombre,
           descripcion: it?.descripcion ?? data.descripcion,
           porDefecto: !!it?.porDefecto,
-          activo: typeof it?.activo === 'boolean' ? it.activo : data.activo,
+          activo: (typeof it?.activo === 'boolean') ? it.activo : ((typeof it?.activoValor === 'boolean') ? it.activoValor : ((typeof it?.activoDef === 'boolean') ? it.activoDef : data.activo)),
           activoDef: typeof it?.activoDef === 'boolean' ? it.activoDef : undefined,
           activoValor: typeof it?.activoValor === 'boolean' ? it.activoValor : undefined,
           valores: Array.isArray(it?.valores) ? it.valores.map((v: any) => ({ orgId: v.orgId, sectionId: v.sectionId ?? null, valor: String(v.valor), activo: !!v.activo })) : []

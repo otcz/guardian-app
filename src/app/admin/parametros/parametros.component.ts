@@ -20,6 +20,7 @@ import { InputSwitchModule } from 'primeng/inputswitch';
 import { PermissionService } from '../../service/permission.service';
 import { NotificationService } from '../../service/notification.service';
 import { TooltipModule } from 'primeng/tooltip';
+import { ParamValoresService } from '../../service/param-valores.service';
 
 @Component({
   selector: 'app-parametros',
@@ -52,7 +53,17 @@ export class ParametrosComponent implements OnInit {
   get menu$(): Observable<MenuOption[]> { return this.menu.list$; }
   get isBackend(): boolean { return this.params.sourceIsBackend; }
 
-  constructor(private fb: FormBuilder, private params: ParametrosService, private menu: MenuService, private confirm: ConfirmationService, private router: Router, public theme: ThemeService, private perm: PermissionService, private notify: NotificationService) {
+  constructor(
+    private fb: FormBuilder,
+    private params: ParametrosService,
+    private menu: MenuService,
+    private confirm: ConfirmationService,
+    private router: Router,
+    public theme: ThemeService,
+    private perm: PermissionService,
+    private notify: NotificationService,
+    private values: ParamValoresService
+  ) {
     this.form = this.fb.group({
       nombre: ['', [Validators.required, Validators.pattern(/^[A-Z0-9_]+$/), Validators.maxLength(64)]],
       descripcion: ['', [Validators.maxLength(255)]],
@@ -119,15 +130,31 @@ export class ParametrosComponent implements OnInit {
     }
   }
 
-  toggleActivo(row: Parametro, ev?: any) {
+  toggleActivo(row: Parametro, next?: boolean | any) {
     const allowed = this.canToggleParam(row);
     if (!allowed) { this.notify.warn('No tienes permisos para cambiar el estado.'); return; }
 
-    const checked = typeof ev?.checked === 'boolean' ? ev.checked : !(row.activo ?? row.activoValor ?? row.activoDef ?? true);
-    const orgId = (row.orgIdDef ?? row.orgId ?? Number(localStorage.getItem('orgId') ?? '1')) as number;
+    const orgId = Number(localStorage.getItem('orgId') ?? '1');
+    const checked = (typeof next === 'boolean') ? next : (typeof next?.checked === 'boolean' ? next.checked : !(row.activo ?? row.activoValor ?? row.activoDef ?? true));
+
     this.params.setActivo(orgId, row.nombre, checked).subscribe({
-      next: (resp: any) => this.notify.fromApiResponse(resp, 'Estado actualizado.'),
+      next: (resp: any) => {
+        this.notify.fromApiResponse(resp, 'Estado actualizado.');
+        this.cascadeValoresActivo(row, orgId, checked);
+      },
       error: (err) => this.notify.fromApiError(err, 'No fue posible actualizar el estado.')
+    });
+  }
+
+  private cascadeValoresActivo(row: Parametro, orgId: number, activo: boolean) {
+    const nombre = row.nombre;
+    // Org-level valores
+    this.values.setActiveValue(nombre, { orgId, activo }).subscribe({ next: () => {}, error: () => {} });
+    // Sección-level valores si los conocemos
+    const sections = new Set<number>();
+    (row.valores || []).forEach(v => { if (typeof v.sectionId === 'number') sections.add(v.sectionId); });
+    sections.forEach(sectionId => {
+      this.values.setActiveValue(nombre, { orgId, sectionId, activo }).subscribe({ next: () => {}, error: () => {} });
     });
   }
 

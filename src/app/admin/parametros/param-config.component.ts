@@ -17,6 +17,8 @@ import { ParamValoresService, ParamValue } from '../../service/param-valores.ser
 import { MenuService, MenuOption } from '../../service/menu.service';
 import { Observable } from 'rxjs';
 import { UppercaseDirective } from '../../shared/formatting.directives';
+import { NotificationService } from '../../service/notification.service';
+import { PermissionService } from '../../service/permission.service';
 
 @Component({
   selector: 'app-param-config',
@@ -70,14 +72,18 @@ export class ParamConfigComponent implements OnInit {
     public paramsService: ParametrosService,
     private valuesService: ParamValoresService,
     private confirm: ConfirmationService,
-    private menu: MenuService
+    private menu: MenuService,
+    private notify: NotificationService,
+    private perm: PermissionService
   ) {
     this.form = this.fb.group({
       label: [''],
       valueText: [''],
       valueNum: [null as number | null, []],
       activo: [true],
-      orden: [1, [Validators.required, Validators.min(1)]]
+      orden: [1, [Validators.required, Validators.min(1)]],
+      sectionId: [null as number | null],
+      desc: ['']
     });
   }
 
@@ -110,7 +116,7 @@ export class ParamConfigComponent implements OnInit {
       let idx = 0;
       const mapped = vals.map(v => {
         const id = ++idx;
-        const base: ParamValue = { id, orgId: v.orgId, paramName: def.nombre, activo: !!v.activo, orden: id } as ParamValue;
+        const base: ParamValue = { id, orgId: v.orgId, paramName: def.nombre, activo: !!v.activo, orden: id, sectionId: (typeof v.sectionId === 'number' ? v.sectionId : (v.sectionId ?? null)) } as ParamValue;
         if (t === 'NUM') return { ...base, valueNum: Number(v.valor) } as ParamValue;
         if (t === 'TEXT') return { ...base, valueText: String(v.valor) } as ParamValue;
         return { ...base, label: String(v.valor) } as ParamValue;
@@ -132,7 +138,7 @@ export class ParamConfigComponent implements OnInit {
     this.editId.set(null);
     const list = (this.valuesService.list$(this.orgId, this.nombre()).value || []);
     const nextOrden = list.reduce((m, x) => Math.max(m, x.orden || 0), 0) + 1;
-    this.form.reset({ label: '', valueText: '', valueNum: null, activo: true, orden: nextOrden });
+    this.form.reset({ label: '', valueText: '', valueNum: null, activo: true, orden: nextOrden, sectionId: null, desc: '' });
     this.panelAbierto.set(true);
   }
 
@@ -143,23 +149,68 @@ export class ParamConfigComponent implements OnInit {
       valueText: v.valueText || '',
       valueNum: v.valueNum ?? null,
       activo: v.activo,
-      orden: v.orden || 1
+      orden: v.orden || 1,
+      sectionId: typeof v.sectionId === 'number' ? v.sectionId : null,
+      desc: v.descripcion || ''
     });
     this.panelAbierto.set(true);
   }
 
-  cerrarPanel() { this.panelAbierto.set(false); }
+  cerrarPanel() { this.panelAbierto.set(false); this.editId.set(null); }
+
+  private buildValorFromForm(): string {
+    const raw = this.form.getRawValue();
+    if (this.tipo() === 'LIST') return String(raw.label || '').trim().toUpperCase();
+    if (this.tipo() === 'TEXT') return String(raw.valueText || '').trim();
+    return String(raw.valueNum ?? '').trim();
+  }
+
+  private valorFromRow(v: ParamValue): string {
+    if (this.tipo() === 'LIST') return String(v.label || '').trim().toUpperCase();
+    if (this.tipo() === 'TEXT') return String(v.valueText || '').trim();
+    return String(v.valueNum ?? '').trim();
+  }
 
   guardar() {
     if (this.form.invalid) return;
     const raw = this.form.getRawValue();
-    const payload: any = { activo: !!raw.activo, orden: Number(raw.orden || 1) };
-    if (this.tipo() === 'LIST') payload.label = String(raw.label || '').trim().toUpperCase();
-    if (this.tipo() === 'TEXT') payload.valueText = String(raw.valueText || '').trim().toUpperCase();
-    if (this.tipo() === 'NUM') payload.valueNum = Number(raw.valueNum || 0);
 
-    this.valuesService.upsert(this.orgId, this.nombre(), this.editId() != null ? { id: this.editId()!, ...payload } : payload);
-    this.cerrarPanel();
+    // Regla básica: ADMIN requiere sectionId
+    if (this.perm.has('ADMIN') && (raw.sectionId == null || raw.sectionId === '')) {
+      this.form.get('sectionId')?.setErrors({ required: true });
+      this.form.get('sectionId')?.markAsTouched();
+      return;
+    }
+
+    const body: any = {
+      orgId: this.orgId,
+      sectionId: (raw.sectionId === null || raw.sectionId === '' ? null : Number(raw.sectionId)),
+      valor: this.buildValorFromForm(),
+      activo: !!raw.activo
+    };
+    const desc = String(raw.desc || '').trim();
+    if (desc) body.descripcion = desc;
+
+    this.valuesService.upsertValue(this.nombre(), body).subscribe({
+      next: (resp: any) => {
+        // Actualizar store local para reflejar
+        const payload: Partial<ParamValue> = {
+          label: this.tipo() === 'LIST' ? String(raw.label || '').trim().toUpperCase() : undefined,
+          valueText: this.tipo() === 'TEXT' ? String(raw.valueText || '').trim() : undefined,
+          valueNum: this.tipo() === 'NUM' ? Number(raw.valueNum ?? 0) : undefined,
+          activo: !!raw.activo,
+          orden: Number(raw.orden || 1),
+          sectionId: (raw.sectionId === null || raw.sectionId === '' ? null : Number(raw.sectionId)),
+          descripcion: desc || undefined
+        };
+        const updated = this.valuesService.upsert(this.orgId, this.nombre(), this.editId() != null ? { id: this.editId()!, ...payload } : payload);
+        this.notify.fromApiResponse(resp, this.editId() != null ? 'Valor actualizado.' : 'Valor creado.');
+        this.cerrarPanel();
+      },
+      error: (err) => {
+        this.notify.fromApiError(err, 'No fue posible guardar el valor.');
+      }
+    });
   }
 
   confirmarEliminar(v: ParamValue) {
@@ -171,21 +222,40 @@ export class ParamConfigComponent implements OnInit {
       rejectLabel: 'Cancelar',
       acceptButtonStyleClass: 'p-button p-button-danger',
       rejectButtonStyleClass: 'p-button p-button-outlined',
-      accept: () => this.valuesService.remove(this.orgId, this.nombre(), v.id)
+      accept: () => this.eliminar(v)
+    });
+  }
+
+  private eliminar(v: ParamValue) {
+    this.valuesService.deleteValue(this.nombre(), this.orgId, (typeof v.sectionId === 'number' ? v.sectionId : undefined)).subscribe({
+      next: (resp: any) => {
+        this.valuesService.remove(this.orgId, this.nombre(), v.id);
+        this.notify.fromApiResponse(resp, 'Valor eliminado.');
+      },
+      error: (err) => this.notify.fromApiError(err, 'No fue posible eliminar el valor.')
     });
   }
 
   confirmarEliminarActual() {
     const id = this.editId();
     if (!id) return;
-    // Construir un objeto mínimo para reutilizar confirmarEliminar
-    const current: ParamValue = { id, orgId: this.orgId, paramName: this.nombre(), activo: true, orden: 1 };
+    const current = (this.valuesService.list$(this.orgId, this.nombre()).value || []).find(x => x.id === id);
+    if (!current) return;
     this.confirmarEliminar(current);
   }
 
   toggleActivo(v: ParamValue, value?: boolean) {
     const nuevo = typeof value === 'boolean' ? value : !v.activo;
-    this.valuesService.upsert(this.orgId, this.nombre(), { id: v.id, activo: nuevo });
+    const body = {
+      orgId: this.orgId,
+      sectionId: (typeof v.sectionId === 'number' ? v.sectionId : null),
+      valor: this.valorFromRow(v),
+      activo: nuevo
+    };
+    this.valuesService.upsertValue(this.nombre(), body).subscribe({
+      next: () => this.valuesService.upsert(this.orgId, this.nombre(), { id: v.id, activo: nuevo }),
+      error: () => { /* opcional: revertir UI */ }
+    });
   }
 
   backToList() { this.router.navigate(['/admin/parameters']); }

@@ -68,22 +68,56 @@ export class ParametrosService {
     );
   }
 
-  create(p: { orgId: number; nombre: string; descripcion?: string }): Observable<Parametro> {
-    const body = { orgId: p.orgId, nombre: p.nombre, descripcion: p.descripcion };
+  // Crear: devolver respuesta cruda del backend para poder mostrar su mensaje
+  create(p: { orgId: number; nombre: string; descripcion?: string; activo?: boolean }): Observable<ApiResponse<any>> {
+    const body: any = { orgId: p.orgId, nombre: p.nombre, descripcion: p.descripcion };
+    if (typeof p.activo === 'boolean') body.activo = p.activo; // opcional
     return this.http.post<ApiResponse<any>>(this.defsUrl, body).pipe(
-      map(resp => (resp as any)?.data ?? (resp as any)),
-      map((it: any) => ({
-        orgId: it?.orgId ?? p.orgId,
-        orgIdDef: it?.orgIdDef ?? p.orgId,
-        nombre: it?.nombre ?? p.nombre,
-        descripcion: it?.descripcion ?? p.descripcion,
-        porDefecto: !!(it?.porDefecto),
-        activo: typeof it?.activo === 'boolean' ? it.activo : (typeof it?.activoValor === 'boolean' ? it.activoValor : true),
-        activoDef: typeof it?.activoDef === 'boolean' ? it.activoDef : undefined,
-        activoValor: typeof it?.activoValor === 'boolean' ? it.activoValor : undefined,
-        valores: Array.isArray(it?.valores) ? it.valores.map((v: any) => ({ orgId: v.orgId, sectionId: v.sectionId ?? null, valor: String(v.valor), activo: !!v.activo })) : []
-      }) as Parametro),
-      tap(item => this.upsertLocal(item))
+      tap((resp: any) => {
+        const it = (resp?.data ?? {}) as any;
+        const item: Parametro = {
+          orgId: it?.orgId ?? p.orgId,
+          orgIdDef: it?.orgIdDef ?? p.orgId,
+          nombre: it?.nombre ?? p.nombre,
+          descripcion: it?.descripcion ?? p.descripcion,
+          porDefecto: !!it?.porDefecto,
+          activo: typeof it?.activo === 'boolean' ? it.activo : (typeof it?.activoValor === 'boolean' ? it.activoValor : (typeof p.activo === 'boolean' ? p.activo : true)),
+          activoDef: typeof it?.activoDef === 'boolean' ? it.activoDef : undefined,
+          activoValor: typeof it?.activoValor === 'boolean' ? it.activoValor : undefined,
+          valores: Array.isArray(it?.valores) ? it.valores.map((v: any) => ({ orgId: v.orgId, sectionId: v.sectionId ?? null, valor: String(v.valor), activo: !!v.activo })) : []
+        };
+        this.upsertLocal(item);
+      })
+    );
+  }
+
+  // Editar por nombre + orgId
+  updateByNombre(orgId: number, nombre: string, data: { descripcion?: string; activo?: boolean }): Observable<ApiResponse<any>> {
+    const url = `${this.defsUrl}/${encodeURIComponent(nombre)}?orgId=${encodeURIComponent(String(orgId))}`;
+    return this.http.put<ApiResponse<any>>(url, data).pipe(
+      tap((resp: any) => {
+        const it = (resp?.data ?? {}) as any;
+        const merged: Parametro = {
+          orgId: it?.orgId ?? orgId,
+          orgIdDef: it?.orgIdDef ?? orgId,
+          nombre: it?.nombre ?? nombre,
+          descripcion: it?.descripcion ?? data.descripcion,
+          porDefecto: !!it?.porDefecto,
+          activo: typeof it?.activo === 'boolean' ? it.activo : data.activo,
+          activoDef: typeof it?.activoDef === 'boolean' ? it.activoDef : undefined,
+          activoValor: typeof it?.activoValor === 'boolean' ? it.activoValor : undefined,
+          valores: Array.isArray(it?.valores) ? it.valores.map((v: any) => ({ orgId: v.orgId, sectionId: v.sectionId ?? null, valor: String(v.valor), activo: !!v.activo })) : []
+        };
+        this.upsertLocal(merged);
+      })
+    );
+  }
+
+  // Eliminar por nombre + orgId
+  deleteByNombre(orgId: number, nombre: string): Observable<ApiResponse<any>> {
+    const url = `${this.defsUrl}/${encodeURIComponent(nombre)}?orgId=${encodeURIComponent(String(orgId))}`;
+    return this.http.delete<ApiResponse<any>>(url).pipe(
+      tap(() => this.removeLocal(nombre))
     );
   }
 
@@ -115,21 +149,8 @@ export class ParametrosService {
 
   // Cambia el estado activo por nombre (resuelve id si es necesario)
   setActivo(orgId: number, nombre: string, activo: boolean): Observable<Parametro | void> {
-    const local = this.list.find(p => p.nombre === nombre && (p.orgId === orgId || p.orgIdDef === orgId || p.orgId == null));
-    const idLocal = local?.id;
-    if (idLocal != null) {
-      return this.update(idLocal, { activo });
-    }
-    return this.fetchAll().pipe(
-      map(arr => (arr || []).find((x: any) => x?.nombre === nombre && (x?.orgId === orgId || typeof x?.orgId === 'undefined'))?.id as number | undefined),
-      switchMap(resolvedId => {
-        if (resolvedId) return this.update(resolvedId, { activo });
-        // fallback: actualizar cache local por nombre
-        const next = this.list.map(p => p.nombre === nombre ? ({ ...p, activo }) as Parametro : p);
-        this.persist(next as Parametro[]);
-        return of(void 0);
-      })
-    );
+    // preferir endpoint por nombre si está disponible
+    return this.updateByNombre(orgId, nombre, { activo }) as any;
   }
 
   // Local helpers

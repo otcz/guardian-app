@@ -16,7 +16,7 @@
     <header style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
       <h2 style="margin:0;">Parámetros</h2>
       <div style="display:flex; gap:8px; align-items:center;">
-        <button pButton type="button" class="p-button p-button-outlined" (click)="nuevo()"><i class="pi pi-plus"></i><span style="margin-left:8px;">Nuevo</span></button>
+        <button *ngIf="canCreateParam()" pButton type="button" class="p-button p-button-outlined" (click)="nuevo()"><i class="pi pi-plus"></i><span style="margin-left:8px;">Nuevo</span></button>
         <app-theme-toggle mode="cycle"></app-theme-toggle>
         <app-user-avatar></app-user-avatar>
       </div>
@@ -43,12 +43,12 @@
           <td>{{ row.descripcion }}</td>
           <td>{{ row.porDefecto | yesNo }}</td>
           <td>
-            <p-inputSwitch [ngModel]="(row.activo ?? row.activoValor ?? row.activoDef ?? true)" (onChange)="toggleActivo(row, $event)"></p-inputSwitch>
+            <p-inputSwitch [ngModel]="(row.activo ?? row.activoValor ?? row.activoDef ?? true)" (onChange)="toggleActivo(row, $event)" [disabled]="!canToggleParam(row)"></p-inputSwitch>
           </td>
           <td style="text-align:right; display:flex; justify-content:flex-end; gap:6px;">
-            <button pButton type="button" class="p-button p-button-text" (click)="editar(row)" title="Editar"><i class="pi pi-pencil"></i></button>
+            <button *ngIf="canEditParam(row)" pButton type="button" class="p-button p-button-text" (click)="editar(row)" title="Editar"><i class="pi pi-pencil"></i></button>
             <button pButton type="button" class="p-button p-button-text" (click)="configurar(row)" title="Configurar"><i class="pi pi-cog"></i></button>
-            <button pButton type="button" class="p-button p-button-text danger" (click)="confirmarEliminar(row)" title="Eliminar"><i class="pi pi-trash"></i></button>
+            <button *ngIf="canDeleteParam(row)" pButton type="button" class="p-button p-button-text danger" (click)="confirmarEliminar(row)" title="Eliminar"><i class="pi pi-trash"></i></button>
           </td>
         </tr>
       </ng-template>
@@ -79,7 +79,7 @@
 
       <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:4px;">
         <button pButton type="button" class="p-button p-button-outlined" (click)="cerrarPanel()">Cancelar</button>
-        <button pButton type="submit" class="p-button p-button-primary" [disabled]="form.invalid">Guardar</button>
+        <button pButton type="submit" class="p-button p-button-primary" [disabled]="form.invalid">{{ editandoId() ? 'Editar' : 'Guardar' }}</button>
       </div>
     </form>
   </div>

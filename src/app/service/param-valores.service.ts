@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import type { ApiResponse } from './auth.service';
 
 export interface ParamValue {
   id: number;
@@ -10,12 +12,17 @@ export interface ParamValue {
   label?: string; // para listas
   activo: boolean;
   orden: number;
+  sectionId?: number | null;
+  descripcion?: string;
 }
 
 @Injectable({ providedIn: 'root' })
 export class ParamValoresService {
   private STORAGE_KEY = 'app:paramValues.v1';
   private subjects = new Map<string, BehaviorSubject<ParamValue[]>>();
+  private readonly defsUrl = 'http://localhost:8081/params/admin/defs';
+
+  constructor(private http: HttpClient) {}
 
   list$(orgId: number, paramName: string): BehaviorSubject<ParamValue[]> {
     const key = this.key(orgId, paramName);
@@ -35,13 +42,15 @@ export class ParamValoresService {
       valueText: v.valueText,
       valueNum: v.valueNum,
       activo: v.activo ?? true,
-      orden: v.orden ?? (i + 1)
+      orden: v.orden ?? (i + 1),
+      sectionId: typeof v.sectionId === 'number' ? v.sectionId : (v.sectionId ?? null),
+      descripcion: v.descripcion
     })) as ParamValue[];
     this.persist(orgId, paramName, normalized);
     this.subject(orgId, paramName).next(normalized);
   }
 
-  // upsert flexible: si viene id, fusiona con existente; si no, crea con defaults
+  // upsert local (para reflejar cambios inmediatos si se desea)
   upsert(orgId: number, paramName: string, item: Partial<ParamValue> & { id?: number }): ParamValue {
     const list = this.load(orgId, paramName);
     const nextList = list.slice();
@@ -71,7 +80,9 @@ export class ParamValoresService {
           valueText: item.valueText,
           valueNum: item.valueNum,
           activo: item.activo ?? true,
-          orden: item.orden ?? (this.nextOrden(nextList))
+          orden: item.orden ?? (this.nextOrden(nextList)),
+          sectionId: typeof item.sectionId === 'number' ? item.sectionId : (item.sectionId ?? null),
+          descripcion: item.descripcion
         };
         nextList.push(nuevo);
         target = nuevo;
@@ -85,7 +96,9 @@ export class ParamValoresService {
         valueText: item.valueText,
         valueNum: item.valueNum,
         activo: item.activo ?? true,
-        orden: item.orden ?? (this.nextOrden(nextList))
+        orden: item.orden ?? (this.nextOrden(nextList)),
+        sectionId: typeof item.sectionId === 'number' ? item.sectionId : (item.sectionId ?? null),
+        descripcion: item.descripcion
       };
       nextList.push(nuevo);
       target = nuevo;
@@ -100,6 +113,21 @@ export class ParamValoresService {
     const list = this.load(orgId, paramName).filter(v => v.id !== id);
     this.persist(orgId, paramName, list);
     this.subject(orgId, paramName).next(list);
+  }
+
+  // Remoto: UPSERT valor (PUT)
+  upsertValue(nombre: string, body: { orgId: number; sectionId?: number | null; valor: string; activo?: boolean; descripcion?: string }): Observable<ApiResponse<any>> {
+    const url = `${this.defsUrl}/${encodeURIComponent(nombre)}/values`;
+    return this.http.put<ApiResponse<any>>(url, body);
+  }
+
+  // Remoto: DELETE valor
+  deleteValue(nombre: string, orgId: number, sectionId?: number | null): Observable<ApiResponse<any>> {
+    const q = new URLSearchParams();
+    q.set('orgId', String(orgId));
+    if (typeof sectionId === 'number') q.set('sectionId', String(sectionId));
+    const url = `${this.defsUrl}/${encodeURIComponent(nombre)}/values?${q.toString()}`;
+    return this.http.delete<ApiResponse<any>>(url);
   }
 
   private subject(orgId: number, paramName: string): BehaviorSubject<ParamValue[]> {

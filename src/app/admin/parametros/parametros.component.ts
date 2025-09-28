@@ -17,6 +17,8 @@ import { Observable } from 'rxjs';
 import { UserAvatarComponent } from '../../shared/user-avatar.component';
 import { ThemeService } from '../../service/theme.service';
 import { InputSwitchModule } from 'primeng/inputswitch';
+import { PermissionService } from '../../service/permission.service';
+import { NotificationService } from '../../service/notification.service';
 
 @Component({
   selector: 'app-parametros',
@@ -49,7 +51,7 @@ export class ParametrosComponent implements OnInit {
   get menu$(): Observable<MenuOption[]> { return this.menu.list$; }
   get isBackend(): boolean { return this.params.sourceIsBackend; }
 
-  constructor(private fb: FormBuilder, private params: ParametrosService, private menu: MenuService, private confirm: ConfirmationService, private router: Router, public theme: ThemeService) {
+  constructor(private fb: FormBuilder, private params: ParametrosService, private menu: MenuService, private confirm: ConfirmationService, private router: Router, public theme: ThemeService, private perm: PermissionService, private notify: NotificationService) {
     this.form = this.fb.group({
       nombre: ['', [Validators.required, Validators.pattern(/^[A-Z0-9_]+$/), Validators.maxLength(64)]],
       descripcion: ['', [Validators.maxLength(255)]],
@@ -65,13 +67,13 @@ export class ParametrosComponent implements OnInit {
   }
 
   editar(p: Parametro) {
-    this.editandoId.set(p.id ?? null);
+    this.editandoId.set(p.id ?? -1); // usar -1 como marcador cuando no venga id
     this.form.reset({
       nombre: (p.nombre || '').toUpperCase(),
       descripcion: (p.descripcion || '').toUpperCase(),
       activo: (p.activo ?? p.activoValor ?? p.activoDef ?? true)
     });
-    this.form.get('nombre')!.enable();
+    this.form.get('nombre')!.disable(); // nombre inmutable al editar
     this.panelAbierto.set(true);
   }
 
@@ -82,7 +84,12 @@ export class ParametrosComponent implements OnInit {
     this.panelAbierto.set(true);
   }
 
-  cerrarPanel() { this.panelAbierto.set(false); }
+  cerrarPanel() { this.panelAbierto.set(false); this.editandoId.set(null); }
+
+  private getErrorMessage(err: any): string {
+    const raw = err?.error?.message ?? err?.message ?? '';
+    return String(raw).toLowerCase();
+  }
 
   guardar() {
     if (this.form.invalid) return;
@@ -92,30 +99,27 @@ export class ParametrosComponent implements OnInit {
 
     const id = this.editandoId();
     if (id != null) {
-      // conservar el tipo actual al editar, si está disponible
-      const tipoActual: ParamTipo | undefined = (this.params.list.find(x => x.id === id)?.tipo) || (this.params.list.find(x => x.nombre === dto.nombre)?.tipo);
-      const payload: Partial<Parametro> = { nombre: dto.nombre, descripcion: dto.descripcion, activo: dto.activo };
-      if (tipoActual) (payload as any).tipo = tipoActual;
-      this.params.update(id, payload).subscribe({
-        next: () => { this.cerrarPanel(); this.nuevo(); },
-        error: () => {/* opcional: notificar */}
+      this.params.updateByNombre(orgId, dto.nombre, { descripcion: dto.descripcion, activo: dto.activo }).subscribe({
+        next: (resp) => { this.notify.fromApiResponse(resp, 'Parámetro actualizado.'); this.cerrarPanel(); },
+        error: (err) => { this.notify.fromApiError(err, 'No fue posible actualizar.'); }
       });
     } else {
-      // crear en backend de definiciones (solo orgId, nombre, descripcion)
-      this.params.create({ orgId, nombre: dto.nombre, descripcion: dto.descripcion }).subscribe({
-        next: () => { this.cerrarPanel(); this.nuevo(); },
-        error: () => {/* opcional: notificar */}
+      this.params.create({ orgId, nombre: dto.nombre, descripcion: dto.descripcion, activo: dto.activo }).subscribe({
+        next: (resp) => { this.notify.fromApiResponse(resp, 'Parámetro creado.'); this.cerrarPanel(); },
+        error: (err) => {
+          this.notify.fromApiError(err, 'No fue posible crear.');
+          const m = this.getErrorMessage(err);
+          if (err?.status === 400 && (m.includes('existe') || m.includes('duplicad'))) {
+            this.form.get('nombre')?.setErrors({ duplicate: true });
+            this.form.get('nombre')?.markAsTouched();
+          }
+        }
       });
     }
   }
 
   toggleActivo(row: Parametro, ev?: any) {
     const checked = typeof ev?.checked === 'boolean' ? ev.checked : !(row.activo ?? row.activoValor ?? row.activoDef ?? true);
-    const id = row.id ?? this.params.list.find(x => x.nombre === row.nombre)?.id;
-    if (id) {
-      this.params.update(id, { activo: checked }).subscribe({ next: () => {}, error: () => {} });
-      return;
-    }
     const orgId = (row.orgIdDef ?? row.orgId ?? Number(localStorage.getItem('orgId') ?? '1')) as number;
     this.params.setActivo(orgId, row.nombre, checked).subscribe({ next: () => {}, error: () => {} });
   }
@@ -136,11 +140,12 @@ export class ParametrosComponent implements OnInit {
   }
 
   eliminar(p: Parametro) {
-    const id = (p?.id ?? this.editandoId()) as number | null;
-    if (id == null) return;
-    this.params.delete(id).subscribe({
-      next: () => { if (this.editandoId() === id) this.nuevo(); },
-      error: () => {/* opcional: notificar */}
+    const nombre = p?.nombre || '';
+    const orgId = Number(localStorage.getItem('orgId') ?? '1');
+    if (!nombre) return;
+    this.params.deleteByNombre(orgId, nombre).subscribe({
+      next: (resp) => { this.notify.fromApiResponse(resp, 'Parámetro eliminado.'); },
+      error: (err) => { this.notify.fromApiError(err, 'No fue posible eliminar.'); }
     });
   }
 
@@ -148,4 +153,10 @@ export class ParametrosComponent implements OnInit {
     const nombre = encodeURIComponent(p.nombre);
     this.router.navigate(['/admin/parameters/configure', nombre]);
   }
+
+  // RBAC helpers
+  canCreateParam() { return this.perm.canCreateParam(); }
+  canEditParam(p: Parametro) { return this.perm.canEditParam(p.porDefecto); }
+  canDeleteParam(p: Parametro) { return this.perm.canDeleteParam(p.porDefecto); }
+  canToggleParam(p: Parametro) { return this.perm.canToggleParam(p.porDefecto); }
 }

@@ -16,7 +16,7 @@
     <header style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
       <h2 style="margin:0;">Parámetros</h2>
       <div style="display:flex; gap:8px; align-items:center;">
-        <button *ngIf="!isBackend" pButton type="button" class="p-button p-button-outlined" (click)="nuevo()"><i class="pi pi-plus"></i><span style="margin-left:8px;">Nuevo</span></button>
+        <button pButton type="button" class="p-button p-button-outlined" (click)="nuevo()"><i class="pi pi-plus"></i><span style="margin-left:8px;">Nuevo</span></button>
         <app-theme-toggle mode="cycle"></app-theme-toggle>
         <app-user-avatar></app-user-avatar>
       </div>
@@ -46,9 +46,9 @@
             <p-inputSwitch [ngModel]="(row.activo ?? row.activoValor ?? row.activoDef ?? true)" (onChange)="toggleActivo(row, $event)"></p-inputSwitch>
           </td>
           <td style="text-align:right; display:flex; justify-content:flex-end; gap:6px;">
-            <button *ngIf="!isBackend" pButton type="button" class="p-button p-button-text" (click)="editar(row)" title="Editar"><i class="pi pi-pencil"></i></button>
+            <button pButton type="button" class="p-button p-button-text" (click)="editar(row)" title="Editar"><i class="pi pi-pencil"></i></button>
             <button pButton type="button" class="p-button p-button-text" (click)="configurar(row)" title="Configurar"><i class="pi pi-cog"></i></button>
-            <button *ngIf="!isBackend" pButton type="button" class="p-button p-button-text danger" (click)="confirmarEliminar(row)" title="Eliminar"><i class="pi pi-trash"></i></button>
+            <button pButton type="button" class="p-button p-button-text danger" (click)="confirmarEliminar(row)" title="Eliminar"><i class="pi pi-trash"></i></button>
           </td>
         </tr>
       </ng-template>
@@ -57,7 +57,7 @@
 </div>
 
 <!-- Panel lateral derecho: Formulario de edición/creación -->
-<p-sidebar [visible]="panelAbierto() && !isBackend" position="right" [modal]="true" (onHide)="cerrarPanel()" styleClass="p-sidebar-sm light-sidebar" [dismissible]="false" [closeOnEscape]="false" [showCloseIcon]="true" [blockScroll]="true" [style]="{ width: '480px' }">
+<p-sidebar [visible]="panelAbierto()" position="right" [modal]="true" (onHide)="cerrarPanel()" styleClass="p-sidebar-sm light-sidebar" [dismissible]="false" [closeOnEscape]="false" [showCloseIcon]="true" [blockScroll]="true" [style]="{ width: '480px' }">
   <div class="sidebar-panel white-theme">
     <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
       <h3 style="margin:0;">{{ editandoId() ? 'Editar parámetro' : 'Nuevo parámetro' }}</h3>
@@ -71,6 +71,10 @@
       <div class="form-field">
         <label for="descripcion">Descripción</label>
         <input id="descripcion" pInputText type="text" formControlName="descripcion" placeholder="Descripción" />
+      </div>
+      <div class="form-field" style="align-items:flex-start;">
+        <label>Activo</label>
+        <p-inputSwitch formControlName="activo"></p-inputSwitch>
       </div>
 
       <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:4px;">

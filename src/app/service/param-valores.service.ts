@@ -25,6 +25,22 @@ export class ParamValoresService {
     return this.subjects.get(key)!;
   }
 
+  // Sincroniza todos los valores (siembra desde backend)
+  setAll(orgId: number, paramName: string, items: ParamValue[]) {
+    const normalized = (items || []).map((v, i) => ({
+      id: v.id ?? this.genId(items) + i,
+      orgId,
+      paramName,
+      label: v.label,
+      valueText: v.valueText,
+      valueNum: v.valueNum,
+      activo: v.activo ?? true,
+      orden: v.orden ?? (i + 1)
+    })) as ParamValue[];
+    this.persist(orgId, paramName, normalized);
+    this.subject(orgId, paramName).next(normalized);
+  }
+
   // upsert flexible: si viene id, fusiona con existente; si no, crea con defaults
   upsert(orgId: number, paramName: string, item: Partial<ParamValue> & { id?: number }): ParamValue {
     const list = this.load(orgId, paramName);

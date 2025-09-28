@@ -782,3 +782,47 @@ a:hover { text-decoration: underline; }
 }
 :root.theme-light body .p-sidebar { box-shadow: none !important; }
 :root.theme-light body .p-sidebar-mask { background: rgba(255, 255, 255, 0.65) !important; }
+
+/* Overrides definitivas para tema claro (evitar fondos oscuros en overlays) */
+:root.theme-light {
+  /* Sidebar (PrimeNG p-sidebar) en modo claro */
+  .p-sidebar.light-sidebar,
+  .p-sidebar.light-sidebar .p-sidebar-header,
+  .p-sidebar.light-sidebar .p-sidebar-content,
+  .p-sidebar.light-sidebar .p-sidebar-footer {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+  .p-sidebar.light-sidebar .p-sidebar-close,
+  .p-sidebar.light-sidebar .p-sidebar-icon,
+  .p-sidebar.light-sidebar .pi {
+    color: #000000 !important;
+  }
+  .p-sidebar-mask { background: rgba(0,0,0,0.35); } /* sombra estándar */
+
+  /* Dropdowns siempre claros */
+  .p-dropdown,
+  .p-dropdown .p-dropdown-label,
+  .p-dropdown .p-dropdown-trigger,
+  .p-dropdown-panel,
+  .p-dropdown-panel .p-dropdown-items,
+  .p-dropdown-panel .p-dropdown-item {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+  .p-dropdown-panel .p-dropdown-item.p-highlight { background: #e8f0fe !important; color: #111827 !important; }
+
+  /* Inputs dentro de overlays en claro */
+  .p-inputtext,
+  .p-inputtextarea {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+}
+
+/* Asegurar que el sidebar pequeño use el ancho correcto pero mantenga fondo claro */
+.p-sidebar-sm.p-sidebar { width: 480px; max-width: 92vw; }
+
+/* Panel lateral interno utilitario */
+.white-theme { background: #ffffff !important; color: #000000 !important; }
+

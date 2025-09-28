@@ -11,7 +11,7 @@ export interface Parametro {
   orgId?: number;
   nombre: string;
   descripcion?: string;
-  tipo: ParamTipo;
+  tipo?: ParamTipo; // ahora opcional porque el backend de defs no lo envía
   porDefecto?: boolean;
   // nuevos campos del endpoint defs/values
   orgIdDef?: number;
@@ -47,24 +47,29 @@ export class ParametrosService {
   get sourceIsBackend$() { return this.fromBackend$.asObservable(); }
   get sourceIsBackend(): boolean { return this.fromBackend$.value; }
 
-  // Endpoint actualizado: definiciones con valores
+  // Endpoint actualizado: definiciones con posibles valores
   fetchDefs(orgId: number): Observable<Parametro[]> {
     const url = `${this.defsUrl}?orgId=${encodeURIComponent(String(orgId))}`;
     return this.http.get<ApiResponse<Parametro[]>>(url).pipe(
       map(resp => Array.isArray((resp as any)?.data) ? (resp as any).data as any[] : (resp as any) as any[]),
       map((arr: any[]) => (arr || []).map(it => ({
-        orgId: it.orgId,
+        orgId: it.orgId ?? it.orgIdDef,
         nombre: it.nombre,
         descripcion: it.descripcion,
         porDefecto: !!it.porDefecto,
-        activo: typeof it.activo === 'boolean' ? it.activo : true
+        orgIdDef: it.orgIdDef,
+        valor: typeof it.valor !== 'undefined' ? String(it.valor) : undefined,
+        activoDef: typeof it.activoDef === 'boolean' ? it.activoDef : undefined,
+        activoValor: typeof it.activoValor === 'boolean' ? it.activoValor : undefined,
+        activo: typeof it.activo === 'boolean' ? it.activo : (typeof it.activoValor === 'boolean' ? it.activoValor : true),
+        valores: Array.isArray(it.valores) ? it.valores.map((v: any) => ({ orgId: v.orgId, sectionId: v.sectionId ?? null, valor: String(v.valor), activo: !!v.activo })) : []
       }) as Parametro)),
       tap(arr => { this.persist(arr); this.fromBackend$.next(true); })
     );
   }
 
   create(p: Omit<Parametro, 'id' | 'createdAt' | 'updatedAt' | 'deletedAt' | 'porDefecto' | 'orgIdDef' | 'valor' | 'activoDef' | 'activoValor' | 'valores'>): Observable<Parametro> {
-    const body = { orgId: p.orgId, nombre: p.nombre, descripcion: p.descripcion, tipo: p.tipo };
+    const body = { orgId: p.orgId, nombre: p.nombre, descripcion: p.descripcion, tipo: p.tipo, activo: p.activo };
     return this.http.post<ApiResponse<Parametro>>(this.baseUrl, body).pipe(
       map(resp => (resp as any)?.data ?? (resp as any)),
       tap(item => this.upsertLocal(item))

@@ -32,7 +32,7 @@
       </div>
       <div style="display:flex; gap:8px;">
         <button pButton type="button" class="p-button p-button-outlined" (click)="backToList()"><i class="pi pi-arrow-left"></i><span style="margin-left:8px;">Volver</span></button>
-        <button *ngIf="!paramsService.sourceIsBackend" pButton type="button" class="p-button p-button-primary" (click)="abrirNuevo()"><i class="pi pi-plus"></i><span style="margin-left:8px;">Nuevo</span></button>
+        <button pButton type="button" class="p-button p-button-primary" (click)="abrirNuevo()"><i class="pi pi-plus"></i><span style="margin-left:8px;">Nuevo</span></button>
         <app-theme-toggle mode="cycle"></app-theme-toggle>
       </div>
     </div>
@@ -58,11 +58,11 @@
           <td *ngIf="tipo() === 'TEXT'">{{ row.valueText }}</td>
           <td *ngIf="tipo() === 'NUM'">{{ row.valueNum }}</td>
           <td>
-            <p-inputSwitch [ngModel]="row.activo" (onChange)="toggleActivo(row)" [disabled]="paramsService.sourceIsBackend"></p-inputSwitch>
+            <p-inputSwitch [(ngModel)]="row.activo" (onChange)="toggleActivo(row, $event.checked)"></p-inputSwitch>
           </td>
-          <td style="text-align:right; display:flex; justify-content:flex-end; gap:6px;">
-            <button *ngIf="!paramsService.sourceIsBackend" pButton type="button" class="p-button p-button-text" (click)="abrirEditar(row)" title="Editar"><i class="pi pi-pencil"></i></button>
-            <button *ngIf="!paramsService.sourceIsBackend" pButton type="button" class="p-button p-button-text danger" (click)="confirmarEliminar(row)" title="Eliminar"><i class="pi pi-trash"></i></button>
+          <td style="text-align:right; display:flex; justify-content:flex-end; gap:6px; background:#ffffff;">
+            <button pButton type="button" class="p-button p-button-text" (click)="abrirEditar(row)" title="Editar"><i class="pi pi-pencil"></i></button>
+            <button pButton type="button" class="p-button p-button-text danger" (click)="confirmarEliminar(row)" title="Eliminar"><i class="pi pi-trash"></i></button>
           </td>
         </tr>
       </ng-template>
@@ -71,11 +71,16 @@
 </div>
 
 <!-- Panel lateral derecho: Formulario de nuevo/editar valor -->
-<p-sidebar [visible]="panelAbierto() && !paramsService.sourceIsBackend" position="right" [modal]="true" (onHide)="cerrarPanel()" styleClass="p-sidebar-sm light-sidebar" [dismissible]="false" [closeOnEscape]="false" [showCloseIcon]="true" [blockScroll]="true" [style]="{ width: '560px' }">
+<p-sidebar [visible]="panelAbierto()" position="right" [modal]="true" (onHide)="cerrarPanel()" styleClass="p-sidebar-sm light-sidebar" [dismissible]="false" [closeOnEscape]="false" [showCloseIcon]="true" [blockScroll]="true" [style]="{ width: '560px' }">
   <div class="sidebar-panel white-theme">
     <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
       <h3 style="margin:0;">{{ editId() ? 'Editar valor' : 'Nuevo valor' }}</h3>
-      <button pButton type="button" class="p-button p-button-text" (click)="cerrarPanel()"><i class="pi pi-times"></i></button>
+      <div style="display:flex; gap:6px;">
+        <button pButton type="button" class="p-button p-button-text" (click)="abrirNuevo()" title="Nuevo"><i class="pi pi-plus"></i></button>
+        <button pButton type="button" class="p-button p-button-text" [disabled]="!editId()" title="Editar"><i class="pi pi-pencil"></i></button>
+        <button pButton type="button" class="p-button p-button-text danger" [disabled]="!editId()" (click)="confirmarEliminarActual()" title="Eliminar"><i class="pi pi-trash"></i></button>
+        <button pButton type="button" class="p-button p-button-text" (click)="cerrarPanel()"><i class="pi pi-times"></i></button>
+      </div>
     </div>
 
     <form [formGroup]="form" (ngSubmit)="guardar()" style="display:flex; flex-direction:column; gap:12px;">

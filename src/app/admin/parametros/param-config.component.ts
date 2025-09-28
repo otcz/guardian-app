@@ -12,16 +12,17 @@ import { SidebarModule } from 'primeng/sidebar';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
 import { ThemeToggleComponent } from '../../shared/theme-toggle.component';
-import { ParametrosService, ParamTipo } from '../../service/parametros.service';
+import { ParametrosService, ParamTipo, Parametro } from '../../service/parametros.service';
 import { ParamValoresService, ParamValue } from '../../service/param-valores.service';
 import { MenuService, MenuOption } from '../../service/menu.service';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { LowercaseDirective } from '../../shared/formatting.directives';
+import { UserAvatarComponent } from '../../shared/user-avatar.component';
 
 @Component({
   selector: 'app-param-config',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, ReactiveFormsModule, TableModule, ButtonModule, InputTextModule, InputNumberModule, InputSwitchModule, DropdownModule, SidebarModule, ConfirmDialogModule, ThemeToggleComponent, LowercaseDirective],
+  imports: [CommonModule, RouterModule, FormsModule, ReactiveFormsModule, TableModule, ButtonModule, InputTextModule, InputNumberModule, InputSwitchModule, DropdownModule, SidebarModule, ConfirmDialogModule, ThemeToggleComponent, UserAvatarComponent, LowercaseDirective],
   templateUrl: './param-config.component.html',
   styles: [`
     :host { display:block; }
@@ -36,6 +37,13 @@ import { LowercaseDirective } from '../../shared/formatting.directives';
     .steps .active { color: var(--primary); }
     .form-field { display:flex; flex-direction:column; gap:6px; }
     .muted { color: var(--muted); font-size: .9rem; }
+
+    /* Sidebar claro consistente */
+    :root.theme-light .light-sidebar .p-sidebar,
+    :root.theme-light .light-sidebar .p-sidebar-header,
+    :root.theme-light .light-sidebar .p-sidebar-content,
+    :root.theme-light .light-sidebar .p-sidebar-footer { background: #ffffff !important; color: #000000 !important; }
+    :root.theme-light .white-theme { background: #ffffff !important; color: #000000 !important; }
   `],
   providers: [ConfirmationService]
 })
@@ -52,7 +60,7 @@ export class ParamConfigComponent implements OnInit {
   // Exponer bandera de backend para la plantilla y lógica
   get isBackend(): boolean { return this.paramsService.sourceIsBackend; }
 
-  valores$!: import('rxjs').Observable<ParamValue[]>;
+  valores$!: Observable<ParamValue[]>;
 
   form!: FormGroup;
 
@@ -81,31 +89,56 @@ export class ParamConfigComponent implements OnInit {
     if (!name) { this.router.navigate(['/admin/parameters']); return; }
     this.nombre.set(name);
 
-    // Cargar desde backend siempre al entrar para asegurar bandera y datos
+    // Traer definiciones y sembrar valores en el store local de valores
     this.paramsService.fetchDefs(this.orgId).subscribe({
-      next: () => {
-        const after = this.paramsService.findByNombre(name);
-        if (after) {
-          if (after.tipo) this.tipo.set(after.tipo);
-          this.descripcion.set(after.descripcion || '');
-        }
-      },
-      error: () => { /* silencioso */ }
+      next: () => this.syncAndSeed(),
+      error: () => this.syncAndSeed()
     });
 
-    // Si ya hay datos en memoria, mostrarlos de inmediato
-    const def = this.paramsService.findByNombre(name);
-    if (def) {
-      if (def.tipo) this.tipo.set(def.tipo);
-      this.descripcion.set(def.descripcion || '');
-    }
-
-    // Ya no se siembran valores por defecto en el front: deben venir del backend
+    // Fuente única para la tabla: store local de valores
     this.valores$ = this.valuesService.list$(this.orgId, this.nombre()).asObservable();
   }
 
+  private syncAndSeed() {
+    const def = this.paramsService.findByNombre(this.nombre());
+    if (!def) return;
+    // inferencia de tipo y metadata
+    this.tipo.set(def.tipo ?? this.inferTipo(def));
+    this.descripcion.set(def.descripcion || '');
+
+    // Si backend entregó valores, sembrarlos una vez en el store local
+    const vals = Array.isArray(def.valores) ? def.valores : [];
+    if (vals.length > 0) {
+      const t = this.tipo();
+      let idx = 0;
+      const mapped = vals.map(v => {
+        const id = ++idx;
+        const base: ParamValue = { id, orgId: v.orgId, paramName: def.nombre, activo: !!v.activo, orden: id } as ParamValue;
+        if (t === 'NUM') return { ...base, valueNum: Number(v.valor) } as ParamValue;
+        if (t === 'TEXT') return { ...base, valueText: String(v.valor) } as ParamValue;
+        return { ...base, label: String(v.valor) } as ParamValue;
+      });
+      this.valuesService.setAll(this.orgId, this.nombre(), mapped);
+    }
+  }
+
+  private syncDef() {
+    const def = this.paramsService.findByNombre(this.nombre());
+    if (!def) return;
+    this.tipo.set(def.tipo ?? this.inferTipo(def));
+    this.descripcion.set(def.descripcion || '');
+  }
+
+  private inferTipo(def: Parametro): ParamTipo {
+    const n = (def.nombre || '').toUpperCase();
+    const v = def.valor || '';
+    if (/^(DURACION|TIEMPO|MAX)_/.test(n)) return 'NUM';
+    if (/HORARIO/.test(n) || /:\d{2}-/.test(v)) return 'TEXT';
+    if (/^\d+(,\d+)*$/.test(v)) return 'NUM';
+    return 'LIST';
+  }
+
   abrirNuevo() {
-    if (this.isBackend) return;
     this.editId.set(null);
     const list = (this.valuesService.list$(this.orgId, this.nombre()).value || []);
     const nextOrden = list.reduce((m, x) => Math.max(m, x.orden || 0), 0) + 1;
@@ -114,7 +147,6 @@ export class ParamConfigComponent implements OnInit {
   }
 
   abrirEditar(v: ParamValue) {
-    if (this.isBackend) return;
     this.editId.set(v.id);
     this.form.reset({
       label: v.label || '',
@@ -129,7 +161,6 @@ export class ParamConfigComponent implements OnInit {
   cerrarPanel() { this.panelAbierto.set(false); }
 
   guardar() {
-    if (this.isBackend) return;
     if (this.form.invalid) return;
     const raw = this.form.getRawValue();
     const payload: any = { activo: !!raw.activo, orden: Number(raw.orden || 1) };
@@ -142,7 +173,6 @@ export class ParamConfigComponent implements OnInit {
   }
 
   confirmarEliminar(v: ParamValue) {
-    if (this.isBackend) return;
     this.confirm.confirm({
       message: `¿Eliminar este valor?`,
       header: 'Confirmar eliminación',
@@ -155,13 +185,20 @@ export class ParamConfigComponent implements OnInit {
     });
   }
 
-  toggleActivo(v: ParamValue) {
-    if (this.isBackend) return;
-    this.valuesService.upsert(this.orgId, this.nombre(), { id: v.id, activo: !v.activo });
+  confirmarEliminarActual() {
+    const id = this.editId();
+    if (!id) return;
+    // Construir un objeto mínimo para reutilizar confirmarEliminar
+    const current: ParamValue = { id, orgId: this.orgId, paramName: this.nombre(), activo: true, orden: 1 };
+    this.confirmarEliminar(current);
+  }
+
+  toggleActivo(v: ParamValue, value?: boolean) {
+    const nuevo = typeof value === 'boolean' ? value : !v.activo;
+    this.valuesService.upsert(this.orgId, this.nombre(), { id: v.id, activo: nuevo });
   }
 
   mover(v: ParamValue, dir: 1 | -1) {
-    if (this.isBackend) return;
     const list = this.valuesService.list$(this.orgId, this.nombre()).value.slice();
     const idx = list.findIndex(x => x.id === v.id);
     if (idx < 0) return;

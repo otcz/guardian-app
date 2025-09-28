@@ -52,7 +52,8 @@ export class ParametrosComponent implements OnInit {
   constructor(private fb: FormBuilder, private params: ParametrosService, private menu: MenuService, private confirm: ConfirmationService, private router: Router, public theme: ThemeService) {
     this.form = this.fb.group({
       nombre: ['', [Validators.required, Validators.pattern(/^[a-z0-9_]+$/), Validators.maxLength(64)]],
-      descripcion: ['', [Validators.maxLength(255)]]
+      descripcion: ['', [Validators.maxLength(255)]],
+      activo: [true]
     });
   }
 
@@ -67,7 +68,8 @@ export class ParametrosComponent implements OnInit {
     this.editandoId.set(p.id ?? null);
     this.form.reset({
       nombre: (p.nombre || '').toLowerCase(),
-      descripcion: p.descripcion ?? ''
+      descripcion: p.descripcion ?? '',
+      activo: (p.activo ?? p.activoValor ?? p.activoDef ?? true)
     });
     this.form.get('nombre')!.enable();
     this.panelAbierto.set(true);
@@ -75,7 +77,7 @@ export class ParametrosComponent implements OnInit {
 
   nuevo() {
     this.editandoId.set(null);
-    this.form.reset();
+    this.form.reset({ nombre: '', descripcion: '', activo: true });
     this.form.get('nombre')!.enable();
     this.panelAbierto.set(true);
   }
@@ -86,13 +88,13 @@ export class ParametrosComponent implements OnInit {
     if (this.form.invalid) return;
     const raw = this.form.getRawValue();
     const orgId = Number(localStorage.getItem('orgId') ?? '1');
-    const dto = { orgId, nombre: String(raw.nombre).trim(), descripcion: (raw.descripcion || '').trim() };
+    const dto = { orgId, nombre: String(raw.nombre).trim(), descripcion: (raw.descripcion || '').trim(), activo: !!raw.activo };
 
     const id = this.editandoId();
     if (id != null) {
       // conservar el tipo actual al editar, si está disponible
       const tipoActual: ParamTipo | undefined = (this.params.list.find(x => x.id === id)?.tipo) || (this.params.list.find(x => x.nombre === dto.nombre)?.tipo);
-      const payload: Partial<Parametro> = { nombre: dto.nombre, descripcion: dto.descripcion };
+      const payload: Partial<Parametro> = { nombre: dto.nombre, descripcion: dto.descripcion, activo: dto.activo };
       if (tipoActual) (payload as any).tipo = tipoActual;
       this.params.update(id, payload).subscribe({
         next: () => { this.cerrarPanel(); this.nuevo(); },
@@ -101,7 +103,7 @@ export class ParametrosComponent implements OnInit {
     } else {
       // crear con tipo por defecto (sin selector en UI)
       const tipoDefault: ParamTipo = 'TEXT';
-      this.params.create({ orgId, nombre: dto.nombre, descripcion: dto.descripcion, tipo: tipoDefault } as any).subscribe({
+      this.params.create({ orgId, nombre: dto.nombre, descripcion: dto.descripcion, tipo: tipoDefault, activo: dto.activo } as any).subscribe({
         next: () => { this.cerrarPanel(); this.nuevo(); },
         error: () => {/* opcional: notificar */}
       });

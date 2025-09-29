@@ -1,0 +1,10 @@
+:host { display:block; }
+.admin-grid { display:grid; grid-template-columns: auto 1fr; gap: 16px; }
+.header-row { display:flex; align-items:center; gap: 10px; }
+.spacer { flex: 1 1 auto; }
+.form { display:flex; flex-direction: column; gap: 16px; }
+.grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+.form-field { display:flex; flex-direction: column; gap: 6px; }
+.actions { display:flex; gap: 10px; justify-content: flex-end; }
+.danger { color: var(--danger); }
+

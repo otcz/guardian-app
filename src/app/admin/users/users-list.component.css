@@ -1,0 +1,10 @@
+.admin-grid { display:grid; grid-template-columns:auto 1fr; gap:16px; }
+.header-row { display:flex; align-items:center; gap:10px; }
+.spacer { flex:1 1 auto; }
+.filters { display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+.status.ok { color: var(--success, #22c55e); }
+.status.warn { color: var(--warning, #f59e42); }
+.status.block { color: var(--danger, #ef4444); }
+.actions { white-space:nowrap; }
+.pill { margin-right:2px; }
+

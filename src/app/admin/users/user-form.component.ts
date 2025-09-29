@@ -14,72 +14,8 @@ import { Subject, Subscription, debounceTime, switchMap } from 'rxjs';
   selector: 'app-user-form',
   standalone: true,
   imports: [CommonModule, RouterModule, ReactiveFormsModule, FormsModule, InputTextModule, ButtonModule, TooltipModule, SideNavComponent],
-  template: `
-  <div class="admin-grid">
-    <app-side-nav title="Administración"></app-side-nav>
-    <div class="card">
-      <div class="header-row">
-        <h2>{{ isEdit() ? 'Editar usuario' : 'Crear usuario' }}</h2>
-        <span class="spacer"></span>
-      </div>
-
-      <form class="form" [formGroup]="form" (ngSubmit)="submit()" autocomplete="off">
-        <div class="grid">
-          <div class="form-field">
-            <label for="nombres">Nombres</label>
-            <input id="nombres" pInputText formControlName="nombres" required />
-          </div>
-          <div class="form-field">
-            <label for="apellidos">Apellidos</label>
-            <input id="apellidos" pInputText formControlName="apellidos" />
-          </div>
-          <div class="form-field">
-            <label for="documento">Documento</label>
-            <input id="documento" pInputText formControlName="documento" />
-          </div>
-          <div class="form-field">
-            <label for="username">Username</label>
-            <input id="username" pInputText formControlName="username" required (blur)="checkUsername()" />
-            <small class="muted danger" *ngIf="usernameDuplicate">El username ya existe en la organización.</small>
-          </div>
-          <div class="form-field">
-            <label for="email">Email</label>
-            <input id="email" pInputText type="email" formControlName="email" />
-          </div>
-          <div class="form-field" *ngIf="!isEdit()">
-            <label for="password">Contraseña</label>
-            <input id="password" pInputText type="password" formControlName="password" required />
-            <small class="muted">Mínimo 8 caracteres.</small>
-          </div>
-        </div>
-
-        <div class="actions">
-          <button pButton type="button" label="Cancelar" class="p-button-outlined" (click)="back()"></button>
-          <button pButton type="submit" [label]="isEdit() ? 'Editar' : 'Guardar'" [disabled]="form.invalid"></button>
-        </div>
-      </form>
-
-      <div *ngIf="isEdit()" class="card" style="margin-top:12px">
-        <h3>Cambiar contraseña</h3>
-        <form class="form-inline" (ngSubmit)="changePassword()" autocomplete="off">
-          <input pInputText type="password" placeholder="Nueva contraseña" [(ngModel)]="newPassword" name="newPassword" required minlength="8" />
-          <button pButton type="submit" class="p-button-outlined" label="Actualizar" [disabled]="!newPassword || newPassword.length < 8"></button>
-        </form>
-      </div>
-    </div>
-  </div>
-  `,
-  styles: [`
-    :host { display:block; }
-    .admin-grid { display:grid; grid-template-columns: auto 1fr; gap: 16px; }
-    .header-row { display:flex; align-items:center; gap: 10px; }
-    .spacer { flex: 1 1 auto; }
-    .form { display:flex; flex-direction: column; gap: 16px; }
-    .grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
-    .form-field { display:flex; flex-direction: column; gap: 6px; }
-    .actions { display:flex; gap: 10px; justify-content: flex-end; }
-    .danger { color: var(--danger); }
-  `]
+  templateUrl: './user-form.component.html',
+  styleUrls: ['./user-form.component.css']
 })
 export class UserFormComponent implements OnInit, OnDestroy {
   form!: FormGroup;

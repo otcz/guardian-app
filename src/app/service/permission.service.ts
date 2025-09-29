@@ -47,4 +47,20 @@ export class PermissionService {
   // Toggle activo puede usar mismas reglas de edición
   canToggleParam(porDefecto?: boolean) { return this.canEditParam(porDefecto); }
   canToggleValue(paramPorDefecto?: boolean, valuePorDefecto?: boolean) { return this.canEditValue(paramPorDefecto, valuePorDefecto); }
+
+  // ===================== Usuarios/Roles (RBAC) =====================
+  // Lectura general
+  canViewUsers(): boolean { return this.has('SYSTEM_ADMIN') || this.has('SUPER_ADMIN') || this.has('ADMIN'); }
+  canCreateUser(): boolean { return this.has('SYSTEM_ADMIN') || this.has('SUPER_ADMIN') || this.has('ADMIN'); }
+  canEditUser(): boolean { return this.has('SYSTEM_ADMIN') || this.has('SUPER_ADMIN') || this.has('ADMIN'); }
+  canChangeUserStatus(): boolean { return this.has('SYSTEM_ADMIN') || this.has('SUPER_ADMIN') || this.has('ADMIN'); }
+  canAssignRoles(): boolean { return this.has('SYSTEM_ADMIN') || this.has('SUPER_ADMIN'); }
+  canAssignSections(): boolean { return this.has('SYSTEM_ADMIN') || this.has('SUPER_ADMIN') || this.has('ADMIN'); }
+  canViewUserAudit(): boolean { return this.has('SYSTEM_ADMIN') || this.has('SUPER_ADMIN'); }
+
+  // Roles
+  canViewRoles(): boolean { return this.has('SYSTEM_ADMIN') || this.has('SUPER_ADMIN'); }
+  canCreateRole(): boolean { return this.has('SYSTEM_ADMIN') || this.has('SUPER_ADMIN'); }
+  canEditRole(): boolean { return this.has('SYSTEM_ADMIN') || this.has('SUPER_ADMIN'); }
+  canDeleteRole(): boolean { return this.has('SYSTEM_ADMIN') || this.has('SUPER_ADMIN'); }
 }

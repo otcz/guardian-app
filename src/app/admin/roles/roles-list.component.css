@@ -1,0 +1,5 @@
+.admin-grid{display:grid;grid-template-columns:auto 1fr;gap:16px}
+.header-row{display:flex;align-items:center;gap:10px}
+.spacer{flex:1 1 auto}
+td.actions{white-space:nowrap}
+

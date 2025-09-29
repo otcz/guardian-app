@@ -15,38 +15,8 @@ import { SideNavComponent } from '../../shared/side-nav.component';
   standalone: true,
   imports: [CommonModule, RouterModule, TableModule, ButtonModule, ConfirmDialogModule, SideNavComponent],
   providers: [ConfirmationService],
-  template: `
-  <div class="admin-grid">
-    <app-side-nav title="Administración"></app-side-nav>
-    <div class="card">
-      <div class="header-row">
-        <h2>Roles</h2>
-        <span class="spacer"></span>
-        <button pButton label="Crear rol" icon="pi pi-plus" (click)="goNew()" *ngIf="perm.canCreateRole()"></button>
-      </div>
-
-      <p-table [value]="items">
-        <ng-template pTemplate="header">
-          <tr><th>Nombre</th><th>Código</th><th>Descripción</th><th class="actions">Acciones</th></tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-row>
-          <tr>
-            <td>{{ row.name }}</td>
-            <td>{{ row.code || '-' }}</td>
-            <td>{{ row.description || '-' }}</td>
-            <td class="actions">
-              <button pButton icon="pi pi-pencil" class="p-button-text" (click)="edit(row)" [disabled]="!perm.canEditRole()"></button>
-              <button pButton icon="pi pi-trash" class="p-button-text" (click)="remove(row)" [disabled]="!perm.canDeleteRole()"></button>
-            </td>
-          </tr>
-        </ng-template>
-      </p-table>
-
-      <p-confirmDialog></p-confirmDialog>
-    </div>
-  </div>
-  `,
-  styles: [`.admin-grid{display:grid;grid-template-columns:auto 1fr;gap:16px}.header-row{display:flex;align-items:center;gap:10px}.spacer{flex:1 1 auto} td.actions{white-space:nowrap}`]
+  templateUrl: './roles-list.component.html',
+  styleUrls: ['./roles-list.component.css']
 })
 export class RolesListComponent implements OnInit {
   items: Role[] = [];

@@ -1,9 +1,64 @@
 /* Mantener layout original del formulario */
-.admin-grid{display:grid;grid-template-columns:auto 1fr;gap:16px}
-.header-row{display:flex;align-items:center;gap:10px}
-.spacer{flex:1 1 auto}
-.form{display:flex;flex-direction:column;gap:16px}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
-.form-field{display:flex;flex-direction:column;gap:6px}
-.actions{display:flex;justify-content:flex-end;gap:8px}
+.admin-grid {
+    display: grid;
+    grid-template-columns:auto 1fr;
+    gap: 16px
+}
 
+.header-row {
+    display: flex;
+    align-items: center;
+    gap: 10px
+}
+
+.spacer {
+    flex: 1 1 auto
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px
+}
+
+.grid {
+    display: grid;
+    grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px
+}
+
+.form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px
+}
+
+.actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 8px;
+    margin-right: 20px
+}
+
+/* Separar el input de Nombre del borde izquierdo */
+.form-field:first-child {
+    margin-left: 18px;
+    margin-top: 10px;
+}
+
+/* Separar el título "Crear rol" del borde izquierdo */
+.header-row h2 {
+    margin-left: 10px;
+    margin-top: 10px;
+}
+
+.form-field {
+    margin-left: 10px;
+    margin-top: 10px;
+    margin-right: 30px;
+}
+
+.p-button-outlined{
+    margin-left: 10px;
+}

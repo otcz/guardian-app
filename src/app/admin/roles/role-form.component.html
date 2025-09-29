@@ -1,0 +1,31 @@
+<div class="admin-grid">
+  <app-side-nav title="Administración"></app-side-nav>
+  <div class="card">
+    <div class="header-row">
+      <h2>{{ id? 'Editar rol' : 'Crear rol' }}</h2>
+      <span class="spacer"></span>
+    </div>
+
+    <form class="form" [formGroup]="form" (ngSubmit)="submit()">
+      <div class="grid">
+        <div class="form-field">
+          <label for="name">Nombre</label>
+          <input id="name" pInputText formControlName="name" required />
+        </div>
+        <div class="form-field">
+          <label for="code">Código</label>
+          <input id="code" pInputText formControlName="code" />
+        </div>
+        <div class="form-field">
+          <label for="description">Descripción</label>
+          <input id="description" pInputText formControlName="description" />
+        </div>
+      </div>
+      <div class="actions">
+        <button pButton type="button" label="Cancelar" class="p-button-outlined" (click)="back()"></button>
+        <button pButton type="submit" [label]="id? 'Editar' : 'Guardar'" [disabled]="form.invalid"></button>
+      </div>
+    </form>
+  </div>
+</div>
+

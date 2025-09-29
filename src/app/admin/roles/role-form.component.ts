@@ -12,30 +12,8 @@ import { SideNavComponent } from '../../shared/side-nav.component';
   selector: 'app-role-form',
   standalone: true,
   imports: [CommonModule, RouterModule, ReactiveFormsModule, InputTextModule, ButtonModule, SideNavComponent],
-  template: `
-  <div class="admin-grid">
-    <app-side-nav title="Administración"></app-side-nav>
-    <div class="card">
-      <div class="header-row">
-        <h2>{{ id? 'Editar rol' : 'Crear rol' }}</h2>
-        <span class="spacer"></span>
-      </div>
-
-      <form class="form" [formGroup]="form" (ngSubmit)="submit()">
-        <div class="grid">
-          <div class="form-field"><label for="name">Nombre</label><input id="name" pInputText formControlName="name" required /></div>
-          <div class="form-field"><label for="code">Código</label><input id="code" pInputText formControlName="code" /></div>
-          <div class="form-field"><label for="description">Descripción</label><input id="description" pInputText formControlName="description" /></div>
-        </div>
-        <div class="actions">
-          <button pButton type="button" label="Cancelar" class="p-button-outlined" (click)="back()"></button>
-          <button pButton type="submit" [label]="id? 'Editar' : 'Guardar'" [disabled]="form.invalid"></button>
-        </div>
-      </form>
-    </div>
-  </div>
-  `,
-  styles: [`.admin-grid{display:grid;grid-template-columns:auto 1fr;gap:16px}.header-row{display:flex;align-items:center;gap:10px}.spacer{flex:1 1 auto}.form{display:flex;flex-direction:column;gap:16px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}.form-field{display:flex;flex-direction:column;gap:6px}`]
+  templateUrl: './role-form.component.html',
+  styleUrls: ['./role-form.component.css']
 })
 export class RoleFormComponent implements OnInit {
   id: number | null = null;

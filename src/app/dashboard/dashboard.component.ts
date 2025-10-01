@@ -50,7 +50,17 @@ export class DashboardComponent {
   }
 
   toggleMenu(key: string) {
-    this.expanded[key] = !this.expanded[key];
+    const currently = this.expanded[key];
+    // Si va a expandirse (estaba false o undefined), colapsar los demás primero
+    if (!currently) {
+      Object.keys(this.expanded).forEach(k => {
+        if (k !== key) this.expanded[k] = false;
+      });
+      this.expanded[key] = true;
+    } else {
+      // Si ya estaba expandido, simplemente lo colapsamos
+      this.expanded[key] = false;
+    }
     this.persistExpandedState();
   }
 

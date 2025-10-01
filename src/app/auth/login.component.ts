@@ -46,28 +46,27 @@ export class LoginComponent {
     if (isSys) payload.orgCode = 'SYSTEM';
 
     this.auth.login(payload).subscribe({
-      next: (resp: any) => {
-        const token = resp?.data?.token;
-        if (!resp?.success || !token) {
-          this.errorMsg = 'Credenciales incorrectas.';
+      next: (resp) => {
+        const token = resp?.token;
+        if (!token) {
+          this.errorMsg = 'Respuesta inválida del servidor.';
           this.loading = false; return;
         }
-        // Guardar sesión básica
+        // Guardar sesión básica (ya lo hace el servicio, pero mantenemos por claridad redundante mínima)
         localStorage.setItem('token', token);
-        if (resp?.data?.refreshToken) localStorage.setItem('refreshToken', resp.data.refreshToken);
-        if (resp?.data?.expiresAt) localStorage.setItem('expiresAt', resp.data.expiresAt);
-        if (resp?.data?.username) localStorage.setItem('username', resp.data.username);
-        if (resp?.data?.orgId != null) localStorage.setItem('orgId', String(resp.data.orgId));
-        if (Array.isArray(resp?.data?.roles)) localStorage.setItem('roles', JSON.stringify(resp.data.roles));
-        // Guardar opciones de navegación del backend
-        this.menu.setFromLogin({ opciones: resp?.data?.opciones, opcionesDetalle: resp?.data?.opcionesDetalle });
+        localStorage.setItem('username', resp.username || username);
+        localStorage.setItem('roles', JSON.stringify(resp.roles || []));
+        const expiresAt = Date.now() + (resp.expiresIn * 1000);
+        localStorage.setItem('expiresAt', String(expiresAt));
+        // Menú (el servicio ya lo hace, pero mantenemos idempotente)
+        this.menu.setFromLogin(resp.opcionesDetalle);
         // Navegar al dashboard
         this.router.navigate(['/dashboard']);
         this.loading = false;
       },
       error: (e: any) => {
-        if (e?.status === 0) this.errorMsg = 'No fue posible conectar con el servidor. Verifica el backend en http://localhost:8081/auth/login.';
-        else if (e?.status === 404) this.errorMsg = 'Endpoint no encontrado (404): http://localhost:8081/auth/login';
+        if (e?.status === 0) this.errorMsg = 'No fue posible conectar con el servidor.';
+        else if (e?.status === 404) this.errorMsg = 'Endpoint no encontrado /auth/login (ver proxy).';
         else if (e?.status === 401) this.errorMsg = 'Credenciales incorrectas.';
         else this.errorMsg = e?.error?.message || 'Error de autenticación.';
         this.loading = false;

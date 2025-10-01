@@ -22,11 +22,13 @@ import { Observable } from 'rxjs';
 })
 export class DashboardComponent {
   sidebarOpen = true;
-  options$: Observable<MenuOption[]> = this.menu.list$;
+  options$!: Observable<MenuOption[]>; // inicializada en el constructor
   activities = [
     { fecha: '2025-09-24 10:21', evento: 'Login', detalle: 'sysadmin' },
     { fecha: '2025-09-24 10:25', evento: 'Creó usuario', detalle: 'juan.perez' },
     { fecha: '2025-09-24 10:40', evento: 'Asignó vehículo', detalle: 'ABC-123' }
   ];
-  constructor(private menu: MenuService) {}
+  constructor(private menu: MenuService) {
+    this.options$ = this.menu.list$;
+  }
 }

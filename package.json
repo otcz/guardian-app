@@ -30,6 +30,7 @@
     "@angular/platform-browser": "18.2.14",
     "@angular/platform-browser-dynamic": "18.2.14",
     "@angular/router": "18.2.14",
+    "@mdi/font": "^7.4.47",
     "@primeng/themes": "^20.1.2",
     "primeflex": "^3.3.1",
     "primeicons": "^7.0.0",

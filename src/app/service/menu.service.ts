@@ -36,6 +36,35 @@ export class MenuService {
   private keys = new Set<string>();                           // Claves normalizadas
   private readonly FUZZY_THRESHOLD = 2; // distancia máxima permitida para considerar duplicado / similar
 
+  private readonly ICON_MAP: Record<string, string> = {
+    'user-shield': 'mdi mdi-shield-account',
+    'link': 'pi pi-link',
+    'autonomy': 'mdi mdi-account-cog-outline',
+    'swap': 'mdi mdi-swap-horizontal',
+    'tune': 'mdi mdi-tune',
+    'add': 'pi pi-plus',
+    'edit': 'pi pi-pencil',
+    'filter': 'pi pi-filter',
+    'settings': 'pi pi-cog',
+    'shield-lock': 'mdi mdi-shield-lock',
+    'strategy': 'mdi mdi-chess-knight',
+    'gate': 'mdi mdi-gate',
+    'layers': 'mdi mdi-layers',
+    'building': 'mdi mdi-office-building',
+    'menu': 'pi pi-bars',
+    'key': 'pi pi-key',
+    'shield': 'mdi mdi-shield-outline',
+    'tree': 'mdi mdi-file-tree',
+    'users': 'pi pi-users',
+    'car': 'pi pi-car',
+    'list': 'pi pi-list',
+    'override': 'mdi mdi-application-braces-outline',
+    'audit': 'mdi mdi-file-search-outline',
+    'chart': 'mdi mdi-chart-line',
+    'chart-pie': 'mdi mdi-chart-pie',
+    'eye': 'pi pi-eye'
+  };
+
   get items$() { return this.flatItems$.asObservable(); }
   get treeObservable$() { return this.tree$.asObservable(); }
   get tree(): MenuNode[] { return this.tree$.value; }
@@ -82,6 +111,17 @@ export class MenuService {
 
   // ================= Internos =================
 
+  private resolveIcon(raw: string | null | undefined): string {
+    if (!raw) return 'pi pi-circle';
+    const v = raw.trim();
+    if (/^(pi|mdi)\s/.test(v)) return v; // ya es clase compuesta
+    if (v.startsWith('mdi-')) return 'mdi ' + v;
+    if (v.startsWith('pi-')) return 'pi ' + v;
+    const norm = v.toLowerCase().replace(/[^a-z0-9-]+/g, '-').replace(/^-+|-+$/g, '');
+    if (this.ICON_MAP[norm]) return this.ICON_MAP[norm];
+    return 'mdi mdi-' + norm; // fallback genérico mdi
+  }
+
   private rebuild() {
     // 1. Normalizar duplicados y corregir problemas de codificación (acentos / caracteres raros)
     const normalizedMap = new Map<string, RawOption>();
@@ -108,7 +148,7 @@ export class MenuService {
       menusMap.set(key, {
         key,
         label: rawMenu ? rawMenu.nombre : pName,
-        icon: rawMenu?.icono || 'folder',
+        icon: this.resolveIcon(rawMenu?.icono || 'folder'),
         path: rawMenu?.ruta || null,
         type: 'MENU',
         children: [],
@@ -123,7 +163,7 @@ export class MenuService {
         menusMap.set(key, {
           key,
           label: raw.nombre,
-          icon: raw.icono || 'folder',
+          icon: this.resolveIcon(raw.icono || 'folder'),
           path: raw.ruta || null,
           type: 'MENU',
           children: [],
@@ -155,7 +195,7 @@ export class MenuService {
         key: nodeKey,
         label: raw.nombre,
         descripcion: raw.nombre,
-        icon: raw.icono || 'dot',
+        icon: this.resolveIcon(raw.icono || null),
         path: raw.ruta || null,
         type: 'ITEM',
         raw

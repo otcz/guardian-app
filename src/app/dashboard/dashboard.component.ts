@@ -5,7 +5,7 @@ import { TableModule } from 'primeng/table';
 import { ThemeToggleComponent } from '../shared/theme-toggle.component';
 import { RouterModule } from '@angular/router';
 import { MenuService, MenuOption } from '../service/menu.service';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 
 @Component({
   selector: 'app-dashboard',
@@ -22,13 +22,17 @@ import { Observable } from 'rxjs';
 })
 export class DashboardComponent {
   sidebarOpen = true;
-  options$!: Observable<MenuOption[]>; // inicializada en el constructor
+  options$!: Observable<MenuOption[]>; // plano (compatibilidad)
+  menus$!: Observable<MenuOption[]>;   // jerárquico (solo MENUs con hijos)
   activities = [
     { fecha: '2025-09-24 10:21', evento: 'Login', detalle: 'sysadmin' },
     { fecha: '2025-09-24 10:25', evento: 'Creó usuario', detalle: 'juan.perez' },
     { fecha: '2025-09-24 10:40', evento: 'Asignó vehículo', detalle: 'ABC-123' }
   ];
   constructor(private menu: MenuService) {
-    this.options$ = this.menu.list$;
+    this.options$ = this.menu.list$; // lista plana si la quisieras usar
+    this.menus$ = this.menu.treeObservable$.pipe(
+      map(tree => tree.filter(m => (m.children && m.children.length > 0)))
+    );
   }
 }

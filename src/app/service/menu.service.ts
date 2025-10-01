@@ -34,6 +34,7 @@ export class MenuService {
   private tree$ = new BehaviorSubject<MenuNode[]>([]);        // Árbol jerárquico completo
   private paths = new Set<string>();                          // Rutas permitidas
   private keys = new Set<string>();                           // Claves normalizadas
+  private readonly FUZZY_THRESHOLD = 2; // distancia máxima permitida para considerar duplicado / similar
 
   get items$() { return this.flatItems$.asObservable(); }
   get treeObservable$() { return this.tree$.asObservable(); }
@@ -121,25 +122,39 @@ export class MenuService {
       if (!menusMap.has(key)) {
         menusMap.set(key, {
           key,
-            label: raw.nombre,
-            icon: raw.icono || 'folder',
-            path: raw.ruta || null,
-            type: 'MENU',
-            children: [],
-            raw
+          label: raw.nombre,
+          icon: raw.icono || 'folder',
+          path: raw.ruta || null,
+          type: 'MENU',
+          children: [],
+          raw
         });
       }
     }
 
+    // Función auxiliar para buscar key similar si no existe exacto
+    const findSimilarMenuKey = (targetKey: string): string | null => {
+      if (menusMap.has(targetKey)) return targetKey;
+      let best: { key: string; dist: number } | null = null;
+      for (const existingKey of menusMap.keys()) {
+        const d = this.levenshtein(existingKey, targetKey);
+        if (d <= this.FUZZY_THRESHOLD && (!best || d < best.dist)) {
+          best = { key: existingKey, dist: d };
+        }
+      }
+      return best ? best.key : null;
+    };
+
     // 5. Construir nodos ITEM
     const leafNodes: MenuNode[] = [];
     for (const raw of this.rawOptions.filter(r => r.tipo === 'ITEM')) {
-      const parentKey = raw.padreNombre ? this.normalize(raw.padreNombre) : null;
+      const parentKeyRaw = raw.padreNombre ? this.normalize(raw.padreNombre) : null;
+      const parentKey = parentKeyRaw ? findSimilarMenuKey(parentKeyRaw) : null;
       const nodeKey = this.normalize(raw.nombre);
       const node: MenuNode = {
         key: nodeKey,
         label: raw.nombre,
-        descripcion: raw.nombre, // compatibilidad
+        descripcion: raw.nombre,
         icon: raw.icono || 'dot',
         path: raw.ruta || null,
         type: 'ITEM',
@@ -148,26 +163,43 @@ export class MenuService {
       leafNodes.push(node);
       if (parentKey && menusMap.has(parentKey)) {
         menusMap.get(parentKey)!.children!.push(node);
-      } else if (parentKey) {
-        // Crear menú padre implícito si no existe (edge case)
-        const implicit: MenuNode = {
-          key: parentKey,
-          label: raw.padreNombre!,
-          icon: 'folder',
-          path: null,
-          type: 'MENU',
-          children: [node]
-        };
-        menusMap.set(parentKey, implicit);
+      } else if (parentKeyRaw) {
+        // Crear menú impl��cito solo si no encontramos similar (edge case extremo)
+        const implicitKey = parentKeyRaw;
+        if (!menusMap.has(implicitKey)) {
+          menusMap.set(implicitKey, {
+            key: implicitKey,
+            label: raw.padreNombre!,
+            icon: 'folder',
+            path: null,
+            type: 'MENU',
+            children: [node]
+          });
+        } else {
+          menusMap.get(implicitKey)!.children!.push(node);
+        }
       }
     }
 
     // 6. Ordenar hijos alfabéticamente (puedes cambiar a otra lógica: peso, orden backend, etc.)
-    menusMap.forEach(m => {
-      if (m.children) {
-        m.children = this.sortNodes(m.children);
+    menusMap.forEach(m => { if (m.children) m.children = this.sortNodes(m.children); });
+
+    // 6b. Eliminar menús duplicados vacíos (probable corrupción). Un menú sin hijos y path null/duplicada y similar a otro con hijos.
+    const toDelete: string[] = [];
+    const menusArray = Array.from(menusMap.values());
+    for (const a of menusArray) {
+      if ((a.children?.length || 0) > 0) continue; // solo vacíos
+      for (const b of menusArray) {
+        if (a === b) continue;
+        if ((b.children?.length || 0) === 0) continue;
+        const d = this.levenshtein(a.key, b.key);
+        if (d <= this.FUZZY_THRESHOLD) {
+          toDelete.push(a.key);
+          break;
+        }
       }
-    });
+    }
+    toDelete.forEach(k => menusMap.delete(k));
 
     // 7. Preparar colecciones finales
     const tree = this.sortNodes(Array.from(menusMap.values()));
@@ -201,5 +233,22 @@ export class MenuService {
     } catch {
       this.clear();
     }
+  }
+
+  private levenshtein(a: string, b: string): number {
+    if (a === b) return 0;
+    const al = a.length, bl = b.length;
+    if (!al) return bl; if (!bl) return al;
+    const dp: number[] = [];
+    for (let i = 0; i <= bl; i++) dp[i] = i;
+    for (let i = 1; i <= al; i++) {
+      let prev = i; dp[0] = i;
+      for (let j = 1; j <= bl; j++) {
+        const tmp = dp[j];
+        if (a[i - 1] === b[j - 1]) dp[j] = prev; else dp[j] = Math.min(prev + 1, dp[j] + 1, dp[j - 1] + 1);
+        prev = tmp;
+      }
+    }
+    return dp[bl];
   }
 }

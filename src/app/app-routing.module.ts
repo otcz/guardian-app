@@ -10,17 +10,32 @@ import { OrganizationFormComponent } from './admin/organizacion-form-component/o
 import { OrganizationStrategyComponent } from './admin/organizacion-strategy-component/organization-strategy.component';
 import { OrganizationParamsComponent } from './admin/organizacion-params-component/organization-params.component';
 import { OrganizationAuditComponent } from './admin/organizacion-autit-component/organization-audit.component';
+import { DashboardHomeComponent } from './dashboard/dashboard-home.component';
 
 export const appRoutes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
-  { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
-  { path: 'listar-organizaciones', component: OrganizationListComponent, canActivate: [AuthGuard] },
-  { path: 'crear-organizacion', component: OrganizationFormComponent, canActivate: [AuthGuard] },
-  { path: 'gestionar-organizacion', component: OrganizationFormComponent, canActivate: [AuthGuard] },
-  { path: 'cambiar-estrategia-de-gobernanza', component: OrganizationStrategyComponent, canActivate: [AuthGuard] },
-  { path: 'configurar-parametros-globales', component: OrganizationParamsComponent, canActivate: [AuthGuard] },
-  { path: 'ver-auditoria-de-organizacion', component: OrganizationAuditComponent, canActivate: [AuthGuard] },
+  {
+    path: 'dashboard',
+    component: DashboardComponent,
+    canActivate: [AuthGuard],
+    children: [
+      { path: '', component: DashboardHomeComponent },
+      { path: 'listar-organizaciones', component: OrganizationListComponent },
+      { path: 'crear-organizacion', component: OrganizationFormComponent },
+      { path: 'gestionar-organizacion', component: OrganizationFormComponent },
+      { path: 'cambiar-estrategia-de-gobernanza', component: OrganizationStrategyComponent },
+      { path: 'configurar-parametros-globales', component: OrganizationParamsComponent },
+      { path: 'ver-auditoria-de-organizacion', component: OrganizationAuditComponent }
+    ]
+  },
+  // Redirecciones legacy para que rutas antiguas sigan funcionando
+  { path: 'listar-organizaciones', redirectTo: 'dashboard/listar-organizaciones', pathMatch: 'full' },
+  { path: 'crear-organizacion', redirectTo: 'dashboard/crear-organizacion', pathMatch: 'full' },
+  { path: 'gestionar-organizacion', redirectTo: 'dashboard/gestionar-organizacion', pathMatch: 'full' },
+  { path: 'cambiar-estrategia-de-gobernanza', redirectTo: 'dashboard/cambiar-estrategia-de-gobernanza', pathMatch: 'full' },
+  { path: 'configurar-parametros-globales', redirectTo: 'dashboard/configurar-parametros-globales', pathMatch: 'full' },
+  { path: 'ver-auditoria-de-organizacion', redirectTo: 'dashboard/ver-auditoria-de-organizacion', pathMatch: 'full' },
   {
     path: 'admin',
     canActivate: [AuthGuard],

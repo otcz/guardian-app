@@ -45,55 +45,7 @@
       <button pButton type="button" class="p-button p-button-text" aria-label="Usuario"><i class="pi pi-user"></i></button>
     </header>
     <main class="main" style="padding:16px;">
-      <section class="kpi-grid">
-        <div class="card kpi">
-          <div style="display:flex; align-items:center; gap:12px;">
-            <i class="pi pi-users" style="font-size:1.5rem; color:var(--primary)"></i>
-            <div>
-              <div style="font-size:1.8rem; font-weight:800;">128</div>
-              <div style="color:var(--muted)">Usuarios</div>
-            </div>
-          </div>
-        </div>
-        <div class="card kpi">
-          <div style="display:flex; align-items:center; gap:12px;">
-            <i class="pi pi-car" style="font-size:1.5rem; color:var(--primary)"></i>
-            <div>
-              <div style="font-size:1.8rem; font-weight:800;">342</div>
-              <div style="color:var(--muted)">Vehículos</div>
-            </div>
-          </div>
-        </div>
-        <div class="card kpi">
-          <div style="display:flex; align-items:center; gap:12px;">
-            <i class="pi pi-chart-line" style="font-size:1.5rem; color:var(--primary)"></i>
-            <div>
-              <div style="font-size:1.8rem; font-weight:800;">96%</div>
-              <div style="color:var(--muted)">Disponibilidad</div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section class="card" style="margin-top:16px; padding:16px;">
-        <h3 style="margin:0 0 12px 0;">Actividad reciente</h3>
-        <p-table styleClass="recent-activity" [value]="activities" [tableStyle]="{ 'min-width': '480px' }">
-          <ng-template pTemplate="header">
-            <tr>
-              <th>Fecha</th>
-              <th>Evento</th>
-              <th>Detalle</th>
-            </tr>
-          </ng-template>
-          <ng-template pTemplate="body" let-row>
-            <tr>
-              <td>{{ row.fecha }}</td>
-              <td>{{ row.evento }}</td>
-              <td>{{ row.detalle }}</td>
-            </tr>
-          </ng-template>
-        </p-table>
-      </section>
+      <router-outlet></router-outlet>
     </main>
   </div>
 </div>

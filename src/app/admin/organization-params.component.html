@@ -1,0 +1,87 @@
+<div class="org-params-wrapper" *ngIf="!error; else errorTpl">
+  <p-card header="Parámetros Globales" subheader="Organización" *ngIf="org; else loadingOrgTpl">
+    <div class="meta" style="margin-bottom:1rem; font-size:.85rem; opacity:.8;">
+      <strong>{{ org.nombre }}</strong> • Activa: <span [ngClass]="{'text-green': org.activa, 'text-red': !org.activa}">{{ org.activa? 'Sí':'No' }}</span>
+    </div>
+
+    <div class="grid" style="display:flex; gap:2rem; flex-wrap:wrap;">
+      <div style="flex:1 1 380px; min-width:320px;">
+        <h4 style="margin:.25rem 0  .75rem;">Listado</h4>
+        <table class="param-table" style="width:100%; border-collapse:collapse; font-size:.85rem;">
+          <thead>
+            <tr>
+              <th style="text-align:left; padding:4px 6px;">Código</th>
+              <th style="text-align:left; padding:4px 6px;">Valor</th>
+              <th style="text-align:center; padding:4px 6px;">Activo</th>
+              <th style="width:70px; text-align:center;">Acción</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let p of params; let i = index" [ngClass]="{'row-editing': editingIndex===i}" style="border-top:1px solid rgba(255,255,255,.08);">
+              <td style="padding:4px 6px;">{{ p.codigo }}</td>
+              <td style="padding:4px 6px;">{{ p.valor }}</td>
+              <td style="text-align:center; padding:4px 6px;">
+                <span class="badge" [ngClass]="p.activo? 'b-green':'b-red'">{{ p.activo? 'Sí':'No' }}</span>
+              </td>
+              <td style="text-align:center; padding:4px 4px; display:flex; gap:.25rem; justify-content:center;">
+                <button pButton type="button" icon="pi pi-pencil" class="p-button-rounded p-button-text p-button-sm" (click)="edit(p,i)" title="Editar"></button>
+                <button pButton type="button" icon="pi pi-trash" class="p-button-rounded p-button-text p-button-sm" (click)="remove(i)" title="Eliminar"></button>
+              </td>
+            </tr>
+            <tr *ngIf="!params.length">
+              <td colspan="4" style="text-align:center; padding:1rem; opacity:.6;">Sin parámetros configurados</td>
+            </tr>
+          </tbody>
+        </table>
+        <div style="margin-top:.75rem;">
+          <button pButton type="button" label="Nuevo" icon="pi pi-plus" (click)="newParam()"></button>
+        </div>
+      </div>
+
+      <div style="flex:1 1 340px; min-width:300px;">
+        <h4 style="margin:.25rem 0 .75rem;">{{ editingIndex!==null? 'Editar':'Agregar' }} Parámetro</h4>
+        <form [formGroup]="form" (ngSubmit)="save()" class="form-block" style="display:flex; flex-direction:column; gap:.75rem;">
+          <div>
+            <label>Código *</label>
+            <input pInputText formControlName="codigo" [readonly]="editingIndex!==null" />
+          </div>
+          <div>
+            <label>Descripción</label>
+            <input pInputText formControlName="descripcion" />
+          </div>
+          <div>
+            <label>Valor *</label>
+            <input pInputText formControlName="valor" />
+          </div>
+          <div style="display:flex; align-items:center; gap:.5rem;">
+            <label>Activo</label>
+            <p-inputSwitch formControlName="activo"></p-inputSwitch>
+          </div>
+          <div style="display:flex; gap:.5rem;">
+            <button pButton type="submit" label="Guardar" [disabled]="form.invalid"></button>
+            <button pButton type="button" label="Limpiar" class="p-button-secondary" (click)="newParam()"></button>
+          </div>
+          <div *ngIf="error" style="color:#f87171; font-size:.75rem;">{{ error }}</div>
+          <div *ngIf="success" style="color:#4ade80; font-size:.75rem;">{{ success }}</div>
+        </form>
+      </div>
+    </div>
+
+    <div style="margin-top:1.5rem;">
+      <button pButton type="button" label="Volver" class="p-button-text" (click)="back()"></button>
+    </div>
+  </p-card>
+</div>
+
+<ng-template #loadingOrgTpl>
+  <div style="display:flex; justify-content:center; padding:2rem;">
+    <p-progressSpinner></p-progressSpinner>
+  </div>
+</ng-template>
+
+<ng-template #errorTpl>
+  <p-card header="Error">
+    <div style="color:#f87171">{{ error }}</div>
+    <button pButton type="button" label="Volver" class="p-button-text" (click)="back()"></button>
+  </p-card>
+</ng-template>

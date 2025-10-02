@@ -8,6 +8,8 @@ import { PagePlaceholderComponent } from './page-placeholder.component';
 import { OrganizationListComponent } from './admin/organization-list.component';
 import { OrganizationFormComponent } from './admin/organization-form.component';
 import { OrganizationStrategyComponent } from './admin/organization-strategy.component';
+import { OrganizationParamsComponent } from './admin/organization-params.component';
+import { OrganizationAuditComponent } from './admin/organization-audit.component';
 
 export const appRoutes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -17,7 +19,8 @@ export const appRoutes: Routes = [
   { path: 'crear-organizacion', component: OrganizationFormComponent, canActivate: [AuthGuard] },
   { path: 'gestionar-organizacion', component: OrganizationFormComponent, canActivate: [AuthGuard] },
   { path: 'cambiar-estrategia-de-gobernanza', component: OrganizationStrategyComponent, canActivate: [AuthGuard] },
-  { path: 'ver-auditoria-de-organizacion', component: PagePlaceholderComponent, canActivate: [AuthGuard] },
+  { path: 'configurar-parametros-globales', component: OrganizationParamsComponent, canActivate: [AuthGuard] },
+  { path: 'ver-auditoria-de-organizacion', component: OrganizationAuditComponent, canActivate: [AuthGuard] },
   {
     path: 'admin',
     canActivate: [AuthGuard],

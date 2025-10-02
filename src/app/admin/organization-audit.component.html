@@ -1,0 +1,53 @@
+<div class="org-audit-wrapper" *ngIf="!error; else errorTpl">
+  <p-card header="Auditoría de Organización" subheader="Registros recientes" *ngIf="!loading; else loadingTpl">
+    <div style="display:flex; flex-wrap:wrap; gap:.75rem; align-items:center; margin-bottom:1rem;">
+      <button pButton type="button" label="Volver" class="p-button-text" (click)="back()"></button>
+      <span style="flex:1 1 auto;"></span>
+      <span style="font-size:.75rem; opacity:.7;">Auto-refresco</span>
+      <p-inputSwitch [(ngModel)]="autoRefresh" (onChange)="toggleAuto()"></p-inputSwitch>
+      <span style="font-size:.75rem; opacity:.7;">Filtrar</span>
+      <input pInputText type="text" [(ngModel)]="filter" (input)="applyFilter()" placeholder="Acción o detalle" style="width:200px;"/>
+      <button pButton type="button" icon="pi pi-refresh" class="p-button-text" (click)="load()" [disabled]="loading"></button>
+    </div>
+
+    <p-table [value]="filtered" [paginator]="true" [rows]="15" [rowsPerPageOptions]="[10,15,25,50]" styleClass="p-datatable-sm">
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width:160px;">Fecha</th>
+          <th style="width:110px;">Contexto</th>
+          <th>Acción</th>
+          <th>Detalle</th>
+          <th style="width:120px;">Usuario</th>
+          <th style="width:120px;">Sección</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-row>
+        <tr>
+          <td><span style="font-size:.7rem; opacity:.9;">{{ row.fecha_creacion | date:'yyyy-MM-dd HH:mm:ss' }}</span></td>
+          <td><p-tag [value]="row.nivel_contexto || '-'" severity="info"></p-tag></td>
+          <td>{{ row.accion }}</td>
+          <td><span style="font-size:.75rem; white-space:pre-wrap;">{{ row.detalle }}</span></td>
+          <td><span style="font-size:.7rem;">{{ row.id_usuario || '-' }}</span></td>
+          <td><span style="font-size:.7rem;">{{ row.id_seccion || '-' }}</span></td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr><td colspan="6" style="text-align:center; padding:1rem; opacity:.6;">Sin registros</td></tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+</div>
+
+<ng-template #loadingTpl>
+  <div style="display:flex; justify-content:center; padding:2rem;">
+    <p-progressSpinner></p-progressSpinner>
+  </div>
+</ng-template>
+
+<ng-template #errorTpl>
+  <p-card header="Error">
+    <div style="color:#f87171; margin-bottom:1rem;">{{ error }}</div>
+    <button pButton type="button" label="Volver" class="p-button-text" (click)="back()"></button>
+  </p-card>
+</ng-template>
+

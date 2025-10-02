@@ -15,7 +15,7 @@ export const PermissionGuard: CanActivateFn = (route, state) => {
   }
 
   const url = (state.url || '').split('?')[0];
-  if (url === '/dashboard') return true;
+  if (url === '/') return true;
 
   // Validar acceso por path directo
   if (menu.canAccessPath(url)) return true;
@@ -24,7 +24,6 @@ export const PermissionGuard: CanActivateFn = (route, state) => {
   const code = route.data && route.data['code'];
   if (code && menu.canAccessCode(String(code))) return true;
 
-  router.navigate(['/dashboard']);
+  router.navigate(['/']);
   return false;
 };
-

@@ -60,8 +60,8 @@ export class LoginComponent {
         localStorage.setItem('expiresAt', String(expiresAt));
         // Menú (el servicio ya lo hace, pero mantenemos idempotente)
         this.menu.setFromLogin(resp.opcionesDetalle);
-        // Navegar al dashboard
-        this.router.navigate(['/dashboard']);
+        // Navegar al inicio (antes '/dashboard')
+        this.router.navigate(['/']);
         this.loading = false;
       },
       error: (e: any) => {

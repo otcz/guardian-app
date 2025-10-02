@@ -26,7 +26,6 @@ export class PagePlaceholderComponent {
   constructor(private router: Router) {
     this.currentUrl = this.router.url;
   }
-  goDashboard() { this.router.navigate(['/dashboard']); }
+  goDashboard() { this.router.navigate(['/']); }
   goBack() { history.back(); }
 }
-

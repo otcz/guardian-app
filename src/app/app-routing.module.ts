@@ -1,7 +1,6 @@
 import { Routes } from '@angular/router';
 import { AuthGuard } from './service/auth.guard';
 import { LoginComponent } from './auth/login.component';
-import { DashboardComponent } from './dashboard/dashboard.component';
 import { RegisterComponent } from './auth/register.component';
 import { PermissionGuard } from './service/permission.guard';
 import { PagePlaceholderComponent } from './page-placeholder.component';
@@ -16,8 +15,7 @@ export const appRoutes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
   {
-    path: 'dashboard',
-    component: DashboardComponent,
+    path: '',
     canActivate: [AuthGuard],
     children: [
       { path: '', component: DashboardHomeComponent },
@@ -26,23 +24,22 @@ export const appRoutes: Routes = [
       { path: 'gestionar-organizacion', component: OrganizationFormComponent },
       { path: 'cambiar-estrategia-de-gobernanza', component: OrganizationStrategyComponent },
       { path: 'configurar-parametros-globales', component: OrganizationParamsComponent },
-      { path: 'ver-auditoria-de-organizacion', component: OrganizationAuditComponent }
+      { path: 'ver-auditoria-de-organizacion', component: OrganizationAuditComponent },
+      {
+        path: 'admin',
+        children: [
+          { path: '**', component: PagePlaceholderComponent, canActivate: [PermissionGuard] }
+        ]
+      }
     ]
   },
-  // Redirecciones legacy para que rutas antiguas sigan funcionando
-  { path: 'listar-organizaciones', redirectTo: 'dashboard/listar-organizaciones', pathMatch: 'full' },
-  { path: 'crear-organizacion', redirectTo: 'dashboard/crear-organizacion', pathMatch: 'full' },
-  { path: 'gestionar-organizacion', redirectTo: 'dashboard/gestionar-organizacion', pathMatch: 'full' },
-  { path: 'cambiar-estrategia-de-gobernanza', redirectTo: 'dashboard/cambiar-estrategia-de-gobernanza', pathMatch: 'full' },
-  { path: 'configurar-parametros-globales', redirectTo: 'dashboard/configurar-parametros-globales', pathMatch: 'full' },
-  { path: 'ver-auditoria-de-organizacion', redirectTo: 'dashboard/ver-auditoria-de-organizacion', pathMatch: 'full' },
-  {
-    path: 'admin',
-    canActivate: [AuthGuard],
-    children: [
-      { path: '**', component: PagePlaceholderComponent, canActivate: [PermissionGuard] }
-    ]
-  },
-  { path: '', pathMatch: 'full', redirectTo: 'login' },
-  { path: '**', redirectTo: 'login' }
+  // Redirecciones legacy desde prefijo /dashboard
+  { path: 'dashboard', redirectTo: '', pathMatch: 'full' },
+  { path: 'dashboard/listar-organizaciones', redirectTo: 'listar-organizaciones', pathMatch: 'full' },
+  { path: 'dashboard/crear-organizacion', redirectTo: 'crear-organizacion', pathMatch: 'full' },
+  { path: 'dashboard/gestionar-organizacion', redirectTo: 'gestionar-organizacion', pathMatch: 'full' },
+  { path: 'dashboard/cambiar-estrategia-de-gobernanza', redirectTo: 'cambiar-estrategia-de-gobernanza', pathMatch: 'full' },
+  { path: 'dashboard/configurar-parametros-globales', redirectTo: 'configurar-parametros-globales', pathMatch: 'full' },
+  { path: 'dashboard/ver-auditoria-de-organizacion', redirectTo: 'ver-auditoria-de-organizacion', pathMatch: 'full' },
+  { path: '**', redirectTo: '' }
 ];

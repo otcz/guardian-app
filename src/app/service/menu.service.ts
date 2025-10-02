@@ -125,6 +125,14 @@ export class MenuService {
   private rebuild() {
     // 1. Normalizar duplicados y corregir problemas de codificación (acentos / caracteres raros)
     const normalizedMap = new Map<string, RawOption>();
+    const sanitizePath = (p: string | null | undefined): string | null => {
+      if (!p) return null;
+      let s = p.trim();
+      if (!s.startsWith('/')) s = '/' + s; // forzar absoluto
+      s = s.replace(/^\/dashboard(\/)?/, '/'); // quitar prefijo legacy
+      if (s.length > 1) s = s.replace(/\/+/g, '/').replace(/\/$/, '');
+      return s;
+    };
     for (const r of this.rawOptions) {
       const nKey = this.normalize(r.tipo === 'MENU' ? r.nombre : (r.padreNombre || r.nombre));
       // Guardar el último que llegue para menú, pero si ya existe y el nuevo tiene icono usarlo
@@ -149,7 +157,7 @@ export class MenuService {
         key,
         label: rawMenu ? rawMenu.nombre : pName,
         icon: this.resolveIcon(rawMenu?.icono || 'folder'),
-        path: rawMenu?.ruta || null,
+        path: sanitizePath(rawMenu?.ruta || null),
         type: 'MENU',
         children: [],
         raw: rawMenu || undefined
@@ -162,12 +170,12 @@ export class MenuService {
       if (!menusMap.has(key)) {
         menusMap.set(key, {
           key,
-          label: raw.nombre,
-          icon: this.resolveIcon(raw.icono || 'folder'),
-          path: raw.ruta || null,
-          type: 'MENU',
-          children: [],
-          raw
+            label: raw.nombre,
+            icon: this.resolveIcon(raw.icono || 'folder'),
+            path: sanitizePath(raw.ruta || null),
+            type: 'MENU',
+            children: [],
+            raw
         });
       }
     }
@@ -196,7 +204,7 @@ export class MenuService {
         label: raw.nombre,
         descripcion: raw.nombre,
         icon: this.resolveIcon(raw.icono || null),
-        path: raw.ruta || null,
+        path: sanitizePath(raw.ruta || null),
         type: 'ITEM',
         raw
       };

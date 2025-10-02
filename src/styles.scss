@@ -478,3 +478,67 @@ a:hover { text-decoration: underline; }
   background: color-mix(in srgb, var(--primary) 12%, #ffffff) !important;
 }
 
+/* ===== Tablas en modo oscuro / negro (unificar look) ===== */
+:root.theme-dark app-dashboard .recent-activity .p-datatable-wrapper table,
+:root.theme-black app-dashboard .recent-activity .p-datatable-wrapper table,
+:root.theme-dark .p-datatable .p-datatable-wrapper table,
+:root.theme-black .p-datatable .p-datatable-wrapper table {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+}
+:root.theme-dark app-dashboard .recent-activity .p-datatable-thead > tr > th,
+:root.theme-black app-dashboard .recent-activity .p-datatable-thead > tr > th,
+:root.theme-dark .p-datatable-thead > tr > th,
+:root.theme-black .p-datatable-thead > tr > th {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--surface) 94%, var(--secondary) 6%), color-mix(in srgb, var(--surface) 88%, var(--secondary) 12%)) !important;
+  color: var(--text) !important;
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 70%, transparent) !important;
+}
+:root.theme-dark app-dashboard .recent-activity .p-datatable-tbody > tr > td,
+:root.theme-black app-dashboard .recent-activity .p-datatable-tbody > tr > td,
+:root.theme-dark .p-datatable-tbody > tr > td,
+:root.theme-black .p-datatable-tbody > tr > td {
+  background: color-mix(in srgb, var(--surface) 98%, black) !important;
+  color: var(--text) !important;
+  border-top: 1px solid color-mix(in srgb, var(--border) 55%, transparent) !important;
+}
+:root.theme-dark .p-datatable-tbody > tr:nth-child(even) > td,
+:root.theme-black .p-datatable-tbody > tr:nth-child(even) > td {
+  background: color-mix(in srgb, var(--surface) 92%, black) !important;
+}
+:root.theme-dark .p-datatable-tbody > tr:hover > td,
+:root.theme-black .p-datatable-tbody > tr:hover > td,
+:root.theme-dark app-dashboard .recent-activity .p-datatable-tbody > tr:hover > td,
+:root.theme-black app-dashboard .recent-activity .p-datatable-tbody > tr:hover > td {
+  background: color-mix(in srgb, var(--primary) 14%, var(--surface)) !important;
+  transition: background .15s ease;
+}
+:root.theme-dark .p-datatable.p-datatable-gridlines .p-datatable-tbody > tr > td,
+:root.theme-black .p-datatable.p-datatable-gridlines .p-datatable-tbody > tr > td {
+  border-color: color-mix(in srgb, var(--border) 40%, transparent) !important;
+}
+/* Scrollbar sutil dentro de tablas en modo oscuro */
+:root.theme-dark .p-datatable-wrapper::-webkit-scrollbar,
+:root.theme-black .p-datatable-wrapper::-webkit-scrollbar { height: 10px; width: 10px; }
+:root.theme-dark .p-datatable-wrapper::-webkit-scrollbar-track,
+:root.theme-black .p-datatable-wrapper::-webkit-scrollbar-track { background: color-mix(in srgb, var(--surface) 85%, black); }
+:root.theme-dark .p-datatable-wrapper::-webkit-scrollbar-thumb,
+:root.theme-black .p-datatable-wrapper::-webkit-scrollbar-thumb { background: color-mix(in srgb, var(--primary) 35%, var(--secondary)); border-radius: 6px; }
+:root.theme-dark .p-datatable-wrapper::-webkit-scrollbar-thumb:hover,
+:root.theme-black .p-datatable-wrapper::-webkit-scrollbar-thumb:hover { background: color-mix(in srgb, var(--primary) 50%, var(--secondary)); }
+
+/* Tag de cabecera sticky (opcional: mejora contraste en dark) */
+:root.theme-dark .p-datatable-header,
+:root.theme-black .p-datatable-header {
+  background: color-mix(in srgb, var(--surface) 90%, var(--secondary) 10%) !important;
+  border: 1px solid color-mix(in srgb, var(--border) 55%, transparent) !important;
+  color: var(--text) !important;
+}
+
+/* Ajustes para paginator en modo oscuro */
+:root.theme-dark .p-paginator,
+:root.theme-black .p-paginator { background: var(--surface) !important; border: 1px solid color-mix(in srgb, var(--border) 60%, transparent); }
+:root.theme-dark .p-paginator .p-paginator-page,
+:root.theme-black .p-paginator .p-paginator-page { color: var(--text); }
+:root.theme-dark .p-paginator .p-paginator-page.p-highlight,
+:root.theme-black .p-paginator .p-paginator-page.p-highlight { background: color-mix(in srgb, var(--primary) 25%, var(--surface)) !important; color: var(--text) !important; }

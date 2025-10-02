@@ -1,0 +1,25 @@
+/* Organization Audit Component Styles - paleta coherente */
+:host { display:block; padding:1rem clamp(.75rem, 2vw, 1.25rem); }
+
+.org-toolbar { display:flex; flex-wrap:wrap; align-items:center; gap:.75rem; margin-bottom:1rem; }
+.org-toolbar h2 { margin:0; font-size:1.05rem; font-weight:600; letter-spacing:.5px; }
+.org-toolbar .spacer { flex:1 1 auto; }
+
+.audit-card ::ng-deep .p-card { background:var(--surface-alt); border:1px solid rgba(255,255,255,.07); }
+
+.audit-tools { display:flex; flex-wrap:wrap; align-items:center; gap:.6rem; margin-bottom:1rem; font-size:.7rem; }
+.audit-tools label { font-size:.6rem; text-transform:uppercase; letter-spacing:.5px; opacity:.65; }
+.audit-tools input { width:200px; }
+
+/* Tabla */
+.audit-table.p-datatable-sm th { font-size:.6rem; letter-spacing:.5px; text-transform:uppercase; opacity:.65; }
+.audit-table.p-datatable-sm td { font-size:.7rem; }
+.audit-table .timestamp { font-size:.65rem; opacity:.85; }
+.audit-table .detalle { font-size:.7rem; white-space:pre-wrap; }
+
+.audit-empty { text-align:center; padding:1rem; opacity:.6; font-size:.7rem; }
+
+.status-error { color:var(--danger); font-size:.7rem; margin-bottom:1rem; }
+
+:root.theme-black .audit-table.p-datatable-sm tbody tr:hover { background:color-mix(in srgb, var(--primary) 15%, transparent); }
+

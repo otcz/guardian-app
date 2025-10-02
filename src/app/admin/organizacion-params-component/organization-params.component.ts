@@ -8,13 +8,14 @@ import { InputSwitchModule } from 'primeng/inputswitch';
 import { ButtonModule } from 'primeng/button';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { OrganizationService, Organization } from '../../service/organization.service';
+import { ThemeToggleComponent } from '../../shared/theme-toggle.component';
 
 interface GlobalParamFormValue { codigo: string; descripcion: string; valor: string; activo: boolean; }
 
 @Component({
   selector: 'app-organization-params',
   standalone: true,
-  imports: [CommonModule, RouterModule, ReactiveFormsModule, CardModule, InputTextModule, InputSwitchModule, ButtonModule, ProgressSpinnerModule],
+  imports: [CommonModule, RouterModule, ReactiveFormsModule, CardModule, InputTextModule, InputSwitchModule, ButtonModule, ProgressSpinnerModule, ThemeToggleComponent],
   templateUrl: './organization-params.component.html',
   styleUrls: ['./organization-params.component.scss']
 })

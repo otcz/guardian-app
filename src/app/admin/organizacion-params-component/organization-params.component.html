@@ -1,35 +1,44 @@
+<div class="org-toolbar" *ngIf="!error; else errorTpl">
+  <button pButton type="button" icon="pi pi-arrow-left" class="p-button-text" label="Volver" (click)="back()"></button>
+  <h2>Parámetros Globales</h2>
+  <span class="spacer"></span>
+  <app-theme-toggle mode="cycle"></app-theme-toggle>
+</div>
+
 <div class="org-params-wrapper" *ngIf="!error; else errorTpl">
-  <p-card header="Parámetros Globales" subheader="Organización" *ngIf="org; else loadingOrgTpl">
-    <div class="meta" style="margin-bottom:1rem; font-size:.85rem; opacity:.8;">
-      <strong>{{ org.nombre }}</strong> • Activa: <span [ngClass]="{'text-green': org.activa, 'text-red': !org.activa}">{{ org.activa? 'Sí':'No' }}</span>
+  <p-card class="params-card" *ngIf="org; else loadingOrgTpl">
+    <div class="meta">
+      <strong>{{ org.nombre }}</strong>
+      <span>• Activa: <span [ngClass]="{'text-green': org.activa, 'text-red': !org.activa}">{{ org.activa? 'Sí':'No' }}</span></span>
     </div>
 
-    <div class="grid" style="display:flex; gap:2rem; flex-wrap:wrap;">
-      <div style="flex:1 1 380px; min-width:320px;">
-        <h4 style="margin:.25rem 0  .75rem;">Listado</h4>
-        <table class="param-table" style="width:100%; border-collapse:collapse; font-size:.85rem;">
+    <div class="param-layout">
+      <!-- Listado -->
+      <div class="param-list">
+        <h4>Listado</h4>
+        <table class="param-table">
           <thead>
             <tr>
-              <th style="text-align:left; padding:4px 6px;">Código</th>
-              <th style="text-align:left; padding:4px 6px;">Valor</th>
-              <th style="text-align:center; padding:4px 6px;">Activo</th>
+              <th>Código</th>
+              <th>Valor</th>
+              <th style="text-align:center;">Activo</th>
               <th style="width:70px; text-align:center;">Acción</th>
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let p of params; let i = index" [ngClass]="{'row-editing': editingIndex===i}" style="border-top:1px solid rgba(255,255,255,.08);">
-              <td style="padding:4px 6px;">{{ p.codigo }}</td>
-              <td style="padding:4px 6px;">{{ p.valor }}</td>
-              <td style="text-align:center; padding:4px 6px;">
+            <tr *ngFor="let p of params; let i = index" [ngClass]="{'row-editing': editingIndex===i}">
+              <td>{{ p.codigo }}</td>
+              <td>{{ p.valor }}</td>
+              <td style="text-align:center;">
                 <span class="badge" [ngClass]="p.activo? 'b-green':'b-red'">{{ p.activo? 'Sí':'No' }}</span>
               </td>
-              <td style="text-align:center; padding:4px 4px; display:flex; gap:.25rem; justify-content:center;">
+              <td class="actions-inline">
                 <button pButton type="button" icon="pi pi-pencil" class="p-button-rounded p-button-text p-button-sm" (click)="edit(p,i)" title="Editar"></button>
                 <button pButton type="button" icon="pi pi-trash" class="p-button-rounded p-button-text p-button-sm" (click)="remove(i)" title="Eliminar"></button>
               </td>
             </tr>
             <tr *ngIf="!params.length">
-              <td colspan="4" style="text-align:center; padding:1rem; opacity:.6;">Sin parámetros configurados</td>
+              <td colspan="4" class="audit-empty">Sin parámetros configurados</td>
             </tr>
           </tbody>
         </table>
@@ -38,9 +47,10 @@
         </div>
       </div>
 
-      <div style="flex:1 1 340px; min-width:300px;">
-        <h4 style="margin:.25rem 0 .75rem;">{{ editingIndex!==null? 'Editar':'Agregar' }} Parámetro</h4>
-        <form [formGroup]="form" (ngSubmit)="save()" class="form-block" style="display:flex; flex-direction:column; gap:.75rem;">
+      <!-- Formulario -->
+      <div class="param-form">
+        <h4>{{ editingIndex!==null? 'Editar':'Agregar' }} Parámetro</h4>
+        <form [formGroup]="form" (ngSubmit)="save()">
           <div>
             <label>Código *</label>
             <input pInputText formControlName="codigo" [readonly]="editingIndex!==null" />
@@ -53,21 +63,23 @@
             <label>Valor *</label>
             <input pInputText formControlName="valor" />
           </div>
-          <div style="display:flex; align-items:center; gap:.5rem;">
+          <div class="switch-row">
             <label>Activo</label>
             <p-inputSwitch formControlName="activo"></p-inputSwitch>
           </div>
-          <div style="display:flex; gap:.5rem;">
+          <div class="actions-inline">
             <button pButton type="submit" label="Guardar" [disabled]="form.invalid"></button>
             <button pButton type="button" label="Limpiar" class="p-button-secondary" (click)="newParam()"></button>
           </div>
-          <div *ngIf="error" style="color:#f87171; font-size:.75rem;">{{ error }}</div>
-          <div *ngIf="success" style="color:#4ade80; font-size:.75rem;">{{ success }}</div>
+          <div class="messages">
+            <div *ngIf="error" class="error">{{ error }}</div>
+            <div *ngIf="success" class="success">{{ success }}</div>
+          </div>
         </form>
       </div>
     </div>
 
-    <div style="margin-top:1.5rem;">
+    <div style="margin-top:1.25rem;">
       <button pButton type="button" label="Volver" class="p-button-text" (click)="back()"></button>
     </div>
   </p-card>
@@ -81,7 +93,7 @@
 
 <ng-template #errorTpl>
   <p-card header="Error">
-    <div style="color:#f87171">{{ error }}</div>
+    <div class="messages error">{{ error }}</div>
     <button pButton type="button" label="Volver" class="p-button-text" (click)="back()"></button>
   </p-card>
 </ng-template>

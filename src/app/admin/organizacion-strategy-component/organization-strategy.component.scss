@@ -41,3 +41,27 @@ select:focus, textarea:focus { outline:2px solid color-mix(in srgb, var(--primar
 
 /* Darker variant for black theme */
 :root.theme-black select, :root.theme-black textarea { background:color-mix(in srgb, var(--surface) 85%, #000); }
+
+/* === Contraste adaptativo por tema === */
+:host-context(.theme-dark),
+:host-context(.theme-black) {
+  .field label,
+  .toggle-item label,
+  .org-toolbar h2 { opacity:.94; color: var(--text); }
+  .field textarea, .field select, .field input { background: color-mix(in srgb, var(--surface) 92%, #000); }
+  .toggle-item { background: linear-gradient(135deg, color-mix(in srgb, var(--surface-alt) 96%, #000), color-mix(in srgb, var(--surface-alt) 85%, #000)); }
+  .toggle-item:hover { background: linear-gradient(135deg, color-mix(in srgb, var(--surface-alt) 100%, #000), color-mix(in srgb, var(--surface-alt) 88%, #000)); }
+}
+
+:host-context(.theme-light) {
+  .field label, .toggle-item label { opacity:.78; }
+}
+
+/* Headers menores con mejor contraste */
+.field-row .field > label { letter-spacing:.55px; }
+
+/* Accesibilidad: foco visible en dark/black */
+:host-context(.theme-dark) select:focus,
+:host-context(.theme-black) select:focus,
+:host-context(.theme-dark) textarea:focus,
+:host-context(.theme-black) textarea:focus { outline:2px solid color-mix(in srgb, var(--primary) 70%, transparent); }

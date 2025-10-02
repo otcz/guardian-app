@@ -1,0 +1,76 @@
+/* Utilidades compartidas módulo Organización */
+
+/* Espaciados */
+.mt-xs { margin-top:.25rem; }
+.mt-sm { margin-top:.5rem; }
+.mt-md { margin-top:.75rem; }
+.mt-lg { margin-top:1.25rem; }
+.mb-xs { margin-bottom:.25rem; }
+.mb-sm { margin-bottom:.5rem; }
+.mb-md { margin-bottom:.75rem; }
+.mb-lg { margin-bottom:1.25rem; }
+
+/* Texto */
+.text-center { text-align:center; }
+.text-right { text-align:right; }
+.text-success { color:var(--success); }
+.text-danger { color:var(--danger); }
+.text-muted { color:var(--muted); }
+
+/* Fuentes */
+.fs-xs { font-size:.55rem; }
+.fs-sm { font-size:.65rem; }
+.fs-md { font-size:.7rem; }
+.fs-lg { font-size:.85rem; }
+
+/* Flex */
+.flex { display:flex; }
+.flex-row { display:flex; flex-direction:row; }
+.flex-col { display:flex; flex-direction:column; }
+.flex-center { display:flex; align-items:center; justify-content:center; }
+.flex-wrap { flex-wrap:wrap; }
+.ai-center { align-items:center; }
+.gap-xs { gap:.25rem; }
+.gap-sm { gap:.5rem; }
+.gap-md { gap:.75rem; }
+.gap-lg { gap:1.25rem; }
+.spacer { flex:1 1 auto; }
+
+/* Grid span */
+.col-span-all { grid-column:1 / -1; }
+
+/* Width helpers */
+.w-70 { width:70px; }
+.w-110 { width:110px; }
+.w-120 { width:120px; }
+.w-160 { width:160px; }
+.w-200 { width:200px; }
+.w-100 { width:100%; }
+
+/* Badges / chips base (pueden heredarse) */
+.badge { font-size:.55rem; letter-spacing:.5px; padding:2px 6px; border-radius:20px; text-transform:uppercase; display:inline-block; line-height:1.1; font-weight:500; }
+.badge-success { background:color-mix(in srgb, var(--success) 35%, transparent); color:var(--success); }
+.badge-danger { background:color-mix(in srgb, var(--danger) 35%, transparent); color:var(--danger); }
+
+/* Tablas */
+.table-hover tbody tr { transition:background .15s ease; }
+.table-hover tbody tr:hover { background:color-mix(in srgb, var(--primary) 12%, transparent); }
+
+/* Utility hide */
+.hidden { display:none !important; }
+
+/* Theming nuance para black */
+:root.theme-black .table-hover tbody tr:hover { background:color-mix(in srgb, var(--primary) 18%, transparent); }
+
+/* Tonos de texto */
+.tone-secondary { color: var(--muted); }
+.tone-accent { color: var(--primary); }
+.tone-success { color: var(--success); }
+.tone-danger { color: var(--danger); }
+.tone-faint { color: color-mix(in srgb, var(--text) 55%, var(--bg)); }
+.opacity-70 { opacity:.7; }
+.opacity-65 { opacity:.65; }
+.opacity-85 { opacity:.85; }
+
+:root.theme-light .tone-faint { color: color-mix(in srgb, var(--text) 50%, white); }
+:root.theme-dark .tone-faint, :root.theme-black .tone-faint { color: color-mix(in srgb, var(--muted) 75%, var(--text)); }

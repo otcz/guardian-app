@@ -1,15 +1,31 @@
 /* Estilos específicos: Lista de Organizaciones */
-.list-wrapper { padding:1rem; }
-.list-header { display:flex; align-items:center; justify-content:space-between; gap:1rem; margin-bottom:1rem; flex-wrap:wrap; }
-.list-header h2 { margin:0; font-size:1.25rem; font-weight:600; }
+@use '../organizacion-shared/org-utils.scss';
+
+.list-wrapper { padding:1rem clamp(.75rem, 2vw, 1.25rem); }
+.org-toolbar { display:flex; align-items:center; flex-wrap:wrap; gap:.75rem; margin-bottom:1rem; }
+.org-toolbar h2 { margin:0; font-size:1.05rem; font-weight:600; letter-spacing:.5px; }
 .list-actions { display:flex; align-items:center; gap:.5rem; flex-wrap:wrap; }
+.list-actions .p-input-icon-left { position:relative; }
+.list-actions .p-input-icon-left > i { position:absolute; left:.5rem; top:50%; transform:translateY(-50%); font-size:.75rem; opacity:.55; }
+.list-actions .p-input-icon-left input { padding-left:1.65rem; }
 
 /* Tabla */
-:host ::ng-deep .p-datatable table { font-size:.85rem; }
-:host ::ng-deep .p-datatable-thead > tr > th { font-size:.65rem; letter-spacing:.5px; text-transform:uppercase; }
-.badge { font-size:.55rem; letter-spacing:.5px; padding:2px 6px; border-radius:20px; text-transform:uppercase; display:inline-block; }
+.table-shell { border:1px solid rgba(255,255,255,.05); border-radius:10px; padding:.5rem .75rem .75rem; background:var(--surface-alt); }
+.table-meta { font-size:.55rem; letter-spacing:.5px; text-transform:uppercase; }
+
+:host ::ng-deep .org-table.p-datatable { border:none; background:transparent; }
+:host ::ng-deep .org-table .p-datatable-thead > tr > th { font-size:.58rem; letter-spacing:.55px; text-transform:uppercase; font-weight:600; background:transparent; border-bottom:1px solid rgba(255,255,255,.08); }
+:host ::ng-deep .org-table .p-datatable-tbody > tr > td { font-size:.72rem; border:0; border-top:1px solid rgba(255,255,255,.05); }
+:host ::ng-deep .org-table .p-datatable-tbody > tr { transition:background .15s ease; }
+:host ::ng-deep .org-table .p-datatable-tbody > tr:hover { background:color-mix(in srgb, var(--primary) 10%, transparent); }
 
 /* Utilidades locales */
 .text-success { color:var(--success); }
 .text-error { color:var(--danger); }
 
+.opacity-80 { opacity:.8; }
+
+@media (max-width:640px) {
+  .list-actions { width:100%; justify-content:flex-end; }
+  .list-actions .w-200 { width:100%; }
+}

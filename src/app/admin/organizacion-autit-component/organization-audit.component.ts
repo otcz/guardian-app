@@ -11,6 +11,7 @@ import {environment} from '../../config/environment';
 import {CardModule} from 'primeng/card';
 import {InputSwitchModule} from 'primeng/inputswitch';
 import {InputTextModule} from 'primeng/inputtext';
+import { ThemeToggleComponent } from '../../shared/theme-toggle.component';
 
 interface AuditLog {
   id?: string;
@@ -25,7 +26,7 @@ interface AuditLog {
 @Component({
   selector: 'app-organization-audit',
   standalone: true,
-  imports: [CommonModule, RouterModule, TableModule, ButtonModule, TagModule, ProgressSpinnerModule, FormsModule, CardModule, InputSwitchModule, InputTextModule],
+  imports: [CommonModule, RouterModule, TableModule, ButtonModule, TagModule, ProgressSpinnerModule, FormsModule, CardModule, InputSwitchModule, InputTextModule, ThemeToggleComponent],
   templateUrl: './organization-audit.component.html',
   styleUrls: ['./organization-audit.component.scss']
 })

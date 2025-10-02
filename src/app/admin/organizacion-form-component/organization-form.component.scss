@@ -7,3 +7,34 @@
 .text-success { color:var(--success); }
 .text-error { color:var(--danger); }
 
+/* Ajuste de tarjeta para coherencia con otros módulos */
+:host ::ng-deep .p-card { background: var(--surface-alt); border:1px solid rgba(255,255,255,.06); }
+
+/* Mejora de contraste por tema */
+:host-context(.theme-dark),
+:host-context(.theme-black) {
+  :host ::ng-deep .p-card { background: color-mix(in srgb, var(--surface-alt) 96%, #000); }
+  .org-form label { opacity:.9; color: var(--text); }
+  .org-form input { background: color-mix(in srgb, var(--surface) 92%, #000); border:1px solid color-mix(in srgb, var(--surface) 55%, #000); }
+  .org-form input:focus { outline:2px solid color-mix(in srgb, var(--primary) 65%, transparent); outline-offset:1px; }
+}
+
+:host-context(.theme-light) {
+  .org-form label { opacity:.8; }
+}
+
+/* Botones texto foco visible accesible */
+:host-context(.theme-dark) button.p-button-text:focus-visible,
+:host-context(.theme-black) button.p-button-text:focus-visible { outline:2px solid color-mix(in srgb, var(--primary) 55%, transparent); outline-offset:2px; }
+
+/* Mensajes de feedback (si se agregan más adelante) */
+.feedback-inline { font-size:.65rem; line-height:1.2; }
+.feedback-inline.error { color: var(--danger); font-weight:500; }
+.feedback-inline.success { color: var(--success); font-weight:500; }
+
+/* Minimizar brillo de switches en dark para reducir distracción */
+:host-context(.theme-dark) .p-inputswitch,
+:host-context(.theme-black) .p-inputswitch { filter:brightness(1.05); }
+
+/* Transiciones suaves */
+.org-form input, .org-form label { transition: background .25s ease, color .25s ease, border-color .25s ease, opacity .25s ease; }

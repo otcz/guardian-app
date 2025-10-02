@@ -47,3 +47,37 @@
 
 :root.theme-black .param-table tbody tr:hover { background:color-mix(in srgb, var(--primary) 18%, transparent); }
 
+/* === Mejora de contraste por tema === */
+:host-context(.theme-dark),
+:host-context(.theme-black) {
+  .params-card ::ng-deep .p-card { background: color-mix(in srgb, var(--surface-alt) 96%, #000); }
+  .param-list h4, .param-form h4 { opacity:.9; color: var(--text); }
+  .param-form label, .param-table thead th { opacity:.82; color: var(--text); }
+  .meta { opacity:.9; }
+  .param-table tbody td { color: color-mix(in srgb, var(--text) 92%, #fff); }
+  .param-table tbody tr { border-top:1px solid color-mix(in srgb, var(--surface) 65%, #000); }
+  .param-table tbody tr:hover { background: color-mix(in srgb, var(--primary) 16%, transparent); }
+  .row-editing { outline:1px solid color-mix(in srgb, var(--primary) 70%, transparent); }
+  .param-form input { background: color-mix(in srgb, var(--surface) 92%, #000); border:1px solid color-mix(in srgb, var(--surface) 55%, #000); }
+  .param-form input:focus { outline:2px solid color-mix(in srgb, var(--primary) 65%, transparent); outline-offset:1px; }
+  .switch-row label { opacity:.9; }
+}
+
+:host-context(.theme-light) {
+  .param-list h4, .param-form h4 { opacity:.78; }
+  .param-form label, .param-table thead th { opacity:.72; }
+}
+
+/* Ajustes de badges para mejorar contraste en dark */
+:host-context(.theme-dark) .badge, :host-context(.theme-black) .badge { filter:brightness(1.08) saturate(1.1); }
+
+/* Estados de error / éxito consistentes */
+.messages .error { font-weight:500; }
+.messages .success { font-weight:500; }
+
+/* Accesibilidad: tamaño mínimo de objetivo */
+.actions-inline button { min-width:34px; min-height:34px; }
+
+/* Focus visible para accesibilidad en dark/black para botones texto */
+:host-context(.theme-dark) button.p-button-text:focus-visible,
+:host-context(.theme-black) button.p-button-text:focus-visible { outline:2px solid color-mix(in srgb, var(--primary) 55%, transparent); outline-offset:2px; }

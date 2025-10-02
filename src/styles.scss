@@ -1,3 +1,110 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+/* Global theme tokens and app-wide styling */
+
+/* Typography base */
+:root {
+  --font-sans: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+    Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', Arial, sans-serif;
+  --radius: 12px;
+  --shadow: 0 6px 18px rgba(0,0,0,.08);
+}
+
+:root.theme-light {
+  --surface: #ffffff;
+  --text: #0f172a; /* slate-900 */
+  --primary: #16a34a; /* emerald-600 */
+  --secondary: #2563eb; /* blue-600 */
+  --muted: #64748b; /* slate-500 */
+  --danger: #e11d48; /* rose-600 */
+  --border: rgba(15,23,42,.12);
+}
+
+:root.theme-dark {
+  --surface: #0b0f1a; /* deep navy */
+  --text: #f1f5f9; /* slate-100 */
+  --primary: #22c55e; /* emerald-500 */
+  --secondary: #60a5fa; /* blue-400 */
+  --muted: #94a3b8; /* slate-400 */
+  --danger: #fb7185; /* rose-400 */
+  --border: rgba(148,163,184,.2);
+}
+
+html, body {
+  height: 100%;
+}
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  color: var(--text);
+  background: color-mix(in srgb, var(--surface) 98%, black 2%);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 { margin: 0 0 8px; font-weight: 800; letter-spacing: .2px; color: var(--text); }
+h1 { font-size: 1.75rem; }
+h2 { font-size: 1.45rem; }
+h3 { font-size: 1.25rem; }
+h4 { font-size: 1.1rem; }
+small, .muted { color: var(--muted); }
+
+/* Cards and panels */
+.card {
+  background: var(--surface);
+  color: var(--text);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+}
+
+/* PrimeNG: Buttons */
+.p-button { border-radius: 10px; font-weight: 700; letter-spacing:.2px; }
+.p-button.p-button-text { border-radius: 8px; }
+.p-button.p-button-outlined { border-color: var(--border); }
+
+/* PrimeNG: Inputs */
+.p-inputtext, .p-inputnumber input { height: 44px; border-radius: 10px; padding: 10px 12px; font-size: .95rem; }
+.p-dropdown { border-radius: 10px; }
+
+/* PrimeNG: InputSwitch */
+.p-inputswitch { transform: scale(1.08); transform-origin: center; }
+.p-inputswitch .p-inputswitch-slider { background: color-mix(in srgb, var(--text) 16%, transparent); }
+.p-inputswitch.p-inputswitch-checked .p-inputswitch-slider { background: var(--primary); }
+
+/* PrimeNG: Sidebar (drawer) */
+.p-sidebar { height: 100vh; box-shadow: -6px 0 16px rgba(0,0,0,.12); border-left: 1px solid var(--border); }
+.p-sidebar .p-sidebar-content { padding: 0 !important; height: 100%; display: flex; }
+
+/* Tables */
+.p-datatable .p-datatable-header { background: transparent; border: none; }
+.p-datatable .p-datatable-thead > tr > th {
+  padding: 12px 14px; font-weight: 800; color: var(--text);
+  background: color-mix(in srgb, var(--surface) 94%, black 6%);
+  border-bottom: 1px solid var(--border);
+}
+.p-datatable .p-datatable-tbody > tr > td { padding: 10px 14px; border-bottom: 1px solid var(--border); }
+.p-datatable .p-paginator { border-top: 1px solid var(--border); background: transparent; }
+
+/* Links */
+a { color: var(--secondary); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* Utility */
+hr { border: none; border-top: 1px solid var(--border); }
+code, pre { background: color-mix(in srgb, var(--surface) 92%, black 8%); color: var(--text); border-radius: 8px; padding: 2px 6px; }
+
+/* Light sidebar helper already used en componentes */
+:root.theme-light .light-sidebar .p-sidebar,
+:root.theme-light .light-sidebar .p-sidebar-header,
+:root.theme-light .light-sidebar .p-sidebar-content,
+:root.theme-light .light-sidebar .p-sidebar-footer { background: #ffffff !important; color: #000000 !important; }
+
+/* Actions cell transparent when empty */
+.p-datatable .p-datatable-tbody td.actions-cell { background: transparent !important; }
+
+/* Form labels */
+label { font-weight: 700; color: var(--text); }
+
 /* Design tokens y temas (claro, oscuro, negro) */
 :root.theme-light {
   --bg: #f4f7fa;
@@ -17,6 +124,13 @@
   --p-text-color: #000000;
   --p-inputtext-color: #000000;
   --p-inputtext-placeholder-color: #4b5563;
+
+  /* PrimeNG surface tokens */
+  --surface-ground: var(--bg);
+  --surface-section: var(--surface);
+  --surface-card: var(--surface);
+  --surface-overlay: #ffffff;
+  --text-color: #000000;
 }
 :root.theme-dark {
   --bg: #181824;
@@ -31,6 +145,13 @@
   --success-100: #0b2d1c;
   --danger: #ff6b6b;
   --danger-100: #3a1f1f;
+
+  /* PrimeNG surface tokens */
+  --surface-ground: var(--bg);
+  --surface-section: var(--surface);
+  --surface-card: var(--surface);
+  --surface-overlay: #232336; /* mismo que surface */
+  --text-color: #e0e6ed;
 }
 :root.theme-black {
   --bg: #0b0b0b;
@@ -45,6 +166,13 @@
   --success-100: #0d2218;
   --danger: #ff6b6b;
   --danger-100: #2a1414;
+
+  /* PrimeNG surface tokens */
+  --surface-ground: var(--bg);
+  --surface-section: var(--surface);
+  --surface-card: var(--surface);
+  --surface-overlay: #131313; /* mismo que surface */
+  --text-color: #e6e6e6;
 }
 
 /* Base */
@@ -307,6 +435,7 @@ a:hover { text-decoration: underline; }
 }
 
 /* Revertir inputs y dropdowns al estilo del tema por defecto */
+/* Deshabilitado: este bloque deshacía el rediseño global de inputs y dropdowns
 .p-inputtext,
 .p-inputtextarea {
   background: unset !important;
@@ -328,6 +457,7 @@ a:hover { text-decoration: underline; }
 .p-dropdown.p-focus {
   box-shadow: unset !important;
 }
+*/
 
 /* Tipografía blanca en inputs/dropdowns para temas oscuro y negro */
 :root.theme-dark, :root.theme-black {
@@ -360,6 +490,48 @@ a:hover { text-decoration: underline; }
   border-top: 1px solid var(--border) !important;
 }
 :root.theme-light app-dashboard .recent-activity {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+/* Tabla 'Actividad reciente' en modo oscuro */
+:root.theme-dark app-dashboard .recent-activity .p-datatable-wrapper table {
+  background: var(--surface) !important; /* #232336 */
+  color: var(--text) !important;         /* #e0e6ed */
+}
+:root.theme-dark app-dashboard .recent-activity .p-datatable-thead > tr > th {
+  background: color-mix(in srgb, var(--surface) 88%, var(--primary) 12%) !important;
+  color: var(--text) !important;
+  border-bottom: 1px solid var(--border) !important; /* #2e3445 */
+  font-weight: 700 !important;
+}
+:root.theme-dark app-dashboard .recent-activity .p-datatable-tbody > tr > td {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+  border-top: 1px solid var(--border) !important;
+}
+:root.theme-dark app-dashboard .recent-activity {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+/* Tabla 'Actividad reciente' en modo negro */
+:root.theme-black app-dashboard .recent-activity .p-datatable-wrapper table {
+  background: var(--surface) !important; /* #131313 */
+  color: var(--text) !important;         /* #e6e6e6 */
+}
+:root.theme-black app-dashboard .recent-activity .p-datatable-thead > tr > th {
+  background: color-mix(in srgb, var(--surface) 88%, var(--primary) 12%) !important;
+  color: var(--text) !important;
+  border-bottom: 1px solid var(--border) !important; /* #262626 */
+  font-weight: 700 !important;
+}
+:root.theme-black app-dashboard .recent-activity .p-datatable-tbody > tr > td {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+  border-top: 1px solid var(--border) !important;
+}
+:root.theme-black app-dashboard .recent-activity {
   border-radius: 12px;
   overflow: hidden;
 }
@@ -457,24 +629,308 @@ a:hover { text-decoration: underline; }
 :root.theme-light body .p-select-panel.doc-type-panel .p-select-item:hover { background: color-mix(in srgb, var(--success) 85%, black) !important; }
 :root.theme-light body .p-select-panel.doc-type-panel .p-select-item.p-highlight { background: color-mix(in srgb, var(--success) 75%, black) !important; color: #ffffff !important; }
 
-/* Tema claro: panel del p-dropdown (solo para selector de documento) */
-:root.theme-light .p-dropdown-panel.doc-type-panel {
+/* Tema oscuro: control y panel de 'Tipo de documento' */
+:root.theme-dark body .doc-type-control.p-dropdown {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+  border: none !important;
+  border-radius: 10px !important;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--border) 60%, transparent) !important;
+}
+:root.theme-dark body .doc-type-control.p-dropdown:hover {
+  background: color-mix(in srgb, var(--surface) 92%, var(--bg)) !important;
+}
+:root.theme-dark body .doc-type-control.p-dropdown .p-dropdown-label { color: var(--text) !important; }
+:root.theme-dark body .doc-type-control.p-dropdown .p-dropdown-label.p-placeholder { color: color-mix(in srgb, var(--muted) 85%, white) !important; }
+
+:root.theme-dark body .p-dropdown-panel.doc-type-panel {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: 0 12px 28px rgba(0,0,0,0.28), 0 6px 12px rgba(79,140,255,0.10) !important;
+}
+:root.theme-dark body .p-dropdown-panel.doc-type-panel .p-dropdown-items { background: transparent !important; }
+:root.theme-dark body .p-dropdown-panel.doc-type-panel .p-dropdown-item { color: var(--text) !important; border-radius: 8px; background: transparent !important; }
+:root.theme-dark body .p-dropdown-panel.doc-type-panel .p-dropdown-item.p-highlight {
+  background: color-mix(in srgb, var(--primary) 18%, transparent) !important;
+  color: var(--text) !important;
+}
+:root.theme-dark body .p-dropdown-panel.doc-type-panel .p-dropdown-item:not(.p-highlight):hover {
+  background: color-mix(in srgb, var(--primary) 12%, transparent) !important;
+}
+/* Compatibilidad con p-select-panel si se usa */
+:root.theme-dark body .p-select-panel.doc-type-panel {
+  background: var(--surface) !important; color: var(--text) !important; border: 1px solid var(--border) !important;
+}
+:root.theme-dark body .p-select-panel.doc-type-panel .p-select-item { color: var(--text) !important; border-radius: 8px; }
+:root.theme-dark body .p-select-panel.doc-type-panel .p-select-item.p-highlight { background: color-mix(in srgb, var(--primary) 18%, transparent) !important; color: var(--text) !important; }
+:root.theme-dark body .p-select-panel.doc-type-panel .p-select-item:not(.p-highlight):hover { background: color-mix(in srgb, var(--primary) 12%, transparent) !important; }
+
+/* Tema negro: control y panel de 'Tipo de documento' */
+:root.theme-black body .doc-type-control.p-dropdown {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+  border: none !important;
+  border-radius: 10px !important;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--border) 60%, transparent) !important;
+}
+:root.theme-black body .doc-type-control.p-dropdown:hover {
+  background: color-mix(in srgb, var(--surface) 92%, var(--bg)) !important;
+}
+:root.theme-black body .doc-type-control.p-dropdown .p-dropdown-label { color: var(--text) !important; }
+:root.theme-black body .doc-type-control.p-dropdown .p-dropdown-label.p-placeholder { color: color-mix(in srgb, var(--muted) 85%, white) !important; }
+
+:root.theme-black body .p-dropdown-panel.doc-type-panel {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: 0 12px 28px rgba(0,0,0,0.35), 0 6px 12px rgba(79,140,255,0.10) !important;
+}
+:root.theme-black body .p-dropdown-panel.doc-type-panel .p-dropdown-items { background: transparent !important; }
+:root.theme-black body .p-dropdown-panel.doc-type-panel .p-dropdown-item { color: var(--text) !important; border-radius: 8px; background: transparent !important; }
+:root.theme-black body .p-dropdown-panel.doc-type-panel .p-dropdown-item.p-highlight {
+  background: color-mix(in srgb, var(--primary) 18%, transparent) !important;
+  color: var(--text) !important;
+}
+:root.theme-black body .p-dropdown-panel.doc-type-panel .p-dropdown-item:not(.p-highlight):hover {
+  background: color-mix(in srgb, var(--primary) 12%, transparent) !important;
+}
+/* Compatibilidad con p-select-panel si se usa */
+:root.theme-black body .p-select-panel.doc-type-panel {
+  background: var(--surface) !important; color: var(--text) !important; border: 1px solid var(--border) !important;
+}
+:root.theme-black body .p-select-panel.doc-type-panel .p-select-item { color: var(--text) !important; border-radius: 8px; }
+:root.theme-black body .p-select-panel.doc-type-panel .p-select-item.p-highlight { background: color-mix(in srgb, var(--primary) 18%, transparent) !important; color: var(--text) !important; }
+:root.theme-black body .p-select-panel.doc-type-panel .p-select-item:not(.p-highlight):hover { background: color-mix(in srgb, var(--primary) 12%, transparent) !important; }
+
+/* Tema claro: tablas PrimeNG (p-table / p-datatable) con fondo blanco y texto negro */
+:root.theme-light body .p-datatable-wrapper table,
+:root.theme-light body .p-table table {
   background: #ffffff !important;
   color: #000 !important;
-  border: 1px solid var(--border) !important;
-  box-shadow: 0 12px 28px rgba(0,0,0,0.12), 0 4px 10px rgba(79,140,255,0.10) !important;
 }
-:root.theme-light .p-dropdown-panel.doc-type-panel .p-dropdown-items {
-  background: transparent !important;
+:root.theme-light body .p-datatable-thead > tr > th,
+:root.theme-light body .p-table-thead > tr > th,
+:root.theme-light body .p-datatable .p-datatable-thead > tr > th {
+  background: color-mix(in srgb, var(--surface) 96%, var(--primary) 4%) !important;
+  color: #000 !important;
+  border-bottom: 1px solid var(--border) !important;
+  font-weight: 700 !important;
 }
-:root.theme-light .p-dropdown-panel.doc-type-panel .p-dropdown-item {
+:root.theme-light body .p-datatable-tbody > tr > td,
+:root.theme-light body .p-table-tbody > tr > td,
+:root.theme-light body .p-datatable .p-datatable-tbody > tr > td {
+  background: #ffffff !important;
+  color: #000 !important;
+  border-top: 1px solid var(--border) !important;
+}
+:root.theme-light body .p-datatable .p-datatable-footer,
+:root.theme-light body .p-datatable .p-datatable-header,
+:root.theme-light body .p-table .p-datatable-footer,
+:root.theme-light body .p-table .p-datatable-header {
+  background: #ffffff !important;
+  color: #000 !important;
+  border-color: var(--border) !important;
+}
+:root.theme-light body .p-paginator {
+  background: #ffffff !important;
+  color: #000 !important;
+  border-top: 1px solid var(--border) !important;
+}
+:root.theme-light body .p-paginator .p-paginator-page,
+:root.theme-light body .p-paginator .p-paginator-next,
+:root.theme-light body .p-paginator .p-paginator-prev,
+:root.theme-light body .p-paginator .p-paginator-first,
+:root.theme-light body .p-paginator .p-paginator-last {
   color: #000 !important;
 }
-:root.theme-light .p-dropdown-panel.doc-type-panel .p-dropdown-item.p-highlight {
-  background: color-mix(in srgb, var(--primary) 18%, #ffffff) !important;
+:root.theme-light body .p-paginator .p-highlight {
+  background: color-mix(in srgb, var(--primary) 12%, transparent) !important;
   color: #000 !important;
-}
-:root.theme-light .p-dropdown-panel.doc-type-panel .p-dropdown-item:not(.p-highlight):hover {
-  background: color-mix(in srgb, var(--primary) 12%, #ffffff) !important;
 }
 
+/* Ajuste de hover de fila para tema claro (más suave) */
+:root.theme-light body .p-datatable-wrapper table tbody tr:hover,
+:root.theme-light body .p-table table tbody tr:hover {
+  background: color-mix(in srgb, var(--primary) 8%, #ffffff) !important;
+}
+
+/* Tema claro: Sidebar (formularios editar/nuevo) y diálogos con fondo blanco */
+:root.theme-light body .p-sidebar {
+  background: #ffffff !important;
+  color: #000 !important;
+  border-left: 1px solid var(--border) !important;
+}
+:root.theme-light body .p-sidebar .p-sidebar-header,
+:root.theme-light body .p-sidebar .p-sidebar-content {
+  background: #ffffff !important;
+  color: #000 !important;
+}
+:root.theme-light body .p-sidebar .p-button.p-button-text { color: #000 !important; }
+
+/* Tema claro: p-dialog y confirmDialog */
+:root.theme-light body .p-dialog,
+:root.theme-light body .p-confirm-dialog {
+  background: #ffffff !important;
+  color: #000 !important;
+}
+:root.theme-light body .p-dialog .p-dialog-header,
+:root.theme-light body .p-dialog .p-dialog-content,
+:root.theme-light body .p-dialog .p-dialog-footer,
+:root.theme-light body .p-confirm-dialog .p-dialog-header,
+:root.theme-light body .p-confirm-dialog .p-dialog-content,
+:root.theme-light body .p-confirm-dialog .p-dialog-footer {
+  background: #ffffff !important;
+  color: #000 !important;
+}
+
+/* Reforzar panel de dropdown dentro del sidebar en tema claro */
+:root.theme-light body .p-sidebar ~ .p-dropdown-panel,
+:root.theme-light body .p-dropdown-panel { /* overlay global */
+  background: #ffffff !important;
+  color: #000 !important;
+}
+
+/* Refuerzo extra: sidebars de edición blancos en tema claro dentro de componentes admin */
+:root.theme-light app-parametros .p-sidebar,
+:root.theme-light app_parametros .p-sidebar .p-sidebar-header,
+:root.theme-light app_parametros .p-sidebar .p-sidebar-content,
+:root.theme-light app-param-config .p-sidebar,
+:root.theme-light app-param-config .p-sidebar .p-sidebar-header,
+:root.theme-light app-param-config .p-sidebar .p-sidebar-content {
+  background: #ffffff !important;
+  color: #000 !important;
+}
+
+/* Tema claro: forzar sidebars marcados como light-sidebar a blanco absoluto */
+:root.theme-light body .p-sidebar.light-sidebar,
+:root.theme-light body .p-sidebar.light-sidebar .p-sidebar-header,
+:root.theme-light body .p-sidebar.light-sidebar .p-sidebar-content {
+  background: #ffffff !important;
+  color: #000000 !important;
+}
+:root.theme-light body .p-sidebar.light-sidebar .p-button.p-button-text { color: #000000 !important; }
+:root.theme-light body .p-sidebar.light-sidebar .form-field label { color: #000000 !important; }
+:root.theme-light body .p-sidebar.light-sidebar .p-inputtext,
+:root.theme-light body .p-sidebar.light-sidebar input,
+:root.theme-light body .p-sidebar.light-sidebar .p-dropdown .p-dropdown-label {
+  color: #000000 !important;
+}
+:root.theme-light body .p-sidebar.light-sidebar .p-inputtext::placeholder,
+:root.theme-light body .p-sidebar.light-sidebar input::placeholder {
+  color: #4b5563 !important;
+}
+
+/* Tema claro: contenedor interno opcional para forzar blanco dentro del sidebar */
+:root.theme-light body .sidebar-panel.white-theme {
+  background: #ffffff !important;
+  color: #000000 !important;
+  width: 100% !important;
+  height: 100% !important;
+  padding: 16px !important;
+}
+
+/* Limpieza: corregir selector mal escrito (app_parametros) */
+:root.theme-light app-parametros .p-sidebar,
+:root.theme-light app-parametros .p-sidebar .p-sidebar-header,
+:root.theme-light app_parametros .p-sidebar .p-sidebar-content,
+:root.theme-light app-param-config .p-sidebar,
+:root.theme-light app-param-config .p-sidebar .p-sidebar-header,
+:root.theme-light app-param-config .p-sidebar .p-sidebar-content {
+  background: #ffffff !important;
+  color: #000 !important;
+}
+:root.theme-light body .p-sidebar.light-sidebar .p-sidebar-header .p-sidebar-close {
+  background: transparent !important;
+  border: none !important;
+  color: #000 !important;
+  box-shadow: none !important;
+}
+:root.theme-light body .p-sidebar.light-sidebar {
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+:root.theme-light body .p-sidebar.light-sidebar .p-sidebar-header {
+  background: #ffffff !important;
+  padding: 8px 8px 0 8px !important;
+}
+:root.theme-light body .p-sidebar.light-sidebar .p-sidebar-content {
+  background: #ffffff !important;
+  padding: 0 !important;
+  height: 100% !important;
+}
+:root.theme-light body .p-sidebar.light-sidebar.p-sidebar-right,
+:root.theme-light body .p-sidebar.p-sidebar-sm.light-sidebar {
+  background: #ffffff !important;
+  border-left: 1px solid var(--border) !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+/* Tema claro: scrollbars claros dentro del sidebar para evitar franja oscura */
+:root.theme-light body .p-sidebar.light-sidebar .p-sidebar-content {
+  scrollbar-color: #c7c7c7 #ffffff; /* Firefox */
+}
+:root.theme-light body .p-sidebar.light-sidebar .p-sidebar-content::-webkit-scrollbar {
+  width: 12px; height: 12px;
+}
+:root.theme-light body .p-sidebar.light-sidebar .p-sidebar-content::-webkit-scrollbar-track {
+  background: #ffffff;
+}
+:root.theme-light body .p-sidebar.light-sidebar .p-sidebar-content::-webkit-scrollbar-thumb {
+  background-color: #c7c7c7; border-radius: 999px; border: 3px solid #ffffff;
+}
+:root.theme-light body .p-sidebar.light-sidebar .p-sidebar-content {
+  display: flex !important;
+  align-items: stretch !important;
+}
+:root.theme-light body .p-sidebar.light-sidebar .p-sidebar-content > * {
+  flex: 1 1 auto !important;
+  margin: 0 !important;
+}
+:root.theme-light body .p-sidebar { box-shadow: none !important; }
+:root.theme-light body .p-sidebar-mask { background: rgba(255, 255, 255, 0.65) !important; }
+
+/* Overrides definitivas para tema claro (evitar fondos oscuros en overlays) */
+:root.theme-light {
+  /* Sidebar (PrimeNG p-sidebar) en modo claro */
+  .p-sidebar.light-sidebar,
+  .p-sidebar.light-sidebar .p-sidebar-header,
+  .p-sidebar.light-sidebar .p-sidebar-content,
+  .p-sidebar.light-sidebar .p-sidebar-footer {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+  .p-sidebar.light-sidebar .p-sidebar-close,
+  .p-sidebar.light-sidebar .p-sidebar-icon,
+  .p-sidebar.light-sidebar .pi {
+    color: #000000 !important;
+  }
+  .p-sidebar-mask { background: rgba(0,0,0,0.35); } /* sombra estándar */
+
+  /* Dropdowns siempre claros */
+  .p-dropdown,
+  .p-dropdown .p-dropdown-label,
+  .p-dropdown .p-dropdown-trigger,
+  .p-dropdown-panel,
+  .p-dropdown-panel .p-dropdown-items,
+  .p-dropdown-panel .p-dropdown-item {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+  .p-dropdown-panel .p-dropdown-item.p-highlight { background: #e8f0fe !important; color: #111827 !important; }
+
+  /* Inputs dentro de overlays en claro */
+  .p-inputtext,
+  .p-inputtextarea {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+}
+
+/* Asegurar que el sidebar pequeño use el ancho correcto pero mantenga fondo claro */
+.p-sidebar-sm.p-sidebar { width: 480px; max-width: 92vw; }
+
+/* Panel lateral interno utilitario */
+.white-theme { background: #ffffff !important; color: #000000 !important; }

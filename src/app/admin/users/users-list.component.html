@@ -1,0 +1,60 @@
+<div class="admin-grid">
+  <app-side-nav title="Administración"></app-side-nav>
+  <div class="card">
+    <div class="header-row">
+      <h2>{{ 'users.title' | t }}</h2>
+      <span class="spacer"></span>
+      <button pButton [label]="('users.create' | t)" icon="pi pi-plus" (click)="goNew()" *ngIf="perm.canCreateUser()"></button>
+    </div>
+
+    <div class="filters">
+      <span class="p-input-icon-left">
+        <i class="pi pi-search"></i>
+        <input pInputText type="text" [(ngModel)]="q" (ngModelChange)="onSearchChange()" placeholder="Buscar (nombre, usuario, documento)" aria-label="Buscar" />
+      </span>
+      <p-dropdown [options]="statusOptions" [(ngModel)]="status" placeholder="Estado" optionLabel="label" optionValue="value"></p-dropdown>
+      <p-dropdown [options]="roleOptions" [(ngModel)]="roleId" placeholder="Rol" optionLabel="name" optionValue="id"></p-dropdown>
+      <p-dropdown [options]="sectionOptions" [(ngModel)]="sectionId" placeholder="Sección" optionLabel="name" optionValue="id"></p-dropdown>
+      <span class="spacer"></span>
+      <button pButton class="p-button-outlined" label="Limpiar" (click)="clearFilters()"></button>
+    </div>
+
+    <p-table [value]="items" [lazy]="true" [paginator]="true" [rows]="size" [totalRecords]="total"
+             (onLazyLoad)="onLazy($event)" [loading]="loading()" [rowsPerPageOptions]="[10,20,50]">
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Nombre</th>
+          <th>Documento</th>
+          <th>Username</th>
+          <th>Email</th>
+          <th>Roles</th>
+          <th>Secciones</th>
+          <th>Estado</th>
+          <th class="actions">Acciones</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-row>
+        <tr>
+          <td>{{ row.nombres }} {{ row.apellidos || '' }}</td>
+          <td>{{ row.documento || '-' }}</td>
+          <td>{{ row.username }}</td>
+          <td>{{ row.email || '-' }}</td>
+          <td>
+            <p-chip *ngFor="let r of mapRoles(row.roleIds)" [label]="r" class="pill"></p-chip>
+          </td>
+          <td>
+            <p-chip *ngFor="let s of mapSections(row.sectionIds)" [label]="s" class="pill"></p-chip>
+          </td>
+          <td>
+            <span class="status" [class.ok]="row.status==='ACTIVE'" [class.warn]="row.status==='INACTIVE'" [class.block]="row.status==='BLOCKED'">{{ row.status }}</span>
+          </td>
+          <td class="actions">
+            <button pButton pTooltip="Editar" [disabled]="!perm.canEditUser()" icon="pi pi-pencil" class="p-button-text" (click)="edit(row)"></button>
+            <!-- ...otros botones... -->
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>
+

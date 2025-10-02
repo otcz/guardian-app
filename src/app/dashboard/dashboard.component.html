@@ -1,48 +1,12 @@
-<div style="display:flex; height:100vh;">
-  <aside class="sidebar" [style.width.px]="sidebarOpen ? 260 : 60" style="transition:width .2s; padding:12px; background:#1e293b; color:#fff; overflow:auto;">
-    <button pButton type="button" class="p-button p-button-text" (click)="sidebarOpen = !sidebarOpen" aria-label="Colapsar sidebar">
-      <i class="pi" [ngClass]="sidebarOpen ? 'pi-angle-left' : 'pi-angle-right'"></i>
-    </button>
+<div class="admin-grid">
+  <app-side-nav title="Administración"></app-side-nav>
 
-    <div *ngIf="sidebarOpen" style="margin-top:12px; display:flex; flex-direction:column; gap:14px;">
-      <div style="display:flex; gap:6px; align-items:center;">
-        <input pInputText type="text" placeholder="Buscar..." [(ngModel)]="searchQuery" (ngModelChange)="onSearchChange($event)" style="flex:1; padding:4px 8px; font-size:.8rem;"/>
-        <button pButton type="button" class="p-button p-button-text" (click)="expandAll()" title="Expandir todo"><i class="pi pi-plus"></i></button>
-        <button pButton type="button" class="p-button p-button-text" (click)="collapseAll()" title="Colapsar todo"><i class="pi pi-minus"></i></button>
-      </div>
-      <a routerLink="/dashboard" class="menu-link" style="color:#fff; display:flex; align-items:center; gap:10px; font-weight:600; text-decoration:none;">
-        <i class="pi pi-home"></i>
-        <span>Inicio</span>
-      </a>
-
-      <!-- Árbol jerárquico: MENUs con sus ITEMS filtrados -->
-      <ng-container *ngIf="(filteredMenus$ | async) as menus">
-        <div *ngFor="let menu of menus" class="menu-group" style="display:flex; flex-direction:column; gap:4px;">
-          <div class="menu-header" (click)="toggleMenu(menu.key)" style="cursor:pointer; display:flex; align-items:center; gap:6px; font-size:.75rem; letter-spacing:.5px; text-transform:uppercase; opacity:.85; padding:4px 4px; border-radius:4px; transition:background .15s;">
-            <i class="pi" [ngClass]="isExpanded(menu.key) ? 'pi-chevron-down' : 'pi-chevron-right'" style="font-size:11px;"></i>
-            <i [ngClass]="menu.icon || 'pi pi-circle'" style="font-size:20px;"></i>
-            <span style="flex:1;">{{ menu.label }}</span>
-            <span *ngIf="menu.children?.length" style="font-size:.65rem; background:rgba(255,255,255,.08); padding:1px 6px; border-radius:10px;">{{ menu.children?.length }}</span>
-          </div>
-          <div class="menu-items" *ngIf="isExpanded(menu.key)" style="display:flex; flex-direction:column; gap:2px; padding-left:16px;">
-            <a *ngFor="let child of menu.children" [routerLink]="child.path" class="menu-item" style="display:flex; align-items:center; gap:8px; padding:6px 8px; border-radius:6px; color:#e2e8f0; text-decoration:none; font-size:.78rem; line-height:1.1; transition:background .15s, color .15s;">
-              <i [ngClass]="child.icon || 'pi pi-circle'" style="font-size:13px; opacity:.9;"></i>
-              <span style="flex:1; white-space:normal;">{{ child.label }}</span>
-            </a>
-          </div>
-          <div style="height:1px; background:rgba(255,255,255,.06); margin:6px 0 4px 0;"></div>
-        </div>
-        <div *ngIf="menus.length === 0" style="font-size:.7rem; opacity:.6; padding:8px 4px;">Sin resultados</div>
-      </ng-container>
-    </div>
-  </aside>
-
-  <div style="display:flex; flex-direction:column; flex:1; min-width:0;">
+  <div style="display:flex; flex-direction:column; min-width:0;">
     <header class="header">
       <img src="assets/logo.png" alt="Logo" style="height:28px;" />
       <div class="spacer"></div>
       <button pButton type="button" class="p-button p-button-text" aria-label="Notificaciones"><i class="pi pi-bell"></i></button>
-      <button pButton type="button" class="p-button p-button-text" aria-label="Usuario"><i class="pi pi-user"></i></button>
+      <app-user-avatar></app-user-avatar>
     </header>
     <main class="main" style="padding:16px;">
       <section class="kpi-grid">

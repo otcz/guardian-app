@@ -20,7 +20,7 @@
         <div style="display:grid; grid-template-columns: 220px 1fr; gap:12px; align-items:end;">
           <div class="form-field">
             <label for="tipoDocumento">Tipo de documento</label>
-            <p-dropdown id="tipoDocumento" formControlName="tipoDocumento" [options]="tiposDocumento" optionLabel="label" optionValue="value" placeholder="Selecciona..." styleClass="doc-type-control" [overlayOptions]="{ styleClass: 'doc-type-panel' }" [autoDisplayFirst]="true"></p-dropdown>
+            <p-dropdown id="tipoDocumento" formControlName="tipoDocumento" [options]="tiposDocumento" optionLabel="label" optionValue="value" placeholder="Selecciona..." styleClass="doc-type-control" [overlayOptions]="{ styleClass: 'doc-type-panel' }" panelStyleClass="doc-type-panel" [autoDisplayFirst]="true"></p-dropdown>
           </div>
           <div class="form-field">
             <label for="documentoIdentidad">Número de documento</label>

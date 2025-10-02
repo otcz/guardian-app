@@ -5,6 +5,9 @@ import { TableModule } from 'primeng/table';
 import { ThemeToggleComponent } from '../shared/theme-toggle.component';
 import { RouterModule } from '@angular/router';
 import { MenuService, MenuOption } from '../service/menu.service';
+import { Observable } from 'rxjs';
+import { UserAvatarComponent } from '../shared/user-avatar.component';
+import { SideNavComponent } from '../shared/side-nav.component';
 import { Observable, map, BehaviorSubject, combineLatest } from 'rxjs';
 import { InputTextModule } from 'primeng/inputtext';
 import { FormsModule } from '@angular/forms';
@@ -13,8 +16,10 @@ import { FormsModule } from '@angular/forms';
   selector: 'app-dashboard',
   standalone: true,
   imports: [CommonModule, RouterModule, ButtonModule, TableModule, ThemeToggleComponent, InputTextModule, FormsModule],
+  imports: [CommonModule, RouterModule, ButtonModule, TableModule, ThemeToggleComponent, UserAvatarComponent, SideNavComponent],
   templateUrl: './dashboard.component.html',
   styles: [`
+    .admin-grid { display:grid; grid-template-columns: auto 1fr; gap: 16px; align-items: stretch; }
     /* Solo en modo claro, aplicar look claro a la tabla 'Actividad reciente' */
     :host-context(.theme-light) .recent-activity .p-datatable-wrapper table { background: var(--surface); color: var(--text); }
     :host-context(.theme-light) .recent-activity .p-datatable-thead > tr > th { background: color-mix(in srgb, var(--surface) 96%, var(--primary) 4%); color: var(--text); border-bottom: 1px solid var(--border); font-weight: 700; }
@@ -26,6 +31,7 @@ export class DashboardComponent {
   sidebarOpen = true;
   options$!: Observable<MenuOption[]>; // plano (compatibilidad)
   menus$!: Observable<MenuOption[]>;   // jerárquico (solo MENUs con hijos)
+  get options$(): Observable<MenuOption[]> { return this.menu.list$; }
   activities = [
     { fecha: '2025-09-24 10:21', evento: 'Login', detalle: 'sysadmin' },
     { fecha: '2025-09-24 10:25', evento: 'Creó usuario', detalle: 'juan.perez' },

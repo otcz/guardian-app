@@ -23,3 +23,30 @@
 
 :root.theme-black .audit-table.p-datatable-sm tbody tr:hover { background:color-mix(in srgb, var(--primary) 15%, transparent); }
 
+/* Adaptación de contraste por tema para evitar fondo blanco en dark/black */
+:host-context(.theme-dark),
+:host-context(.theme-black) {
+  .audit-card ::ng-deep .p-card { background: color-mix(in srgb, var(--surface-alt) 96%, #000); }
+  .org-toolbar h2 { color: var(--text); opacity:.95; }
+  .audit-tools label, .audit-tools span { color: color-mix(in srgb, var(--text) 90%, #fff); opacity:.85; }
+  .audit-table.p-datatable-sm thead th { background: color-mix(in srgb, var(--surface) 85%, #000); color: var(--text); opacity:.92; }
+  .audit-table.p-datatable-sm tbody tr { background: color-mix(in srgb, var(--surface) 92%, #000); }
+  .audit-table.p-datatable-sm tbody tr:nth-child(even) { background: color-mix(in srgb, var(--surface) 88%, #000); }
+  .audit-table.p-datatable-sm tbody tr:hover { background: color-mix(in srgb, var(--primary) 18%, transparent); }
+  .audit-empty { background: color-mix(in srgb, var(--surface) 90%, #000); border-radius:6px; }
+  .timestamp, .detalle { color: color-mix(in srgb, var(--text) 95%, #fff); }
+}
+
+:host-context(.theme-light) {
+  .audit-table.p-datatable-sm thead th { background: color-mix(in srgb, var(--surface) 96%, var(--primary) 4%); }
+  .audit-table.p-datatable-sm tbody tr:hover { background: color-mix(in srgb, var(--primary) 14%, transparent); }
+}
+
+/* Mejoras de foco accesible */
+.audit-table.p-datatable-sm tbody tr:focus-within { outline:2px solid color-mix(in srgb, var(--primary) 60%, transparent); outline-offset:1px; }
+
+/* Ajuste de paddings para densidad uniforme */
+.audit-table.p-datatable-sm thead th, .audit-table.p-datatable-sm tbody td { padding:.55rem .65rem; }
+
+/* Reduce flicker al cambiar de tema */
+:host { transition: background .25s ease, color .25s ease; }

@@ -1,5 +1,4 @@
 <div class="org-toolbar" *ngIf="!error || org; else errorTpl">
-  <button pButton type="button" icon="pi pi-arrow-left" class="p-button-text" label="Volver" (click)="back()"></button>
   <h2>Parámetros Globales</h2>
   <span class="spacer"></span>
   <span class="p-input-icon-left" style="margin-right:.5rem;">
@@ -99,7 +98,6 @@
   </div>
 
   <div style="margin-top:1rem; display:flex; gap:.5rem;">
-    <button pButton type="button" label="Volver" class="p-button-text" (click)="back()"></button>
     <span class="spacer"></span>
     <small style="opacity:.6;">Enter: guardar • Esc: cancelar</small>
   </div>
@@ -114,6 +112,5 @@
 <ng-template #errorTpl>
   <p-card header="Error">
     <div class="messages error">{{ error }}</div>
-    <button pButton type="button" label="Volver" class="p-button-text" (click)="back()"></button>
   </p-card>
 </ng-template>

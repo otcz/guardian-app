@@ -1,5 +1,5 @@
 <div class="org-toolbar" *ngIf="!error; else errorTpl">
-  <button pButton type="button" icon="pi pi-arrow-left" class="p-button-text" label="Volver" (click)="back()"></button>
+  <!-- Removed Volver button -->
   <h2>Auditoría de Organización</h2>
   <span class="spacer"></span>
 </div>
@@ -50,6 +50,6 @@
 <ng-template #errorTpl>
   <p-card header="Error" class="audit-card">
     <div class="status-error">{{ error }}</div>
-    <button pButton type="button" label="Volver" class="p-button-text" (click)="back()"></button>
+    <!-- Removed Volver button -->
   </p-card>
 </ng-template>

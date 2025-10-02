@@ -1,5 +1,4 @@
 <div class="p-3">
-  <p-button styleClass="p-button-text mb-3" icon="pi pi-arrow-left" label="Volver" (onClick)="backList()"></p-button>
   <h2 class="mt-0">{{ isEdit() ? 'Gestionar Organización' : 'Crear Organización' }}</h2>
   <p *ngIf="error" class="p-error">{{error}}</p>
   <p *ngIf="success" class="text-green-500">{{success}}</p>

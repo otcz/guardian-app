@@ -1,0 +1,27 @@
+<div class="p-3">
+  <p-button styleClass="p-button-text mb-3" icon="pi pi-arrow-left" label="Volver" (onClick)="backList()"></p-button>
+  <h2 class="mt-0">{{ isEdit() ? 'Gestionar Organización' : 'Crear Organización' }}</h2>
+  <p *ngIf="error" class="p-error">{{error}}</p>
+  <p *ngIf="success" class="text-green-500">{{success}}</p>
+
+  <p-card *ngIf="!loading; else loadingTpl">
+    <form [formGroup]="form" (ngSubmit)="submit()" class="flex flex-column gap-3" style="max-width:32rem">
+      <div>
+        <label for="nombre" class="block mb-1">Nombre</label>
+        <input id="nombre" type="text" pInputText formControlName="nombre" placeholder="Nombre de la organización" />
+        <small class="p-error" *ngIf="form.get('nombre')?.invalid && form.get('nombre')?.touched">Requerido (mín 3)</small>
+      </div>
+      <div class="flex align-items-center gap-2">
+        <label for="activa" class="mb-0">Activa</label>
+        <p-inputSwitch inputId="activa" formControlName="activa"></p-inputSwitch>
+      </div>
+      <div class="flex gap-2">
+        <button pButton type="submit" [label]="isEdit() ? 'Actualizar' : 'Crear'" [disabled]="saving || form.invalid" [icon]="saving ? 'pi pi-spin pi-spinner' : 'pi pi-save'"></button>
+        <button *ngIf="isEdit()" pButton type="button" label="Nueva" icon="pi pi-plus" (click)="goNew()" [disabled]="saving" class="p-button-secondary"></button>
+      </div>
+    </form>
+  </p-card>
+  <ng-template #loadingTpl>
+    <div class="flex align-items-center gap-2"><p-progressSpinner styleClass="w-2rem h-2rem" strokeWidth="4"></p-progressSpinner><span>Cargando...</span></div>
+  </ng-template>
+</div>

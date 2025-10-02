@@ -1,0 +1,60 @@
+<div class="p-3">
+  <p-button styleClass="p-button-text mb-3" icon="pi pi-arrow-left" label="Volver" (onClick)="back()"></p-button>
+  <h2 class="mt-0">Estrategia de Gobernanza</h2>
+  <p *ngIf="error" class="p-error">{{error}}</p>
+  <p *ngIf="success" class="text-green-500">{{success}}</p>
+
+  <p-card *ngIf="!loading; else loadingTpl">
+    <form [formGroup]="form" (ngSubmit)="submit()" class="flex flex-column gap-3" style="max-width:48rem">
+      <div class="grid">
+        <div class="col-12 md:col-4">
+          <label class="block mb-1" for="nombre">Nombre Estrategia</label>
+          <select id="nombre" class="p-inputtext p-component w-full" formControlName="nombre" (change)="adjustByNombre()">
+            <option value="" disabled>Seleccione</option>
+            <option *ngFor="let n of nombreOptions" [value]="n">{{n}}</option>
+          </select>
+        </div>
+        <div class="col-12 md:col-8">
+          <label for="descripcion" class="block mb-1">Descripción</label>
+          <textarea id="descripcion" pInputTextarea rows="2" formControlName="descripcion"></textarea>
+        </div>
+      </div>
+      <div class="grid">
+        <div class="col-12 md:col-3" *ngFor="let field of [
+          {key:'hereda_roles', label:'Hereda Roles'},
+          {key:'crea_roles_locales', label:'Crea Roles Locales'},
+          {key:'crea_parametros_locales', label:'Crea Parámetros Locales'},
+          {key:'autonomia_menu_local', label:'Autonomía Menú Local'},
+          {key:'crea_usuarios_en_seccion', label:'Crea Usuarios en Sección'},
+          {key:'gestiona_vehiculos_locales', label:'Gestiona Vehículos Locales'},
+          {key:'asigna_permisos_directos', label:'Asigna Permisos Directos'}
+        ]">
+          <div class="flex align-items-center gap-2 mb-2">
+            <p-inputSwitch [inputId]="field.key" [formControlName]="field.key"></p-inputSwitch>
+            <label [for]="field.key" class="mb-0">{{field.label}}</label>
+          </div>
+        </div>
+      </div>
+      <div class="grid">
+        <div class="col-12 md:col-4">
+          <label for="alcance" class="block mb-1">Alcance Ingresos</label>
+          <select id="alcance" class="p-inputtext p-component w-full" formControlName="alcance_ingresos">
+            <option *ngFor="let a of alcanceOptions" [value]="a.value">{{a.label}}</option>
+          </select>
+        </div>
+        <div class="col-12 md:col-4 flex align-items-center gap-2" style="margin-top:2rem;">
+          <p-inputSwitch inputId="activa" formControlName="activa"></p-inputSwitch>
+          <label for="activa" class="mb-0">Activa</label>
+        </div>
+      </div>
+      <div class="flex gap-2 mt-2">
+        <button pButton type="submit" label="Guardar" [disabled]="saving || form.invalid" [icon]="saving ? 'pi pi-spin pi-spinner' : 'pi pi-save'"></button>
+        <button pButton type="button" label="Recargar" icon="pi pi-refresh" (click)="load()" [disabled]="saving"></button>
+      </div>
+    </form>
+  </p-card>
+  <ng-template #loadingTpl>
+    <div class="flex align-items-center gap-2"><p-progressSpinner styleClass="w-2rem h-2rem" strokeWidth="4"></p-progressSpinner><span>Cargando...</span></div>
+  </ng-template>
+</div>
+

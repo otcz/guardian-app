@@ -1,0 +1,15 @@
+/* Estilos específicos: Lista de Organizaciones */
+.list-wrapper { padding:1rem; }
+.list-header { display:flex; align-items:center; justify-content:space-between; gap:1rem; margin-bottom:1rem; flex-wrap:wrap; }
+.list-header h2 { margin:0; font-size:1.25rem; font-weight:600; }
+.list-actions { display:flex; align-items:center; gap:.5rem; flex-wrap:wrap; }
+
+/* Tabla */
+:host ::ng-deep .p-datatable table { font-size:.85rem; }
+:host ::ng-deep .p-datatable-thead > tr > th { font-size:.65rem; letter-spacing:.5px; text-transform:uppercase; }
+.badge { font-size:.55rem; letter-spacing:.5px; padding:2px 6px; border-radius:20px; text-transform:uppercase; display:inline-block; }
+
+/* Utilidades locales */
+.text-success { color:var(--success); }
+.text-error { color:var(--danger); }
+

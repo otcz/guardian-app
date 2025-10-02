@@ -1,0 +1,10 @@
+/* Estilos: Estrategia de Gobernanza */
+.strategy-wrapper { padding:1rem; }
+.strategy-form { max-width:48rem; display:flex; flex-direction:column; gap:1.25rem; }
+.strategy-grid { display:grid; gap:1rem; grid-template-columns:repeat(auto-fit, minmax(200px,1fr)); }
+.strategy-toggles { display:grid; gap:.75rem; grid-template-columns:repeat(auto-fit, minmax(240px,1fr)); }
+.strategy-toggles .toggle-item { display:flex; align-items:center; gap:.5rem; padding:.45rem .6rem; background:color-mix(in srgb, var(--surface) 85%, transparent); border-radius:8px; }
+.actions { display:flex; gap:.5rem; }
+.text-success { color:var(--success); }
+.text-error { color:var(--danger); }
+

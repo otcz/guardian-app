@@ -5,11 +5,11 @@ import { DashboardComponent } from './dashboard/dashboard.component';
 import { RegisterComponent } from './auth/register.component';
 import { PermissionGuard } from './service/permission.guard';
 import { PagePlaceholderComponent } from './page-placeholder.component';
-import { OrganizationListComponent } from './admin/organization-list.component';
-import { OrganizationFormComponent } from './admin/organization-form.component';
-import { OrganizationStrategyComponent } from './admin/organization-strategy.component';
-import { OrganizationParamsComponent } from './admin/organization-params.component';
-import { OrganizationAuditComponent } from './admin/organization-audit.component';
+import { OrganizationListComponent } from './admin/organizacion-list-component/organization-list.component';
+import { OrganizationFormComponent } from './admin/organizacion-form-component/organization-form.component';
+import { OrganizationStrategyComponent } from './admin/organizacion-strategy-component/organization-strategy.component';
+import { OrganizationParamsComponent } from './admin/organizacion-params-component/organization-params.component';
+import { OrganizationAuditComponent } from './admin/organizacion-autit-component/organization-audit.component';
 
 export const appRoutes: Routes = [
   { path: 'login', component: LoginComponent },

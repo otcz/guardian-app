@@ -3,7 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { Organization, OrganizationService } from '../service/organization.service';
+import { Organization, OrganizationService } from '../../service/organization.service';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { InputSwitchModule } from 'primeng/inputswitch';
@@ -14,7 +14,8 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
   selector: 'app-organization-form',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterModule, InputTextModule, ButtonModule, InputSwitchModule, CardModule, ProgressSpinnerModule],
-  templateUrl: './organization-form.component.html'
+  templateUrl: './organization-form.component.html',
+  styleUrls: ['./organization-form.component.scss']
 })
 export class OrganizationFormComponent implements OnInit {
   form!: FormGroup;

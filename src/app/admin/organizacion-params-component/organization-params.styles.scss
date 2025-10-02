@@ -1,0 +1,31 @@
+/* Estilos específicos para OrganizationParamsComponent.
+   Reutiliza variables globales. Solo clases propias del módulo de parámetros. */
+
+.org-params-wrapper { padding: .75rem 0; }
+
+/* Tabla de parámetros */
+.param-table { width:100%; border-collapse:collapse; font-size:.8rem; }
+.param-table th { text-align:left; padding:4px 6px; font-size:.6rem; letter-spacing:.5px; text-transform:uppercase; opacity:.65; }
+.param-table td { padding:4px 6px; }
+.param-table tr { transition: background .15s ease; }
+.param-table tbody tr:hover { background:color-mix(in srgb, var(--primary) 10%, transparent); }
+
+/* Badges estado */
+.badge { font-size:.55rem; letter-spacing:.5px; padding:2px 6px; border-radius:20px; text-transform:uppercase; display:inline-block; line-height:1.1; }
+.b-green { background:color-mix(in srgb, var(--success) 35%, transparent); color:var(--success); }
+.b-red { background:color-mix(in srgb, var(--danger) 35%, transparent); color:var(--danger); }
+
+/* Fila en edición */
+.row-editing { outline:1px solid color-mix(in srgb, var(--primary) 55%, transparent); }
+
+/* Formulario parámetros */
+.form-block label { display:block; font-weight:600; font-size:.65rem; letter-spacing:.5px; text-transform:uppercase; opacity:.85; margin-bottom:2px; }
+.form-block input { width:100%; }
+.form-block .p-inputswitch { transform:scale(.85); }
+
+/* Mensajes */
+.form-block .msg-error { color:var(--danger); font-size:.65rem; }
+.form-block .msg-success { color:var(--success); font-size:.65rem; }
+
+:root.theme-dark .param-table tbody tr:hover, :root.theme-black .param-table tbody tr:hover { background:color-mix(in srgb, var(--primary) 18%, transparent); }
+

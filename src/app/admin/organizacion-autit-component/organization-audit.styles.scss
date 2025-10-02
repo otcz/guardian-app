@@ -1,0 +1,23 @@
+/* Estilos específicos para OrganizationAuditComponent.
+   Se combinan con organization.styles.scss (base) sin duplicar reglas. */
+
+.org-audit-wrapper { padding:.75rem 0; }
+.org-audit-wrapper .p-card { background:var(--surface-alt, transparent); }
+
+.audit-toolbar { display:flex; flex-wrap:wrap; gap:.75rem; align-items:center; margin-bottom:1rem; }
+.audit-toolbar .spacer { flex:1 1 auto; }
+.audit-toolbar small { font-size:.65rem; opacity:.7; }
+
+/* Tabla auditoría */
+.p-datatable-sm.audit-table td, .p-datatable-sm.audit-table th { font-size:.7rem; }
+.audit-table td span { line-height:1.15; }
+
+/* Estado vacío */
+.audit-empty { text-align:center; padding:1rem; opacity:.6; font-size:.75rem; }
+
+/* Auto-refresco indicador (si se agrega futuro) */
+.auto-indicator { width:8px; height:8px; border-radius:50%; background:var(--primary); box-shadow:0 0 0 4px color-mix(in srgb, var(--primary) 30%, transparent); animation:pulse 2.2s infinite; }
+@keyframes pulse { 0% { transform:scale(.85); opacity:.9;} 50% { transform:scale(1.15); opacity:.4;} 100% { transform:scale(.85); opacity:.9;} }
+
+:root.theme-dark .audit-empty, :root.theme-black .audit-empty { opacity:.55; }
+

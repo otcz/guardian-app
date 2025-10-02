@@ -1,0 +1,9 @@
+/* Estilos: Formulario de Organización */
+.form-wrapper { padding:1rem; }
+.org-form { max-width:32rem; display:flex; flex-direction:column; gap:1.2rem; }
+.org-form label { font-weight:600; font-size:.8rem; letter-spacing:.5px; text-transform:uppercase; opacity:.85; }
+.switch-row { display:flex; align-items:center; gap:.75rem; }
+.actions { display:flex; gap:.5rem; }
+.text-success { color:var(--success); }
+.text-error { color:var(--danger); }
+

@@ -2,7 +2,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
-import { Organization, OrganizationService } from '../service/organization.service';
+import { Organization, OrganizationService } from '../../service/organization.service';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
@@ -14,7 +14,8 @@ import { TooltipModule } from 'primeng/tooltip';
   selector: 'app-organization-list',
   standalone: true,
   imports: [CommonModule, RouterModule, TableModule, ButtonModule, InputTextModule, TagModule, FormsModule, TooltipModule],
-  templateUrl: './organization-list.component.html'
+  templateUrl: './organization-list.component.html',
+  styleUrls: ['./organization-list.component.scss']
 })
 export class OrganizationListComponent implements OnInit {
   loading = false;

@@ -7,13 +7,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { InputSwitchModule } from 'primeng/inputswitch';
 import { ButtonModule } from 'primeng/button';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
-import { OrganizationService, Organization } from '../service/organization.service';
-
-/*
-  Componente para CONFIGURAR PARÁMETROS GLOBALES de la organización.
-  Estrategia: inicialmente es un placeholder con algunos parámetros simulados hasta que el backend
-  de parámetros globales se exponga. Luego se reemplaza por servicio real (parametro / valor_parametro).
-*/
+import { OrganizationService, Organization } from '../../service/organization.service';
 
 interface GlobalParamFormValue { codigo: string; descripcion: string; valor: string; activo: boolean; }
 
@@ -21,7 +15,8 @@ interface GlobalParamFormValue { codigo: string; descripcion: string; valor: str
   selector: 'app-organization-params',
   standalone: true,
   imports: [CommonModule, RouterModule, ReactiveFormsModule, CardModule, InputTextModule, InputSwitchModule, ButtonModule, ProgressSpinnerModule],
-  templateUrl: './organization-params.component.html'
+  templateUrl: './organization-params.component.html',
+  styleUrls: ['./organization-params.component.scss']
 })
 export class OrganizationParamsComponent implements OnInit {
   orgId: string | null = null;
@@ -85,4 +80,3 @@ export class OrganizationParamsComponent implements OnInit {
 
   back() { this.router.navigate(['/listar-organizaciones']); }
 }
-

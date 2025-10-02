@@ -3,7 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { OrganizationService, GovernanceStrategy } from '../service/organization.service';
+import { OrganizationService, GovernanceStrategy } from '../../service/organization.service';
 import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputTextarea } from 'primeng/inputtextarea';
@@ -18,7 +18,8 @@ interface AlcanceOption { label: string; value: GovernanceStrategy['alcance_ingr
   selector: 'app-organization-strategy',
   standalone: true,
   imports: [CommonModule, RouterModule, ReactiveFormsModule, CardModule, InputTextModule, InputTextarea, InputSwitchModule, DropdownModule, ButtonModule, ProgressSpinnerModule],
-  templateUrl: './organization-strategy.component.html'
+  templateUrl: './organization-strategy.component.html',
+  styleUrls: ['./organization-strategy.component.scss']
 })
 export class OrganizationStrategyComponent implements OnInit {
   orgId: string | null = null;

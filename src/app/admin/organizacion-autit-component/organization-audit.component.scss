@@ -51,8 +51,32 @@
 /* Reduce flicker al cambiar de tema */
 :host { transition: background .25s ease, color .25s ease; }
 
+/* Estilos para controles Auto-refresco y Filtrar */
+.audit-control { gap:.65rem; padding:.4rem .75rem; background:color-mix(in srgb, var(--surface-alt) 94%, transparent); border:1px solid rgba(255,255,255,.08); border-radius:10px; backdrop-filter:blur(2px); }
+.audit-control-label { font-size:.8rem; font-weight:600; letter-spacing:.4px; text-transform:uppercase; opacity:.85; }
+.audit-filter-input { min-width:220px; font-size:.8rem; padding:.5rem .65rem; }
+.audit-filter-input::placeholder { opacity:.55; }
+
+/* Espaciado vertical extra debajo del bloque de controles */
+.audit-tools { margin-bottom:1.25rem; }
+
+/* Tema oscuro: forzar texto claro y mayor contraste en controles */
+:host-context(.theme-dark) .audit-control,
+:host-context(.theme-black) .audit-control { background:color-mix(in srgb, var(--surface-alt) 88%, #000); border-color:color-mix(in srgb, var(--surface) 55%, #000); }
+:host-context(.theme-dark) .audit-control-label,
+:host-context(.theme-black) .audit-control-label { color:#fff; opacity:.95; }
+:host-context(.theme-dark) .audit-filter-input,
+:host-context(.theme-black) .audit-filter-input { background:color-mix(in srgb, var(--surface) 92%, #000); color:#fff; border:1px solid color-mix(in srgb, var(--surface) 55%, #000); }
+:host-context(.theme-dark) .audit-filter-input:focus,
+:host-context(.theme-black) .audit-filter-input:focus { outline:2px solid color-mix(in srgb, var(--primary) 60%, transparent); outline-offset:1px; }
+
 @media (max-width:640px) {
   .audit-table.p-datatable-sm th { font-size:.62rem; }
   .audit-table.p-datatable-sm td { font-size:.72rem; }
   .audit-tools { font-size:.7rem; }
+}
+
+@media (max-width:700px) {
+  .audit-control { padding:.35rem .6rem; gap:.5rem; }
+  .audit-filter-input { min-width:160px; }
 }

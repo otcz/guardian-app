@@ -6,18 +6,10 @@
 
 <div class="org-audit-wrapper" *ngIf="!error; else errorTpl">
   <p-card class="audit-card" *ngIf="!loading; else loadingTpl">
-    <div class="audit-tools">
-      <div class="flex ai-center gap-sm flex-wrap w-100">
-        <div class="flex ai-center gap-xs tone-faint fs-sm">
-          <span>Auto-refresco</span>
-          <p-inputSwitch [(ngModel)]="autoRefresh" (onChange)="toggleAuto()"></p-inputSwitch>
-        </div>
-        <div class="flex ai-center gap-xs tone-faint fs-sm">
-          <span>Filtrar</span>
-          <input pInputText type="text" [(ngModel)]="filter" (input)="applyFilter()" placeholder="Acción o detalle" class="w-200" />
-        </div>
-        <span class="spacer"></span>
-        <button pButton type="button" icon="pi pi-refresh" class="p-button-text" (click)="load()" [disabled]="loading" pTooltip="Recargar" tooltipPosition="top"></button>
+    <!-- Controles simplificados: solo refresh -->
+    <div class="audit-tools simple-tools">
+      <div class="flex ai-center w-100" style="justify-content:flex-end; gap:.5rem;">
+        <button pButton type="button" icon="pi pi-refresh" label="Recargar" (click)="load()" [disabled]="loading"></button>
       </div>
     </div>
 

@@ -17,7 +17,22 @@
   .org-form label { opacity:.9; color: var(--text); }
   .org-form input { background: color-mix(in srgb, var(--surface) 92%, #000); border:1px solid color-mix(in srgb, var(--surface) 55%, #000); }
   .org-form input:focus { outline:2px solid color-mix(in srgb, var(--primary) 65%, transparent); outline-offset:1px; }
+
+  /* Forzar blanco en título y labels */
+  h2, .org-form label, .p-3 h2, .p-3 label { color:#fff !important; opacity:1 !important; }
+  /* Texto normal dentro de inputs */
+  .org-form input, .p-3 input[pInputText] { color:#fff; }
+  /* Placeholders más visibles */
+  .org-form input::placeholder, .p-3 input::placeholder { color:rgba(255,255,255,.7); }
+  /* Ajustar color de botón texto si hubiera */
+  button.p-button-text { color:#fff; }
 }
+
+/* Asegurar contraste de mensajes inline */
+:host-context(.theme-dark) .p-error,
+:host-context(.theme-black) .p-error { color:var(--danger); }
+:host-context(.theme-dark) .text-green-500,
+:host-context(.theme-black) .text-green-500 { color:var(--success); }
 
 :host-context(.theme-light) {
   .org-form label { opacity:.8; }

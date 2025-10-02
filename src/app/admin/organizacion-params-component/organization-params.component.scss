@@ -19,12 +19,13 @@
 .param-list h4, .param-form h4 { margin:.25rem 0 .65rem; font-size:.8rem; letter-spacing:.55px; text-transform:uppercase; opacity:.8; }
 
 /* Tabla de parámetros */
-.param-table { width:100%; border-collapse:collapse; font-size:.76rem; line-height:1.3; }
-.param-table thead th { text-align:left; padding:5px 7px; font-size:.62rem; letter-spacing:.55px; text-transform:uppercase; opacity:.68; }
-.param-table tbody td { padding:5px 7px; }
+.param-table { width:100%; border-collapse:collapse; font-size:.78rem; line-height:1.32; }
+.param-table thead th { text-align:left; padding:6px 8px; font-size:.66rem; letter-spacing:.55px; text-transform:uppercase; font-weight:600; opacity:.85; }
+.param-table tbody td { padding:6px 8px; font-size:.78rem; }
 .param-table tbody tr { border-top:1px solid rgba(255,255,255,.07); transition:background .15s ease; }
 .param-table tbody tr:hover { background:color-mix(in srgb, var(--primary) 12%, transparent); }
-.row-editing { outline:1px solid color-mix(in srgb, var(--primary) 55%, transparent); }
+.row-editing { outline:1px solid color-mix(in srgb, var(--primary) 55%, transparent); background:color-mix(in srgb, var(--primary) 16%, transparent); }
+.row-editing input { color:var(--text); }
 
 .badge { font-size:.56rem; letter-spacing:.55px; padding:3px 7px; border-radius:14px; text-transform:uppercase; display:inline-block; line-height:1.1; font-weight:500; }
 .b-green { background:color-mix(in srgb, var(--success) 35%, transparent); color:var(--success); }
@@ -54,18 +55,20 @@
 /* === Mejora de contraste por tema === */
 :host-context(.theme-dark),
 :host-context(.theme-black) {
-  .params-card ::ng-deep .p-card { background: color-mix(in srgb, var(--surface-alt) 96%, #000); }
-  .param-list h4, .param-form h4 { opacity:.9; color: var(--text); }
-  .param-form label, .param-table thead th { opacity:.82; color: var(--text); }
-  .meta { opacity:.9; }
-  .param-table tbody td { color: color-mix(in srgb, var(--text) 92%, #fff); }
-  .param-table tbody tr { border-top:1px solid color-mix(in srgb, var(--surface) 65%, #000); }
-  .param-table tbody tr:hover { background: color-mix(in srgb, var(--primary) 16%, transparent); }
-  .row-editing { outline:1px solid color-mix(in srgb, var(--primary) 70%, transparent); }
-  .param-form input { background: color-mix(in srgb, var(--surface) 92%, #000); border:1px solid color-mix(in srgb, var(--surface) 55%, #000); }
-  .param-form input:focus { outline:2px solid color-mix(in srgb, var(--primary) 65%, transparent); outline-offset:1px; }
-  .switch-row label { opacity:.9; }
+  /* Forzar texto principal blanco y eliminar opacidades atenuadas */
+  .org-toolbar h2,
+  .meta,
+  .param-table thead th,
+  .param-table tbody td,
+  .messages .error,
+  .messages .success { color:#fff !important; opacity:1 !important; }
+  /* Asegurar badges legibles */
+  .badge { color:#fff; }
+  .row-editing input { color:#fff; }
 }
+/* Ajuste adicional: meta separadores más visibles en dark */
+:host-context(.theme-dark) .meta span,
+:host-context(.theme-black) .meta span { color:#fff; }
 
 :host-context(.theme-light) {
   .param-list h4, .param-form h4 { opacity:.78; }
@@ -85,3 +88,48 @@
 /* Focus visible para accesibilidad en dark/black para botones texto */
 :host-context(.theme-dark) button.p-button-text:focus-visible,
 :host-context(.theme-black) button.p-button-text:focus-visible { outline:2px solid color-mix(in srgb, var(--primary) 55%, transparent); outline-offset:2px; }
+
+/* Mejora de contraste y legibilidad (actualización) */
+/* Ajustes tipográficos y de color para fondo oscuro y claro */
+
+/* Aumentar contraste en celdas y encabezados para dark/black */
+:host-context(.theme-dark) .param-table thead th,
+:host-context(.theme-black) .param-table thead th { opacity:1; color:color-mix(in srgb, var(--text) 94%, #fff); background:color-mix(in srgb, var(--surface) 88%, #000); }
+:host-context(.theme-dark) .param-table tbody td,
+:host-context(.theme-black) .param-table tbody td { color:color-mix(in srgb, var(--text) 96%, #fff); }
+:host-context(.theme-dark) .param-table tbody tr:not(.row-editing),
+:host-context(.theme-black) .param-table tbody tr:not(.row-editing) { background:color-mix(in srgb, var(--surface) 92%, #000); }
+:host-context(.theme-dark) .param-table tbody tr:nth-child(even):not(.row-editing),
+:host-context(.theme-black) .param-table tbody tr:nth-child(even):not(.row-editing) { background:color-mix(in srgb, var(--surface) 88%, #000); }
+:host-context(.theme-dark) .param-table tbody tr:hover:not(.row-editing),
+:host-context(.theme-black) .param-table tbody tr:hover:not(.row-editing) { background:color-mix(in srgb, var(--primary) 22%, transparent); }
+:host-context(.theme-dark) .row-editing,
+:host-context(.theme-black) .row-editing { background:color-mix(in srgb, var(--primary) 28%, transparent) !important; }
+
+/* Inputs dentro de fila en edición (dark) */
+:host-context(.theme-dark) .row-editing input,
+:host-context(.theme-black) .row-editing input { background:color-mix(in srgb, var(--surface) 95%, #000); border:1px solid color-mix(in srgb, var(--surface) 65%, #000); }
+:host-context(.theme-dark) .row-editing input:focus,
+:host-context(.theme-black) .row-editing input:focus { outline:2px solid color-mix(in srgb, var(--primary) 70%, transparent); }
+
+/* Light theme refinements */
+:host-context(.theme-light) .param-table thead th { background:color-mix(in srgb, var(--surface) 96%, var(--primary) 6%); opacity:.92; }
+:host-context(.theme-light) .param-table tbody tr:hover:not(.row-editing) { background:color-mix(in srgb, var(--primary) 14%, transparent); }
+:host-context(.theme-light) .row-editing { background:color-mix(in srgb, var(--primary) 20%, transparent) !important; }
+
+/* Placeholders más visibles en dark */
+:host-context(.theme-dark) ::placeholder,
+:host-context(.theme-black) ::placeholder { color:color-mix(in srgb, var(--text) 65%, #aaa); opacity:.85; }
+
+/* Mensajes */
+.messages .error, .messages .success { font-size:.72rem; }
+
+/* Botones en acciones: asegurar contraste */
+.actions-inline button.p-button-text { color:color-mix(in srgb, var(--text) 92%, #fff); }
+.actions-inline button.p-button-text:hover { background:color-mix(in srgb, var(--primary) 30%, transparent); }
+
+/* Animación sutil fila nueva/actualizada (aplicar clase temporal desde TS si se quiere) */
+@keyframes rowFlash { from { box-shadow:0 0 0 0 color-mix(in srgb, var(--primary) 55%, transparent);} to { box-shadow:0 0 0 4px transparent;} }
+.row-flash { animation:rowFlash 1.2s ease-out; }
+
+/* Fin ajustes contraste */

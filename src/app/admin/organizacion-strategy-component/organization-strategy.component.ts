@@ -11,14 +11,13 @@ import { InputSwitchModule } from 'primeng/inputswitch';
 import { DropdownModule } from 'primeng/dropdown';
 import { ButtonModule } from 'primeng/button';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
-import { ThemeToggleComponent } from '../../shared/theme-toggle.component';
 
 interface AlcanceOption { label: string; value: GovernanceStrategy['alcance_ingresos']; }
 
 @Component({
   selector: 'app-organization-strategy',
   standalone: true,
-  imports: [CommonModule, RouterModule, ReactiveFormsModule, CardModule, InputTextModule, InputTextarea, InputSwitchModule, DropdownModule, ButtonModule, ProgressSpinnerModule, ThemeToggleComponent],
+  imports: [CommonModule, RouterModule, ReactiveFormsModule, CardModule, InputTextModule, InputTextarea, InputSwitchModule, DropdownModule, ButtonModule, ProgressSpinnerModule],
   templateUrl: './organization-strategy.component.html',
   styleUrls: ['./organization-strategy.component.scss']
 })

@@ -8,7 +8,6 @@
         <i class="pi pi-search"></i>
         <input pInputText type="text" placeholder="Filtrar" [(ngModel)]="filter" (ngModelChange)="applyFilter()" class="w-200" />
       </span>
-      <app-theme-toggle mode="cycle"></app-theme-toggle>
       <button pButton type="button" label="Crear" icon="pi pi-plus" (click)="goCreate()" class="p-button-success"></button>
       <button pButton type="button" label="Recargar" icon="pi pi-refresh" (click)="load()" [disabled]="loading"></button>
     </div>

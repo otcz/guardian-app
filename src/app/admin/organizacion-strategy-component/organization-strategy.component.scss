@@ -36,6 +36,16 @@
 select, textarea { background:var(--surface); color:var(--text); border:1px solid rgba(255,255,255,.15); border-radius:6px; padding:.45rem .6rem; font-size:.8rem; line-height:1.35; }
 select:focus, textarea:focus { outline:2px solid color-mix(in srgb, var(--primary) 55%, transparent); outline-offset:1px; }
 
+/* Banner informativo */
+.info-banner { display:flex; gap:.75rem; padding:1rem 1.15rem; margin:.35rem 0 1.4rem; border:1px solid rgba(255,255,255,.2); border-radius:8px; background:linear-gradient(135deg, rgba(255,255,255,.08), rgba(255,255,255,.03)); color:#fff; font-size:.75rem; line-height:1.25; }
+.info-banner i { font-size:1.1rem; margin-top:.15rem; color:#9fd2ff; }
+.info-banner .info-text { display:flex; flex-direction:column; gap:.35rem; }
+.info-banner .info-text strong { font-size:.78rem; letter-spacing:.4px; color:#fff; }
+.info-banner .info-text span { color:#fff; opacity:.92; }
+
+:host-context(.theme-light) .info-banner { background:linear-gradient(135deg, rgba(0,0,0,.05), rgba(0,0,0,.025)); color:#222; }
+:host-context(.theme-light) .info-banner .info-text strong, :host-context(.theme-light) .info-banner .info-text span { color:#222; }
+
 /* Responsive tune */
 @media (max-width:640px) { .org-toolbar h2 { flex:1 0 100%; } }
 

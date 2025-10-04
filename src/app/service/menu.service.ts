@@ -199,12 +199,17 @@ export class MenuService {
       const parentKeyRaw = raw.padreNombre ? this.normalize(raw.padreNombre) : null;
       const parentKey = parentKeyRaw ? findSimilarMenuKey(parentKeyRaw) : null;
       const nodeKey = this.normalize(raw.nombre);
+      let path = sanitizePath(raw.ruta || null);
+      // Regla mínima: si el ítem es "Crear Estrategia" y no tiene una ruta válida, usar la ruta del componente existente
+      if (this.normalize(raw.nombre) === this.normalize('Crear Estrategia')) {
+        path = '/cambiar-estrategia-de-gobernanza';
+      }
       const node: MenuNode = {
         key: nodeKey,
         label: raw.nombre,
         descripcion: raw.nombre,
         icon: this.resolveIcon(raw.icono || null),
-        path: sanitizePath(raw.ruta || null),
+        path,
         type: 'ITEM',
         raw
       };

@@ -10,6 +10,7 @@ import { OrganizationStrategyComponent } from './admin/organizacion-strategy-com
 import { OrganizationParamsComponent } from './admin/organizacion-params-component/organization-params.component';
 import { OrganizationAuditComponent } from './admin/organizacion-autit-component/organization-audit.component';
 import { DashboardHomeComponent } from './dashboard/dashboard-home.component';
+import { StrategyChangePageComponent } from './admin/organizacion-strategy-change-page/strategy-change-page.component';
 
 export const appRoutes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -22,7 +23,6 @@ export const appRoutes: Routes = [
       { path: 'listar-organizaciones', component: OrganizationListComponent },
       { path: 'crear-organizacion', component: OrganizationFormComponent },
       { path: 'gestionar-organizacion', component: OrganizationFormComponent },
-      { path: 'cambiar-estrategia-de-gobernanza', component: OrganizationStrategyComponent },
       { path: 'configurar-parametros-globales', component: OrganizationParamsComponent },
       { path: 'ver-auditoria-de-organizacion', component: OrganizationAuditComponent },
       {

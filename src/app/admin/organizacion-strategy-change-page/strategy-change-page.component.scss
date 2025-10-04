@@ -1,0 +1,23 @@
+/* Página de cambio de estrategia - estilos ligeros y separados */
+.strategy-change-page {
+  display: block;
+  padding: 1rem clamp(.75rem, 2vw, 1.5rem);
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  margin-bottom: 1rem;
+}
+
+.page-header h2 {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+
+.page-content {
+  display: block;
+}
+

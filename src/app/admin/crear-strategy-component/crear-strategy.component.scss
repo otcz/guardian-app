@@ -1,0 +1,136 @@
+/* Página de creación de estrategia - estilos compactos */
+.crear-strategy-page {
+  display: block;
+  padding: 1rem clamp(.75rem, 2vw, 1.5rem);
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  margin-bottom: 1rem;
+}
+
+.page-header h2 {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+
+.strategy-form { max-width:52rem; display:flex; flex-direction:column; gap:1.35rem; }
+.field-row { display:grid; gap:1rem; }
+.field-row.cols-2 { grid-template-columns:repeat(auto-fit, minmax(240px,1fr)); }
+.field { display:flex; flex-direction:column; gap:.35rem; }
+.field label {
+  font-size: .82rem;
+  letter-spacing: .2px;
+  font-weight: 600;
+  text-transform: none; /* antes: uppercase */
+  opacity: .9;
+  line-height: 1.2;
+  color: var(--text);
+}
+.field textarea, .field select, .field input { width:100%; }
+.toggle-grid { display:grid; gap:.6rem; grid-template-columns:repeat(auto-fit, minmax(230px,1fr)); }
+.toggle-item { display:flex; align-items:center; gap:.5rem; padding:.45rem .6rem; border:1px solid rgba(255,255,255,.06); border-radius:8px; }
+
+/* Controles nativos con tema */
+select, textarea {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid rgba(255,255,255,.15);
+  border-radius: 6px;
+  padding: .45rem .6rem;
+  font-size: .8rem;
+  line-height: 1.35;
+}
+select:focus, textarea:focus {
+  outline: 2px solid color-mix(in srgb, var(--primary) 55%, transparent);
+  outline-offset: 1px;
+}
+:host-context(.theme-light) select,
+:host-context(.theme-light) textarea {
+  background: #fff;
+  color: #222;
+  border: 1px solid rgba(0,0,0,.15);
+}
+
+/* Banner informativo coherente con el otro componente */
+.info-banner {
+  display: flex;
+  gap: .75rem;
+  padding: 1rem 1.15rem;
+  margin: .35rem 0 1.4rem;
+  border: 1px solid rgba(255,255,255,.2);
+  border-radius: 8px;
+  background: linear-gradient(135deg, rgba(255,255,255,.08), rgba(255,255,255,.03));
+  color: #fff;
+  font-size: .75rem;
+  line-height: 1.25;
+}
+.info-banner i { font-size: 1.1rem; margin-top: .15rem; color: #9fd2ff; }
+.info-banner .info-text { display: flex; flex-direction: column; gap: .35rem; }
+.info-banner .info-text strong { font-size: .78rem; letter-spacing: .4px; color: #fff; }
+.info-banner .info-text span { color: #fff; opacity: .92; }
+:host-context(.theme-light) .info-banner { background: linear-gradient(135deg, rgba(0,0,0,.05), rgba(0,0,0,.025)); color:#222; }
+:host-context(.theme-light) .info-banner .info-text strong,
+:host-context(.theme-light) .info-banner .info-text span { color:#222; }
+
+/* Toggle visual (fondo y hover) */
+.toggle-item {
+  background: color-mix(in srgb, var(--surface-alt) 85%, #ffffff 15%);
+  /* antes era casi igual al fondo; lo aclaramos para contraste */
+  border: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+  transition: border-color .15s, background .3s;
+}
+.toggle-item:hover { border-color: color-mix(in srgb, var(--primary) 50%, var(--border)); }
+
+/* PrimeNG InputSwitch: track/knob contrast y estados */
+:host ::ng-deep .p-inputswitch {
+  height: 22px;
+}
+:host ::ng-deep .p-inputswitch .p-inputswitch-slider {
+  background: color-mix(in srgb, var(--surface) 78%, #ffffff 22%);
+  border: 1px solid color-mix(in srgb, var(--border) 75%, transparent);
+  transition: background .2s ease, box-shadow .2s ease, border-color .2s ease;
+}
+:host ::ng-deep .p-inputswitch .p-inputswitch-slider:before {
+  background: #ffffff; /* knob claro para buen contraste */
+}
+:host ::ng-deep .p-inputswitch:not(.p-disabled):hover .p-inputswitch-slider {
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 18%, transparent);
+}
+:host ::ng-deep .p-inputswitch.p-inputswitch-checked .p-inputswitch-slider {
+  background: color-mix(in srgb, var(--success) 72%, var(--surface) 28%);
+  border-color: color-mix(in srgb, var(--success) 70%, var(--border));
+}
+:host ::ng-deep .p-inputswitch.p-focus .p-inputswitch-slider {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 30%, transparent);
+}
+
+/* En tema claro, mantener un contraste suave (no gris oscuro) */
+:host-context(.theme-light) .toggle-item {
+  background: color-mix(in srgb, #ffffff 92%, var(--bg) 8%);
+  border-color: rgba(0,0,0,.12);
+}
+:host-context(.theme-light) ::ng-deep .p-inputswitch .p-inputswitch-slider {
+  background: #f3f4f6;
+  border-color: rgba(0,0,0,.12);
+}
+
+/* Ajuste visual de tarjeta (esquema oscuro coherente) */
+.strategy-card ::ng-deep .p-card {
+  background: var(--surface-alt);
+  border: 1px solid rgba(255,255,255,.06);
+}
+
+/* Legibilidad de labels de toggles por tema */
+:host-context(.theme-dark) .toggle-item label,
+:host-context(.theme-black) .toggle-item label {
+  color: #ffffff !important;
+  opacity: .95;
+}
+:host-context(.theme-light) .toggle-item label {
+  color: #222 !important;
+  opacity: .95;
+}

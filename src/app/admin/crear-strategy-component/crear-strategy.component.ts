@@ -16,13 +16,13 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 interface AlcanceOption { label: string; value: GovernanceStrategy['alcance_ingresos']; }
 
 @Component({
-  selector: 'app-organization-strategy',
+  selector: 'app-crear-strategy',
   standalone: true,
   imports: [CommonModule, RouterModule, ReactiveFormsModule, CardModule, InputTextModule, TextareaModule, InputSwitchModule, DropdownModule, ButtonModule, ProgressSpinnerModule],
-  templateUrl: './organization-strategy.component.html',
-  styleUrls: ['./organization-strategy.component.scss']
+  templateUrl: './crear-strategy.component.html',
+  styleUrls: ['./crear-strategy.component.scss']
 })
-export class OrganizationStrategyComponent implements OnInit {
+export class CrearStrategyComponent implements OnInit {
   orgId: string | null = null;
   loading = false;
   saving = false;
@@ -58,33 +58,11 @@ export class OrganizationStrategyComponent implements OnInit {
     this.orgId = this.route.snapshot.queryParamMap.get('id') || localStorage.getItem('currentOrgId');
     if (!this.orgId) {
       this.error = 'No se proporcionó id de organización';
-      return;
+      this.notify.warn('Selecciona una organización', 'Debes elegir una organización para crear su estrategia.');
+      // No redirigimos: dejamos la página visible con aviso.
     }
-    this.loadStrategy();
-  }
-
-  /** Carga la estrategia usando solo la lista (sin consultar /actual). */
-  loadStrategy() {
-    this.loading = true; this.error = null; this.infoMessage = null;
-    this.orgService.listOrgGovernanceStrategies(this.orgId!)
-      .subscribe({
-        next: (list) => {
-          const active = (list || []).find(s => s.activa);
-          const chosen = active || (list && list.length > 0 ? list[list.length - 1] : null);
-          this.strategy = chosen ?? null;
-          if (this.strategy) {
-            this.form.patchValue(this.strategy);
-          } else {
-            this.infoMessage = 'Aún no existe una estrategia de gobernanza registrada para esta organización. Configure los parámetros y guarde para crear la primera.';
-          }
-          this.loading = false;
-        },
-        error: (e) => {
-          this.loading = false;
-          this.error = e?.error?.message || 'Error al cargar estrategias';
-          this.notify.error('Error', this.error ?? undefined);
-        }
-      });
+    // Modo creación: no cargamos nada, dejamos el formulario en blanco
+    this.infoMessage = 'Define los parámetros y pulsa Guardar para crear la estrategia de gobernanza.';
   }
 
   submit() {
@@ -94,26 +72,21 @@ export class OrganizationStrategyComponent implements OnInit {
     const value = this.form.value as GovernanceStrategy;
     value.nombre = (value.nombre || '').toString().trim().toUpperCase();
 
-    const newRecord = !this.strategy?.id; // capturamos antes de la llamada
     this.saving = true;
-    const req$ = newRecord
-      ? this.orgService.createOrgGovernanceStrategy(this.orgId, value)
-      : this.orgService.updateOrgGovernanceStrategy(this.orgId, this.strategy!.id!, value);
-
-    req$.subscribe({
-      next: (dto: GovernanceStrategy) => {
-        this.strategy = dto; // ya viene mapeada
-        this.form.patchValue(dto);
-        this.saving = false;
-        // Toast elegante
-        this.notify.success('Guardado', newRecord ? 'Estrategia creada correctamente.' : 'Estrategia actualizada.');
-      },
-      error: (e: any) => {
-        this.error = e?.error?.message || 'Error al guardar estrategia';
-        this.saving = false;
-        this.notify.error('No se pudo guardar', this.error ?? undefined);
-      }
-    });
+    this.orgService.createOrgGovernanceStrategy(this.orgId, value)
+      .subscribe({
+        next: (dto: GovernanceStrategy) => {
+          this.strategy = dto;
+          this.form.patchValue(dto);
+          this.saving = false;
+          this.notify.success('Guardado', 'Estrategia creada correctamente.');
+        },
+        error: (e: any) => {
+          this.error = e?.error?.message || 'Error al guardar estrategia';
+          this.saving = false;
+          this.notify.error('No se pudo guardar', this.error ?? undefined);
+        }
+      });
   }
 
   adjustByNombre() {

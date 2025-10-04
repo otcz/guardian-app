@@ -22,19 +22,19 @@
 
         <ng-container *ngIf="(filteredMenus$ | async) as menus">
           <div *ngFor="let menu of menus" class="menu-group" style="display:flex; flex-direction:column; gap:4px;">
-            <div class="menu-header" (click)="toggleMenu(menu.key)" style="cursor:pointer; display:flex; align-items:center; gap:6px; font-size:.75rem; letter-spacing:.5px; text-transform:uppercase; opacity:.85; padding:4px 4px; border-radius:4px; transition:background .15s;">
-              <i class="pi" [ngClass]="isExpanded(menu.key) ? 'pi-chevron-down' : 'pi-chevron-right'" style="font-size:11px;"></i>
-              <i [ngClass]="menu.icon || 'pi pi-circle'" style="font-size:20px;"></i>
-              <span style="flex:1;">{{ menu.label }}</span>
-              <span *ngIf="menu.children?.length" style="font-size:.65rem; background:rgba(255,255,255,.08); padding:1px 6px; border-radius:10px;">{{ menu.children?.length }}</span>
+            <div class="menu-header" (click)="toggleMenu(menu.key)">
+              <i class="pi" [ngClass]="isExpanded(menu.key) ? 'pi-chevron-down' : 'pi-chevron-right'"></i>
+              <i [ngClass]="menu.icon || 'pi pi-circle'"></i>
+              <span class="menu-title">{{ menu.label }}</span>
+              <span *ngIf="menu.children?.length" class="menu-badge">{{ menu.children?.length }}</span>
             </div>
-            <div class="menu-items" *ngIf="isExpanded(menu.key)" style="display:flex; flex-direction:column; gap:2px; padding-left:16px;">
-              <a *ngFor="let child of menu.children" [routerLink]="child.path" class="menu-item" style="display:flex; align-items:center; gap:8px; padding:6px 8px; border-radius:6px; color:#e2e8f0; text-decoration:none; font-size:.78rem; line-height:1.1; transition:background .15s, color .15s;">
-                <i [ngClass]="child.icon || 'pi pi-circle'" style="font-size:13px; opacity:.9;"></i>
-                <span style="flex:1; white-space:normal;">{{ child.label }}</span>
+            <div class="menu-items" *ngIf="isExpanded(menu.key)">
+              <a *ngFor="let child of menu.children" [routerLink]="(child.path || '').split('?')[0]" [queryParams]="parseQuery(child.path)" class="menu-item">
+                <i [ngClass]="child.icon || 'pi pi-circle'"></i>
+                <span>{{ child.label }}</span>
               </a>
             </div>
-            <div style="height:1px; background:rgba(255,255,255,.06); margin:6px 0 4px 0;"></div>
+            <div class="menu-divider"></div>
           </div>
           <div *ngIf="menus.length === 0" style="font-size:.7rem; opacity:.6; padding:8px 4px;">Sin resultados</div>
         </ng-container>

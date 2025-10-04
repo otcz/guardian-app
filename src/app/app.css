@@ -1,0 +1,17 @@
+/* Sidebar menu groups */
+.menu-group { display:flex; flex-direction:column; gap:4px; }
+.menu-header { cursor:pointer; display:flex; align-items:center; gap:8px; padding:4px 6px; border-radius:6px; transition:background .15s; }
+.menu-header:hover { background: rgba(255,255,255,.06); }
+.menu-header .pi { font-size:11px; opacity:.9; }
+.menu-header > i:not(.pi-chevron-down):not(.pi-chevron-right) { font-size:18px; }
+.menu-title { flex:1; font-size:.78rem; letter-spacing:.35px; text-transform:uppercase; opacity:.9; }
+.menu-badge { font-size:.62rem; background:rgba(255,255,255,.08); padding:1px 6px; border-radius:10px; }
+.menu-items { display:flex; flex-direction:column; gap:2px; padding-left:16px; }
+.menu-divider { height:1px; background:rgba(255,255,255,.06); margin:6px 0 4px 0; }
+
+/* Sidebar menu items (opciones) */
+.menu-item { display:flex; align-items:center; gap:8px; padding:6px 8px; border-radius:6px; text-decoration:none; font-size:.70rem; line-height:1.1; transition:background .15s, color .15s; }
+.menu-item i { font-size:11px; opacity:.9; }
+/* Evitar color azul global de enlaces dentro del sidebar y unificar con el tema */
+.sidebar .menu-item { color: var(--text, #e2e8f0) !important; }
+.sidebar .menu-item:hover { background:rgba(255,255,255,.08); color:#fff !important; }

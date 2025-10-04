@@ -200,16 +200,29 @@ export class MenuService {
       const parentKey = parentKeyRaw ? findSimilarMenuKey(parentKeyRaw) : null;
       const nodeKey = this.normalize(raw.nombre);
       let path = sanitizePath(raw.ruta || null);
-      // Regla mínima: si el ítem es "Crear Estrategia" y no tiene una ruta válida, usar la ruta del componente existente
-      if (this.normalize(raw.nombre) === this.normalize('Crear Estrategia')) {
-        path = '/cambiar-estrategia-de-gobernanza';
+      // Forzar rutas est��ndar para estrategia (detección robusta por includes)
+      const nameNorm = this.normalize(raw.nombre);
+      const parentNorm = this.normalize(raw.padreNombre || '');
+      const looksCrear = nameNorm.includes('crear') && nameNorm.includes('estrateg');
+      const looksCambiar = nameNorm.includes('cambiar') && nameNorm.includes('estrateg');
+      if (looksCrear) path = '/crear-estrategia-de-gobernanza';
+      if (looksCambiar) path = '/cambiar-estrategia-de-gobernanza';
+      // Si sigue sin path, usar heurística por menú padre
+      if (!path && parentNorm.includes('gestion-de-estrategias-de-gobernanza')) {
+        if (nameNorm.includes('crear')) path = '/crear-estrategia-de-gobernanza';
+        else if (nameNorm.includes('cambiar')) path = '/cambiar-estrategia-de-gobernanza';
       }
+      // Adjuntar id organizacion si está disponible
+      if (path && (looksCrear || looksCambiar) && !path.includes('?')) {
+        try { const orgId = localStorage.getItem('currentOrgId'); if (orgId) path = `${path}?id=${encodeURIComponent(orgId)}`; } catch {}
+      }
+      // No adjuntamos query params aquí; el componente resolverá orgId
       const node: MenuNode = {
         key: nodeKey,
         label: raw.nombre,
         descripcion: raw.nombre,
         icon: this.resolveIcon(raw.icono || null),
-        path,
+        path: path || null,
         type: 'ITEM',
         raw
       };
@@ -217,7 +230,7 @@ export class MenuService {
       if (parentKey && menusMap.has(parentKey)) {
         menusMap.get(parentKey)!.children!.push(node);
       } else if (parentKeyRaw) {
-        // Crear menú impl��cito solo si no encontramos similar (edge case extremo)
+        // Crear menú implícito solo si no encontramos similar (edge case extremo)
         const implicitKey = parentKeyRaw;
         if (!menusMap.has(implicitKey)) {
           menusMap.set(implicitKey, {
@@ -258,7 +271,7 @@ export class MenuService {
     const tree = this.sortNodes(Array.from(menusMap.values()));
     this.tree$.next(tree);
     this.flatItems$.next(leafNodes.filter(n => !!n.path));
-    this.paths = new Set(this.flatItems$.value.filter(n => !!n.path).map(n => n.path!));
+    this.paths = new Set(this.flatItems$.value.filter(n => !!n.path).map(n => n.path!.split('?')[0]));
     this.keys = new Set([ ...tree.map(n => n.key), ...leafNodes.map(l => l.key) ]);
   }
 

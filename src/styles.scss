@@ -2,6 +2,7 @@
 :root.theme-light {
   --bg: #f4f7fa;
   --surface: #ffffff;
+  --surface-alt: #ffffff; /* nueva: usada por tarjetas internas */
   --text: #23272f;
   --muted: #7a869a;
   --primary: #4f8cff;
@@ -21,6 +22,7 @@
 :root.theme-dark {
   --bg: #181824;
   --surface: #232336;
+  --surface-alt: #1c1c2a; /* nueva: fondo ligeramente más profundo */
   --text: #e0e6ed;
   --muted: #9aa3b2;
   --primary: #6ba2ff;
@@ -35,6 +37,7 @@
 :root.theme-black {
   --bg: #0b0b0b;
   --surface: #131313;
+  --surface-alt: #161616; /* nueva */
   --text: #e6e6e6;
   --muted: #9a9a9a;
   --primary: #6ba2ff;
@@ -52,10 +55,13 @@
 html, body { height: 100%; }
 body {
   margin: 0;
-  font-family: Inter, Segoe UI, Roboto, Arial, sans-serif;
+  font-family: var(--p-font-family, Inter, Segoe UI, Roboto, Arial, sans-serif); /* unificada con tema Prime */
   background: var(--bg);
   color: var(--text);
 }
+/* Asegurar que componentes e inputs nativos hereden tipografía del tema */
+.p-component { font-family: inherit; }
+input, select, textarea, button { font-family: inherit; }
 
 /* Links, focus y helpers */
 a { color: var(--primary); text-decoration: none; }
@@ -220,8 +226,11 @@ a:hover { text-decoration: underline; }
 
 /* Campos con etiqueta y ayuda (si se usan) */
 .form-field { display: flex; flex-direction: column; gap: 6px; }
-.form-field label { font-weight: 600; color: var(--text); }
+.form-field label { font-weight: 600; color: var(--text); text-transform: none; font-size: .86rem; letter-spacing: .2px; }
 .form-field .helper { font-size: .86rem; color: var(--muted); }
+
+/* También normalizar etiquetas usadas en componentes que emplean .field */
+.field label { text-transform: none; font-size: .86rem; letter-spacing: .2px; color: var(--text); }
 
 /* Glass/blur header */
 .header {

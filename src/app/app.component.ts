@@ -83,4 +83,16 @@ export class AppComponent {
   private persistExpandedState() { try { localStorage.setItem(this.LS_KEY, JSON.stringify(this.expanded)); } catch {} }
   private loadExpandedState() { try { const raw = localStorage.getItem(this.LS_KEY); if (raw) this.expanded = JSON.parse(raw) || {}; } catch { this.expanded = {}; } }
   private normalize(txt: string): string { return (txt || '').toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '').replace(/[^a-z0-9]+/g, ' ').trim(); }
+  parseQuery(url?: string | null): any {
+    try {
+      if (!url) return null;
+      const qIndex = url.indexOf('?');
+      if (qIndex < 0) return null;
+      const query = url.substring(qIndex + 1);
+      const params = new URLSearchParams(query);
+      const obj: any = {};
+      params.forEach((v, k) => { obj[k] = v; });
+      return obj;
+    } catch { return null; }
+  }
 }

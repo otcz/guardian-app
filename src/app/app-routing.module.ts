@@ -6,11 +6,10 @@ import { PermissionGuard } from './service/permission.guard';
 import { PagePlaceholderComponent } from './page-placeholder.component';
 import { OrganizationListComponent } from './admin/organizacion-list-component/organization-list.component';
 import { OrganizationFormComponent } from './admin/organizacion-form-component/organization-form.component';
-import { OrganizationStrategyComponent } from './admin/organizacion-strategy-component/organization-strategy.component';
 import { OrganizationParamsComponent } from './admin/organizacion-params-component/organization-params.component';
 import { OrganizationAuditComponent } from './admin/organizacion-autit-component/organization-audit.component';
 import { DashboardHomeComponent } from './dashboard/dashboard-home.component';
-import { StrategyChangePageComponent } from './admin/organizacion-strategy-change-page/strategy-change-page.component';
+import { CrearStrategyComponent } from './admin/crear-strategy-component/crear-strategy.component';
 
 export const appRoutes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -25,6 +24,7 @@ export const appRoutes: Routes = [
       { path: 'gestionar-organizacion', component: OrganizationFormComponent },
       { path: 'configurar-parametros-globales', component: OrganizationParamsComponent },
       { path: 'ver-auditoria-de-organizacion', component: OrganizationAuditComponent },
+      { path: 'crear-estrategia-de-gobernanza', component: CrearStrategyComponent },
       {
         path: 'admin',
         children: [

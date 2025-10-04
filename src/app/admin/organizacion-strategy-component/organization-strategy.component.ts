@@ -63,33 +63,21 @@ export class OrganizationStrategyComponent implements OnInit {
     this.loadStrategy();
   }
 
-  /** Carga la estrategia actual evitando peticiones 400 si no hay registros: primero listamos */
+  /** Carga la estrategia usando solo la lista (sin consultar /actual). */
   loadStrategy() {
     this.loading = true; this.error = null; this.infoMessage = null;
     this.orgService.listOrgGovernanceStrategies(this.orgId!)
       .subscribe({
         next: (list) => {
-          if (!list || list.length === 0) {
-            this.strategy = null;
-            this.loading = false;
+          const active = (list || []).find(s => s.activa);
+          const chosen = active || (list && list.length > 0 ? list[list.length - 1] : null);
+          this.strategy = chosen ?? null;
+          if (this.strategy) {
+            this.form.patchValue(this.strategy);
+          } else {
             this.infoMessage = 'Aún no existe una estrategia de gobernanza registrada para esta organización. Configure los parámetros y guarde para crear la primera.';
-            return;
           }
-          // hay registros: ahora sí pedimos la actual
-          this.orgService.getCurrentOrgStrategy(this.orgId!)
-            .subscribe({
-              next: (st) => {
-                this.strategy = st;
-                if (st) this.form.patchValue(st);
-                this.loading = false;
-              },
-              error: (e) => {
-                // si algo distinto a 400/404 falla, notificamos sin llenar consola
-                this.loading = false;
-                this.error = e?.error?.message || 'Error al cargar estrategia';
-                this.notify.error('Error al cargar', this.error ?? undefined);
-              }
-            });
+          this.loading = false;
         },
         error: (e) => {
           this.loading = false;

@@ -88,8 +88,13 @@ export class OrganizationService {
         mergeMap((resp: HttpResponse<BackendGovernanceStrategyDto>) => {
           const body = resp.body as BackendGovernanceStrategyDto | undefined;
           if (body) return of(this.mapStrategyFromBackend(body));
-          // Fallback: intentar obtener la actual; si no hay, devolver el modelo enviado
-          return this.getCurrentOrgStrategy(orgId).pipe(map(st => (st ?? (model as GovernanceStrategy))));
+          // Fallback: usar la lista (sin consultar /actual)
+          return this.listOrgGovernanceStrategies(orgId).pipe(
+            map(list => {
+              const active = (list || []).find(s => s.activa);
+              return active ?? ((list && list.length > 0) ? list[list.length - 1] : (model as GovernanceStrategy));
+            })
+          );
         })
       ); }
 
@@ -100,7 +105,13 @@ export class OrganizationService {
         mergeMap((resp: HttpResponse<BackendGovernanceStrategyDto>) => {
           const body = resp.body as BackendGovernanceStrategyDto | undefined;
           if (body) return of(this.mapStrategyFromBackend(body));
-          return this.getCurrentOrgStrategy(orgId).pipe(map(st => (st ?? (model as GovernanceStrategy))));
+          // Fallback: usar la lista (sin consultar /actual)
+          return this.listOrgGovernanceStrategies(orgId).pipe(
+            map(list => {
+              const active = (list || []).find(s => s.activa);
+              return active ?? ((list && list.length > 0) ? list[list.length - 1] : (model as GovernanceStrategy));
+            })
+          );
         })
       ); }
 

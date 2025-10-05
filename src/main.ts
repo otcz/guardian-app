@@ -9,6 +9,7 @@ import { authInterceptor } from './app/service/auth.interceptor';
 import { providePrimeNG } from 'primeng/config';
 import Nora from '@primeng/themes/nora';
 import { MessageService } from 'primeng/api';
+import { ConfirmationService } from 'primeng/api';
 
 bootstrapApplication(AppComponent, {
   providers: [
@@ -18,7 +19,8 @@ bootstrapApplication(AppComponent, {
     ),
     provideAnimations(),
     providePrimeNG({ theme: { preset: Nora } }),
-    MessageService
+    MessageService,
+    ConfirmationService
   ]
 })
   .catch(err => console.error(err));

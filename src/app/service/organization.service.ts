@@ -72,6 +72,23 @@ export interface SaveStrategyResult {
   message?: string;
 }
 
+// Tipos de Parámetros por organización
+export interface OrgParam {
+  id: string;
+  codigo: string;
+  descripcion?: string;
+  fechaCreacion?: string;
+  fechaActualizacion?: string;
+}
+export interface OrgParamValue {
+  id: string;
+  codigo: string;
+  valor: string;
+  activo: boolean;
+  fechaCreacion?: string;
+  fechaActualizacion?: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class OrganizationService {
   private orgBase = environment.apiBase + '/orgs';
@@ -173,10 +190,49 @@ export class OrganizationService {
   }
 
   // -------------------- CRUD Organización (se mantiene) --------------------
-  list(): Observable<Organization[]> { const url = this.collectionUrl(); return this.http.get<any>(url, { headers: this.acceptJsonHeaders() }).pipe(map(payload => this.normalizeListResponse(payload).map(x => this.mapOrgFromBackend(x)))); }
-  get(id: string): Observable<Organization> { return this.http.get<any>(`${this.collectionUrl()}/${id}`).pipe(map(d => this.mapOrgFromBackend(d))); }
-  create(dto: CreateOrganizationDTO): Observable<Organization> { return this.http.post<any>(this.collectionUrl(), dto).pipe(map(d => this.mapOrgFromBackend(d))); }
-  update(id: string, dto: UpdateOrganizationDTO): Observable<Organization> { return this.http.patch<any>(`${this.collectionUrl()}/${id}`, dto).pipe(map(d => this.mapOrgFromBackend(d))); }
+  list(): Observable<Organization[]> {
+    const url = this.collectionUrl();
+    return this.http.get<any>(url, { headers: this.acceptJsonHeaders() }).pipe(
+      map((resp: any) => {
+        if (resp && resp.success === false) { throw { error: { message: resp.message } }; }
+        return this.normalizeListResponse(resp).map(x => this.mapOrgFromBackend(x));
+      }),
+      catchError(err => throwError(() => ({ error: { message: (err?.error?.message ?? err?.message) as string | undefined } })))
+    );
+  }
+
+  get(id: string): Observable<Organization> {
+    return this.http.get<any>(`${this.collectionUrl()}/${id}`, { headers: this.acceptJsonHeaders() }).pipe(
+      map((resp: any) => {
+        if (resp && resp.success === false) { throw { error: { message: resp.message } }; }
+        const d = this.unwrapApi(resp);
+        return this.mapOrgFromBackend(d);
+      }),
+      catchError(err => throwError(() => ({ error: { message: (err?.error?.message ?? err?.message) as string | undefined } })))
+    );
+  }
+
+  create(dto: CreateOrganizationDTO): Observable<Organization> {
+    return this.http.post<any>(this.collectionUrl(), dto, { headers: this.jsonHeaders() }).pipe(
+      map((resp: any) => {
+        if (resp && resp.success === false) { throw { error: { message: resp.message } }; }
+        const d = this.unwrapApi(resp);
+        return this.mapOrgFromBackend(d);
+      }),
+      catchError(err => throwError(() => ({ error: { message: (err?.error?.message ?? err?.message) as string | undefined } })))
+    );
+  }
+
+  update(id: string, dto: UpdateOrganizationDTO): Observable<Organization> {
+    return this.http.patch<any>(`${this.collectionUrl()}/${id}`, dto, { headers: this.jsonHeaders() }).pipe(
+      map((resp: any) => {
+        if (resp && resp.success === false) { throw { error: { message: resp.message } }; }
+        const d = this.unwrapApi(resp);
+        return this.mapOrgFromBackend(d);
+      }),
+      catchError(err => throwError(() => ({ error: { message: (err?.error?.message ?? err?.message) as string | undefined } })))
+    );
+  }
 
   // -------------------- Estrategias por Organización (usado por config) --------------------
   listOrgGovernanceStrategies(orgId: string | number) {
@@ -210,6 +266,160 @@ export class OrganizationService {
         return { strategy, source: 'catalog-create', applied: false, activated: false, message: resp?.message } as SaveStrategyResult;
       }),
       catchError((err) => throwError(() => ({ error: { message: (err?.error?.message ?? err?.message) as string | undefined } })))
+    );
+  }
+
+  // -------------------- Parámetros por Organización --------------------
+  listOrgParams(orgId: string | number): Observable<OrgParam[]> {
+    const url = `${this.collectionUrl()}/${orgId}/parametros`;
+    return this.http.get<any>(url, { headers: this.acceptJsonHeaders() }).pipe(
+      map(resp => {
+        if (resp && resp.success === false) { throw { error: { message: resp.message } }; }
+        return (this.normalizeListResponse(resp) as any[]).map(d => ({
+          id: String(d.id ?? d._id ?? ''),
+          codigo: String(d.codigo ?? ''),
+          descripcion: d.descripcion,
+          fechaCreacion: d.fechaCreacion ?? d.createdAt,
+          fechaActualizacion: d.fechaActualizacion ?? d.updatedAt
+        } as OrgParam));
+      }),
+      catchError(err => throwError(() => ({ error: { message: (err?.error?.message ?? err?.message) as string | undefined } })))
+    );
+  }
+
+  getOrgParam(orgId: string | number, paramId: string | number): Observable<OrgParam> {
+    const url = `${this.collectionUrl()}/${orgId}/parametros/${paramId}`;
+    return this.http.get<any>(url, { headers: this.acceptJsonHeaders() }).pipe(
+      map(resp => {
+        if (resp && resp.success === false) { throw { error: { message: resp.message } }; }
+        const d = this.unwrapApi(resp) as any;
+        return {
+          id: String(d.id ?? d._id ?? ''),
+          codigo: String(d.codigo ?? ''),
+          descripcion: d.descripcion,
+          fechaCreacion: d.fechaCreacion ?? d.createdAt,
+          fechaActualizacion: d.fechaActualizacion ?? d.updatedAt
+        } as OrgParam;
+      }),
+      catchError(err => throwError(() => ({ error: { message: (err?.error?.message ?? err?.message) as string | undefined } })))
+    );
+  }
+
+  createOrgParam(orgId: string | number, body: { codigo: string; descripcion?: string }): Observable<{ param: OrgParam; message?: string }> {
+    const url = `${this.collectionUrl()}/${orgId}/parametros`;
+    return this.http.post<any>(url, body, { headers: this.jsonHeaders() }).pipe(
+      map(resp => {
+        if (resp && resp.success === false) { throw { error: { message: resp.message } }; }
+        const d = this.unwrapApi(resp) as any;
+        const param: OrgParam = {
+          id: String(d.id ?? d._id ?? ''),
+          codigo: String(d.codigo ?? ''),
+          descripcion: d.descripcion,
+          fechaCreacion: d.fechaCreacion ?? d.createdAt,
+          fechaActualizacion: d.fechaActualizacion ?? d.updatedAt
+        };
+        return { param, message: resp?.message };
+      }),
+      catchError(err => throwError(() => ({ error: { message: (err?.error?.message ?? err?.message) as string | undefined } })))
+    );
+  }
+
+  updateOrgParam(orgId: string | number, paramId: string | number, body: Partial<{ codigo: string; descripcion: string }>): Observable<{ param: OrgParam; message?: string }> {
+    const url = `${this.collectionUrl()}/${orgId}/parametros/${paramId}`;
+    return this.http.patch<any>(url, body, { headers: this.jsonHeaders() }).pipe(
+      map(resp => {
+        if (resp && resp.success === false) { throw { error: { message: resp.message } }; }
+        const d = this.unwrapApi(resp) as any;
+        const param: OrgParam = {
+          id: String(d.id ?? d._id ?? ''),
+          codigo: String(d.codigo ?? ''),
+          descripcion: d.descripcion,
+          fechaCreacion: d.fechaCreacion ?? d.createdAt,
+          fechaActualizacion: d.fechaActualizacion ?? d.updatedAt
+        };
+        return { param, message: resp?.message };
+      }),
+      catchError(err => throwError(() => ({ error: { message: (err?.error?.message ?? err?.message) as string | undefined } })))
+    );
+  }
+
+  deleteOrgParam(orgId: string | number, paramId: string | number): Observable<{ message?: string }> {
+    const url = `${this.collectionUrl()}/${orgId}/parametros/${paramId}`;
+    return this.http.delete<any>(url, { headers: this.acceptJsonHeaders() }).pipe(
+      map(resp => {
+        if (resp && resp.success === false) { throw { error: { message: resp.message } }; }
+        return { message: resp?.message };
+      }),
+      catchError(err => throwError(() => ({ error: { message: (err?.error?.message ?? err?.message) as string | undefined } })))
+    );
+  }
+
+  listOrgParamValues(orgId: string | number, paramId: string | number): Observable<OrgParamValue[]> {
+    const url = `${this.collectionUrl()}/${orgId}/parametros/${paramId}/valores`;
+    return this.http.get<any>(url, { headers: this.acceptJsonHeaders() }).pipe(
+      map(resp => {
+        if (resp && resp.success === false) { throw { error: { message: resp.message } }; }
+        return (this.normalizeListResponse(resp) as any[]).map(v => ({
+          id: String(v.id ?? v._id ?? ''),
+          codigo: String(v.codigo ?? ''),
+          valor: String(v.valor ?? ''),
+          activo: !!v.activo,
+          fechaCreacion: v.fechaCreacion ?? v.createdAt,
+          fechaActualizacion: v.fechaActualizacion ?? v.updatedAt
+        } as OrgParamValue));
+      }),
+      catchError(err => throwError(() => ({ error: { message: (err?.error?.message ?? err?.message) as string | undefined } })))
+    );
+  }
+
+  createOrgParamValue(orgId: string | number, paramId: string | number, body: { codigo: string; valor: string; activo?: boolean }): Observable<{ value: OrgParamValue; message?: string }> {
+    const url = `${this.collectionUrl()}/${orgId}/parametros/${paramId}/valores`;
+    return this.http.post<any>(url, body, { headers: this.jsonHeaders() }).pipe(
+      map(resp => {
+        if (resp && resp.success === false) { throw { error: { message: resp.message } }; }
+        const v = this.unwrapApi(resp) as any;
+        const value: OrgParamValue = {
+          id: String(v.id ?? v._id ?? ''),
+          codigo: String(v.codigo ?? ''),
+          valor: String(v.valor ?? ''),
+          activo: !!v.activo,
+          fechaCreacion: v.fechaCreacion ?? v.createdAt,
+          fechaActualizacion: v.fechaActualizacion ?? v.updatedAt
+        };
+        return { value, message: resp?.message };
+      }),
+      catchError(err => throwError(() => ({ error: { message: (err?.error?.message ?? err?.message) as string | undefined } })))
+    );
+  }
+
+  updateOrgParamValue(orgId: string | number, valorId: string | number, body: Partial<{ valor: string; activo: boolean; codigo: string }>): Observable<{ value: OrgParamValue; message?: string }> {
+    const url = `${this.collectionUrl()}/${orgId}/parametros/valores/${valorId}`;
+    return this.http.patch<any>(url, body, { headers: this.jsonHeaders() }).pipe(
+      map(resp => {
+        if (resp && resp.success === false) { throw { error: { message: resp.message } }; }
+        const v = this.unwrapApi(resp) as any;
+        const value: OrgParamValue = {
+          id: String(v.id ?? v._id ?? ''),
+          codigo: String(v.codigo ?? ''),
+          valor: String(v.valor ?? ''),
+          activo: !!v.activo,
+          fechaCreacion: v.fechaCreacion ?? v.createdAt,
+          fechaActualizacion: v.fechaActualizacion ?? v.updatedAt
+        };
+        return { value, message: resp?.message };
+      }),
+      catchError(err => throwError(() => ({ error: { message: (err?.error?.message ?? err?.message) as string | undefined } })))
+    );
+  }
+
+  deleteOrgParamValue(orgId: string | number, valorId: string | number): Observable<{ message?: string }> {
+    const url = `${this.collectionUrl()}/${orgId}/parametros/valores/${valorId}`;
+    return this.http.delete<any>(url, { headers: this.acceptJsonHeaders() }).pipe(
+      map(resp => {
+        if (resp && resp.success === false) { throw { error: { message: resp.message } }; }
+        return { message: resp?.message };
+      }),
+      catchError(err => throwError(() => ({ error: { message: (err?.error?.message ?? err?.message) as string | undefined } })))
     );
   }
 }

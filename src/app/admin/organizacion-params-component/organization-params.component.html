@@ -1,5 +1,4 @@
-<!-- Contenedores globales de mensajes y confirmación -->
-<p-toast></p-toast>
+<!-- Contenedores globales de confirmación (toast global queda en AppComponent) -->
 <p-confirmDialog></p-confirmDialog>
 
 <div class="org-toolbar" *ngIf="!error || org; else errorTpl">
@@ -17,11 +16,6 @@
     <strong>{{ org.nombre }}</strong>
     <span>• Activa: <span [ngClass]="{'text-green': org.activa, 'text-red': !org.activa}">{{ org.activa? 'Sí':'No' }}</span></span>
     <span *ngIf="filtered.length" style="opacity:.7;">• {{ filtered.length }} parámetro(s)</span>
-  </div>
-
-  <div class="messages" *ngIf="error || success" style="margin-bottom:.5rem;">
-    <div class="error" *ngIf="error">{{ error }}</div>
-    <div class="success" *ngIf="success">{{ success }}</div>
   </div>
 
   <div class="table-shell">
@@ -57,7 +51,7 @@
         </tr>
 
         <!-- Fila de datos / edición -->
-        <tr *ngFor="let p of filtered" [ngClass]="{'row-editing': editingCode===p.codigo}">
+        <tr *ngFor="let p of filtered" [ngClass]="{'row-editing': editingCode===p.codigo, 'row-flash': flashRowId===p.id}">
           <!-- Código -->
           <td *ngIf="editingCode!==p.codigo">{{ p.codigo }}</td>
           <td *ngIf="editingCode===p.codigo">

@@ -571,153 +571,39 @@ a:hover { text-decoration: underline; }
   border-color: rgba(0,0,0,.12) !important;
 }
 
-/* ===== Overlays de PrimeNG en temas oscuro/negro ===== */
-:root.theme-dark body .p-dropdown-panel,
-:root.theme-black body .p-dropdown-panel,
-:root.theme-dark body .p-multiselect-panel,
-:root.theme-black body .p-multiselect-panel,
-:root.theme-dark body .p-select-panel,
-:root.theme-black body .p-select-panel {
-  background: color-mix(in srgb, var(--surface) 96%, #000) !important;
-  color: var(--text) !important;
-  border: 1px solid color-mix(in srgb, var(--border) 70%, transparent) !important;
-  box-shadow: 0 12px 28px rgba(0,0,0,0.42), 0 6px 12px rgba(0,0,0,0.28) !important;
+/* === PrimeNG Toast: alineado a paleta de colores === */
+body .p-toast {
+  z-index: 3000; /* sobre paneles */
 }
-:root.theme-dark body .p-dropdown-panel .p-dropdown-header,
-:root.theme-black body .p-dropdown-panel .p-dropdown-header,
-:root.theme-dark body .p-multiselect-panel .p-multiselect-header,
-:root.theme-black body .p-multiselect-panel .p-multiselect-header,
-:root.theme-dark body .p-select-panel .p-select-header,
-:root.theme-black body .p-select-panel .p-select-header {
-  background: color-mix(in srgb, var(--surface) 92%, #000) !important;
-  border-bottom: 1px solid color-mix(in srgb, var(--border) 70%, transparent) !important;
+body .p-toast .p-toast-message {
+  border: none;
+  border-radius: 12px;
+  color: #fff;
+  box-shadow: 0 12px 28px rgba(0,0,0,0.24), 0 6px 12px rgba(0,0,0,0.18);
 }
-/* Inputs de filtro dentro del panel */
-:root.theme-dark body .p-dropdown-panel .p-dropdown-filter-container .p-inputtext,
-:root.theme-black body .p-dropdown-panel .p-dropdown-filter-container .p-inputtext,
-:root.theme-dark body .p-multiselect-panel .p-multiselect-filter-container .p-inputtext,
-:root.theme-black body .p-multiselect-panel .p-multiselect-filter-container .p-inputtext,
-:root.theme-dark body .p-select-panel .p-select-filter-container .p-inputtext,
-:root.theme-black body .p-select-panel .p-select-filter-container .p-inputtext {
-  background: color-mix(in srgb, var(--surface) 88%, #000) !important;
-  color: #fff !important;
-  border: 1px solid color-mix(in srgb, var(--border) 70%, transparent) !important;
+body .p-toast .p-toast-message .p-toast-message-content { padding: 12px 16px; }
+body .p-toast .p-toast-summary { font-weight: 800; letter-spacing: .3px; }
+body .p-toast .p-toast-detail { opacity: .98; }
+body .p-toast .p-toast-message .p-toast-icon-close { color: #fff; opacity: .9; }
+
+/* Severidades con degradados según tokens del tema */
+body .p-toast .p-toast-message-success {
+  background: linear-gradient(90deg, var(--success) 60%, #138a4f 100%);
 }
-:root.theme-dark body .p-dropdown-panel .p-dropdown-filter-container .p-inputtext::placeholder,
-:root.theme-black body .p-dropdown-panel .p-dropdown-filter-container .p-inputtext::placeholder,
-:root.theme-dark body .p-multiselect-panel .p-multiselect-filter-container .p-inputtext::placeholder,
-:root.theme-black body .p-multiselect-panel .p-multiselect-filter-container .p-inputtext::placeholder,
-:root.theme-dark body .p-select-panel .p-select-filter-container .p-inputtext::placeholder,
-:root.theme-black body .p-select-panel .p-select-filter-container .p-inputtext::placeholder {
-  color: rgba(255,255,255,.75) !important;
+body .p-toast .p-toast-message-error {
+  background: linear-gradient(90deg, var(--danger) 60%, #7f1d1d 100%);
 }
-/* Ítems y estados */
-:root.theme-dark body .p-dropdown-panel .p-dropdown-item,
-:root.theme-black body .p-dropdown-panel .p-dropdown-item,
-:root.theme-dark body .p-multiselect-panel .p-multiselect-item,
-:root.theme-black body .p-multiselect-panel .p-multiselect-item,
-:root.theme-dark body .p-select-panel .p-select-item,
-:root.theme-black body .p-select-panel .p-select-item {
-  color: var(--text) !important;
+body .p-toast .p-toast-message-warn {
+  /* usar --warning si existe, si no fallback a un ámbar accesible */
+  background: linear-gradient(90deg, var(--warning, #f59e0b) 60%, color-mix(in srgb, var(--warning, #f59e0b) 65%, #7a4b00) 100%);
 }
-:root.theme-dark body .p-dropdown-panel .p-dropdown-item:not(.p-highlight):hover,
-:root.theme-black body .p-dropdown-panel .p-dropdown-item:not(.p-highlight):hover,
-:root.theme-dark body .p-multiselect-panel .p-multiselect-item:not(.p-highlight):hover,
-:root.theme-black body .p-multiselect-panel .p-multiselect-item:not(.p-highlight):hover,
-:root.theme-dark body .p-select-panel .p-select-item:not(.p-highlight):hover,
-:root.theme-black body .p-select-panel .p-select-item:not(.p-highlight):hover {
-  background: color-mix(in srgb, var(--primary) 14%, transparent) !important;
-}
-:root.theme-dark body .p-dropdown-panel .p-dropdown-item.p-highlight,
-:root.theme-black body .p-dropdown-panel .p-dropdown-item.p-highlight,
-:root.theme-dark body .p-multiselect-panel .p-multiselect-item.p-highlight,
-:root.theme-black body .p-multiselect-panel .p-multiselect-item.p-highlight,
-:root.theme-dark body .p-select-panel .p-select-item.p-highlight,
-:root.theme-black body .p-select-panel .p-select-item.p-highlight {
-  background: color-mix(in srgb, var(--primary) 18%, transparent) !important;
-  color: var(--text) !important;
+body .p-toast .p-toast-message-info {
+  background: linear-gradient(90deg, var(--primary) 60%, var(--secondary) 100%);
 }
 
-/* Fondo de contenedores de items dentro del panel (evitar zonas blancas) */
-:root.theme-dark body .p-dropdown-panel .p-dropdown-items-wrapper,
-:root.theme-black body .p-dropdown-panel .p-dropdown-items-wrapper,
-:root.theme-dark body .p-multiselect-panel .p-multiselect-items-wrapper,
-:root.theme-black body .p-multiselect-panel .p-multiselect-items-wrapper,
-:root.theme-dark body .p-select-panel .p-select-items-wrapper,
-:root.theme-black body .p-select-panel .p-select-items-wrapper {
-  background: color-mix(in srgb, var(--surface) 96%, #000) !important;
-}
-:root.theme-dark body .p-dropdown-panel .p-dropdown-items,
-:root.theme-black body .p-dropdown-panel .p-dropdown-items,
-:root.theme-dark body .p-multiselect-panel .p-multiselect-items,
-:root.theme-black body .p-multiselect-panel .p-multiselect-items,
-:root.theme-dark body .p-select-panel .p-select-items,
-:root.theme-black body .p-select-panel .p-select-items {
-  background: transparent !important;
-}
+/* Asegurar contraste en temas oscuros */
+:root.theme-dark body .p-toast .p-toast-message,
+:root.theme-black body .p-toast .p-toast-message { color: #fff; }
 
-/* Overlay del nuevo Select (PrimeNG 18): forzar dark/black */
-:root.theme-dark body .p-select-overlay,
-:root.theme-black body .p-select-overlay {
-  background: color-mix(in srgb, var(--surface) 96%, #000) !important;
-  color: var(--text) !important;
-  border: 1px solid color-mix(in srgb, var(--border) 70%, transparent) !important;
-  box-shadow: 0 12px 28px rgba(0,0,0,0.42), 0 6px 12px rgba(0,0,0,0.28) !important;
-}
-:root.theme-dark body .p-select-overlay .p-select-header,
-:root.theme-black body .p-select-overlay .p-select-header {
-  background: color-mix(in srgb, var(--surface) 92%, #000) !important;
-  border-bottom: 1px solid color-mix(in srgb, var(--border) 70%, transparent) !important;
-}
-:root.theme-dark body .p-select-overlay .p-select-filter-container .p-inputtext,
-:root.theme-black body .p-select-overlay .p-select-filter-container .p-inputtext,
-:root.theme-dark body .p-select-overlay .p-select-filter-container input,
-:root.theme-black body .p-select-overlay .p-select-filter-container input {
-  background: color-mix(in srgb, var(--surface) 88%, #000) !important;
-  color: #fff !important;
-  border: 1px solid color-mix(in srgb, var(--border) 70%, transparent) !important;
-}
-:root.theme-dark body .p-select-overlay .p-select-filter-container .p-inputtext::placeholder,
-:root.theme-black body .p-select-overlay .p-select-filter-container .p-inputtext::placeholder,
-:root.theme-dark body .p-select-overlay .p-select-filter-container input::placeholder,
-:root.theme-black body .p-select-overlay .p-select-filter-container input::placeholder {
-  color: rgba(255,255,255,.75) !important;
-}
-:root.theme-dark body .p-select-overlay .p-select-items-wrapper,
-:root.theme-black body .p-select-overlay .p-select-items-wrapper {
-  background: color-mix(in srgb, var(--surface) 96%, #000) !important;
-}
-:root.theme-dark body .p-select-overlay .p-select-items,
-:root.theme-black body .p-select-overlay .p-select-items {
-  background: transparent !important;
-}
-:root.theme-dark body .p-select-overlay .p-select-item,
-:root.theme-black body .p-select-overlay .p-select-item {
-  color: var(--text) !important;
-}
-:root.theme-dark body .p-select-overlay .p-select-item:not(.p-highlight):hover,
-:root.theme-black body .p-select-overlay .p-select-item:not(.p-highlight):hover {
-  background: color-mix(in srgb, var(--primary) 14%, transparent) !important;
-}
-:root.theme-dark body .p-select-overlay .p-select-item.p-highlight,
-:root.theme-black body .p-select-overlay .p-select-item.p-highlight {
-  background: color-mix(in srgb, var(--primary) 18%, transparent) !important;
-  color: var(--text) !important;
-}
-:root.theme-dark body .p-select-overlay .p-select-panel,
-:root.theme-black body .p-select-overlay .p-select-panel {
-  background: color-mix(in srgb, var(--surface) 96%, #000) !important;
-  color: var(--text) !important;
-  border: 1px solid color-mix(in srgb, var(--border) 70%, transparent) !important;
-}
-
-/* Wrapper genérico de overlays (por si aplica fondo claro) */
-:root.theme-dark body .p-connected-overlay,
-:root.theme-black body .p-connected-overlay,
-:root.theme-dark body .p-connected-overlay-content,
-:root.theme-black body .p-connected-overlay-content {
-  background: color-mix(in srgb, var(--surface) 96%, #000) !important;
-  color: var(--text) !important;
-  border: 1px solid color-mix(in srgb, var(--border) 70%, transparent) !important;
-}
-
+/* Posiciones: top-center ya se setea desde el componente */
+/* Fin Toast overrides */

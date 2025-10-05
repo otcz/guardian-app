@@ -12,6 +12,7 @@ import { forkJoin } from 'rxjs';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToastModule } from 'primeng/toast';
 import { ConfirmationService, MessageService } from 'primeng/api';
+import { TooltipModule } from 'primeng/tooltip';
 
 interface GlobalParamValue { id?: string; codigo: string; descripcion: string; valor: string; activo: boolean; valorId?: string; }
 interface FieldConfig { key: keyof GlobalParamValue; label: string; type: 'text' | 'switch'; required?: boolean; minLength?: number; maxLength?: number; }
@@ -19,7 +20,7 @@ interface FieldConfig { key: keyof GlobalParamValue; label: string; type: 'text'
 @Component({
   selector: 'app-organization-params',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, CardModule, InputTextModule, InputSwitchModule, ButtonModule, ProgressSpinnerModule, ConfirmDialogModule, ToastModule],
+  imports: [CommonModule, RouterModule, FormsModule, CardModule, InputTextModule, InputSwitchModule, ButtonModule, ProgressSpinnerModule, ConfirmDialogModule, ToastModule, TooltipModule],
   templateUrl: './organization-params.component.html',
   styleUrls: ['./organization-params.component.scss']
 })
@@ -47,6 +48,7 @@ export class OrganizationParamsComponent implements OnInit {
   newDraft: GlobalParamValue = this.blankParam();
   editingCode: string | null = null;
   editDraft: GlobalParamValue | null = null;
+  flashRowId: string | null = null;
 
   constructor(private route: ActivatedRoute, private router: Router, private orgService: OrganizationService, private confirmationService: ConfirmationService, private messageService: MessageService) {}
 
@@ -118,7 +120,7 @@ export class OrganizationParamsComponent implements OnInit {
   cancelAdd() { this.adding = false; this.newDraft = this.blankParam(); }
   saveAdd() {
     if (!this.orgId) return; const err = this.validate(this.newDraft, null);
-    if (err) { this.error = err; return; }
+    if (err) { this.error = err; this.messageService.add({ severity: 'warn', summary: 'Validación', detail: err, life: 3500 }); return; }
     const payload = { codigo: this.newDraft.codigo.trim().toUpperCase(), descripcion: (this.newDraft.descripcion || '').trim() };
     this.saving = true;
     this.orgService.createOrgParam(this.orgId, payload).subscribe({
@@ -129,20 +131,23 @@ export class OrganizationParamsComponent implements OnInit {
           next: vres => {
             this.success = (res.message ?? vres.message) ?? null; this.error = null; this.saving = false;
             const detailMsg = this.success || 'Parámetro creado correctamente';
-            this.messageService.add({ severity: 'success', summary: 'Creado', detail: detailMsg });
+            this.messageService.add({ severity: 'success', summary: 'Creado', detail: detailMsg, life: 3500 });
             this.params.push({ id: created.id, codigo: created.codigo, descripcion: created.descripcion || '', valor: vres.value.valor, activo: vres.value.activo, valorId: vres.value.id });
             this.applyFilter(); this.adding = false; this.newDraft = this.blankParam();
+            this.flash(created.id);
           },
           error: (e2: any) => {
-            // Si falla crear valor, igual mantenemos el parámetro y mostramos el mensaje
-            this.success = res.message ?? null; this.error = e2?.error?.message || 'Parámetro creado pero el valor no se pudo agregar'; this.saving = false;
-            if (this.success) this.messageService.add({ severity: 'success', summary: 'Creado', detail: this.success });
+            // Si falla crear valor, igual mantenemos el parámetro y mostramos un único mensaje claro
+            this.success = res.message ?? null; this.error = e2?.error?.message || 'No se pudo agregar el valor DEFAULT'; this.saving = false;
+            const combined = this.success ? `${this.success}. ${this.error}` : this.error;
+            this.messageService.add({ severity: 'warn', summary: 'Atención', detail: combined || undefined, life: 5000 });
             this.params.push({ id: created.id, codigo: created.codigo, descripcion: created.descripcion || '', valor: '', activo: true });
             this.applyFilter(); this.adding = false; this.newDraft = this.blankParam();
+            this.flash(created.id);
           }
         });
       },
-      error: (e: any) => { this.error = e?.error?.message || e?.message || 'No se pudo crear el parámetro'; this.saving = false; }
+      error: (e: any) => { const msg = e?.error?.message || e?.message || 'No se pudo crear el parámetro'; this.error = msg; this.saving = false; this.messageService.add({ severity: 'error', summary: 'Error', detail: msg, life: 4500 }); }
     });
   }
 
@@ -152,7 +157,7 @@ export class OrganizationParamsComponent implements OnInit {
   saveEdit() {
     if (!this.orgId || !this.editDraft) return;
     const err = this.validate(this.editDraft, this.editingCode);
-    if (err) { this.error = err; return; }
+    if (err) { this.error = err; this.messageService.add({ severity: 'warn', summary: 'Validación', detail: err, life: 3500 }); return; }
     const paramId = this.editDraft.id!;
     const body: any = { descripcion: (this.editDraft.descripcion || '').trim(), codigo: this.editDraft.codigo.trim().toUpperCase() };
     this.saving = true;
@@ -163,13 +168,13 @@ export class OrganizationParamsComponent implements OnInit {
           const upsert = (valorId?: string) => {
             if (valorId) {
               this.orgService.updateOrgParamValue(this.orgId!, valorId, { valor: this.editDraft!.valor, activo: this.editDraft!.activo }).subscribe({
-                next: vres => { this.success = (pres.message ?? vres.message) ?? null; this.error = null; this.messageService.add({ severity: 'success', summary: 'Actualizado', detail: this.success || 'Parámetro actualizado correctamente' }); this.postEditCommit(); },
-                error: (e2: any) => { this.error = e2?.error?.message || 'No se pudo actualizar el valor'; this.postEditCommit(true); }
+                next: vres => { this.success = (pres.message ?? vres.message) ?? null; this.error = null; this.messageService.add({ severity: 'success', summary: 'Actualizado', detail: this.success || 'Parámetro actualizado correctamente', life: 3500 }); this.postEditCommit(); },
+                error: (e2: any) => { const msg = e2?.error?.message || 'No se pudo actualizar el valor'; this.error = msg; this.messageService.add({ severity: 'error', summary: 'Error', detail: msg, life: 4500 }); this.postEditCommit(true); }
               });
             } else {
               this.orgService.createOrgParamValue(this.orgId!, paramId, { codigo: 'DEFAULT', valor: this.editDraft!.valor, activo: this.editDraft!.activo }).subscribe({
-                next: vres => { this.success = (pres.message ?? vres.message) ?? null; this.error = null; this.messageService.add({ severity: 'success', summary: 'Actualizado', detail: this.success || 'Parámetro actualizado correctamente' }); this.postEditCommit(); },
-                error: (e3: any) => { this.error = e3?.error?.message || 'Parámetro actualizado, pero no se pudo crear el valor'; this.postEditCommit(true); }
+                next: vres => { this.success = (pres.message ?? vres.message) ?? null; this.error = null; this.messageService.add({ severity: 'success', summary: 'Actualizado', detail: this.success || 'Parámetro actualizado correctamente', life: 3500 }); this.postEditCommit(); },
+                error: (e3: any) => { const msg = e3?.error?.message || 'Parámetro actualizado, pero no se pudo crear el valor'; this.error = msg; this.messageService.add({ severity: 'warn', summary: 'Atención', detail: msg, life: 4500 }); this.postEditCommit(true); }
               });
             }
           };
@@ -183,12 +188,13 @@ export class OrganizationParamsComponent implements OnInit {
         };
         applyValueUpdate();
       },
-      error: (e: any) => { this.error = e?.error?.message || e?.message || 'No se pudo actualizar el parámetro'; this.saving = false; }
+      error: (e: any) => { const msg = e?.error?.message || e?.message || 'No se pudo actualizar el parámetro'; this.error = msg; this.saving = false; this.messageService.add({ severity: 'error', summary: 'Error', detail: msg, life: 4500 }); }
     });
   }
 
   private postEditCommit(partialError = false) {
     // Actualizar fila y UI
+    const idToFlash = this.editDraft?.id || null;
     if (this.editDraft && this.editingCode) {
       const idx = this.params.findIndex(p => p.id === this.editDraft!.id);
       if (idx >= 0) this.params[idx] = { ...this.editDraft };
@@ -196,6 +202,7 @@ export class OrganizationParamsComponent implements OnInit {
     }
     this.saving = false;
     if (!partialError) { this.editingCode = null; this.editDraft = null; }
+    if (idToFlash) this.flash(idToFlash);
   }
 
   // Eliminar
@@ -211,12 +218,14 @@ export class OrganizationParamsComponent implements OnInit {
       accept: () => {
         this.saving = true;
         this.orgService.deleteOrgParam(this.orgId!, p.id!).subscribe({
-          next: res => { const msg = res.message ?? 'Parámetro eliminado correctamente'; this.success = msg; this.messageService.add({ severity: 'success', summary: 'Eliminado', detail: msg }); this.params = this.params.filter(x => x !== p); this.applyFilter(); this.saving = false; if (this.editingCode === p.codigo) this.cancelEdit(); },
-          error: (e: any) => { this.error = e?.error?.message || e?.message || 'No se pudo eliminar el parámetro'; this.saving = false; }
+          next: res => { const msg = res.message ?? 'Parámetro eliminado correctamente'; this.success = msg; this.messageService.add({ severity: 'success', summary: 'Eliminado', detail: msg, life: 3500 }); this.params = this.params.filter(x => x !== p); this.applyFilter(); this.saving = false; if (this.editingCode === p.codigo) this.cancelEdit(); },
+          error: (e: any) => { const msg = e?.error?.message || e?.message || 'No se pudo eliminar el parámetro'; this.error = msg; this.saving = false; this.messageService.add({ severity: 'error', summary: 'Error', detail: msg, life: 4500 }); }
         });
       }
     });
   }
+
+  private flash(id: string) { this.flashRowId = id; setTimeout(() => { if (this.flashRowId === id) this.flashRowId = null; }, 1300); }
 
   // Atajos teclado
   onKeyAdd(e: KeyboardEvent) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); this.saveAdd(); } else if (e.key === 'Escape') { e.preventDefault(); this.cancelAdd(); } }

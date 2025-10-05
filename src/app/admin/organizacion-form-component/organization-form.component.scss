@@ -53,3 +53,17 @@
 
 /* Transiciones suaves */
 .org-form input, .org-form label { transition: background .25s ease, color .25s ease, border-color .25s ease, opacity .25s ease; }
+/* ===== Switch personalizado (independiente de Prime) ===== */
+.ui-switch-input { position: absolute; opacity: 0; width: 0; height: 0; }
+.ui-switch { position: relative; flex: 0 0 42px; width: 42px; height: 22px; cursor: pointer; }
+.ui-switch .slider { position: absolute; inset: 0; border-radius: 999px; border: 1px solid rgba(255,255,255,.18); background: #3a3d44; transition: background .2s ease, border-color .2s ease, box-shadow .2s ease; }
+.ui-switch .slider::after { content: ""; position: absolute; width: 18px; height: 18px; top: 2px; left: 2px; border-radius: 999px; background: #fff; box-shadow: 0 0 0 1px rgba(0,0,0,.35), 0 1px 2px rgba(0,0,0,.35); transition: left .2s ease; }
+.ui-switch-input:checked + .ui-switch .slider { background: color-mix(in srgb, var(--success) 72%, var(--surface) 28%); border-color: color-mix(in srgb, var(--success) 70%, var(--border)); }
+.ui-switch-input:checked + .ui-switch .slider::after { left: calc(100% - 20px); }
+/* Focus/hover */
+.ui-switch-input:focus-visible + .ui-switch .slider { box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 28%, transparent); }
+.ui-switch:hover .slider { box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 16%, transparent); }
+/* Tema claro: track más claro */
+:host-context(.theme-light) .ui-switch .slider { background: #f3f4f6; border-color: rgba(0,0,0,.12); }
+.switch-label { font-weight: 600; }
+/* ===== fin switch personalizado ===== */

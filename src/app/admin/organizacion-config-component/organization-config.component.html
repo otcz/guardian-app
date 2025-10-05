@@ -1,0 +1,61 @@
+<div class="orgcfg-wrapper">
+  <div class="page-header">
+    <div class="titles">
+      <h2>Gestionar Organización</h2>
+      <p class="subtitle" *ngIf="org">
+        {{ org.nombre }}
+        <span class="chip" [class.chip-success]="org.activa" [class.chip-danger]="!org.activa">{{ org.activa ? 'ACTIVA' : 'INACTIVA' }}</span>
+      </p>
+    </div>
+    <span class="spacer"></span>
+    <button pButton type="button" icon="pi pi-arrow-left" label="Volver" class="p-button-text" (click)="back()"></button>
+  </div>
+
+  <p-message *ngIf="error" severity="error" [text]="error"></p-message>
+  <p-message *ngIf="success" severity="success" [text]="success"></p-message>
+
+  <div class="grid">
+    <p-card class="card strategy-card">
+      <div class="card-header"><h3>Asociar Estrategia</h3></div>
+      <div class="field">
+        <label for="estrategia">Estrategia disponible</label>
+        <p-dropdown id="estrategia"
+                    [options]="strategies"
+                    optionLabel="nombre"
+                    optionValue="id"
+                    [(ngModel)]="selectedStrategyId"
+                    (onChange)="onStrategyChange()"
+                    [filter]="true"
+                    filterBy="nombre"
+                    [showClear]="true"
+                    filterPlaceholder="Buscar estrategia..."
+                    placeholder="Seleccione una estrategia">
+        </p-dropdown>
+      </div>
+      <div class="actions">
+        <button pButton type="button" label="Asociar" icon="pi pi-link" (click)="associateStrategy()" [disabled]="!selectedStrategyId || associating"></button>
+        <button pButton type="button" label="Desasociar" icon="pi pi-unlink" class="p-button-warning" (click)="disassociateStrategy()" [disabled]="associating"></button>
+      </div>
+      <div class="strategy-preview" *ngIf="selectedStrategy as s">
+        <div class="kv"><span>Nombre</span><b>{{ s.nombre }}</b></div>
+        <div class="kv" *ngIf="s.descripcion"><span>Descripción</span><b>{{ s.descripcion }}</b></div>
+        <div class="flags">
+          <div class="flag" *ngFor="let f of [
+            {k:'hereda_roles', l:'Hereda Roles'},
+            {k:'crea_roles_locales', l:'Crea Roles Locales'},
+            {k:'crea_parametros_locales', l:'Crea Parámetros Locales'},
+            {k:'autonomia_menu_local', l:'Autonomía Menú Local'},
+            {k:'crea_usuarios_en_seccion', l:'Crea Usuarios en Sección'},
+            {k:'gestiona_vehiculos_locales', l:'Gestiona Vehículos Locales'},
+            {k:'asigna_permisos_directos', l:'Asigna Permisos Directos'}
+          ]">
+            <i class="pi" [ngClass]="$any(s)[f.k] ? 'pi-check-circle good' : 'pi-times-circle bad'"></i>
+            <span class="flag-text">{{ f.l }}</span>
+          </div>
+        </div>
+        <div class="kv"><span>Alcance Ingresos</span><b>{{ s.alcance_ingresos }}</b></div>
+        <div class="kv"><span>Activa</span><b><p-tag [severity]="s.activa ? 'success' : 'danger'" [value]="s.activa ? 'SÍ' : 'NO'"></p-tag></b></div>
+      </div>
+    </p-card>
+  </div>
+</div>

@@ -10,6 +10,7 @@
   "exclude": [
     "src/**/*.spec.ts",
     "src/app/dashboard/dashboard.component.ts",
-    "src/app/admin/organizacion-strategy-change-page/**"
+    "src/app/admin/organizacion-strategy-change-page/**",
+    "src/app/service/org-admin.service.ts"
   ]
 }

@@ -137,6 +137,43 @@ export class OrganizationService {
       })
     ); }
 
+  getCurrentOrgStrategySingular(orgId: string | number): Observable<GovernanceStrategy | null> {
+    const url = `${this.collectionUrl()}/${orgId}/estrategia/actual`;
+    return this.http.get<BackendGovernanceStrategyDto>(url).pipe(
+      map(d => this.mapStrategyFromBackend(d)),
+      catchError(err => {
+        if (err?.status === 400 || err?.status === 404) return of(null as any);
+        return throwError(() => err);
+      })
+    );
+  }
+
+  /** Obtiene la estrategia actual intentando plural -> singular -> lista(activa). */
+  getCurrentOrgStrategyAuto(orgId: string | number): Observable<GovernanceStrategy | null> {
+    const plural = `${this.orgStrategyBase(orgId)}/actual`;
+    const singular = `${this.collectionUrl()}/${orgId}/estrategia/actual`;
+    return this.http.get<BackendGovernanceStrategyDto>(plural).pipe(
+      map(d => this.mapStrategyFromBackend(d)),
+      catchError(err => {
+        if (err?.status === 400 || err?.status === 404) {
+          return this.http.get<BackendGovernanceStrategyDto>(singular).pipe(
+            map(d => this.mapStrategyFromBackend(d)),
+            catchError(err2 => {
+              if (err2?.status === 400 || err2?.status === 404) {
+                // Fallback: usar la lista para encontrar la activa
+                return this.listOrgGovernanceStrategies(orgId).pipe(
+                  map(list => (list || []).find(s => s.activa) || null)
+                );
+              }
+              return throwError(() => err2);
+            })
+          );
+        }
+        return throwError(() => err);
+      })
+    );
+  }
+
   createOrgGovernanceStrategy(orgId: string | number, model: Partial<GovernanceStrategy>): Observable<GovernanceStrategy> {
     const payload = this.mapStrategyToBackend(model, orgId);
     delete (payload as any).activa;

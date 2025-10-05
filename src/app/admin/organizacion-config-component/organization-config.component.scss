@@ -1,0 +1,71 @@
+/* Wrapper y cabecera */
+.orgcfg-wrapper { padding: 1rem clamp(.75rem, 2vw, 1.5rem); }
+.page-header { display: flex; align-items: center; gap: .75rem; margin-bottom: 1rem; }
+.page-header h2 { margin: 0; font-weight: 700; letter-spacing: .2px; }
+.page-header .subtitle { margin: 0; opacity: .9; }
+.page-header .spacer { flex: 1 1 auto; }
+
+/* Tarjetas y layout */
+.grid { display: grid; gap: 1rem; grid-template-columns: minmax(320px, 560px); }
+.card ::ng-deep .p-card {
+  background: var(--surface-alt) !important;
+  border: 1px solid rgba(255,255,255,.06) !important;
+  border-radius: 12px;
+}
+
+/* Encabezado de tarjeta */
+.card-header { display: flex; align-items: center; gap: .5rem; margin-bottom: .5rem; }
+.card-header h3 { margin: 0; font-size: 1rem; font-weight: 800; letter-spacing: .2px; }
+
+/* Campos */
+.field { display: flex; flex-direction: column; gap: .35rem; margin-bottom: .6rem; }
+.field label { font-size: .82rem; font-weight: 600; letter-spacing: .2px; color: var(--text); }
+
+/* Acciones */
+.actions { display: flex; gap: .5rem; margin-top: .25rem; flex-wrap: wrap; }
+
+/* Chip de estado */
+.chip { display: inline-flex; align-items: center; padding: .15rem .6rem; border-radius: 999px; font-size: .72rem; font-weight: 800; color: #fff; background: #6b7280; }
+.chip-success { background: var(--success); }
+.chip-danger { background: #ef4444; }
+
+/* Vista previa */
+.strategy-preview { margin-top: .65rem; border-top: 1px dashed color-mix(in srgb, var(--border) 70%, transparent); padding-top: .65rem; display: grid; gap: .4rem; }
+.kv { display: flex; gap: .5rem; align-items: center; }
+.kv span { width: 180px; color: var(--muted); font-size: .78rem; }
+.kv b { font-weight: 800; color: var(--text); }
+.flags { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: .4rem; }
+.flag { display: flex; gap: .5rem; align-items: center; padding: .4rem .6rem; border: 1px solid color-mix(in srgb, var(--border) 70%, transparent); border-radius: 8px; background: color-mix(in srgb, var(--surface) 90%, #000); }
+.flag .good { color: var(--success); }
+.flag .bad { color: #ef4444; }
+.flag-text { color: var(--text); font-size: .82rem; font-weight: 600; }
+
+/* Tema claro/oscuro: etiquetas blancas en oscuro */
+:host-context(.theme-dark) .field label,
+:host-context(.theme-black) .field label,
+:host-context(.theme-dark) .flag-text,
+:host-context(.theme-black) .flag-text,
+:host-context(.theme-dark) .page-header h2,
+:host-context(.theme-black) .page-header h2,
+:host-context(.theme-dark) .card-header h3,
+:host-context(.theme-black) .card-header h3 { color: #fff; }
+
+/* Ajustes del dropdown para coherencia de tamaño */
+:host ::ng-deep .p-dropdown {
+  min-width: 260px;
+}
+
+/* Estilo del panel del dropdown dentro del componente */
+:host ::ng-deep .p-dropdown-panel {
+  background: var(--surface-alt);
+  border: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+}
+:host ::ng-deep .p-dropdown-panel .p-dropdown-items { padding: .25rem; }
+:host ::ng-deep .p-dropdown-panel .p-dropdown-item { border-radius: 8px; color: var(--text); }
+:host ::ng-deep .p-dropdown-panel .p-dropdown-item:not(.p-highlight):hover {
+  background: color-mix(in srgb, var(--primary) 14%, transparent);
+}
+:host ::ng-deep .p-dropdown-panel .p-dropdown-item.p-highlight {
+  background: color-mix(in srgb, var(--primary) 18%, transparent);
+  color: var(--text);
+}

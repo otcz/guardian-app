@@ -67,6 +67,6 @@ export class OrganizationListComponent implements OnInit {
 
   strategy(org: Organization) {
     if (org.id) localStorage.setItem('currentOrgId', org.id);
-    this.router.navigate(['/cambiar-estrategia-de-gobernanza'], {queryParams: {id: org.id}});
+    this.router.navigate(['/gestionar-organizacion'], { queryParams: { id: org.id } });
   }
 }

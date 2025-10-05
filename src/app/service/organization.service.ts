@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, of, throwError } from 'rxjs';
+import { Observable, throwError } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { environment } from '../config/environment';
 
@@ -77,51 +77,21 @@ export class OrganizationService {
   private orgBase = environment.apiBase + '/orgs';
   private resolvedOrgCollectionUrl: string | null = (environment as any).organizationsEndpoint || null;
 
-  constructor(private http: HttpClient) {
-  }
+  constructor(private http: HttpClient) {}
 
   // -------------------- Helpers de URL --------------------
-  /** Devuelve URL base efectiva para colección */
   private collectionUrl(): string {
     return (this.resolvedOrgCollectionUrl && this.resolvedOrgCollectionUrl.trim().length > 0)
       ? this.resolvedOrgCollectionUrl!
       : this.orgBase;
   }
-
-  /** Base de estrategias por organización usando la URL resuelta */
   private orgStrategyBase(orgId: string | number) { return `${this.collectionUrl()}/${orgId}/estrategias`; }
 
-  // -------------------- Helpers de HTTP/fallback --------------------
-  private jsonHeaders(): HttpHeaders {
-    return new HttpHeaders({ 'Content-Type': 'application/json', Accept: 'application/json' });
-  }
+  // -------------------- Headers --------------------
+  private jsonHeaders(): HttpHeaders { return new HttpHeaders({ 'Content-Type': 'application/json', Accept: 'application/json' }); }
+  private acceptJsonHeaders(): HttpHeaders { return new HttpHeaders({ Accept: 'application/json' }); }
 
-  private acceptJsonHeaders(): HttpHeaders {
-    return new HttpHeaders({ Accept: 'application/json' });
-  }
-
-  private isFallbackStatus(status: any) {
-    // Importante: NO usar 400 para fallback; 400 suele ser una validación de negocio con mensaje útil
-    return status === 404 || status === 405 || status === 501;
-  }
-
-  private postWithFallback<T>(urls: string[], body: any): Observable<T> {
-    if (!urls || urls.length === 0) return throwError(() => new Error('No hay endpoints para POST'));
-    const [first, ...rest] = urls;
-    return this.http.post<T>(first, body, { headers: this.jsonHeaders() }).pipe(
-      catchError(err => (this.isFallbackStatus(err?.status) && rest.length) ? this.postWithFallback<T>(rest, body) : throwError(() => err))
-    );
-  }
-
-  private getWithFallback<T>(urls: string[]): Observable<T> {
-    if (!urls || urls.length === 0) return throwError(() => new Error('No hay endpoints para GET'));
-    const [first, ...rest] = urls;
-    return this.http.get<T>(first, { headers: this.acceptJsonHeaders() }).pipe(
-      catchError(err => (this.isFallbackStatus(err?.status) && rest.length) ? this.getWithFallback<T>(rest) : throwError(() => err))
-    );
-  }
-
-  // -------------------- Normalización y validación --------------------
+  // -------------------- Normalización --------------------
   private normalizeListResponse(payload: any): any[] {
     if (Array.isArray(payload)) return payload;
     if (payload && Array.isArray(payload.data)) return payload.data;
@@ -133,30 +103,17 @@ export class OrganizationService {
     if (payload && Array.isArray(payload.list)) return payload.list;
     return [];
   }
+  private unwrapApi<T = any>(payload: any): T { return (payload && typeof payload === 'object' && 'data' in payload) ? (payload as any).data as T : payload as T; }
 
-  /** Si payload es ApiResponse<T>, devuelve payload.data; en otro caso, el payload tal cual */
-  private unwrapApi<T = any>(payload: any): T {
-    if (payload && typeof payload === 'object' && 'data' in payload) {
-      return (payload as any).data as T;
-    }
-    return payload as T;
-  }
-
-  /** Map flexible de organización desde backend con variantes de nombre de campo */
+  // -------------------- Mapeos --------------------
   private mapOrgFromBackend(d: any): Organization {
-    const id = d?.id ?? d?._id ?? d?.uuid ?? d?.idOrganizacion ?? d?.organizacionId;
-    const nombre = d?.nombre ?? d?.name ?? d?.razonSocial ?? '';
-    const activa = (d?.activa ?? d?.active ?? d?.isActive ?? false) as boolean;
-    const fechaCreacion = d?.fecha_creacion ?? d?.fechaCreacion ?? d?.createdAt ?? d?.fechaRegistro ?? null;
-    const fechaActualizacion = d?.fecha_actualizacion ?? d?.fechaActualizacion ?? d?.updatedAt ?? null;
-    const estrategiaId = d?.id_estrategia_gobernanza ?? d?.estrategiaId ?? d?.idEstrategiaGobernanza ?? null;
     return {
-      id: id != null ? String(id) : undefined,
-      nombre: String(nombre),
-      activa: activa,
-      id_estrategia_gobernanza: estrategiaId != null ? String(estrategiaId) : undefined,
-      fecha_creacion: fechaCreacion ? String(fechaCreacion) : undefined,
-      fecha_actualizacion: fechaActualizacion ? String(fechaActualizacion) : undefined
+      id: d?.id != null ? String(d?.id ?? d?._id ?? d?.uuid ?? d?.idOrganizacion ?? d?.organizacionId) : undefined,
+      nombre: String(d?.nombre ?? d?.name ?? d?.razonSocial ?? ''),
+      activa: !!(d?.activa ?? d?.active ?? d?.isActive ?? false),
+      id_estrategia_gobernanza: d?.id_estrategia_gobernanza ? String(d?.id_estrategia_gobernanza) : undefined,
+      fecha_creacion: (d?.fecha_creacion ?? d?.fechaCreacion ?? d?.createdAt ?? d?.fechaRegistro ?? undefined) ? String(d?.fecha_creacion ?? d?.fechaCreacion ?? d?.createdAt ?? d?.fechaRegistro) : undefined,
+      fecha_actualizacion: (d?.fecha_actualizacion ?? d?.fechaActualizacion ?? d?.updatedAt ?? undefined) ? String(d?.fecha_actualizacion ?? d?.fechaActualizacion ?? d?.updatedAt) : undefined
     } as Organization;
   }
 
@@ -178,36 +135,10 @@ export class OrganizationService {
       activa: model.activa
     };
   }
-
   private validateStrategy(model: GovernanceStrategy): void {
-    if (!model.nombre || model.nombre.toString().trim().length === 0) {
-      throw new Error('El nombre de la estrategia es requerido');
-    }
-    if (model.descripcion && model.descripcion.trim().toUpperCase() === model.nombre.trim().toUpperCase()) {
-      throw new Error('La descripción no puede ser igual al nombre');
-    }
+    if (!model.nombre || model.nombre.toString().trim().length === 0) throw new Error('El nombre de la estrategia es requerido');
+    if (model.descripcion && model.descripcion.trim().toUpperCase() === model.nombre.trim().toUpperCase()) throw new Error('La descripción no puede ser igual al nombre');
   }
-
-  private mapStrategyToBackend(model: Partial<GovernanceStrategy>, orgId: string | number): BackendGovernanceStrategyDto {
-    const alcance = model.alcance_ingresos || 'ORGANIZACION';
-    return {
-      id: model.id,
-      nombre: (model.nombre || '').toString() as any,
-      descripcion: model.descripcion || '',
-      heredaRoles: !!model.hereda_roles,
-      creaRolesLocales: !!model.crea_roles_locales,
-      creaParametrosLocales: !!model.crea_parametros_locales,
-      autonomiaMenuLocal: !!model.autonomia_menu_local,
-      creaUsuariosEnSeccion: !!model.crea_usuarios_en_seccion,
-      gestionaVehiculosLocales: !!model.gestiona_vehiculos_locales,
-      asignaPermisosDirectos: !!model.asigna_permisos_directos,
-      alcanceIngresos: alcance,
-      activa: model.activa,
-      organizacionId: orgId
-    };
-  }
-
-  /** Mapper para enviar estrategia al catálogo (sin organizacionId) */
   private mapStrategyToBackendGlobal(model: Partial<GovernanceStrategy>): Omit<BackendGovernanceStrategyDto, 'organizacionId'> {
     const alcance = model.alcance_ingresos || 'ORGANIZACION';
     return {
@@ -224,7 +155,6 @@ export class OrganizationService {
       alcanceIngresos: alcance
     } as Omit<BackendGovernanceStrategyDto, 'organizacionId'>;
   }
-
   private mapStrategyFromBackend(dto: BackendGovernanceStrategyDto): GovernanceStrategy {
     return {
       id: String(dto.id || ''),
@@ -242,172 +172,44 @@ export class OrganizationService {
     };
   }
 
-  mapBackendStrategy(dto: BackendGovernanceStrategyDto): GovernanceStrategy { return this.mapStrategyFromBackend(dto); }
+  // -------------------- CRUD Organización (se mantiene) --------------------
+  list(): Observable<Organization[]> { const url = this.collectionUrl(); return this.http.get<any>(url, { headers: this.acceptJsonHeaders() }).pipe(map(payload => this.normalizeListResponse(payload).map(x => this.mapOrgFromBackend(x)))); }
+  get(id: string): Observable<Organization> { return this.http.get<any>(`${this.collectionUrl()}/${id}`).pipe(map(d => this.mapOrgFromBackend(d))); }
+  create(dto: CreateOrganizationDTO): Observable<Organization> { return this.http.post<any>(this.collectionUrl(), dto).pipe(map(d => this.mapOrgFromBackend(d))); }
+  update(id: string, dto: UpdateOrganizationDTO): Observable<Organization> { return this.http.patch<any>(`${this.collectionUrl()}/${id}`, dto).pipe(map(d => this.mapOrgFromBackend(d))); }
 
-  // -------------------- CRUD de Organización --------------------
-  list(): Observable<Organization[]> {
-    const url = this.collectionUrl();
-    const headers = this.acceptJsonHeaders();
-    return this.http.get<any>(url, { headers }).pipe(
-      map(payload => this.normalizeListResponse(payload).map(x => this.mapOrgFromBackend(x)))
-    );
-  }
-
-  get(id: string): Observable<Organization> {
-    const url = `${this.collectionUrl()}/${id}`;
-    return this.http.get<any>(url).pipe(map(d => this.mapOrgFromBackend(d)));
-  }
-
-  create(dto: CreateOrganizationDTO): Observable<Organization> {
-    const url = this.collectionUrl();
-    return this.http.post<any>(url, dto).pipe(map(d => this.mapOrgFromBackend(d)));
-  }
-
-  update(id: string, dto: UpdateOrganizationDTO): Observable<Organization> {
-    const url = `${this.collectionUrl()}/${id}`;
-    return this.http.patch<any>(url, dto).pipe(map(d => this.mapOrgFromBackend(d)));
-  }
-
-  // -------------------- Estrategias por Organización --------------------
+  // -------------------- Estrategias por Organización (usado por config) --------------------
   listOrgGovernanceStrategies(orgId: string | number) {
     const url = this.orgStrategyBase(orgId);
-    return this.http.get<any>(url).pipe(
-      map(payload => this.normalizeListResponse(payload).map((d: any) => this.mapStrategyFromBackend(d)))
-    );
-  }
-
-  getCurrentOrgStrategy(orgId: string | number): Observable<GovernanceStrategy | null> {
-    const url = `${this.orgStrategyBase(orgId)}/actual`;
-    return this.http.get<any>(url).pipe(
-      map(d => this.mapStrategyFromBackend(this.unwrapApi(d))),
-      catchError(err => {
-        if (err?.status === 400 || err?.status === 404) return of(null as any);
-        return throwError(() => err);
-      })
-    );
-  }
-
-  getCurrentOrgStrategySingular(orgId: string | number): Observable<GovernanceStrategy | null> {
-    const url = `${this.collectionUrl()}/${orgId}/estrategia/actual`;
-    return this.http.get<any>(url).pipe(
-      map(d => this.mapStrategyFromBackend(this.unwrapApi(d))),
-      catchError(err => {
-        if (err?.status === 400 || err?.status === 404) return of(null as any);
-        return throwError(() => err);
-      })
-    );
-  }
-
-  /** Obtiene la estrategia actual intentando plural -> singular -> lista(activa). */
-  getCurrentOrgStrategyAuto(orgId: string | number): Observable<GovernanceStrategy | null> {
-    const plural = `${this.orgStrategyBase(orgId)}/actual`;
-    const singular = `${this.collectionUrl()}/${orgId}/estrategia/actual`;
-    return this.http.get<any>(plural).pipe(
-      map(d => this.mapStrategyFromBackend(this.unwrapApi(d))),
-      catchError(err => {
-        if (err?.status === 400 || err?.status === 404) {
-          return this.http.get<any>(singular).pipe(
-            map(d => this.mapStrategyFromBackend(this.unwrapApi(d))),
-            catchError(err2 => {
-              if (err2?.status === 400 || err2?.status === 404) {
-                return this.listOrgGovernanceStrategies(orgId).pipe(
-                  map(list => (list || []).find(s => s.activa) || null)
-                );
-              }
-              return throwError(() => err2);
-            })
-          );
-        }
-        return throwError(() => err);
-      })
-    );
-  }
-
-  createOrgGovernanceStrategy(orgId: string | number, model: Partial<GovernanceStrategy>): Observable<GovernanceStrategy> {
-    const payload = this.mapStrategyToBackend(model, orgId);
-    delete (payload as any).activa;
-    const url = this.orgStrategyBase(orgId);
-    return this.http.post<any>(url, payload).pipe(
-      map(resp => this.mapStrategyFromBackend(this.unwrapApi(resp)))
-    );
-  }
-
-  updateOrgGovernanceStrategy(orgId: string | number, strategyId: string | number, model: Partial<GovernanceStrategy>): Observable<GovernanceStrategy> {
-    const payload = this.mapStrategyToBackend(model, orgId);
-    const url = `${this.orgStrategyBase(orgId)}/${strategyId}`;
-    return this.http.patch<any>(url, payload).pipe(
-      map(resp => this.mapStrategyFromBackend(this.unwrapApi(resp)))
-    );
-  }
-
-  applyOrgGovernanceStrategy(orgId: string | number, strategyId: string | number) {
-    const url = `${this.orgStrategyBase(orgId)}/${strategyId}/aplicar`;
-    return this.http.post(url, null, { observe: 'response' });
+    return this.http.get<any>(url).pipe(map(payload => this.normalizeListResponse(payload).map((d: any) => this.mapStrategyFromBackend(d))));
   }
 
   setOrgGovernanceStrategyActive(orgId: string | number, strategyId: string | number, value: boolean) {
     const url = `${this.orgStrategyBase(orgId)}/${strategyId}/activar`;
-    return this.http.patch(url, null, { params: { value } as any, observe: 'response' }); }
+    return this.http.patch(url, null, { params: { value } as any });
+  }
 
   // -------------------- Catálogo de Estrategias (global) --------------------
   listCatalogGovernanceStrategies(): Observable<GovernanceStrategy[]> {
-    const candidates = [
-      `${environment.apiBase}/catalogos/estrategias/all`,
-      `${environment.apiBase}/catalogos/estrategias`,
-      `${environment.apiBase}/estrategias`,
-      `${environment.apiBase}/catalogo/estrategias`,
-      `${environment.backendHost}/api/catalogos/estrategias/all`,
-      `${environment.backendHost}/api/catalogos/estrategias`,
-      `${environment.backendHost}/api/estrategias`,
-      `${environment.backendHost}/api/catalogo/estrategias`
-    ];
-    return this.getWithFallback<BackendGovernanceStrategyDto[] | any>(candidates).pipe(
-      map((resp: any) => {
-        const arr = Array.isArray(resp) ? resp : (this.normalizeListResponse(resp));
-        return (arr || []).map((d: any) => this.mapStrategyFromBackend(d));
-      })
+    const url = `${environment.apiBase}/catalogos/estrategias`;
+    return this.http.get<any>(url, { headers: this.acceptJsonHeaders() }).pipe(
+      map((resp: any) => (this.normalizeListResponse(resp) as any[]).map(d => this.mapStrategyFromBackend(d)))
     );
   }
 
-  createCatalogGovernanceStrategy(model: Partial<GovernanceStrategy>): Observable<GovernanceStrategy> {
-    const payload = this.mapStrategyToBackendGlobal(model);
-    const candidates = [
-      `${environment.apiBase}/catalogos/estrategias/save`,
-      `${environment.apiBase}/catalogos/estrategias`,
-      `${environment.backendHost}/api/catalogos/estrategias/save`,
-      `${environment.backendHost}/api/catalogos/estrategias`
-    ];
-    return this.postWithFallback<any>(candidates, payload).pipe(
-      map(resp => this.mapStrategyFromBackend(this.unwrapApi(resp)))
-    );
-  }
-
-  /** Guarda (create/update) una estrategia sin involucrar organización: crea en catálogo y retorna la estrategia creada. */
+  // Guarda en catálogo y retorna mensaje + estrategia (sin tocar organización)
   saveOrgGovernanceStrategy(_orgId: string | number | null | undefined, input: Partial<GovernanceStrategy>, _options: SaveStrategyOptions = {}): Observable<SaveStrategyResult> {
     const model = this.normalizeStrategyInput(input);
     try { this.validateStrategy(model); } catch (e) { return throwError(() => e); }
-
-    // Post directo a catálogo para capturar message y data
+    const url = `${environment.apiBase}/catalogos/estrategias`;
     const payload = this.mapStrategyToBackendGlobal(model);
-    const candidates = [
-      `${environment.apiBase}/catalogos/estrategias/save`,
-      `${environment.apiBase}/catalogos/estrategias`,
-      `${environment.backendHost}/api/catalogos/estrategias/save`,
-      `${environment.backendHost}/api/catalogos/estrategias`
-    ];
-    return this.postWithFallback<any>(candidates, payload).pipe(
+    return this.http.post<any>(url, payload, { headers: this.jsonHeaders() }).pipe(
       map((resp: any) => {
-        if (resp && resp.success === false) {
-          throw { error: { message: resp.message } };
-        }
+        if (resp && resp.success === false) { throw { error: { message: resp.message } }; }
         const strategy = this.mapStrategyFromBackend(this.unwrapApi(resp));
-        const message = resp?.message as string | undefined;
-        return { strategy, source: 'catalog-create', applied: false, activated: false, message } as SaveStrategyResult;
+        return { strategy, source: 'catalog-create', applied: false, activated: false, message: resp?.message } as SaveStrategyResult;
       }),
-      catchError((err) => {
-        const msg = (err?.error?.message ?? err?.message) as string | undefined;
-        return throwError(() => ({ error: { message: msg } }));
-      })
+      catchError((err) => throwError(() => ({ error: { message: (err?.error?.message ?? err?.message) as string | undefined } })))
     );
   }
 }

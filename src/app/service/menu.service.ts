@@ -212,8 +212,8 @@ export class MenuService {
         if (nameNorm.includes('crear')) path = '/crear-estrategia-de-gobernanza';
         else if (nameNorm.includes('cambiar')) path = '/cambiar-estrategia-de-gobernanza';
       }
-      // Adjuntar id organizacion si está disponible
-      if (path && (looksCrear || looksCambiar) && !path.includes('?')) {
+      // Adjuntar id organizacion solo para CAMBIAR (no para CREAR)
+      if (path && looksCambiar && !path.includes('?')) {
         try { const orgId = localStorage.getItem('currentOrgId'); if (orgId) path = `${path}?id=${encodeURIComponent(orgId)}`; } catch {}
       }
       // No adjuntamos query params aquí; el componente resolverá orgId

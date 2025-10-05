@@ -15,3 +15,24 @@
 /* Evitar color azul global de enlaces dentro del sidebar y unificar con el tema */
 .sidebar .menu-item { color: var(--text, #e2e8f0) !important; }
 .sidebar .menu-item:hover { background:rgba(255,255,255,.08); color:#fff !important; }
+
+/* Colores del sidebar por tema */
+:root.theme-dark .sidebar .menu-item,
+:root.theme-black .sidebar .menu-item { color: #ffffff !important; }
+:root.theme-dark .sidebar .menu-item i,
+:root.theme-black .sidebar .menu-item i { color: inherit !important; }
+:root.theme-light .sidebar .menu-item,
+:root.theme-light .sidebar .menu-item i { color: #ffffff !important; }
+
+/* Sidebar search input: texto y placeholder blancos */
+.sidebar .p-inputtext { color: #ffffff !important; background: rgba(255,255,255,.06); border: none; }
+.sidebar .p-inputtext::placeholder { color: #ffffff !important; opacity: .9; }
+
+/* Forzar blanco para opciones e íconos del sidebar en cualquier tema */
+.sidebar .menu-item,
+.sidebar .menu-item i,
+.sidebar .menu-item span { color: #ffffff !important; }
+
+/* Enlace Inicio en la sidebar */
+.sidebar .menu-link { color: #ffffff !important; }
+.sidebar .menu-link i { color: inherit !important; }

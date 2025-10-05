@@ -55,38 +55,39 @@ export class CrearStrategyComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    // Ya no dependemos de organización para crear estrategia
     this.orgId = this.route.snapshot.queryParamMap.get('id') || localStorage.getItem('currentOrgId');
-    if (!this.orgId) {
-      this.error = 'No se proporcionó id de organización';
-      this.notify.warn('Selecciona una organización', 'Debes elegir una organización para crear su estrategia.');
-      // No redirigimos: dejamos la página visible con aviso.
-    }
-    // Modo creación: no cargamos nada, dejamos el formulario en blanco
+    // Modo creaci��n: no cargamos nada, dejamos el formulario en blanco
     this.infoMessage = 'Define los parámetros y pulsa Guardar para crear la estrategia de gobernanza.';
   }
 
   submit() {
-    if (!this.orgId) return; this.error = null; this.success = null; this.infoMessage = null;
+    const nombreCtrl = this.form.get('nombre');
+    const descCtrl = this.form.get('descripcion');
+    const nombreVal = (nombreCtrl?.value || '').toString().trim();
+    const descVal = (descCtrl?.value || '').toString().trim();
+    if (nombreVal && descVal && nombreVal.toUpperCase() === descVal.toUpperCase()) {
+      this.error = 'La descripción no puede ser igual al nombre';
+      this.notify.warn('Corrige la descripción', 'La descripción no puede ser igual al nombre.');
+      return;
+    }
+
+    // Guardado independiente de organizaci��n: catálogo global
+    this.error = null; this.success = null; this.infoMessage = null;
     if (this.form.invalid) { this.error = 'Formulario inválido'; this.notify.warn('Formulario inválido', 'Revisa los campos requeridos.'); return; }
-
-    const value = this.form.value as GovernanceStrategy;
-    value.nombre = (value.nombre || '').toString().trim().toUpperCase();
-
+    const value = this.form.value as GovernanceStrategy; value.nombre = (value.nombre || '').toString().trim().toUpperCase();
     this.saving = true;
-    this.orgService.createOrgGovernanceStrategy(this.orgId, value)
-      .subscribe({
-        next: (dto: GovernanceStrategy) => {
-          this.strategy = dto;
-          this.form.patchValue(dto);
-          this.saving = false;
-          this.notify.success('Guardado', 'Estrategia creada correctamente.');
-        },
-        error: (e: any) => {
-          this.error = e?.error?.message || 'Error al guardar estrategia';
-          this.saving = false;
-          this.notify.error('No se pudo guardar', this.error ?? undefined);
-        }
-      });
+    this.orgService.saveOrgGovernanceStrategy(null, value).subscribe({
+      next: (res) => {
+        this.strategy = res.strategy; this.form.patchValue(res.strategy); this.saving = false;
+        this.notify.success('Guardado', res.message);
+      },
+      error: (e) => {
+        const msg = (e?.error?.message ?? e?.message) as string | undefined;
+        this.saving = false;
+        this.notify.error('No se pudo crear', msg);
+      }
+    });
   }
 
   adjustByNombre() {

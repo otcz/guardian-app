@@ -29,7 +29,7 @@
               <span *ngIf="menu.children?.length" class="menu-badge">{{ menu.children?.length }}</span>
             </div>
             <div class="menu-items" *ngIf="isExpanded(menu.key)">
-              <a *ngFor="let child of menu.children" [routerLink]="(child.path || '').split('?')[0]" [queryParams]="((child.path || '').split('?')[0] === '/cambiar-estrategia-de-gobernanza') ? parseQuery(child.path) : null" class="menu-item">
+              <a *ngFor="let child of menu.children" [routerLink]="(child.path || '').split('?')[0]" [queryParams]="parseQuery(child.path)" class="menu-item">
                 <i [ngClass]="child.icon || 'pi pi-circle'"></i>
                 <span>{{ child.label }}</span>
               </a>

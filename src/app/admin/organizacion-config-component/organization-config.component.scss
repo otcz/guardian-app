@@ -1,12 +1,12 @@
 /* Wrapper y cabecera */
-.orgcfg-wrapper { padding: 1rem clamp(.75rem, 2vw, 1.5rem); }
-.page-header { display: flex; align-items: center; gap: .75rem; margin-bottom: 1rem; }
-.page-header h2 { margin: 0; font-weight: 700; letter-spacing: .2px; }
-.page-header .subtitle { margin: 0; opacity: .9; }
+.orgcfg-wrapper { padding: 1.25rem clamp(.75rem, 2vw, 1.5rem); }
+.page-header { display: flex; align-items: center; gap: .75rem; margin-bottom: 1.25rem; }
+.page-header h2 { margin: 0; font-weight: 700; letter-spacing: .2px; font-size: 1.35rem; }
+.page-header .subtitle { margin: .15rem 0 0 0; opacity: .95; font-size: .85rem; }
 .page-header .spacer { flex: 1 1 auto; }
 
 /* Tarjetas y layout */
-.grid { display: grid; gap: 1rem; grid-template-columns: minmax(320px, 560px); }
+.grid { display: grid; gap: 1.2rem; grid-template-columns: minmax(320px, 720px); }
 .card ::ng-deep .p-card {
   background: var(--surface-alt) !important;
   border: 1px solid rgba(255,255,255,.06) !important;
@@ -14,33 +14,33 @@
 }
 
 /* Encabezado de tarjeta */
-.card-header { display: flex; align-items: center; gap: .5rem; margin-bottom: .5rem; }
-.card-header h3 { margin: 0; font-size: 1rem; font-weight: 800; letter-spacing: .2px; }
+.card-header { display: flex; align-items: center; gap: .5rem; margin-bottom: .75rem; }
+.card-header h3 { margin: 0; font-size: 1.05rem; font-weight: 800; letter-spacing: .2px; }
 
 /* Campos */
-.field { display: flex; flex-direction: column; gap: .35rem; margin-bottom: .6rem; }
-.field label { font-size: .82rem; font-weight: 600; letter-spacing: .2px; color: var(--text); }
+.field { display: flex; flex-direction: column; gap: .5rem; margin-bottom: 1rem; }
+.field label { font-size: .9rem; font-weight: 600; letter-spacing: .2px; color: var(--text); }
 
 /* Acciones */
-.actions { display: flex; gap: .5rem; margin-top: .25rem; flex-wrap: wrap; }
+.actions { display: flex; gap: .6rem; margin-top: .5rem; flex-wrap: wrap; }
 
 /* Chip de estado */
-.chip { display: inline-flex; align-items: center; padding: .15rem .6rem; border-radius: 999px; font-size: .72rem; font-weight: 800; color: #fff; background: #6b7280; }
+.chip { display: inline-flex; align-items: center; padding: .2rem .65rem; border-radius: 999px; font-size: .74rem; font-weight: 800; color: #fff; background: #6b7280; }
 .chip-success { background: var(--success); }
 .chip-danger { background: #ef4444; }
 
 /* Vista previa */
-.strategy-preview { margin-top: .65rem; border-top: 1px dashed color-mix(in srgb, var(--border) 70%, transparent); padding-top: .65rem; display: grid; gap: .4rem; }
+.strategy-preview { margin-top: .75rem; border-top: 1px dashed color-mix(in srgb, var(--border) 70%, transparent); padding-top: .75rem; display: grid; gap: .5rem; }
 .kv { display: flex; gap: .5rem; align-items: center; }
-.kv span { width: 180px; color: var(--muted); font-size: .78rem; }
+.kv span { width: 180px; color: var(--muted); font-size: .82rem; }
 .kv b { font-weight: 800; color: var(--text); }
-.flags { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: .4rem; }
-.flag { display: flex; gap: .5rem; align-items: center; padding: .4rem .6rem; border: 1px solid color-mix(in srgb, var(--border) 70%, transparent); border-radius: 8px; background: color-mix(in srgb, var(--surface) 90%, #000); }
+.flags { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: .5rem; }
+.flag { display: flex; gap: .5rem; align-items: center; padding: .5rem .7rem; border: 1px solid color-mix(in srgb, var(--border) 70%, transparent); border-radius: 8px; background: color-mix(in srgb, var(--surface) 90%, #000); }
 .flag .good { color: var(--success); }
 .flag .bad { color: #ef4444; }
-.flag-text { color: var(--text); font-size: .82rem; font-weight: 600; }
+.flag-text { color: var(--text); font-size: .86rem; font-weight: 600; }
 
-/* Tema claro/oscuro: etiquetas blancas en oscuro */
+/* Tema oscuro: etiquetas y placeholders blancos */
 :host-context(.theme-dark) .field label,
 :host-context(.theme-black) .field label,
 :host-context(.theme-dark) .flag-text,
@@ -50,22 +50,74 @@
 :host-context(.theme-dark) .card-header h3,
 :host-context(.theme-black) .card-header h3 { color: #fff; }
 
-/* Ajustes del dropdown para coherencia de tamaño */
-:host ::ng-deep .p-dropdown {
-  min-width: 260px;
-}
+/* Dropdown y MultiSelect: tamaños y coherencia */
+:host ::ng-deep .p-dropdown,
+:host ::ng-deep .p-multiselect { min-width: 280px; }
+:host ::ng-deep .p-dropdown .p-dropdown-label,
+:host ::ng-deep .p-multiselect .p-multiselect-label { padding: .6rem .75rem; font-size: .95rem; }
 
-/* Estilo del panel del dropdown dentro del componente */
-:host ::ng-deep .p-dropdown-panel {
-  background: var(--surface-alt);
+/* Paneles en fondo oscuro */
+:host ::ng-deep .p-dropdown-panel,
+:host ::ng-deep .p-multiselect-panel {
+  background: color-mix(in srgb, var(--surface) 92%, #000);
   border: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
 }
-:host ::ng-deep .p-dropdown-panel .p-dropdown-items { padding: .25rem; }
-:host ::ng-deep .p-dropdown-panel .p-dropdown-item { border-radius: 8px; color: var(--text); }
-:host ::ng-deep .p-dropdown-panel .p-dropdown-item:not(.p-highlight):hover {
+:host ::ng-deep .p-dropdown-panel .p-dropdown-header,
+:host ::ng-deep .p-multiselect-panel .p-multiselect-header {
+  background: color-mix(in srgb, var(--surface) 92%, #000);
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+}
+
+/* Filtro dentro de los paneles */
+:host ::ng-deep .p-dropdown-panel .p-dropdown-filter-container .p-inputtext,
+:host ::ng-deep .p-multiselect-panel .p-multiselect-filter-container .p-inputtext {
+  background: color-mix(in srgb, var(--surface) 88%, #000);
+  color: #fff;
+  border: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+}
+:host ::ng-deep .p-dropdown-panel .p-dropdown-filter-container .p-inputtext::placeholder,
+:host ::ng-deep .p-multiselect-panel .p-multiselect-filter-container .p-inputtext::placeholder { color: #fff; opacity: .7; }
+
+/* Placeholder del control cuando no hay selección */
+:host-context(.theme-dark) ::ng-deep .p-dropdown .p-dropdown-label.p-placeholder,
+:host-context(.theme-black) ::ng-deep .p-dropdown .p-dropdown-label.p-placeholder,
+:host-context(.theme-dark) ::ng-deep .p-multiselect .p-multiselect-label.p-placeholder,
+:host-context(.theme-black) ::ng-deep .p-multiselect .p-multiselect-label.p-placeholder { color: #fff; opacity: .85; }
+
+/* Ítems del panel */
+:host ::ng-deep .p-dropdown-panel .p-dropdown-items,
+:host ::ng-deep .p-multiselect-panel .p-multiselect-items { padding: .25rem; }
+:host ::ng-deep .p-dropdown-panel .p-dropdown-item,
+:host ::ng-deep .p-multiselect-panel .p-multiselect-item { border-radius: 8px; color: var(--text); }
+:host ::ng-deep .p-dropdown-panel .p-dropdown-item:not(.p-highlight):hover,
+:host ::ng-deep .p-multiselect-panel .p-multiselect-item:not(.p-highlight):hover {
   background: color-mix(in srgb, var(--primary) 14%, transparent);
 }
-:host ::ng-deep .p-dropdown-panel .p-dropdown-item.p-highlight {
+:host ::ng-deep .p-dropdown-panel .p-dropdown-item.p-highlight,
+:host ::ng-deep .p-multiselect-panel .p-multiselect-item.p-highlight {
   background: color-mix(in srgb, var(--primary) 18%, transparent);
   color: var(--text);
 }
+
+/* Plantillas de opciones: tipografía */
+.opt-item, .opt-label { display: flex; align-items: center; gap: .35rem; }
+.opt-title { font-weight: 700; }
+.opt-desc { opacity: .85; }
+
+/* Hint debajo de multiselect */
+.hint { display: inline-block; margin-top: .25rem; color: var(--muted); }
+
+/* En temas oscuros, forzar color blanco para títulos y hint solicitados */
+:host-context(.theme-dark) .opt-title,
+:host-context(.theme-black) .opt-title,
+:host-context(.theme-dark) .hint,
+:host-context(.theme-black) .hint { color: #fff; }
+
+/* También dentro de paneles de PrimeNG (overlay) */
+:host-context(.theme-dark) ::ng-deep .p-dropdown-panel .opt-title,
+:host-context(.theme-black) ::ng-deep .p-dropdown-panel .opt-title,
+:host-context(.theme-dark) ::ng-deep .p-multiselect-panel .opt-title,
+:host-context(.theme-black) ::ng-deep .p-multiselect-panel .opt-title { color: #fff; }
+
+/* Divider más visible */
+.divider { border: 0; height: 1px; background: color-mix(in srgb, var(--border) 70%, transparent); margin: 1rem 0; }

@@ -200,23 +200,37 @@ export class MenuService {
       const parentKey = parentKeyRaw ? findSimilarMenuKey(parentKeyRaw) : null;
       const nodeKey = this.normalize(raw.nombre);
       let path = sanitizePath(raw.ruta || null);
-      // Forzar rutas est��ndar para estrategia (detección robusta por includes)
+      // Forzar rutas estándar por nombre normalizado (robusto contra acentos/variantes)
       const nameNorm = this.normalize(raw.nombre);
       const parentNorm = this.normalize(raw.padreNombre || '');
-      const looksCrear = nameNorm.includes('crear') && nameNorm.includes('estrateg');
-      const looksCambiar = nameNorm.includes('cambiar') && nameNorm.includes('estrateg');
-      if (looksCrear) path = '/crear-estrategia-de-gobernanza';
-      if (looksCambiar) path = '/cambiar-estrategia-de-gobernanza';
-      // Si sigue sin path, usar heurística por menú padre
+      const looksCrearEstrategia = nameNorm.includes('crear') && nameNorm.includes('estrateg');
+      const looksCambiarEstrategia = nameNorm.includes('cambiar') && nameNorm.includes('estrateg');
+      const looksGestionarOrg = nameNorm.includes('gestionar') && nameNorm.includes('organizacion');
+      const looksCrearOrg = nameNorm.includes('crear') && nameNorm.includes('organizacion');
+      const looksListarOrgs = (nameNorm.includes('listar') || nameNorm.includes('listado')) && nameNorm.includes('organizacion');
+      const looksConfigParams = (nameNorm.includes('configurar') || nameNorm.includes('parametro')) && nameNorm.includes('global');
+      const looksVerAuditoria = (nameNorm.includes('ver') || nameNorm.includes('auditoria')) && nameNorm.includes('organizacion');
+
+      if (looksCrearEstrategia) path = '/crear-estrategia-de-gobernanza';
+      if (looksCambiarEstrategia) path = '/cambiar-estrategia-de-gobernanza';
+      if (looksGestionarOrg) path = '/gestionar-organizacion';
+      if (looksCrearOrg) path = '/crear-organizacion';
+      if (looksListarOrgs) path = '/listar-organizaciones';
+      if (looksConfigParams) path = '/configurar-parametros-globales';
+      if (looksVerAuditoria) path = '/ver-auditoria-de-organizacion';
+
+      // Si sigue sin path, usar heurística por menú padre (estrategias)
       if (!path && parentNorm.includes('gestion-de-estrategias-de-gobernanza')) {
         if (nameNorm.includes('crear')) path = '/crear-estrategia-de-gobernanza';
         else if (nameNorm.includes('cambiar')) path = '/cambiar-estrategia-de-gobernanza';
       }
-      // Adjuntar id organizacion solo para CAMBIAR (no para CREAR)
-      if (path && looksCambiar && !path.includes('?')) {
+
+      // Adjuntar id organización cuando aplica (cambiar estrategia, gestionar, configurar, auditar)
+      const needsOrgId = looksCambiarEstrategia || looksGestionarOrg || looksConfigParams || looksVerAuditoria;
+      if (path && needsOrgId && !path.includes('?')) {
         try { const orgId = localStorage.getItem('currentOrgId'); if (orgId) path = `${path}?id=${encodeURIComponent(orgId)}`; } catch {}
       }
-      // No adjuntamos query params aquí; el componente resolverá orgId
+
       const node: MenuNode = {
         key: nodeKey,
         label: raw.nombre,

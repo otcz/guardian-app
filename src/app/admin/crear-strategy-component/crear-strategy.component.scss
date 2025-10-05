@@ -108,6 +108,26 @@ select:focus, textarea:focus {
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 30%, transparent);
 }
 
+/* Geometría estable del switch: evita que el knob desaparezca */
+:host ::ng-deep .p-inputswitch {
+  width: 42px;
+  height: 22px;
+}
+:host ::ng-deep .p-inputswitch .p-inputswitch-slider {
+  position: relative;
+}
+:host ::ng-deep .p-inputswitch .p-inputswitch-slider:before {
+  width: 18px;
+  height: 18px;
+  top: 2px;
+  left: 2px;
+  transform: none !important; /* evitar transform acumulados del tema */
+  border-radius: 999px;
+}
+:host ::ng-deep .p-inputswitch.p-inputswitch-checked .p-inputswitch-slider:before {
+  left: calc(100% - 20px);
+}
+
 /* En tema claro, mantener un contraste suave (no gris oscuro) */
 :host-context(.theme-light) .toggle-item {
   background: color-mix(in srgb, #ffffff 92%, var(--bg) 8%);
@@ -134,3 +154,18 @@ select:focus, textarea:focus {
   color: #222 !important;
   opacity: .95;
 }
+
+/* Contraste del switch en estado OFF (tema oscuro) y realce del knob */
+:host-context(.theme-dark) ::ng-deep .p-inputswitch .p-inputswitch-slider {
+  background: #3a3d44; /* track más oscuro para diferenciar del knob */
+  border-color: #555a65;
+}
+:host ::ng-deep .p-inputswitch .p-inputswitch-slider:before {
+  /* hacer visible el knob aun cuando el track sea claro */
+  box-shadow: 0 0 0 1px rgba(0,0,0,.35), 0 1px 2px rgba(0,0,0,.35);
+}
+:host-context(.theme-dark) ::ng-deep .p-inputswitch.p-inputswitch-checked .p-inputswitch-slider {
+  background: color-mix(in srgb, var(--success) 72%, var(--surface) 28%);
+  border-color: color-mix(in srgb, var(--success) 70%, var(--border));
+}
+

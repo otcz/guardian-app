@@ -31,8 +31,13 @@
 /* Forzar blanco para opciones e íconos del sidebar en cualquier tema */
 .sidebar .menu-item,
 .sidebar .menu-item i,
-.sidebar .menu-item span { color: #ffffff !important; }
+.sidebar .menu-item span,
+aside.sidebar a.menu-item,
+aside.sidebar a.menu-item span,
+aside.sidebar a.menu-item i { color: #ffffff !important; }
+aside.sidebar a.menu-item { opacity: 1 !important; }
 
 /* Enlace Inicio en la sidebar */
 .sidebar .menu-link { color: #ffffff !important; }
 .sidebar .menu-link i { color: inherit !important; }
+

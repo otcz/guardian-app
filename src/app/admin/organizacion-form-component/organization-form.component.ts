@@ -6,14 +6,13 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { Organization, OrganizationService } from '../../service/organization.service';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
-import { InputSwitchModule } from 'primeng/inputswitch';
 import { CardModule } from 'primeng/card';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 
 @Component({
   selector: 'app-organization-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule, InputTextModule, ButtonModule, InputSwitchModule, CardModule, ProgressSpinnerModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, InputTextModule, ButtonModule, CardModule, ProgressSpinnerModule],
   templateUrl: './organization-form.component.html',
   styleUrls: ['./organization-form.component.scss']
 })

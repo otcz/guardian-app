@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpResponse } from '@angular/common/http';
-import { Observable, of, throwError, from, EMPTY } from 'rxjs';
-import { map, catchError, mergeMap, concatMap, filter, take, tap } from 'rxjs/operators';
+import { HttpClient, HttpResponse, HttpHeaders } from '@angular/common/http';
+import { Observable, of, throwError } from 'rxjs';
+import { map, catchError, mergeMap } from 'rxjs/operators';
 import { environment } from '../config/environment';
 
 export interface GovernanceStrategy {
@@ -52,56 +52,30 @@ export interface BackendGovernanceStrategyDto {
 @Injectable({ providedIn: 'root' })
 export class OrganizationService {
   private orgBase = environment.apiBase + '/orgs';
-  private resolvedOrgCollectionUrl: string | null = null; // cache de colección resuelta
+  private resolvedOrgCollectionUrl: string | null = (environment as any).organizationsEndpoint || null;
 
   constructor(private http: HttpClient) {}
 
-  /** Devuelve URL base efectiva para colección, si ya fue resuelta */
-  private collectionUrl(): string { return this.resolvedOrgCollectionUrl || this.orgBase; }
-
-  /** Intenta múltiples endpoints hasta encontrar uno válido y cachea el ganador */
-  private resolveCollectionUrl(): Observable<string> {
-    if (this.resolvedOrgCollectionUrl) return of(this.resolvedOrgCollectionUrl);
-    const resourceCandidates = ['organizaciones','organizacion','organizations','organization','orgs','org'];
-    const suffixes = ['', '/list', '/listar', '/todas', '/all'];
-    const basePrefsRaw = [environment.apiBase, ...(environment.apiFallbackBases || []), '', '/api', '/v1', '/api/v1'];
-    const basePrefs = Array.from(new Set(basePrefsRaw.map(b => (b || '').toString())));
-    const urls: string[] = [];
-
-    const norm = (u: string) => u.replace(/\s+/g, '').replace(/\/+/g, '/').replace(/:\/\//, '://').replace(/\/?$/, '');
-    const pushUrl = (u: string) => { const n = norm(u); if (!urls.includes(n)) urls.push(n); };
-
-    for (const base of basePrefs) {
-      for (const res of resourceCandidates) {
-        for (const suf of suffixes) {
-          const rel = `${base}/${res}${suf}`;
-          // vía proxy/same-origin
-          if (rel.startsWith('/')) pushUrl(rel);
-          else pushUrl('/' + rel);
-          // absoluto
-          const abs = `${environment.backendHost}${rel.startsWith('/') ? '' : '/'}${rel}`;
-          pushUrl(abs);
-        }
-      }
-    }
-
-    return from(urls).pipe(
-      concatMap(url => this.http.get<any>(url).pipe(
-        map(resp => ({ url, resp })),
-        tap(({ url }) => { this.resolvedOrgCollectionUrl = url; console.info('[OrganizationService] Endpoint resuelto:', url); }),
-        catchError(() => EMPTY)
-      )),
-      take(1),
-      map(x => x.url),
-      catchError(() => of(this.orgBase))
-    );
+  /** Devuelve URL base efectiva para colección */
+  private collectionUrl(): string {
+    return (this.resolvedOrgCollectionUrl && this.resolvedOrgCollectionUrl.trim().length > 0)
+      ? this.resolvedOrgCollectionUrl!
+      : this.orgBase;
   }
+
+  /** Resolución simplificada: usa config; no hace llamadas de prueba */
+  private resolveCollectionUrl(): Observable<string> { return of(this.collectionUrl()); }
 
   /** Normaliza posibles formas de respuesta del backend */
   private normalizeListResponse(payload: any): any[] {
     if (Array.isArray(payload)) return payload;
     if (payload && Array.isArray(payload.data)) return payload.data;
     if (payload && Array.isArray(payload.items)) return payload.items;
+    if (payload && Array.isArray(payload.content)) return payload.content;
+    if (payload && Array.isArray(payload.results)) return payload.results;
+    if (payload && Array.isArray(payload.result)) return payload.result;
+    if (payload && Array.isArray(payload.rows)) return payload.rows;
+    if (payload && Array.isArray(payload.list)) return payload.list;
     return [];
   }
 
@@ -124,8 +98,9 @@ export class OrganizationService {
   }
 
   list(): Observable<Organization[]> {
-    return this.resolveCollectionUrl().pipe(
-      concatMap(() => this.http.get<any>(this.collectionUrl())),
+    const url = this.collectionUrl();
+    const headers = new HttpHeaders({ Accept: 'application/json' });
+    return this.http.get<any>(url, { headers }).pipe(
       map(payload => this.normalizeListResponse(payload).map(x => this.mapOrgFromBackend(x)))
     );
   }
@@ -147,14 +122,14 @@ export class OrganizationService {
   private orgStrategyBase(orgId: string | number) { return `${this.collectionUrl()}/${orgId}/estrategias`; }
 
   listOrgGovernanceStrategies(orgId: string | number) {
-    return this.resolveCollectionUrl().pipe(
-      concatMap(() => this.http.get<BackendGovernanceStrategyDto[]>(this.orgStrategyBase(orgId))),
+    const url = this.orgStrategyBase(orgId);
+    return this.http.get<BackendGovernanceStrategyDto[]>(url).pipe(
       map(arr => (arr || []).map(d => this.mapStrategyFromBackend(d)))
     ); }
 
   getCurrentOrgStrategy(orgId: string | number): Observable<GovernanceStrategy | null> {
-    return this.resolveCollectionUrl().pipe(
-      concatMap(() => this.http.get<BackendGovernanceStrategyDto>(`${this.orgStrategyBase(orgId)}/actual`)),
+    const url = `${this.orgStrategyBase(orgId)}/actual`;
+    return this.http.get<BackendGovernanceStrategyDto>(url).pipe(
       map(d => this.mapStrategyFromBackend(d)),
       catchError(err => {
         if (err?.status === 400 || err?.status === 404) return of(null as any);
@@ -165,8 +140,8 @@ export class OrganizationService {
   createOrgGovernanceStrategy(orgId: string | number, model: Partial<GovernanceStrategy>): Observable<GovernanceStrategy> {
     const payload = this.mapStrategyToBackend(model, orgId);
     delete (payload as any).activa;
-    return this.resolveCollectionUrl().pipe(
-      concatMap(() => this.http.post<BackendGovernanceStrategyDto>(this.orgStrategyBase(orgId), payload, { observe: 'response' })),
+    const url = this.orgStrategyBase(orgId);
+    return this.http.post<BackendGovernanceStrategyDto>(url, payload, { observe: 'response' }).pipe(
       mergeMap((resp: HttpResponse<BackendGovernanceStrategyDto>) => {
         const body = resp.body as BackendGovernanceStrategyDto | undefined;
         if (body) return of(this.mapStrategyFromBackend(body));
@@ -177,13 +152,12 @@ export class OrganizationService {
           })
         );
       })
-    );
-  }
+    ); }
 
   updateOrgGovernanceStrategy(orgId: string | number, strategyId: string | number, model: Partial<GovernanceStrategy>): Observable<GovernanceStrategy> {
     const payload = this.mapStrategyToBackend(model, orgId);
-    return this.resolveCollectionUrl().pipe(
-      concatMap(() => this.http.patch<BackendGovernanceStrategyDto>(`${this.orgStrategyBase(orgId)}/${strategyId}`, payload, { observe: 'response' })),
+    const url = `${this.orgStrategyBase(orgId)}/${strategyId}`;
+    return this.http.patch<BackendGovernanceStrategyDto>(url, payload, { observe: 'response' }).pipe(
       mergeMap((resp: HttpResponse<BackendGovernanceStrategyDto>) => {
         const body = resp.body as BackendGovernanceStrategyDto | undefined;
         if (body) return of(this.mapStrategyFromBackend(body));
@@ -194,20 +168,15 @@ export class OrganizationService {
           })
         );
       })
-    );
-  }
+    ); }
 
   applyOrgGovernanceStrategy(orgId: string | number, strategyId: string | number) {
-    return this.resolveCollectionUrl().pipe(
-      concatMap(() => this.http.post(`${this.orgStrategyBase(orgId)}/${strategyId}/aplicar`, null, { observe: 'response' }))
-    );
-  }
+    const url = `${this.orgStrategyBase(orgId)}/${strategyId}/aplicar`;
+    return this.http.post(url, null, { observe: 'response' }); }
 
   setOrgGovernanceStrategyActive(orgId: string | number, strategyId: string | number, value: boolean) {
-    return this.resolveCollectionUrl().pipe(
-      concatMap(() => this.http.patch(`${this.orgStrategyBase(orgId)}/${strategyId}/activar`, null, { params: { value } as any, observe: 'response' }))
-    );
-  }
+    const url = `${this.orgStrategyBase(orgId)}/${strategyId}/activar`;
+    return this.http.patch(url, null, { params: { value } as any, observe: 'response' }); }
 
   // --- Mapeos ---
   private mapStrategyToBackend(model: Partial<GovernanceStrategy>, orgId: string | number): BackendGovernanceStrategyDto {

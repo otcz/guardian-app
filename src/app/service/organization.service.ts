@@ -303,17 +303,34 @@ export class OrganizationService {
     );
   }
 
-  // Guarda en catálogo y retorna mensaje + estrategia (sin tocar organización)
-  saveOrgGovernanceStrategy(_orgId: string | number | null | undefined, input: Partial<GovernanceStrategy>, _options: SaveStrategyOptions = {}): Observable<SaveStrategyResult> {
+  // Guarda en catálogo o por organización según orgId; retorna mensaje + estrategia
+  saveOrgGovernanceStrategy(orgId: string | number | null | undefined, input: Partial<GovernanceStrategy>, _options: SaveStrategyOptions = {}): Observable<SaveStrategyResult> {
     const model = this.normalizeStrategyInput(input);
     try { this.validateStrategy(model); } catch (e) { return throwError(() => e); }
+
+    // Si hay organización, crear bajo /orgs/{orgId}/estrategias
+    if (orgId != null) {
+      const url = this.orgStrategyBase(orgId);
+      // Mapear a DTO esperado por backend (sin organizacionId en body; va en path)
+      const payload = this.mapStrategyToBackendGlobal(model); // mismos campos; el controlador por org usa estas claves camelCase
+      return this.http.post<any>(url, payload, { headers: this.jsonHeaders() }).pipe(
+        map((resp: any) => {
+          if (resp && resp.success === false) { throw { error: { message: resp.message } }; }
+          const strategy = this.mapStrategyFromBackend(this.unwrapApi(resp));
+          return { strategy, source: 'create', applied: false, activated: !!strategy.activa, message: resp?.message } as SaveStrategyResult;
+        }),
+        catchError((err) => throwError(() => ({ error: { message: (err?.error?.message ?? err?.message) as string | undefined } })))
+      );
+    }
+
+    // Sin organización: crear en catálogo global
     const url = `${environment.apiBase}/catalogos/estrategias`;
     const payload = this.mapStrategyToBackendGlobal(model);
     return this.http.post<any>(url, payload, { headers: this.jsonHeaders() }).pipe(
       map((resp: any) => {
         if (resp && resp.success === false) { throw { error: { message: resp.message } }; }
         const strategy = this.mapStrategyFromBackend(this.unwrapApi(resp));
-        return { strategy, source: 'catalog-create', applied: false, activated: false, message: resp?.message } as SaveStrategyResult;
+        return { strategy, source: 'catalog-create', applied: false, activated: !!strategy.activa, message: resp?.message } as SaveStrategyResult;
       }),
       catchError((err) => throwError(() => ({ error: { message: (err?.error?.message ?? err?.message) as string | undefined } })))
     );

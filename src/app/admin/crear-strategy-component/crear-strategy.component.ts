@@ -72,12 +72,18 @@ export class CrearStrategyComponent implements OnInit {
       return;
     }
 
-    // Guardado independiente de organizaci��n: catálogo global
+    // Ahora la estrategia se guarda asociada a la organización que la crea
+    if (!this.orgId) {
+      this.error = 'No se pudo determinar la organización para asociar la estrategia';
+      this.notify.warn('Organización requerida', 'No se pudo determinar la organización para asociar la estrategia.');
+      return;
+    }
+
     this.error = null; this.success = null; this.infoMessage = null;
     if (this.form.invalid) { this.error = 'Formulario inválido'; this.notify.warn('Formulario inválido', 'Revisa los campos requeridos.'); return; }
     const value = this.form.value as GovernanceStrategy; value.nombre = (value.nombre || '').toString().trim().toUpperCase();
     this.saving = true;
-    this.orgService.saveOrgGovernanceStrategy(null, value).subscribe({
+    this.orgService.saveOrgGovernanceStrategy(this.orgId, value).subscribe({
       next: (res) => {
         this.strategy = res.strategy; this.form.patchValue(res.strategy); this.saving = false;
         this.notify.success('Guardado', res.message);

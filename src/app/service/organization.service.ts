@@ -237,19 +237,69 @@ export class OrganizationService {
   // -------------------- Estrategias por Organización (usado por config) --------------------
   listOrgGovernanceStrategies(orgId: string | number) {
     const url = this.orgStrategyBase(orgId);
-    return this.http.get<any>(url).pipe(map(payload => this.normalizeListResponse(payload).map((d: any) => this.mapStrategyFromBackend(d))));
+    return this.http.get<any>(url, { headers: this.acceptJsonHeaders() }).pipe(
+      map((resp: any) => {
+        if (resp && resp.success === false) { throw { error: { message: resp.message } }; }
+        return this.normalizeListResponse(resp).map((d: any) => this.mapStrategyFromBackend(d));
+      }),
+      catchError(err => throwError(() => ({ error: { message: (err?.error?.message ?? err?.message) as string | undefined } })))
+    );
+  }
+
+  listOrgActiveStrategies(orgId: string | number) {
+    const url = `${this.orgStrategyBase(orgId)}/activas`;
+    return this.http.get<any>(url, { headers: this.acceptJsonHeaders() }).pipe(
+      map((resp: any) => {
+        if (resp && resp.success === false) { throw { error: { message: resp.message } }; }
+        return this.normalizeListResponse(resp).map((d: any) => this.mapStrategyFromBackend(d));
+      }),
+      catchError(err => throwError(() => ({ error: { message: (err?.error?.message ?? err?.message) as string | undefined } })))
+    );
+  }
+
+  getOrgCurrentStrategy(orgId: string | number) {
+    const url = `${this.orgStrategyBase(orgId)}/actual`;
+    return this.http.get<any>(url, { headers: this.acceptJsonHeaders() }).pipe(
+      map((resp: any) => {
+        if (resp && resp.success === false) { throw { error: { message: resp.message }, status: 404 }; }
+        const d = this.unwrapApi(resp);
+        return this.mapStrategyFromBackend(d);
+      })
+    );
   }
 
   setOrgGovernanceStrategyActive(orgId: string | number, strategyId: string | number, value: boolean) {
     const url = `${this.orgStrategyBase(orgId)}/${strategyId}/activar`;
-    return this.http.patch(url, null, { params: { value } as any });
+    return this.http.patch<any>(url, null, { params: { value } as any, headers: this.acceptJsonHeaders() }).pipe(
+      map((resp: any) => {
+        if (resp && resp.success === false) { throw { error: { message: resp.message } }; }
+        const data = this.unwrapApi(resp);
+        return { strategy: data ? this.mapStrategyFromBackend(data) : undefined, message: resp?.message } as { strategy?: GovernanceStrategy; message?: string };
+      }),
+      catchError(err => throwError(() => ({ error: { message: (err?.error?.message ?? err?.message) as string | undefined } })))
+    );
+  }
+
+  applyOrgStrategy(orgId: string | number, strategyId: string | number) {
+    const url = `${this.orgStrategyBase(orgId)}/${strategyId}/aplicar`;
+    return this.http.post<any>(url, null, { headers: this.acceptJsonHeaders() }).pipe(
+      map((resp: any) => {
+        if (resp && resp.success === false) { throw { error: { message: resp.message } }; }
+        return { message: resp?.message } as { message?: string };
+      }),
+      catchError(err => throwError(() => ({ error: { message: (err?.error?.message ?? err?.message) as string | undefined } })))
+    );
   }
 
   // -------------------- Catálogo de Estrategias (global) --------------------
   listCatalogGovernanceStrategies(): Observable<GovernanceStrategy[]> {
     const url = `${environment.apiBase}/catalogos/estrategias`;
     return this.http.get<any>(url, { headers: this.acceptJsonHeaders() }).pipe(
-      map((resp: any) => (this.normalizeListResponse(resp) as any[]).map(d => this.mapStrategyFromBackend(d)))
+      map((resp: any) => {
+        if (resp && resp.success === false) { throw { error: { message: resp.message } }; }
+        return (this.normalizeListResponse(resp) as any[]).map(d => this.mapStrategyFromBackend(d));
+      }),
+      catchError(err => throwError(() => ({ error: { message: (err?.error?.message ?? err?.message) as string | undefined } })))
     );
   }
 

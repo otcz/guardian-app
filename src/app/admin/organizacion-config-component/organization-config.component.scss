@@ -121,3 +121,43 @@
 
 /* Divider más visible */
 .divider { border: 0; height: 1px; background: color-mix(in srgb, var(--border) 70%, transparent); margin: 1rem 0; }
+
+/* Control p-dropdown en modo oscuro: fondo oscuro y texto blanco */
+:host-context(.theme-dark) ::ng-deep .p-dropdown,
+:host-context(.theme-black) ::ng-deep .p-dropdown {
+  background: color-mix(in srgb, var(--surface) 90%, #000) !important;
+  border: 1px solid color-mix(in srgb, var(--border) 70%, transparent) !important;
+}
+:host-context(.theme-dark) ::ng-deep .p-dropdown .p-dropdown-label,
+:host-context(.theme-black) ::ng-deep .p-dropdown .p-dropdown-label {
+  color: #fff !important;
+}
+:host-context(.theme-dark) ::ng-deep .p-dropdown .p-dropdown-trigger-icon,
+:host-context(.theme-black) ::ng-deep .p-dropdown .p-dropdown-trigger-icon,
+:host-context(.theme-dark) ::ng-deep .p-dropdown .p-dropdown-trigger .pi,
+:host-context(.theme-black) ::ng-deep .p-dropdown .p-dropdown-trigger .pi {
+  color: #fff !important;
+  opacity: .95;
+}
+/* Hover/focus sutil en oscuro */
+:host-context(.theme-dark) ::ng-deep .p-dropdown:hover,
+:host-context(.theme-black) ::ng-deep .p-dropdown:hover {
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 18%, transparent);
+}
+:host-context(.theme-dark) ::ng-deep .p-dropdown.p-focus,
+:host-context(.theme-black) ::ng-deep .p-dropdown.p-focus {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 22%, transparent);
+}
+
+/* Descripción en blanco en tema oscuro (selección y panel) */
+:host-context(.theme-dark) .opt-desc,
+:host-context(.theme-black) .opt-desc { color: #fff !important; opacity: .9; }
+:host-context(.theme-dark) ::ng-deep .p-dropdown-panel .opt-desc,
+:host-context(.theme-black) ::ng-deep .p-dropdown-panel .opt-desc { color: #fff !important; opacity: .9; }
+
+/* Filtro en header del panel (PrimeNG 18) */
+:host ::ng-deep .p-dropdown-header .p-inputtext,
+:host ::ng-deep .p-dropdown-filter { background: color-mix(in srgb, var(--surface) 88%, #000) !important; color: #fff !important; border: 1px solid color-mix(in srgb, var(--border) 70%, transparent) !important; }
+:host ::ng-deep .p-dropdown-header .p-inputtext:focus,
+:host ::ng-deep .p-dropdown-filter:focus { box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 22%, transparent) !important; outline: none !important; }
+:host ::ng-deep .p-dropdown-filter-icon { color: #fff !important; opacity: .9; }

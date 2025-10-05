@@ -607,3 +607,91 @@ body .p-toast .p-toast-message-info {
 
 /* Posiciones: top-center ya se setea desde el componente */
 /* Fin Toast overrides */
+
+/* === Overrides globales para p-dropdown en temas oscuros (panel) === */
+:root.theme-dark body .p-dropdown-panel,
+:root.theme-black body .p-dropdown-panel {
+  background: color-mix(in srgb, var(--surface) 92%, #000) !important;
+  border: 1px solid color-mix(in srgb, var(--border) 70%, transparent) !important;
+  color: #fff !important;
+}
+:root.theme-dark body .p-dropdown-panel .p-dropdown-header,
+:root.theme-black body .p-dropdown-panel .p-dropdown-header {
+  background: color-mix(in srgb, var(--surface) 92%, #000) !important;
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 70%, transparent) !important;
+}
+:root.theme-dark body .p-dropdown-panel .p-dropdown-header .p-inputtext,
+:root.theme-black body .p-dropdown-panel .p-dropdown-header .p-inputtext,
+:root.theme-dark body .p-dropdown-panel .p-dropdown-filter,
+:root.theme-black body .p-dropdown-panel .p-dropdown-filter {
+  background: color-mix(in srgb, var(--surface) 88%, #000) !important;
+  color: #fff !important;
+  border: 1px solid color-mix(in srgb, var(--border) 70%, transparent) !important;
+}
+:root.theme-dark body .p-dropdown-panel .p-dropdown-header .p-inputtext::placeholder,
+:root.theme-black body .p-dropdown-panel .p-dropdown-header .p-inputtext::placeholder { color: #fff !important; opacity: .75; }
+:root.theme-dark body .p-dropdown-panel .p-dropdown-filter-icon,
+:root.theme-black body .p-dropdown-panel .p-dropdown-filter-icon { color: #fff !important; opacity: .9; }
+
+:root.theme-dark body .p-dropdown-panel .p-dropdown-items,
+:root.theme-black body .p-dropdown-panel .p-dropdown-items { background: transparent !important; }
+:root.theme-dark body .p-dropdown-panel .p-dropdown-item,
+:root.theme-black body .p-dropdown-panel .p-dropdown-item { color: #fff !important; }
+:root.theme-dark body .p-dropdown-panel .p-dropdown-item.p-highlight,
+:root.theme-black body .p-dropdown-panel .p-dropdown-item.p-highlight { background: color-mix(in srgb, var(--primary) 22%, transparent) !important; }
+:root.theme-dark body .p-dropdown-panel .p-dropdown-item:not(.p-highlight):hover,
+:root.theme-black body .p-dropdown-panel .p-dropdown-item:not(.p-highlight):hover { background: color-mix(in srgb, var(--primary) 16%, transparent) !important; }
+/* === Fin overrides dropdown oscuro === */
+
+/* Refuerzo contenedores internos del panel (evitar fondos blancos residuales) */
+:root.theme-dark body .p-dropdown-panel .p-dropdown-content,
+:root.theme-black body .p-dropdown-panel .p-dropdown-content,
+:root.theme-dark body .p-dropdown-panel .p-dropdown-items-wrapper,
+:root.theme-black body .p-dropdown-panel .p-dropdown-items-wrapper { background: color-mix(in srgb, var(--surface) 92%, #000) !important; }
+
+/* === Overrides globales para p-select-overlay en temas oscuros === */
+:root.theme-dark body .p-select-overlay,
+:root.theme-black body .p-select-overlay {
+  background: color-mix(in srgb, var(--surface) 92%, #000) !important;
+  border: 1px solid color-mix(in srgb, var(--border) 70%, transparent) !important;
+  color: #fff !important;
+}
+:root.theme-dark body .p-select-overlay .p-select-header,
+:root.theme-black body .p-select-overlay .p-select-header {
+  background: color-mix(in srgb, var(--surface) 92%, #000) !important;
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 70%, transparent) !important;
+}
+:root.theme-dark body .p-select-overlay .p-inputtext,
+:root.theme-black body .p-select-overlay .p-inputtext,
+:root.theme-dark body .p-select-overlay .p-select-filter,
+:root.theme-black body .p-select-overlay .p-select-filter {
+  background: color-mix(in srgb, var(--surface) 88%, #000) !important;
+  color: #fff !important;
+  border: 1px solid color-mix(in srgb, var(--border) 70%, transparent) !important;
+}
+:root.theme-dark body .p-select-overlay .p-inputtext::placeholder,
+:root.theme-black body .p-select-overlay .p-inputtext::placeholder { color: #fff !important; opacity: .75; }
+:root.theme-dark body .p-select-overlay .p-select-filter-icon,
+:root.theme-black body .p-select-overlay .p-select-filter-icon { color: #fff !important; opacity: .9; }
+
+:root.theme-dark body .p-select-overlay .p-select-items,
+:root.theme-black body .p-select-overlay .p-select-items,
+:root.theme-dark body .p-select-overlay .p-select-items-wrapper,
+:root.theme-black body .p-select-overlay .p-select-items-wrapper { background: transparent !important; }
+
+/* Cubrir tanto nomenclatura antigua (.p-select-item) como nueva (.p-select-option) */
+:root.theme-dark body .p-select-overlay .p-select-item,
+:root.theme-black body .p-select-overlay .p-select-item,
+:root.theme-dark body .p-select-overlay .p-select-option,
+:root.theme-black body .p-select-overlay .p-select-option { color: #fff !important; }
+
+:root.theme-dark body .p-select-overlay .p-select-item.p-highlight,
+:root.theme-black body .p-select-overlay .p-select-item.p-highlight,
+:root.theme-dark body .p-select-overlay .p-select-option.p-highlight,
+:root.theme-black body .p-select-overlay .p-select-option.p-highlight { background: color-mix(in srgb, var(--primary) 22%, transparent) !important; }
+
+:root.theme-dark body .p-select-overlay .p-select-item:not(.p-highlight):hover,
+:root.theme-black body .p-select-overlay .p-select-item:not(.p-highlight):hover,
+:root.theme-dark body .p-select-overlay .p-select-option:not(.p-highlight):hover,
+:root.theme-black body .p-select-overlay .p-select-option:not(.p-highlight):hover { background: color-mix(in srgb, var(--primary) 16%, transparent) !important; }
+/* === Fin overrides p-select-overlay oscuro === */

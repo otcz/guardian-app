@@ -11,6 +11,7 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { forkJoin, Observable } from 'rxjs';
 import { OrganizationService, GovernanceStrategy, Organization } from '../../service/organization.service';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-organization-config',
@@ -26,7 +27,11 @@ export class OrganizationConfigComponent implements OnInit {
   error: string | null = null;
   success: string | null = null;
 
-  strategies: GovernanceStrategy[] = [];
+  // Catálogo global (para seleccionar la vigente)
+  catalogStrategies: GovernanceStrategy[] = [];
+  // Estrategias propias de la organización (para habilitar/deshabilitar)
+  orgStrategies: GovernanceStrategy[] = [];
+
   // Vigente (única)
   selectedStrategyId: string | null = null;
   selectedStrategy: GovernanceStrategy | null = null;
@@ -39,7 +44,8 @@ export class OrganizationConfigComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private orgSvc: OrganizationService
+    private orgSvc: OrganizationService,
+    private messageService: MessageService
   ) {}
 
   ngOnInit(): void {
@@ -49,7 +55,7 @@ export class OrganizationConfigComponent implements OnInit {
     this.loadAll();
   }
 
-  private loadAll() {
+  private loadAll()   {
     this.loading = true; this.error = null; this.success = null;
     this.orgSvc.get(this.orgId).subscribe({
       next: (o: Organization) => {
@@ -62,56 +68,56 @@ export class OrganizationConfigComponent implements OnInit {
   }
 
   private loadStrategies() {
-    this.orgSvc.listOrgGovernanceStrategies(this.orgId).subscribe({
-      next: (list: GovernanceStrategy[]) => {
-        this.strategies = list || [];
-        this.activeIds = (this.strategies.filter(s => !!s.activa).map(s => s.id!).filter(Boolean) as string[]);
+    // Cargar catálogo global y estrategias de la organización en paralelo
+    forkJoin({
+      catalog: this.orgSvc.listCatalogGovernanceStrategies(),
+      byOrg: this.orgSvc.listOrgGovernanceStrategies(this.orgId)
+    }).subscribe({
+      next: ({ catalog, byOrg }) => {
+        this.catalogStrategies = catalog || [];
+        this.orgStrategies = byOrg || [];
+        // Active IDs provienen de byOrg
+        this.activeIds = (this.orgStrategies.filter(s => !!s.activa).map(s => s.id!).filter(Boolean) as string[]);
+        // Si no hay vigente seleccionada aún, intenta usar la de la org o primera del catálogo
         if (!this.selectedStrategyId) {
-          this.selectedStrategyId = this.org?.id_estrategia_gobernanza || this.activeIds[0] || null;
+          this.selectedStrategyId = this.org?.id_estrategia_gobernanza || (this.catalogStrategies[0]?.id ?? null);
         }
         this.onStrategyChange();
         this.loading = false;
       },
       error: (e: any) => {
-        // Fallback: listar desde catálogo global si el endpoint por organización no existe o devuelve 400/404
-        const status = e?.status ?? 0;
-        if (status === 400 || status === 404) {
-          this.orgSvc.listCatalogGovernanceStrategies().subscribe({
-            next: (list: GovernanceStrategy[]) => {
-              this.strategies = list || [];
-              // en catálogo no hay flags de activa por org; dejamos activeIds vacíos
-              this.activeIds = [];
-              if (!this.selectedStrategyId) {
-                this.selectedStrategyId = this.org?.id_estrategia_gobernanza || null;
-              }
-              this.onStrategyChange();
-              this.loading = false;
-            },
-            error: (e2: any) => {
-              this.error = e2?.error?.message || 'No se pudieron cargar estrategias';
-              this.loading = false;
-            }
-          });
-        } else {
-          this.error = e?.error?.message || 'No se pudo cargar estrategias';
-          this.loading = false;
-        }
+        // Si falla cualquiera, intentar al menos catálogo global para permitir selección
+        this.orgSvc.listCatalogGovernanceStrategies().subscribe({
+          next: (catalog) => {
+            this.catalogStrategies = catalog || [];
+            if (!this.selectedStrategyId) this.selectedStrategyId = this.org?.id_estrategia_gobernanza || (this.catalogStrategies[0]?.id ?? null);
+            this.onStrategyChange();
+            this.loading = false;
+          },
+          error: (e2) => { this.error = e2?.error?.message || 'No se pudieron cargar estrategias'; this.loading = false; }
+        });
       }
     });
   }
 
   onStrategyChange() {
-    this.selectedStrategy = (this.strategies || []).find(s => s.id === this.selectedStrategyId) || null;
+    this.selectedStrategy = (this.catalogStrategies || []).find(s => s.id === this.selectedStrategyId) || null;
   }
 
   // Guardar vigente (FK id_estrategia_gobernanza)
   saveVigente() {
-    if (!this.selectedStrategyId) { this.error = 'Seleccione una estrategia'; return; }
+    if (!this.selectedStrategyId) { this.error = 'Seleccione una estrategia'; this.messageService.add({ severity: 'warn', summary: 'Validación', detail: 'Seleccione una estrategia', life: 3500 }); return; }
     this.savingVigente = true; this.error = null; this.success = null;
-    // Guardar directamente en organización (patch)
-    this.orgSvc.update(this.orgId, { estrategia: this.selectedStrategyId } as any).subscribe({
-      next: (o: Organization) => { this.org = o; this.success = 'Estrategia vigente guardada'; this.savingVigente = false; },
-      error: (e: any) => { this.error = e?.error?.message || 'No se pudo guardar la estrategia'; this.savingVigente = false; }
+    // Aplicar como actual vía endpoint dedicado (POST /aplicar)
+    this.orgSvc.applyOrgStrategy(this.orgId, this.selectedStrategyId).subscribe({
+      next: (res) => {
+        const msg = res?.message || 'Estrategia aplicada correctamente';
+        this.success = msg;
+        this.messageService.add({ severity: 'success', summary: 'Aplicada', detail: msg, life: 3500 });
+        // Refrescar organización para reflejar vigente
+        this.orgSvc.get(this.orgId).subscribe({ next: (o) => { this.org = o; this.savingVigente = false; }, error: () => { this.savingVigente = false; } });
+      },
+      error: (e: any) => { const msg = e?.error?.message || 'No se pudo aplicar la estrategia'; this.error = msg; this.messageService.add({ severity: 'error', summary: 'Error', detail: msg, life: 4500 }); this.savingVigente = false; }
     });
   }
 
@@ -120,7 +126,7 @@ export class OrganizationConfigComponent implements OnInit {
     this.savingActivas = true; this.error = null; this.success = null;
     const desired = new Set(this.activeIds || []);
     const ops: Observable<any>[] = [];
-    for (const s of this.strategies) {
+    for (const s of this.orgStrategies) {
       if (!s.id) continue;
       const shouldBe = desired.has(s.id);
       if (!!s.activa !== shouldBe) {
@@ -128,12 +134,22 @@ export class OrganizationConfigComponent implements OnInit {
       }
     }
     if (ops.length === 0) {
-      this.success = 'No hay cambios en estrategias habilitadas';
-      this.savingActivas = false; return;
+      const msg = 'No hay cambios en estrategias habilitadas';
+      this.success = msg; this.savingActivas = false;
+      this.messageService.add({ severity: 'info', summary: 'Sin cambios', detail: msg, life: 3000 });
+      return;
     }
     forkJoin(ops).subscribe({
-      next: () => { this.success = 'Estrategias habilitadas actualizadas'; this.savingActivas = false; this.loadStrategies(); },
-      error: (e: any) => { this.error = e?.error?.message || 'No se pudieron actualizar las estrategias habilitadas'; this.savingActivas = false; }
+      next: () => {
+        const msg = 'Estrategias habilitadas actualizadas';
+        this.success = msg; this.savingActivas = false; this.messageService.add({ severity: 'success', summary: 'Actualizado', detail: msg, life: 3500 });
+        // recargar solo estrategias por org para actualizar estados
+        this.orgSvc.listOrgGovernanceStrategies(this.orgId).subscribe({
+          next: (byOrg) => { this.orgStrategies = byOrg || []; this.activeIds = (this.orgStrategies.filter(s => !!s.activa).map(s => s.id!).filter(Boolean) as string[]); },
+          error: () => {}
+        });
+      },
+      error: (e: any) => { const msg = e?.error?.message || 'No se pudieron actualizar las estrategias habilitadas'; this.error = msg; this.messageService.add({ severity: 'error', summary: 'Error', detail: msg, life: 4500 }); this.savingActivas = false; }
     });
   }
 

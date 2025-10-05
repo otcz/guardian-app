@@ -11,9 +11,6 @@
     <button pButton type="button" icon="pi pi-arrow-left" label="Volver" class="p-button-text" (click)="back()"></button>
   </div>
 
-  <p-message *ngIf="error" severity="error" [text]="error"></p-message>
-  <p-message *ngIf="success" severity="success" [text]="success"></p-message>
-
   <div class="grid">
     <p-card class="card strategy-card">
       <div class="card-header"><h3>Estrategia de Gobernanza</h3></div>
@@ -22,7 +19,7 @@
       <div class="field">
         <label for="estrategiaVigente">Estrategia vigente</label>
         <p-dropdown id="estrategiaVigente"
-                    [options]="strategies"
+                    [options]="catalogStrategies"
                     optionLabel="nombre"
                     optionValue="id"
                     [(ngModel)]="selectedStrategyId"
@@ -30,6 +27,7 @@
                     [filter]="true"
                     filterBy="nombre,descripcion"
                     [showClear]="true"
+                    [appendTo]="'self'"
                     filterPlaceholder="Buscar estrategia..."
                     placeholder="Seleccione una estrategia">
           <ng-template pTemplate="selectedItem" let-s>
@@ -71,37 +69,6 @@
           </div>
         </div>
         <div class="kv"><span>Alcance Ingresos</span><b>{{ s.alcance_ingresos }}</b></div>
-      </div>
-
-      <hr class="divider" />
-
-      <!-- Estrategias habilitadas (múltiples) -->
-      <div class="field">
-        <label for="estrategiasActivas">Estrategias habilitadas (múltiples)</label>
-        <p-multiSelect id="estrategiasActivas"
-                       [options]="strategies"
-                       optionLabel="nombre"
-                       optionValue="id"
-                       [(ngModel)]="activeIds"
-                       defaultLabel="Seleccione estrategias"
-                       [filter]="true"
-                       filterBy="nombre,descripcion"
-                       display="chip">
-          <ng-template pTemplate="chip" let-s>
-            <span class="chip-item">{{ s?.nombre }}<ng-container *ngIf="s?.descripcion"> - {{ s.descripcion }}</ng-container></span>
-          </ng-template>
-          <ng-template pTemplate="item" let-s>
-            <div class="opt-item">
-              <span class="opt-title">{{ s.nombre }}</span>
-              <span class="opt-sep" *ngIf="s.descripcion"> - </span>
-              <span class="opt-desc" *ngIf="s.descripcion">{{ s.descripcion }}</span>
-            </div>
-          </ng-template>
-        </p-multiSelect>
-        <div class="actions">
-          <button pButton type="button" label="Guardar habilitadas" icon="pi pi-check-square" class="p-button-secondary" (click)="saveActivas()" [disabled]="savingActivas"></button>
-        </div>
-        <small class="hint">Las habilitadas pueden convivir como variantes; la vigente (arriba) es la que se aplica por defecto para la organización.</small>
       </div>
 
     </p-card>

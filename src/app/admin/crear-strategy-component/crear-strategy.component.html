@@ -1,4 +1,3 @@
-
 <p-card class="strategy-card" *ngIf="!loading; else loadingTpl">
   <!-- Banner informativo si no existe estrategia cargada -->
   <div *ngIf="!strategy && !error && !success" class="info-banner">
@@ -47,12 +46,14 @@
           {key:'gestiona_vehiculos_locales', label:'Gestiona Vehículos Locales'},
           {key:'asigna_permisos_directos', label:'Asigna Permisos Directos'}
         ]">
-        <p-inputSwitch [inputId]="field.key" [formControlName]="field.key"></p-inputSwitch>
-        <label [for]="field.key">{{ field.label }}</label>
+        <input type="checkbox" class="ui-switch-input" [id]="field.key" [formControlName]="field.key" />
+        <label class="ui-switch" [attr.for]="field.key"><span class="slider"></span></label>
+        <label class="toggle-text" [for]="field.key">{{ field.label }}</label>
       </div>
       <div class="toggle-item">
-        <p-inputSwitch inputId="activa" formControlName="activa"></p-inputSwitch>
-        <label for="activa">Activa</label>
+        <input type="checkbox" class="ui-switch-input" id="activa" formControlName="activa" />
+        <label class="ui-switch" for="activa"><span class="slider"></span></label>
+        <label class="toggle-text" for="activa">Activa</label>
       </div>
     </div>
 

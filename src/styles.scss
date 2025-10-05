@@ -552,3 +552,22 @@ a:hover { text-decoration: underline; }
 :root.theme-dark .p-paginator .p-paginator-page.p-highlight,
 :root.theme-black .p-paginator .p-paginator-page.p-highlight { background: color-mix(in srgb, var(--primary) 25%, var(--surface)) !important; color: var(--text) !important; }
 
+/* ===== REFORZADO: tamaños y colores del InputSwitch con !important ===== */
+.p-inputswitch .p-inputswitch-slider { width: 42px !important; height: 22px !important; }
+.p-inputswitch .p-inputswitch-handle { transform: none !important; }
+:root.theme-dark .toggle-item .p-inputswitch .p-inputswitch-slider {
+  background: #3a3d44 !important; /* OFF en dark */
+  background-color: #3a3d44 !important;
+  border-color: #555a65 !important;
+}
+:root.theme-dark .toggle-item .p-inputswitch.p-inputswitch-checked .p-inputswitch-slider {
+  background: color-mix(in srgb, var(--success) 72%, var(--surface) 28%) !important;
+  background-color: color-mix(in srgb, var(--success) 72%, var(--surface) 28%) !important;
+  border-color: color-mix(in srgb, var(--success) 70%, var(--border)) !important;
+}
+:root.theme-light .toggle-item .p-inputswitch .p-inputswitch-slider {
+  background: #f3f4f6 !important; /* OFF en light */
+  background-color: #f3f4f6 !important;
+  border-color: rgba(0,0,0,.12) !important;
+}
+/* ===================================================================== */

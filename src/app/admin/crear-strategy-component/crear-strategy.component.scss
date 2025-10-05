@@ -95,7 +95,16 @@ select:focus, textarea:focus {
   transition: background .2s ease, box-shadow .2s ease, border-color .2s ease;
 }
 :host ::ng-deep .p-inputswitch .p-inputswitch-slider:before {
-  background: #ffffff; /* knob claro para buen contraste */
+  content: "" !important;
+  display: block !important;
+  width: 18px;
+  height: 18px;
+  top: 2px;
+  left: 2px !important;
+  transform: none !important;
+  border-radius: 999px;
+  background: #ffffff;
+  box-shadow: 0 0 0 1px rgba(0,0,0,.35), 0 1px 2px rgba(0,0,0,.35);
 }
 :host ::ng-deep .p-inputswitch:not(.p-disabled):hover .p-inputswitch-slider {
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 18%, transparent);
@@ -120,12 +129,14 @@ select:focus, textarea:focus {
   width: 18px;
   height: 18px;
   top: 2px;
-  left: 2px;
+  left: 2px !important;
   transform: none !important; /* evitar transform acumulados del tema */
   border-radius: 999px;
+  background: #ffffff;
+  box-shadow: 0 0 0 1px rgba(0,0,0,.35), 0 1px 2px rgba(0,0,0,.35);
 }
 :host ::ng-deep .p-inputswitch.p-inputswitch-checked .p-inputswitch-slider:before {
-  left: calc(100% - 20px);
+  left: calc(100% - 20px) !important;
 }
 
 /* En tema claro, mantener un contraste suave (no gris oscuro) */
@@ -169,3 +180,22 @@ select:focus, textarea:focus {
   border-color: color-mix(in srgb, var(--success) 70%, var(--border));
 }
 
+/* ===== Switch personalizado (independiente de Prime) ===== */
+.ui-switch-input { position: absolute; opacity: 0; width: 0; height: 0; }
+.ui-switch { position: relative; flex: 0 0 42px; width: 42px; height: 22px; cursor: pointer; }
+.ui-switch .slider { position: absolute; inset: 0; border-radius: 999px; border: 1px solid rgba(255,255,255,.18); background: #3a3d44; transition: background .2s ease, border-color .2s ease, box-shadow .2s ease; }
+.ui-switch .slider::after { content: ""; position: absolute; width: 18px; height: 18px; top: 2px; left: 2px; border-radius: 999px; background: #fff; box-shadow: 0 0 0 1px rgba(0,0,0,.35), 0 1px 2px rgba(0,0,0,.35); transition: left .2s ease; }
+.ui-switch-input:checked + .ui-switch .slider { background: color-mix(in srgb, var(--success) 72%, var(--surface) 28%); border-color: color-mix(in srgb, var(--success) 70%, var(--border)); }
+.ui-switch-input:checked + .ui-switch .slider::after { left: calc(100% - 20px); }
+/* Focus/hover */
+.ui-switch-input:focus-visible + .ui-switch .slider { box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 28%, transparent); }
+.ui-switch:hover .slider { box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 16%, transparent); }
+/* Tema claro: track más claro */
+:host-context(.theme-light) .ui-switch .slider { background: #f3f4f6; border-color: rgba(0,0,0,.12); }
+/* Texto al lado del switch */
+.toggle-text { margin-left: .1rem; color: var(--text); }
+:host-context(.theme-dark) .toggle-text,
+:host-context(.theme-black) .toggle-text { color: #fff; }
+/* Deshabilitado si el control está disabled (Angular lo aplica al input) */
+.ui-switch-input:disabled + .ui-switch { cursor: not-allowed; opacity: .6; }
+/* ===== fin switch personalizado ===== */

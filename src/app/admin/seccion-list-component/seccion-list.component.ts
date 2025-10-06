@@ -192,20 +192,52 @@ export class SeccionListComponent implements OnInit, OnDestroy {
     if (!this.orgId || !row.id) return;
     this.confirm.confirm({
       header: 'Confirmación',
-      message: `¿Eliminar la sección "${row.nombre}"? (se marcará como INACTIVA)`,
+      message: `¿Eliminar permanentemente la sección "${row.nombre}"?`,
       icon: 'pi pi-exclamation-triangle',
       acceptLabel: 'Sí, eliminar',
       rejectLabel: 'Cancelar',
       accept: () => {
-        this.svc.changeState(this.orgId!, row.id, 'INACTIVA').subscribe({
+        this.saving = true;
+        this.svc.delete(this.orgId!, row.id).subscribe({
           next: (res) => {
-            const idx = this.items.findIndex(i => i.id === row.id);
-            if (idx >= 0) this.items[idx] = { ...this.items[idx], ...res.seccion };
-            this.applyFilter();
-            this.toastSuccess('Sección eliminada', res.message || 'Se marcó como INACTIVA');
+            if (res?.soft) {
+              // Baja lógica: mantener fila y actualizar estado/devueltos
+              const idx = this.items.findIndex(i => i.id === row.id);
+              if (idx >= 0) this.items[idx] = { ...this.items[idx], ...(res.seccion || {} as any) };
+              this.applyFilter();
+              this.saving = false;
+              this.toastSuccess('Sección inactivada', res?.message || 'Se marcó como INACTIVA');
+            } else {
+              // Eliminación real: remover fila
+              this.items = this.items.filter(i => i.id !== row.id);
+              this.applyFilter();
+              this.saving = false;
+              this.toastSuccess('Sección eliminada', res?.message || 'Eliminada correctamente');
+            }
           },
-          error: (e) => this.toastError('Error', e?.error?.message || 'No se pudo eliminar la sección')
+          error: (e) => { this.saving = false; this.toastError('Error', e?.error?.message || 'No se pudo eliminar la sección'); }
         });
+      }
+    });
+  }
+
+  onToggleEstado(row: SeccionEntity, checked: boolean) {
+    if (!this.orgId) return;
+    const estadoTarget = checked ? 'ACTIVA' : 'INACTIVA';
+    const prev = row.estado;
+    // Optimista
+    row.estado = estadoTarget;
+    this.svc.changeState(this.orgId, row.id, estadoTarget).subscribe({
+      next: (res) => {
+        const idx = this.items.findIndex(i => i.id === row.id);
+        if (idx >= 0) this.items[idx] = { ...this.items[idx], ...res.seccion };
+        this.applyFilter();
+        this.toastSuccess('Estado actualizado', res.message || `Se marcó como ${estadoTarget}`);
+      },
+      error: (e) => {
+        // Revertir optimismo
+        row.estado = prev;
+        this.toastError('Error', e?.error?.message || 'No se pudo cambiar el estado');
       }
     });
   }

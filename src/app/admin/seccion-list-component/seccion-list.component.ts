@@ -232,12 +232,12 @@ export class SeccionListComponent implements OnInit, OnDestroy {
         const idx = this.items.findIndex(i => i.id === row.id);
         if (idx >= 0) this.items[idx] = { ...this.items[idx], ...res.seccion };
         this.applyFilter();
-        this.toastSuccess('Estado actualizado', res.message || `Se marcó como ${estadoTarget}`);
+        this.toastSuccess('ESTADO ACTUALIZADO', res.message || `SE MARCÓ COMO ${estadoTarget}`);
       },
       error: (e) => {
         // Revertir optimismo
         row.estado = prev;
-        this.toastError('Error', e?.error?.message || 'No se pudo cambiar el estado');
+        this.toastError('Error', e?.error?.message || 'NO SE PUDO CAMBIAR EL ESTADO');
       }
     });
   }
@@ -249,22 +249,34 @@ export class SeccionListComponent implements OnInit, OnDestroy {
         const idx = this.items.findIndex(i => i.id === row.id);
         if (idx >= 0) this.items[idx] = { ...this.items[idx], ...res.seccion };
         this.applyFilter();
-        this.toastSuccess('Sección reactivada', res.message || 'Se marcó como ACTIVA');
+        this.toastSuccess('SECCIÓN REACTIVADA', res.message || 'SE MARCÓ COMO ACTIVA');
       },
-      error: (e) => this.toastError('Error', e?.error?.message || 'No se pudo reactivar la sección')
+      error: (e) => this.toastError('Error', e?.error?.message || 'NO SE PUDO REACTIVAR LA SECCIÓN')
     });
   }
 
   // Utils
   validate(model: SeccionEntity): string | null {
-    if (!model.nombre || model.nombre.trim().length < 3) return 'El nombre es requerido (mín. 3 caracteres)';
-    if (model.descripcion && model.descripcion.length > 160) return 'La descripción excede 160 caracteres';
+    if (!model.nombre || model.nombre.trim().length < 3) return 'EL NOMBRE ES REQUERIDO (MÍN. 3 CARACTERES))';
+    if (model.descripcion && model.descripcion.length > 160) return 'LA DESCRIPCIÓN EXCEDE 160 CARACTERES';
     return null;
   }
   flash(id: string) { this.flashRowId = id; setTimeout(() => this.flashRowId = null, 1200); }
-  toastSuccess(summary: string, detail?: string) { this.messages.add({ severity: 'success', summary, detail, life: 3500 }); }
-  toastWarn(summary: string, detail?: string) { this.messages.add({ severity: 'warn', summary, detail, life: 3500 }); }
-  toastError(summary: string, detail?: string) { this.messages.add({ severity: 'error', summary, detail, life: 4500 }); }
+  toastSuccess(summary: string, detail?: string) {
+    const s = (summary || '').toString().toUpperCase();
+    const d = (detail || '').toString().toUpperCase();
+    this.messages.add({ severity: 'success', summary: s, detail: d, life: 3500 });
+  }
+  toastWarn(summary: string, detail?: string) {
+    const s = (summary || '').toString().toUpperCase();
+    const d = (detail || '').toString().toUpperCase();
+    this.messages.add({ severity: 'warn', summary: s, detail: d, life: 3500 });
+  }
+  toastError(summary: string, detail?: string) {
+    const s = (summary || '').toString().toUpperCase();
+    const d = (detail || '').toString().toUpperCase();
+    this.messages.add({ severity: 'error', summary: s, detail: d, life: 4500 });
+  }
 
   get rows(): SeccionEntity[] {
     return this.adding ? [this.newDraft, ...this.filtered] : this.filtered;

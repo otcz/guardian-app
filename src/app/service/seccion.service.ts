@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
-import { catchError, map, switchMap } from 'rxjs/operators';
+import { catchError, map } from 'rxjs/operators';
 import { environment } from '../config/environment';
 
 export interface SeccionEntity {
@@ -126,72 +126,28 @@ export class SeccionService {
 
     const mapResp = (resp: ApiResponse<any>) => {
       if (!resp || resp.success === false) {
-        throw { error: { message: resp?.message || 'No se pudo actualizar el estado de la sección' }, status: 400 };
+        throw { error: { message: resp?.message || 'NO SE PUDO ACTUALIZAR EL ESTADO DE LA SECCIÓN' }, status: 400 };
       }
       const d = (resp.data || {}) as any;
-      const nombre = d?.nombre != null ? String(d.nombre) : undefined;
-      const seccion: any = { id: String(d.id ?? seccionId) };
-      if (nombre != null) seccion.nombre = nombre;
-      const boolEstado = (typeof d.activo === 'boolean' ? d.activo : (typeof d.activa === 'boolean' ? d.activa : undefined));
-      const estadoFinal = d.estado || (boolEstado === true ? 'ACTIVA' : (boolEstado === false ? 'INACTIVA' : estado));
-      seccion.estado = estadoFinal;
-      if (d.descripcion !== undefined) seccion.descripcion = d.descripcion || undefined;
-      if (d.autonomiaConfigurada !== undefined) seccion.autonomiaConfigurada = !!d.autonomiaConfigurada;
-      if (d.seccionPadreId !== undefined || d.idSeccionPadre !== undefined) seccion.seccionPadreId = d.seccionPadreId ?? d.idSeccionPadre ?? null;
-      return { seccion: seccion as SeccionEntity, message: resp.message };
+      const seccion: SeccionEntity = {
+        id: String(d.id ?? seccionId),
+        nombre: (d?.nombre != null ? String(d.nombre) : undefined) as any,
+        descripcion: d.descripcion || undefined,
+        estado: (d.estado || estado) as string,
+        autonomiaConfigurada: d.autonomiaConfigurada != null ? !!d.autonomiaConfigurada : undefined,
+        seccionPadreId: d.seccionPadreId ?? d.idSeccionPadre ?? null
+      } as SeccionEntity;
+      return { seccion, message: resp.message };
     };
 
-    const headersJson = { headers: this.json } as const;
-    const headersAccept = { headers: this.accept } as const;
-    const estadoAlt = estado === 'ACTIVA' ? 'ACTIVO' : 'INACTIVO';
-    const activaBool = estado === 'ACTIVA';
+    const options = { headers: this.accept, params: { estado } as any } as const;
 
-    // 1) body estado (ACTIVA/INACTIVA)
-    return this.http.patch<ApiResponse<any>>(url, { estado } as any, headersJson).pipe(
+    return this.http.patch<ApiResponse<any>>(url, null, options).pipe(
       map(mapResp),
-      catchError((err1) => {
-        // 2) query param estado
-        return this.http.patch<ApiResponse<any>>(url, null, { ...headersAccept, params: { estado } as any }).pipe(
-          map(mapResp),
-          catchError((err2) => {
-            // 3) query param value
-            return this.http.patch<ApiResponse<any>>(url, null, { ...headersAccept, params: { value: estado } as any }).pipe(
-              map(mapResp),
-              catchError((err3) => {
-                // 4) body estado variante (ACTIVO/INACTIVO)
-                return this.http.patch<ApiResponse<any>>(url, { estado: estadoAlt } as any, headersJson).pipe(
-                  map(mapResp),
-                  catchError((err4) => {
-                    // 5) query param estado variante
-                    return this.http.patch<ApiResponse<any>>(url, null, { ...headersAccept, params: { estado: estadoAlt } as any }).pipe(
-                      map(mapResp),
-                      catchError((err5) => {
-                        // 6) host fallback + body estado normal
-                        return this.http.patch<ApiResponse<any>>(urlFallback, { estado } as any, headersJson).pipe(
-                          map(mapResp),
-                          catchError((err6) => {
-                            // 7) activa/activo (boolean)
-                            return this.http.patch<ApiResponse<any>>(url, { activa: activaBool } as any, headersJson).pipe(
-                              map(mapResp),
-                              catchError((err7) => this.http.patch<ApiResponse<any>>(url, { activo: activaBool } as any, headersJson).pipe(
-                                map(mapResp),
-                                catchError((err8) => this.http.patch<ApiResponse<any>>(urlFallback, { activa: activaBool } as any, headersJson).pipe(
-                                  map(mapResp),
-                                  catchError((eFinal) => throwError(() => ({ error: { message: err1?.error?.message || err2?.error?.message || err3?.error?.message || err4?.error?.message || err5?.error?.message || err6?.error?.message || err7?.error?.message || err8?.error?.message || eFinal?.error?.message || 'No se pudo cambiar el estado de la sección' }, status: eFinal?.status ?? err8?.status ?? err7?.status ?? err6?.status ?? err5?.status ?? err4?.status ?? err3?.status ?? err2?.status ?? err1?.status })))
-                                ))
-                              ))
-                            );
-                          })
-                        );
-                      })
-                    );
-                  })
-                );
-              })
-            );
-          })
-        );
-      })
+      catchError((e1) => this.http.patch<ApiResponse<any>>(urlFallback, null, options).pipe(
+        map(mapResp),
+        catchError((e2) => throwError(() => ({ error: { message: e1?.error?.message || e2?.error?.message || 'NO SE PUDO CAMBIAR EL ESTADO DE LA SECCIÓN' }, status: e2?.status ?? e1?.status })))
+      ))
     );
   }
 
@@ -200,64 +156,28 @@ export class SeccionService {
     const url = `${this.base}${basePath}`;
     const urlFallback = `${environment.backendHost}${this.base}${basePath}`;
 
-    const parseOk = (resp: any) => {
-      if (resp && typeof resp === 'object' && 'success' in resp) {
-        if ((resp as any).success === false) {
-          throw { error: { message: (resp as any).message || 'No se pudo eliminar la sección' }, status: 400 };
-        }
-        return { message: (resp as any).message } as { message?: string };
+    const toResult = (payload: any) => {
+      const resp = (payload && typeof payload === 'object' && 'success' in payload) ? payload as ApiResponse<any> : ({ success: true, message: undefined, data: payload } as any);
+      if (resp.success === false) {
+        throw { error: { message: resp.message || 'No se pudo eliminar la sección' }, status: 400 };
       }
-      return { message: undefined } as { message?: string };
+      const d = (resp.data || {}) as any;
+      const seccion: SeccionEntity | undefined = d && typeof d === 'object' ? {
+        id: String(d.id ?? seccionId),
+        nombre: String(d.nombre ?? ''),
+        descripcion: d.descripcion || undefined,
+        estado: d.estado || 'INACTIVA',
+        autonomiaConfigurada: d.autonomiaConfigurada != null ? !!d.autonomiaConfigurada : undefined,
+        seccionPadreId: d.seccionPadreId ?? d.idSeccionPadre ?? null
+      } as SeccionEntity : undefined;
+      return { seccion, message: resp.message, soft: true } as { message?: string; seccion?: SeccionEntity; soft?: boolean };
     };
 
-    // Intentar DELETE real
     return this.http.delete<any>(url, { headers: this.accept }).pipe(
-      map((r) => ({ ...parseOk(r), soft: false })),
-      catchError((e1) => this.http.delete<any>(urlFallback, { headers: this.accept }).pipe(
-        map((r) => ({ ...parseOk(r), soft: false })),
-        catchError((_e2) => {
-          // Fallback: baja lógica via PATCH /estado
-          const estadoUrl = `${this.base}${basePath}/estado`;
-          const estadoUrlFallback = `${environment.backendHost}${this.base}${basePath}/estado`;
-
-          const mapResp = (resp: ApiResponse<any>) => {
-            if (!resp || resp.success === false) {
-              throw { error: { message: resp?.message || 'No se pudo eliminar la sección' }, status: 400 };
-            }
-            const d = (resp.data || {}) as any;
-            const boolEstado = (typeof d.activo === 'boolean' ? d.activo : (typeof d.activa === 'boolean' ? d.activa : undefined));
-            const estadoFinal = d.estado || (boolEstado === true ? 'ACTIVA' : (boolEstado === false ? 'INACTIVA' : 'INACTIVA'));
-            const seccion: SeccionEntity = {
-              id: String(d.id ?? seccionId),
-              nombre: String(d.nombre ?? ''),
-              descripcion: d.descripcion || undefined,
-              estado: estadoFinal,
-              autonomiaConfigurada: d.autonomiaConfigurada != null ? !!d.autonomiaConfigurada : undefined,
-              seccionPadreId: d.seccionPadreId ?? d.idSeccionPadre ?? null
-            } as SeccionEntity;
-            return { seccion, message: resp?.message, soft: true } as { seccion: SeccionEntity; message?: string; soft?: boolean };
-          };
-
-          const headersJson = { headers: this.json } as const;
-          const headersAccept = { headers: this.accept } as const;
-
-          return this.http.patch<ApiResponse<any>>(estadoUrl, { estado: 'INACTIVA' } as any, headersJson).pipe(
-            map(mapResp),
-            catchError(() => this.http.patch<ApiResponse<any>>(estadoUrl, null, { ...headersAccept, params: { estado: 'INACTIVA' } as any }).pipe(
-              map(mapResp),
-              catchError(() => this.http.patch<ApiResponse<any>>(estadoUrl, { estado: 'INACTIVO' } as any, headersJson).pipe(
-                map(mapResp),
-                catchError(() => this.http.patch<ApiResponse<any>>(estadoUrlFallback, { estado: 'INACTIVA' } as any, headersJson).pipe(
-                  map(mapResp),
-                  catchError(() => this.http.patch<ApiResponse<any>>(estadoUrl, { activa: false } as any, headersJson).pipe(
-                    map(mapResp),
-                    catchError((eFinal) => throwError(() => ({ error: { message: eFinal?.error?.message || 'No se pudo eliminar la sección' }, status: eFinal?.status })))
-                  ))
-                ))
-              ))
-            ))
-          );
-        })
+      map(toResult),
+      catchError((_e1) => this.http.delete<any>(urlFallback, { headers: this.accept }).pipe(
+        map(toResult),
+        catchError((e2) => throwError(() => ({ error: { message: e2?.error?.message || 'No se pudo eliminar la sección' }, status: e2?.status })))
       ))
     );
   }

@@ -50,17 +50,13 @@ export class SeccionService {
           throw { error: { message: resp?.message || 'No se pudo crear la sección' }, status: 400 };
         }
         const d = (resp.data || {}) as any;
-        // Evitar convertir undefined a cadena; usar fallback del body si el backend no retorna nombre
         const nombre = d?.nombre != null ? String(d.nombre) : body?.nombre;
-        const seccion: SeccionEntity = {
-          id: String(d.id),
-          nombre: nombre,
-          descripcion: d.descripcion || undefined,
-          estado: d.estado || undefined,
-          autonomiaConfigurada: !!d.autonomiaConfigurada,
-          seccionPadreId: d.seccionPadreId ?? null
-        } as SeccionEntity;
-        return { seccion, message: resp.message };
+        const seccion: any = { id: String(d.id), nombre };
+        if (d.descripcion !== undefined) seccion.descripcion = d.descripcion || undefined;
+        if (d.estado !== undefined) seccion.estado = d.estado || undefined;
+        if (d.autonomiaConfigurada !== undefined) seccion.autonomiaConfigurada = !!d.autonomiaConfigurada;
+        if (d.seccionPadreId !== undefined || d.idSeccionPadre !== undefined) seccion.seccionPadreId = d.seccionPadreId ?? d.idSeccionPadre ?? null;
+        return { seccion: seccion as SeccionEntity, message: resp.message };
       }),
       catchError((err) => throwError(() => ({ error: { message: err?.error?.message || err?.message || 'No se pudo crear la sección' }, status: err?.status })))
     );
@@ -68,8 +64,8 @@ export class SeccionService {
 
   list(orgId: string): Observable<SeccionEntity[]> {
     const path = `/orgs/${orgId}/secciones`;
-    const urlPrimary = `${this.base}${path}`; // e.g., /api/orgs/{id}/secciones
-    const urlFallback = `${environment.backendHost}${this.base}${path}`; // e.g., http://localhost:8080/api/...
+    const urlPrimary = `${this.base}${path}`;
+    const urlFallback = `${environment.backendHost}${this.base}${path}`;
 
     const mapResponse = (resp: ApiResponse<any>): SeccionEntity[] => {
       if (!resp || resp.success === false) {
@@ -90,7 +86,6 @@ export class SeccionService {
       map(mapResponse),
       catchError((err) => {
         const status = err?.status;
-        // Fallback en errores de red/proxy o 404 del proxy
         if (status === 0 || status === 404 || status === 502 || status === 503) {
           return this.http.get<ApiResponse<any>>(urlFallback, { headers: this.accept }).pipe(
             map(mapResponse),
@@ -112,17 +107,13 @@ export class SeccionService {
           throw { error: { message: resp?.message || 'No se pudo actualizar la sección' }, status: 400 };
         }
         const d = (resp.data || {}) as any;
-        // Evitar 'undefined' literal; usar valor enviado si el backend no lo devuelve
-        const nombre = d?.nombre != null ? String(d.nombre) : (body?.nombre ?? undefined);
-        const seccion: SeccionEntity = {
-          id: String(d.id),
-          nombre: nombre as any,
-          descripcion: d.descripcion || undefined,
-          estado: d.estado || undefined,
-          autonomiaConfigurada: !!d.autonomiaConfigurada,
-          seccionPadreId: d.seccionPadreId ?? d.idSeccionPadre ?? null
-        } as SeccionEntity;
-        return { seccion, message: resp.message };
+        const nombre = d?.nombre != null ? String(d.nombre) : (body?.nombre ?? '');
+        const seccion: any = { id: String(d.id ?? seccionId), nombre };
+        if (d.descripcion !== undefined) seccion.descripcion = d.descripcion || undefined;
+        if (d.estado !== undefined) seccion.estado = d.estado || undefined;
+        if (d.autonomiaConfigurada !== undefined) seccion.autonomiaConfigurada = !!d.autonomiaConfigurada;
+        if (d.seccionPadreId !== undefined || d.idSeccionPadre !== undefined) seccion.seccionPadreId = d.seccionPadreId ?? d.idSeccionPadre ?? null;
+        return { seccion: seccion as SeccionEntity, message: resp.message };
       }),
       catchError((err) => throwError(() => ({ error: { message: err?.error?.message || err?.message || 'No se pudo actualizar la sección' }, status: err?.status })))
     );
@@ -137,17 +128,14 @@ export class SeccionService {
           throw { error: { message: resp?.message || 'No se pudo actualizar el estado de la sección' }, status: 400 };
         }
         const d = (resp.data || {}) as any;
-        // No forzar nombre a 'undefined' si no viene en la respuesta
         const nombre = d?.nombre != null ? String(d.nombre) : undefined;
-        const seccion: SeccionEntity = {
-          id: String(d.id),
-          nombre: (nombre as any),
-          descripcion: d.descripcion || undefined,
-          estado: d.estado || estado,
-          autonomiaConfigurada: !!d.autonomiaConfigurada,
-          seccionPadreId: d.seccionPadreId ?? d.idSeccionPadre ?? null
-        } as SeccionEntity;
-        return { seccion, message: resp.message };
+        const seccion: any = { id: String(d.id ?? seccionId) };
+        if (nombre != null) seccion.nombre = nombre;
+        seccion.estado = (d.estado || estado);
+        if (d.descripcion !== undefined) seccion.descripcion = d.descripcion || undefined;
+        if (d.autonomiaConfigurada !== undefined) seccion.autonomiaConfigurada = !!d.autonomiaConfigurada;
+        if (d.seccionPadreId !== undefined || d.idSeccionPadre !== undefined) seccion.seccionPadreId = d.seccionPadreId ?? d.idSeccionPadre ?? null;
+        return { seccion: seccion as SeccionEntity, message: resp.message };
       }),
       catchError((err) => throwError(() => ({ error: { message: err?.error?.message || err?.message || 'No se pudo cambiar el estado de la sección' }, status: err?.status })))
     );

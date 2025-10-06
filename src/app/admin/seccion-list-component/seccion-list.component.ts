@@ -159,13 +159,19 @@ export class SeccionListComponent implements OnInit, OnDestroy {
       idSeccionPadre: this.editDraft.seccionPadreId ?? null,
       autonomiaConfigurada: !!this.editDraft.autonomiaConfigurada
     };
+    const optimistic: Partial<SeccionEntity> = {
+      nombre: body.nombre!,
+      descripcion: (body.descripcion ?? undefined) as any,
+      seccionPadreId: body.idSeccionPadre ?? null,
+      autonomiaConfigurada: body.autonomiaConfigurada
+    };
     this.saving = true;
     this.svc.update(this.orgId, this.editingId, body).subscribe({
       next: (res) => {
         const idx = this.items.findIndex(i => i.id === this.editingId);
         if (idx >= 0) {
-          // Fusionar para conservar campos no devueltos por el backend (evita nombre 'undefined', etc.)
-          this.items[idx] = { ...this.items[idx], ...res.seccion } as SeccionEntity;
+          // Primero aplicar lo editado (optimista) y luego datos del backend
+          this.items[idx] = { ...this.items[idx], ...optimistic, ...res.seccion } as SeccionEntity;
         }
         this.applyFilter();
         const flashId = this.editingId;

@@ -70,7 +70,7 @@
 
           <!-- Columna Estado -->
           <td>
-            <p-tag [severity]="(row.estado||'').toUpperCase()==='ACTIVA' ? 'success' : 'danger'" [value]="row.estado || '-' "></p-tag>
+            <p-tag [severity]="['ACTIVA','ACTIVO'].includes((row.estado||'').toUpperCase()) ? 'success' : 'danger'" [value]="row.estado || '-' "></p-tag>
           </td>
 
           <!-- Columna Autonomía -->
@@ -105,8 +105,8 @@
             <!-- Acciones normales -->
             <ng-container *ngIf="!adding && editingId !== row.id">
               <button pButton type="button" icon="pi pi-pencil" class="p-button-rounded p-button-text" (click)="startEdit(row)" [disabled]="saving" pTooltip="Editar" tooltipPosition="top"></button>
-              <button pButton type="button" icon="pi pi-trash" class="p-button-rounded p-button-text p-button-danger" (click)="remove(row)" [disabled]="saving || (row.estado||'').toUpperCase()!=='ACTIVA'" pTooltip="Eliminar (marcar INACTIVA)" tooltipPosition="top"></button>
-              <button *ngIf="(row.estado||'').toUpperCase()==='INACTIVA'" pButton type="button" icon="pi pi-replay" class="p-button-rounded p-button-text p-button-success" (click)="reactivate(row)" [disabled]="saving" pTooltip="Reactivar" tooltipPosition="top"></button>
+              <button pButton type="button" icon="pi pi-trash" class="p-button-rounded p-button-text p-button-danger" (click)="remove(row)" [disabled]="saving || !['ACTIVA','ACTIVO'].includes((row.estado||'').toUpperCase())" pTooltip="Eliminar (marcar INACTIVA)" tooltipPosition="top"></button>
+              <button *ngIf="['INACTIVA','INACTIVO'].includes((row.estado||'').toUpperCase())" pButton type="button" icon="pi pi-replay" class="p-button-rounded p-button-text p-button-success" (click)="reactivate(row)" [disabled]="saving" pTooltip="Reactivar" tooltipPosition="top"></button>
             </ng-container>
           </td>
         </tr>

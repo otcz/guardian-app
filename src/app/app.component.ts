@@ -10,17 +10,16 @@ import { Observable, map, BehaviorSubject, combineLatest, filter } from 'rxjs';
 import { InputTextModule } from 'primeng/inputtext';
 import { FormsModule } from '@angular/forms';
 import { ToastModule } from 'primeng/toast';
-import { UserAvatarComponent } from './shared/user-avatar.component';
+import { UserAvatarProComponent } from './shared/user-avatar-pro.component';
 
 @Component({
   standalone: true,
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.css'],
-  imports: [RouterModule, CommonModule, ButtonModule, TableModule, ThemeToggleComponent, InputTextModule, FormsModule, ToastModule, UserAvatarComponent]
+  imports: [RouterModule, CommonModule, ButtonModule, TableModule, ThemeToggleComponent, InputTextModule, FormsModule, ToastModule, UserAvatarProComponent]
 })
 export class AppComponent {
-  title = 'guardian';
   // Lógica migrada del antiguo DashboardComponent
   sidebarOpen = true;
   menus$!: Observable<MenuOption[]>;   // menús raíz

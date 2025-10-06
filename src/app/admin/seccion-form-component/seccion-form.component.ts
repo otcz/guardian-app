@@ -42,15 +42,21 @@ export class SeccionFormComponent {
 
     this.orgId = this.route.snapshot.queryParamMap.get('id') || localStorage.getItem('currentOrgId');
     if (!this.orgId) {
+      // Avisar aquí por si navegan directamente
       this.notify.warn('Falta organización', 'No se ha seleccionado organización');
     }
   }
 
   ngOnInit() {
-    // Cargar secciones iniciales si hay orgId actual
-    if (this.orgId) {
-      this.loadSecciones(this.orgId);
+    // Si no hay organización seleccionada, redirigir a selección inmediatamente
+    if (!this.orgId) {
+      this.router.navigate(['/listar-organizaciones']);
+      return;
     }
+
+    // Cargar secciones iniciales si hay orgId actual
+    this.loadSecciones(this.orgId);
+
     // Reaccionar a cambios en query params (p. ej., navegación interna)
     this.sub = this.route.queryParamMap.subscribe((qp) => {
       const qId = qp.get('id');

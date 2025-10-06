@@ -12,6 +12,7 @@ import { DashboardHomeComponent } from './dashboard/dashboard-home.component';
 import { CrearStrategyComponent } from './admin/crear-strategy-component/crear-strategy.component';
 import { OrganizationConfigComponent } from './admin/organizacion-config-component/organization-config.component';
 import { StrategyChangePageComponent } from './admin/organizacion-strategy-change-page/strategy-change-page.component';
+import { SeccionFormComponent } from './admin/seccion-form-component/seccion-form.component';
 
 export const appRoutes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -25,9 +26,11 @@ export const appRoutes: Routes = [
       { path: 'crear-organizacion', component: OrganizationFormComponent },
       { path: 'gestionar-organizacion', component: OrganizationConfigComponent },
       { path: 'configurar-parametros-globales', component: OrganizationParamsComponent },
+      { path: 'configurar-parametros-globales/:id', component: OrganizationParamsComponent },
       { path: 'ver-auditoria-de-organizacion', component: OrganizationAuditComponent },
       { path: 'crear-estrategia-de-gobernanza', component: CrearStrategyComponent },
       { path: 'cambiar-estrategia-de-gobernanza', component: StrategyChangePageComponent },
+      { path: 'crear-seccion', component: SeccionFormComponent },
       {
         path: 'admin',
         children: [

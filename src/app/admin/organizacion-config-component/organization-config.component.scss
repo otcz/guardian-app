@@ -56,27 +56,62 @@
 :host ::ng-deep .p-dropdown .p-dropdown-label,
 :host ::ng-deep .p-multiselect .p-multiselect-label { padding: .6rem .75rem; font-size: .95rem; }
 
-/* Paneles en fondo oscuro */
-:host ::ng-deep .p-dropdown-panel,
-:host ::ng-deep .p-multiselect-panel {
+/* Paneles: especificar por tema */
+/* Tema claro: fondo claro y texto oscuro */
+:host-context(.theme-light) ::ng-deep .p-dropdown-panel,
+:host-context(.theme-light) ::ng-deep .p-multiselect-panel {
+  background: #ffffff;
+  color: #111;
+  border: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+}
+:host-context(.theme-light) ::ng-deep .p-dropdown-panel .p-dropdown-header,
+:host-context(.theme-light) ::ng-deep .p-multiselect-panel .p-multiselect-header {
+  background: #ffffff;
+  color: #111;
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+}
+
+/* Tema oscuro/black: fondo oscuro */
+:host-context(.theme-dark) ::ng-deep .p-dropdown-panel,
+:host-context(.theme-black) ::ng-deep .p-dropdown-panel,
+:host-context(.theme-dark) ::ng-deep .p-multiselect-panel,
+:host-context(.theme-black) ::ng-deep .p-multiselect-panel {
   background: color-mix(in srgb, var(--surface) 92%, #000);
   border: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
 }
-:host ::ng-deep .p-dropdown-panel .p-dropdown-header,
-:host ::ng-deep .p-multiselect-panel .p-multiselect-header {
+:host-context(.theme-dark) ::ng-deep .p-dropdown-panel .p-dropdown-header,
+:host-context(.theme-black) ::ng-deep .p-dropdown-panel .p-dropdown-header,
+:host-context(.theme-dark) ::ng-deep .p-multiselect-panel .p-multiselect-header,
+:host-context(.theme-black) ::ng-deep .p-multiselect-panel .p-multiselect-header {
   background: color-mix(in srgb, var(--surface) 92%, #000);
   border-bottom: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
 }
 
-/* Filtro dentro de los paneles */
-:host ::ng-deep .p-dropdown-panel .p-dropdown-filter-container .p-inputtext,
-:host ::ng-deep .p-multiselect-panel .p-multiselect-filter-container .p-inputtext {
+/* Filtro dentro de los paneles: por tema */
+/* Claro */
+:host-context(.theme-light) ::ng-deep .p-dropdown-panel .p-dropdown-filter-container .p-inputtext,
+:host-context(.theme-light) ::ng-deep .p-multiselect-panel .p-multiselect-filter-container .p-inputtext {
+  background: #fff;
+  color: #111;
+  border: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+}
+:host-context(.theme-light) ::ng-deep .p-dropdown-panel .p-dropdown-filter-container .p-inputtext::placeholder,
+:host-context(.theme-light) ::ng-deep .p-multiselect-panel .p-multiselect-filter-container .p-inputtext::placeholder { color: #111; opacity: .6; }
+:host-context(.theme-light) ::ng-deep .p-dropdown-filter-icon { color: #111; opacity: .75; }
+
+/* Oscuro */
+:host-context(.theme-dark) ::ng-deep .p-dropdown-panel .p-dropdown-filter-container .p-inputtext,
+:host-context(.theme-black) ::ng-deep .p-dropdown-panel .p-dropdown-filter-container .p-inputtext,
+:host-context(.theme-dark) ::ng-deep .p-multiselect-panel .p-multiselect-filter-container .p-inputtext,
+:host-context(.theme-black) ::ng-deep .p-multiselect-panel .p-multiselect-filter-container .p-inputtext {
   background: color-mix(in srgb, var(--surface) 88%, #000);
   color: #fff;
   border: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
 }
-:host ::ng-deep .p-dropdown-panel .p-dropdown-filter-container .p-inputtext::placeholder,
-:host ::ng-deep .p-multiselect-panel .p-multiselect-filter-container .p-inputtext::placeholder { color: #fff; opacity: .7; }
+:host-context(.theme-dark) ::ng-deep .p-dropdown-panel .p-dropdown-filter-container .p-inputtext::placeholder,
+:host-context(.theme-black) ::ng-deep .p-dropdown-panel .p-dropdown-filter-container .p-inputtext::placeholder,
+:host-context(.theme-dark) ::ng-deep .p-multiselect-panel .p-multiselect-filter-container .p-inputtext::placeholder,
+:host-context(.theme-black) ::ng-deep .p-multiselect-panel .p-multiselect-filter-container .p-inputtext::placeholder { color: #fff; opacity: .7; }
 
 /* Placeholder del control cuando no hay selección */
 :host-context(.theme-dark) ::ng-deep .p-dropdown .p-dropdown-label.p-placeholder,
@@ -161,3 +196,64 @@
 :host ::ng-deep .p-dropdown-header .p-inputtext:focus,
 :host ::ng-deep .p-dropdown-filter:focus { box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 22%, transparent) !important; outline: none !important; }
 :host ::ng-deep .p-dropdown-filter-icon { color: #fff !important; opacity: .9; }
+
+/* Overrides para tema claro (theme-light): fondo claro y texto oscuro */
+:host-context(.theme-light) {
+  --surface: #ffffff;
+  --surface-alt: #f7f7f7;
+  --primary: #007bff;
+  --primary-hover: #0056b3;
+  --primary-content: #ffffff;
+  --accent: #17a2b8;
+  --accent-hover: #117a8b;
+  --accent-content: #ffffff;
+  --success: #28a745;
+  --success-hover: #218838;
+  --success-content: #ffffff;
+  --warning: #ffc107;
+  --warning-hover: #e0a800;
+  --warning-content: #212529;
+  --danger: #dc3545;
+  --danger-hover: #c82333;
+  --danger-content: #ffffff;
+  --text: #111;
+  --text-muted: #6c757d;
+  --text-success: #28a745;
+  --text-danger: #dc3545;
+  --text-warning: #ffc107;
+  --text-info: #17a2b8;
+  --heading: #111;
+  --border: #dee2e6;
+  --shadow: rgba(0, 0, 0, 0.1);
+}
+
+/* Overrides para tema oscuro (theme-dark) y negro (theme-black): fondo oscuro y texto blanco */
+:host-context(.theme-dark),
+:host-context(.theme-black) {
+  --surface: #121212;
+  --surface-alt: #1e1e1e;
+  --primary: #bb86fc;
+  --primary-hover: #9b59b6;
+  --primary-content: #121212;
+  --accent: #03dac6;
+  --accent-hover: #02a89f;
+  --accent-content: #121212;
+  --success: #03dac6;
+  --success-hover: #03a896;
+  --success-content: #121212;
+  --warning: #ffea00;
+  --warning-hover: #e6d600;
+  --warning-content: #121212;
+  --danger: #cf6679;
+  --danger-hover: #b85f7f;
+  --danger-content: #121212;
+  --text: #ffffff;
+  --text-muted: #a0a0a0;
+  --text-success: #03dac6;
+  --text-danger: #cf6679;
+  --text-warning: #ffea00;
+  --text-info: #03dac6;
+  --heading: #ffffff;
+  --border: #333333;
+  --shadow: rgba(0, 0, 0, 0.3);
+}

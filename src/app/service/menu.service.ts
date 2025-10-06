@@ -210,6 +210,7 @@ export class MenuService {
       const looksListarOrgs = (nameNorm.includes('listar') || nameNorm.includes('listado')) && nameNorm.includes('organizacion');
       const looksConfigParams = (nameNorm.includes('configurar') || nameNorm.includes('parametro')) && nameNorm.includes('global');
       const looksVerAuditoria = (nameNorm.includes('ver') || nameNorm.includes('auditoria')) && nameNorm.includes('organizacion');
+      const looksCrearSeccion = nameNorm.includes('crear') && (nameNorm.includes('seccion') || nameNorm.includes('sección'));
 
       if (looksCrearEstrategia) path = '/crear-estrategia-de-gobernanza';
       if (looksCambiarEstrategia) path = '/cambiar-estrategia-de-gobernanza';
@@ -218,15 +219,20 @@ export class MenuService {
       if (looksListarOrgs) path = '/listar-organizaciones';
       if (looksConfigParams) path = '/configurar-parametros-globales';
       if (looksVerAuditoria) path = '/ver-auditoria-de-organizacion';
+      if (looksCrearSeccion) path = '/crear-seccion';
 
       // Si sigue sin path, usar heurística por menú padre (estrategias)
       if (!path && parentNorm.includes('gestion-de-estrategias-de-gobernanza')) {
         if (nameNorm.includes('crear')) path = '/crear-estrategia-de-gobernanza';
         else if (nameNorm.includes('cambiar')) path = '/cambiar-estrategia-de-gobernanza';
       }
+      // Heurística por menú padre gestión de secciones
+      if (!path && (parentNorm.includes('gestion-de-secciones') || parentNorm.includes('gestión-de-secciones'))) {
+        if (nameNorm.includes('crear')) path = '/crear-seccion';
+      }
 
-      // Adjuntar id organización cuando aplica (cambiar estrategia, gestionar, configurar, auditar)
-      const needsOrgId = looksCambiarEstrategia || looksGestionarOrg || looksConfigParams || looksVerAuditoria;
+      // Adjuntar id organización cuando aplica (cambiar estrategia, gestionar, configurar, auditar, crear sección)
+      const needsOrgId = looksCambiarEstrategia || looksGestionarOrg || looksConfigParams || looksVerAuditoria || looksCrearSeccion;
       if (path && needsOrgId && !path.includes('?')) {
         try { const orgId = localStorage.getItem('currentOrgId'); if (orgId) path = `${path}?id=${encodeURIComponent(orgId)}`; } catch {}
       }

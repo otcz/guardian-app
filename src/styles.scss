@@ -487,6 +487,14 @@ a:hover { text-decoration: underline; }
   background: color-mix(in srgb, var(--primary) 12%, #ffffff) !important;
 }
 
+/* ===== Encabezado de tabla (thead) en modo claro (global) ===== */
+:root.theme-light body .p-datatable-thead > tr > th,
+:root.theme-light body .p-table .p-datatable-thead > tr > th {
+  background: color-mix(in srgb, var(--surface) 96%, var(--primary) 4%) !important;
+  color: #000 !important;
+  border-bottom: 1px solid var(--border) !important;
+}
+
 /* ===== Tablas en modo oscuro / negro (unificar look) ===== */
 :root.theme-dark app-dashboard .recent-activity .p-datatable-wrapper table,
 :root.theme-black app-dashboard .recent-activity .p-datatable-wrapper table,
@@ -551,6 +559,33 @@ a:hover { text-decoration: underline; }
 :root.theme-black .p-paginator .p-paginator-page { color: var(--text); }
 :root.theme-dark .p-paginator .p-paginator-page.p-highlight,
 :root.theme-black .p-paginator .p-paginator-page.p-highlight { background: color-mix(in srgb, var(--primary) 25%, var(--surface)) !important; color: var(--text) !important; }
+
+/* ===== Paginador en modo claro (global) ===== */
+:root.theme-light body .p-paginator {
+  background: var(--surface) !important;
+  color: #000 !important;
+  border: 1px solid var(--border) !important;
+}
+:root.theme-light body .p-paginator .p-paginator-page,
+:root.theme-light body .p-paginator .p-paginator-pages .p-paginator-page {
+  color: #000 !important;
+}
+:root.theme-light body .p-paginator .p-paginator-page.p-highlight,
+:root.theme-light body .p-paginator .p-paginator-pages .p-paginator-page.p-highlight {
+  background: color-mix(in srgb, var(--primary) 12%, #ffffff) !important;
+  color: #000 !important;
+}
+:root.theme-light body .p-paginator .p-paginator-first,
+:root.theme-light body .p-paginator .p-paginator-prev,
+:root.theme-light body .p-paginator .p-paginator-next,
+:root.theme-light body .p-paginator .p-paginator-last {
+  color: #000 !important;
+}
+:root.theme-light body .p-paginator .p-dropdown {
+  background: #ffffff !important;
+  color: #000 !important;
+  border: 1px solid var(--border) !important;
+}
 
 /* ===== REFORZADO: tamaños y colores del InputSwitch con !important ===== */
 .p-inputswitch .p-inputswitch-slider { width: 42px !important; height: 22px !important; }
@@ -695,3 +730,71 @@ body .p-toast .p-toast-message-info {
 :root.theme-dark body .p-select-overlay .p-select-option:not(.p-highlight):hover,
 :root.theme-black body .p-select-overlay .p-select-option:not(.p-highlight):hover { background: color-mix(in srgb, var(--primary) 16%, transparent) !important; }
 /* === Fin overrides p-select-overlay oscuro === */
+
+/* === Overrides globales para p-select-overlay en tema claro === */
+:root.theme-light body .p-select-overlay {
+  background: #ffffff !important;
+  color: #000 !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: 0 12px 28px rgba(0,0,0,0.12), 0 4px 10px rgba(79,140,255,0.10) !important;
+}
+:root.theme-light body .p-select-overlay .p-select-header {
+  background: #ffffff !important;
+  color: #000 !important;
+  border-bottom: 1px solid var(--border) !important;
+}
+:root.theme-light body .p-select-overlay .p-inputtext,
+:root.theme-light body .p-select-overlay .p-select-filter {
+  background: #ffffff !important;
+  color: #000 !important;
+  border: 1px solid var(--border) !important;
+}
+:root.theme-light body .p-select-overlay .p-inputtext::placeholder { color: #4b5563 !important; }
+:root.theme-light body .p-select-overlay .p-select-items,
+:root.theme-light body .p-select-overlay .p-select-items-wrapper { background: transparent !important; }
+:root.theme-light body .p-select-overlay .p-select-item,
+:root.theme-light body .p-select-overlay .p-select-option { color: #000 !important; }
+:root.theme-light body .p-select-overlay .p-select-item.p-highlight,
+:root.theme-light body .p-select-overlay .p-select-option.p-highlight { background: color-mix(in srgb, var(--primary) 14%, transparent) !important; color: #000 !important; }
+:root.theme-light body .p-select-overlay .p-select-item:not(.p-highlight):hover,
+:root.theme-light body .p-select-overlay .p-select-option:not(.p-highlight):hover { background: color-mix(in srgb, var(--primary) 10%, transparent) !important; }
+
+/* === Reglas específicas para overlays insertados (.ng-star-inserted) === */
+/* Limitar a paneles PrimeNG para evitar efectos colaterales */
+:root.theme-light body .ng-star-inserted.p-select-overlay,
+:root.theme-light body .ng-star-inserted.p-dropdown-panel,
+:root.theme-light body .ng-star-inserted.p-multiselect-panel {
+  background: #ffffff !important;
+  color: #000 !important;
+}
+:root.theme-dark body .ng-star-inserted.p-select-overlay,
+:root.theme-dark body .ng-star-inserted.p-dropdown-panel,
+:root.theme-dark body .ng-star-inserted.p-multiselect-panel,
+:root.theme-black body .ng-star-inserted.p-select-overlay,
+:root.theme-black body .ng-star-inserted.p-dropdown-panel,
+:root.theme-black body .ng-star-inserted.p-multiselect-panel {
+  background: color-mix(in srgb, var(--surface) 92%, #000) !important;
+  color: #fff !important;
+}
+
+/* ===== Tablas en modo claro (global) ===== */
+:root.theme-light body .p-datatable .p-datatable-wrapper table,
+:root.theme-light body .p-table .p-datatable-wrapper table {
+  background: var(--surface) !important;
+  color: #000 !important;
+}
+:root.theme-light body .p-datatable-tbody > tr > td,
+:root.theme-light body .p-table .p-datatable-tbody > tr > td {
+  background: var(--surface) !important;
+  color: #000 !important;
+  border-top: 1px solid var(--border) !important;
+}
+:root.theme-light body .p-datatable-tbody > tr:nth-child(even) > td,
+:root.theme-light body .p-table .p-datatable-tbody > tr:nth-child(even) > td {
+  background: var(--surface) !important; /* sin bandas para look limpio */
+}
+:root.theme-light body .p-datatable .p-datatable-wrapper table tbody tr:hover > td,
+:root.theme-light body .p-table .p-datatable-wrapper table tbody tr:hover > td {
+  background: color-mix(in srgb, var(--primary) 8%, #ffffff) !important;
+}
+

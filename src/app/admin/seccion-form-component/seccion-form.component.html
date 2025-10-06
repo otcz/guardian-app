@@ -1,0 +1,42 @@
+<div class="sec-wrapper">
+  <div class="page-header">
+    <div class="titles">
+      <h2>Crear Sección</h2>
+      <p class="subtitle" *ngIf="orgId">Organización seleccionada: <b>{{ orgId }}</b></p>
+    </div>
+    <span class="spacer"></span>
+    <button pButton type="button" class="p-button-text" icon="pi pi-arrow-left" label="Volver" (click)="cancel()"></button>
+  </div>
+
+  <p-card class="card">
+    <form [formGroup]="form" (ngSubmit)="submit()" class="form-grid">
+      <div class="field">
+        <label for="nombre">Nombre <span class="req">*</span></label>
+        <input pInputText id="nombre" formControlName="nombre" placeholder="Nombre de la sección"/>
+        <small class="error" *ngIf="f['nombre'].touched && f['nombre'].errors?.['required']">El nombre es requerido.</small>
+        <small class="error" *ngIf="f['nombre'].touched && f['nombre'].errors?.['maxlength']">Máximo 150 caracteres.</small>
+      </div>
+
+      <div class="field">
+        <label for="descripcion">Descripción</label>
+        <input pInputText id="descripcion" formControlName="descripcion" placeholder="Descripción (opcional)"/>
+      </div>
+
+      <div class="field">
+        <label for="seccionPadreId">Sección Padre (UUID)</label>
+        <input pInputText id="seccionPadreId" formControlName="seccionPadreId" placeholder="UUID de la sección padre o vacío"/>
+      </div>
+
+      <div class="field inline">
+        <label for="autonomiaConfigurada">Autonomía configurada</label>
+        <input type="checkbox" class="ui-switch-input" id="autonomiaConfigurada" formControlName="autonomiaConfigurada" />
+        <label class="ui-switch" for="autonomiaConfigurada"><span class="slider"></span></label>
+      </div>
+
+      <div class="actions">
+        <button pButton type="submit" label="Guardar" icon="pi pi-save" [disabled]="loading"></button>
+        <button pButton type="button" label="Cancelar" class="p-button-outlined" icon="pi pi-times" (click)="cancel()" [disabled]="loading"></button>
+      </div>
+    </form>
+  </p-card>
+</div>

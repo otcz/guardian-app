@@ -1,0 +1,44 @@
+<p-popover #pop [dismissable]="true" [showCloseIcon]="true">
+  <div class="panel">
+    <div class="hero">
+      <div class="ring"><div class="inner">{{ initials() }}</div></div>
+      <div class="hero-meta">
+        <div class="title">{{ displayName() }}</div>
+        <div class="hint">{{ emailHint() }}</div>
+        <div *ngIf="primaryRole()">
+          <p-tag [value]="primaryRole()" severity="info"></p-tag>
+        </div>
+      </div>
+    </div>
+    <div class="body">
+      <div class="session">
+        <i class="bar"><span class="bar-fill" [style.width.%]="progressPercent()"></span></i>
+        <div class="time">{{ sessionLeftDetailed() }}</div>
+      </div>
+
+      <div class="orgs" *ngIf="orgs().length">
+        <div class="org-item" *ngFor="let o of orgs()" [class.active]="o.id === orgId()" (click)="switchOrg(o, pop)">
+          <span class="dot"></span>
+          <div class="meta-col">
+            <b>{{ o.nombre }}</b>
+            <small class="status">{{ o.activa ? 'Activa' : 'Inactiva' }}</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button pButton type="button" class="p-button-text" icon="pi pi-cog" label="Gestionar" (click)="goManage(pop)"></button>
+        <button pButton type="button" class="p-button-text" icon="pi pi-list" label="Organizaciones" (click)="goList(pop)"></button>
+        <button pButton type="button" class="p-button-danger p-button-text" icon="pi pi-sign-out" label="Salir" (click)="logout()"></button>
+      </div>
+    </div>
+  </div>
+</p-popover>
+
+<div class="chip" (click)="pop.toggle($event)">
+  <div class="initials">{{ initials() }}</div>
+  <div class="meta">
+    <div class="name">{{ shortName() }}</div>
+    <div class="sub">{{ orgShort() }}</div>
+  </div>
+</div>

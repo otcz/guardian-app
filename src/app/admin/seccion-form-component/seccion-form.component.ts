@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, Validators, FormGroup } from '@angular/forms';
@@ -11,6 +11,7 @@ import { NotificationService } from '../../service/notification.service';
 import { DropdownModule } from 'primeng/dropdown';
 import { Subscription } from 'rxjs';
 import { OrgContextService } from '../../service/org-context.service';
+import { OrganizationService } from '../../service/organization.service';
 
 @Component({
   selector: 'app-seccion-form',
@@ -19,8 +20,9 @@ import { OrgContextService } from '../../service/org-context.service';
   templateUrl: './seccion-form.component.html',
   styleUrls: ['./seccion-form.component.scss']
 })
-export class SeccionFormComponent {
+export class SeccionFormComponent implements OnInit, OnDestroy {
   orgId: string | null;
+  orgName: string | null = null;
   loading = false;
 
   form: FormGroup;
@@ -33,7 +35,8 @@ export class SeccionFormComponent {
     private router: Router,
     private svc: SeccionService,
     private notify: NotificationService,
-    private orgCtx: OrgContextService
+    private orgCtx: OrgContextService,
+    private orgService: OrganizationService
   ) {
     this.form = this.fb.group({
       nombre: ['', [Validators.required, Validators.maxLength(150)]],
@@ -51,17 +54,27 @@ export class SeccionFormComponent {
 
   ngOnInit() {
     if (!this.orgId) { this.router.navigate(['/listar-organizaciones']); return; }
+    this.loadOrgName(this.orgId);
     this.loadSecciones(this.orgId);
     this.sub = this.route.queryParamMap.subscribe((qp) => {
       const next = this.orgCtx.ensureFromQuery(qp.get('id'));
       if (next && next !== this.orgId) {
         this.orgId = next;
+        this.loadOrgName(this.orgId);
         this.loadSecciones(this.orgId);
       }
     });
   }
 
   ngOnDestroy() { this.sub?.unsubscribe(); }
+
+  private loadOrgName(orgId: string) {
+    this.orgName = null;
+    this.orgService.get(orgId).subscribe({
+      next: (org) => this.orgName = org?.nombre || null,
+      error: () => this.orgName = null
+    });
+  }
 
   private loadSecciones(orgId: string) {
     this.svc.list(orgId).subscribe({

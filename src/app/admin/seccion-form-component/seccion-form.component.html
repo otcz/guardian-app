@@ -2,7 +2,7 @@
   <div class="page-header">
     <div class="titles">
       <h2>Crear Sección</h2>
-      <p class="subtitle" *ngIf="orgId">Organización seleccionada: <b>{{ orgId }}</b></p>
+      <p class="subtitle" *ngIf="orgName">Organización seleccionada: <b>{{ orgName }}</b></p>
     </div>
     <span class="spacer"></span>
     <button pButton type="button" class="p-button-text" icon="pi pi-arrow-left" label="Volver" (click)="cancel()"></button>
@@ -30,6 +30,7 @@
                     optionLabel="nombre"
                     optionValue="id"
                     [filter]="true"
+                    [filterBy]="'nombre,descripcion'"
                     [showClear]="true"
                     [editable]="false"
                     placeholder="Seleccionar sección padre"
@@ -42,6 +43,7 @@
           <ng-template pTemplate="item" let-s>
             <div class="opt">
               <span class="opt-name">{{ s?.nombre }}</span>
+              <span class="opt-sep" *ngIf="s?.descripcion"> — </span>
               <small class="opt-desc" *ngIf="s?.descripcion">{{ s?.descripcion }}</small>
             </div>
           </ng-template>

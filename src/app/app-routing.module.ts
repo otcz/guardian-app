@@ -50,5 +50,6 @@ export const appRoutes: Routes = [
   { path: 'dashboard/cambiar-estrategia-de-gobernanza', redirectTo: 'cambiar-estrategia-de-gobernanza', pathMatch: 'full' },
   { path: 'dashboard/configurar-parametros-globales', redirectTo: 'configurar-parametros-globales', pathMatch: 'full' },
   { path: 'dashboard/ver-auditoria-de-organizacion', redirectTo: 'ver-auditoria-de-organizacion', pathMatch: 'full' },
+  { path: 'dashboard/listar-secciones', redirectTo: 'listar-secciones', pathMatch: 'full' },
   { path: '**', redirectTo: '' }
 ];

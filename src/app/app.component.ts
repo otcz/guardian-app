@@ -101,7 +101,8 @@ export class AppComponent {
         '/cambiar-estrategia-de-gobernanza',
         '/configurar-parametros-globales',
         '/ver-auditoria-de-organizacion',
-        '/crear-seccion'
+        '/crear-seccion',
+        '/listar-secciones'
       ]);
       if (needsId.has(base)) {
         try { const id = localStorage.getItem('currentOrgId'); if (id) return { id }; } catch {}

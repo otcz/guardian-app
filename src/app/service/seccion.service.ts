@@ -20,6 +20,14 @@ export interface CreateSeccionRequest {
   autonomiaConfigurada?: boolean;
 }
 
+export interface UpdateSeccionRequest {
+  nombre?: string;
+  descripcion?: string | null;
+  idSeccionPadre?: string | null;
+  administradorPrincipal?: string | null;
+  autonomiaConfigurada?: boolean;
+}
+
 export interface ApiResponse<T> {
   success: boolean;
   message: string;
@@ -42,14 +50,16 @@ export class SeccionService {
           throw { error: { message: resp?.message || 'No se pudo crear la sección' }, status: 400 };
         }
         const d = (resp.data || {}) as any;
+        // Evitar convertir undefined a cadena; usar fallback del body si el backend no retorna nombre
+        const nombre = d?.nombre != null ? String(d.nombre) : body?.nombre;
         const seccion: SeccionEntity = {
           id: String(d.id),
-          nombre: String(d.nombre),
+          nombre: nombre,
           descripcion: d.descripcion || undefined,
           estado: d.estado || undefined,
           autonomiaConfigurada: !!d.autonomiaConfigurada,
           seccionPadreId: d.seccionPadreId ?? null
-        };
+        } as SeccionEntity;
         return { seccion, message: resp.message };
       }),
       catchError((err) => throwError(() => ({ error: { message: err?.error?.message || err?.message || 'No se pudo crear la sección' }, status: err?.status })))
@@ -91,6 +101,55 @@ export class SeccionService {
         }
         return throwError(() => ({ error: { message: err?.error?.message || err?.message || 'No se pudieron obtener las secciones' }, status }));
       })
+    );
+  }
+
+  update(orgId: string, seccionId: string, body: UpdateSeccionRequest): Observable<{ seccion: SeccionEntity; message?: string }> {
+    const url = `${this.base}/orgs/${orgId}/secciones/${seccionId}`;
+    return this.http.patch<ApiResponse<any>>(url, body, { headers: this.json }).pipe(
+      map((resp) => {
+        if (!resp || resp.success === false) {
+          throw { error: { message: resp?.message || 'No se pudo actualizar la sección' }, status: 400 };
+        }
+        const d = (resp.data || {}) as any;
+        // Evitar 'undefined' literal; usar valor enviado si el backend no lo devuelve
+        const nombre = d?.nombre != null ? String(d.nombre) : (body?.nombre ?? undefined);
+        const seccion: SeccionEntity = {
+          id: String(d.id),
+          nombre: nombre as any,
+          descripcion: d.descripcion || undefined,
+          estado: d.estado || undefined,
+          autonomiaConfigurada: !!d.autonomiaConfigurada,
+          seccionPadreId: d.seccionPadreId ?? d.idSeccionPadre ?? null
+        } as SeccionEntity;
+        return { seccion, message: resp.message };
+      }),
+      catchError((err) => throwError(() => ({ error: { message: err?.error?.message || err?.message || 'No se pudo actualizar la sección' }, status: err?.status })))
+    );
+  }
+
+  changeState(orgId: string, seccionId: string, estado: 'ACTIVA' | 'INACTIVA'): Observable<{ seccion: SeccionEntity; message?: string }> {
+    const url = `${this.base}/orgs/${orgId}/secciones/${seccionId}/estado`;
+    const body = { estado } as any;
+    return this.http.patch<ApiResponse<any>>(url, body, { headers: this.json }).pipe(
+      map((resp) => {
+        if (!resp || resp.success === false) {
+          throw { error: { message: resp?.message || 'No se pudo actualizar el estado de la sección' }, status: 400 };
+        }
+        const d = (resp.data || {}) as any;
+        // No forzar nombre a 'undefined' si no viene en la respuesta
+        const nombre = d?.nombre != null ? String(d.nombre) : undefined;
+        const seccion: SeccionEntity = {
+          id: String(d.id),
+          nombre: (nombre as any),
+          descripcion: d.descripcion || undefined,
+          estado: d.estado || estado,
+          autonomiaConfigurada: !!d.autonomiaConfigurada,
+          seccionPadreId: d.seccionPadreId ?? d.idSeccionPadre ?? null
+        } as SeccionEntity;
+        return { seccion, message: resp.message };
+      }),
+      catchError((err) => throwError(() => ({ error: { message: err?.error?.message || err?.message || 'No se pudo cambiar el estado de la sección' }, status: err?.status })))
     );
   }
 }

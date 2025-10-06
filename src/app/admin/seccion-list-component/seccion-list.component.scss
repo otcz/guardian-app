@@ -1,0 +1,42 @@
+/* Utilidades locales para espaciado y layout */
+.flex { display: flex; }
+.ai-center { align-items: center; }
+.justify-center { justify-content: center; }
+.flex-wrap { flex-wrap: wrap; }
+.gap-xs { gap: 6px; }
+.gap-sm { gap: 10px; }
+.mb-xs { margin-bottom: 6px; }
+.mb-sm { margin-bottom: 10px; }
+.w-70 { width: 70px; }
+.w-100 { width: 100%; }
+.w-110 { width: 110px; }
+.w-140 { width: 140px; }
+.w-160 { width: 160px; }
+.w-200 { width: 200px; }
+.w-220 { width: 220px; }
+.w-260 { width: 260px; }
+.spacer { flex: 1 1 auto; }
+.fs-xs { font-size: .8rem; }
+.fs-sm { font-size: .9rem; }
+.text-muted { opacity: .7; }
+.table-hover tbody tr:hover { background: color-mix(in srgb, var(--primary) 6%, transparent); }
+
+/* Cabecera */
+.sec-toolbar { margin-bottom: 12px; }
+.sec-toolbar .titles h2 { margin: 0; font-size: 1.3rem; }
+.sec-toolbar .subtitle { margin: 2px 0 0 0; opacity: .75; font-size: .9rem; }
+
+/* Tabla */
+.table-shell { background: var(--surface); padding: 10px; border-radius: 10px; }
+.sec-table :where(th, td) { vertical-align: middle; }
+
+/* Fila destacada (flash) */
+@keyframes flashRow {
+  0% { background: color-mix(in srgb, var(--success) 16%, transparent); }
+  100% { background: transparent; }
+}
+.flash { animation: flashRow 1.2s ease-in-out 1; }
+
+/* Inputs dentro de celdas ocupan ancho completo */
+.p-inputtext.w-100 { width: 100%; }
+

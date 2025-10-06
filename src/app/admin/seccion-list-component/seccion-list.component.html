@@ -1,6 +1,8 @@
 <div class="list-wrapper">
+  <p-confirmDialog></p-confirmDialog>
+
   <!-- Toolbar principal -->
-  <div class="list-header sec-toolbar">
+  <div class="list-header sec-toolbar flex ai-center gap-sm">
     <div class="titles">
       <h2>Secciones</h2>
       <p class="subtitle" *ngIf="orgName">Organización: <b>{{ orgName }}</b></p>
@@ -9,9 +11,9 @@
     <div class="list-actions flex ai-center gap-sm flex-wrap">
       <span class="p-input-icon-left">
         <i class="pi pi-search"></i>
-        <input pInputText type="text" placeholder="Filtrar por nombre o descripción" [(ngModel)]="filter" (ngModelChange)="applyFilter()" class="w-200" />
+        <input pInputText type="text" placeholder="Filtrar por nombre o descripción" [(ngModel)]="filter" (ngModelChange)="applyFilter()" class="w-260" />
       </span>
-      <button pButton type="button" label="Crear" icon="pi pi-plus" (click)="goCreate()" class="p-button-success"></button>
+      <button pButton type="button" label="Nuevo" icon="pi pi-plus" (click)="startAdd()" [disabled]="adding || !!editingId" class="p-button-success"></button>
       <button pButton type="button" label="Recargar" icon="pi pi-refresh" (click)="load()" [disabled]="loading"></button>
     </div>
   </div>
@@ -19,32 +21,93 @@
   <p *ngIf="error" class="p-error mb-sm fs-sm">{{error}}</p>
   <p *ngIf="!loading && !error && filtered.length===0" class="mb-sm fs-sm text-muted">No hay secciones.</p>
 
-  <div *ngIf="filtered.length>0" class="table-shell">
+  <div *ngIf="rows.length>0" class="table-shell">
     <div class="table-meta fs-xs text-muted mb-xs">Mostrando {{filtered.length}} de {{items.length}}</div>
-    <p-table [value]="filtered" [loading]="loading" styleClass="p-datatable-sm sec-table table-hover" responsiveLayout="scroll">
+    <p-table [value]="rows" [loading]="loading" styleClass="p-datatable-sm sec-table table-hover" responsiveLayout="scroll">
       <ng-template pTemplate="header">
         <tr>
           <th class="w-70">#</th>
           <th>Nombre</th>
           <th>Descripción</th>
           <th class="w-110">Estado</th>
-          <th class="w-110">Autonomía</th>
-          <th class="w-160 text-center">Acciones</th>
+          <th class="w-140">Autonomía</th>
+          <th class="w-220 text-center">Acciones</th>
         </tr>
       </ng-template>
       <ng-template pTemplate="body" let-row let-i="rowIndex">
-        <tr>
-          <td>{{i+1}}</td>
-          <td>{{row.nombre}}</td>
-          <td><span class="fs-sm opacity-85">{{row.descripcion || '-'}}</span></td>
+        <tr [class.flash]="row.id === flashRowId">
+          <td>{{ i + 1 }}</td>
+
+          <!-- Columna Nombre -->
+          <td>
+            <ng-container *ngIf="adding && row.id === ''; else notAddingName">
+              <input pInputText [(ngModel)]="newDraft.nombre" placeholder="Nombre de la sección" class="w-100" />
+            </ng-container>
+            <ng-template #notAddingName>
+              <ng-container *ngIf="editingId === row.id; else viewName">
+                <input pInputText [ngModel]="editDraft?.nombre" (ngModelChange)="onEditChange('nombre', $event)" placeholder="Nombre de la sección" class="w-100" />
+              </ng-container>
+              <ng-template #viewName>
+                {{ row.nombre }}
+              </ng-template>
+            </ng-template>
+          </td>
+
+          <!-- Columna Descripción -->
+          <td>
+            <ng-container *ngIf="adding && row.id === ''; else notAddingDesc">
+              <input pInputText [(ngModel)]="newDraft.descripcion" placeholder="Descripción (opcional)" class="w-100" maxlength="160" />
+            </ng-container>
+            <ng-template #notAddingDesc>
+              <ng-container *ngIf="editingId === row.id; else viewDesc">
+                <input pInputText [ngModel]="editDraft?.descripcion" (ngModelChange)="onEditChange('descripcion', $event)" placeholder="Descripción (opcional)" class="w-100" maxlength="160" />
+              </ng-container>
+              <ng-template #viewDesc>
+                <span class="fs-sm opacity-85">{{ row.descripcion || '-' }}</span>
+              </ng-template>
+            </ng-template>
+          </td>
+
+          <!-- Columna Estado -->
           <td>
             <p-tag [severity]="(row.estado||'').toUpperCase()==='ACTIVA' ? 'success' : 'danger'" [value]="row.estado || '-' "></p-tag>
           </td>
+
+          <!-- Columna Autonomía -->
           <td>
-            <p-tag [severity]="row.autonomiaConfigurada ? 'success' : 'warn'" [value]="row.autonomiaConfigurada ? 'CONFIGURADA' : 'NO'" ></p-tag>
+            <ng-container *ngIf="adding && row.id === ''; else notAddingAuto">
+              <p-inputSwitch [(ngModel)]="newDraft.autonomiaConfigurada"></p-inputSwitch>
+            </ng-container>
+            <ng-template #notAddingAuto>
+              <ng-container *ngIf="editingId === row.id; else viewAuto">
+                <p-inputSwitch [ngModel]="editDraft?.autonomiaConfigurada" (ngModelChange)="onEditChange('autonomiaConfigurada', $event)"></p-inputSwitch>
+              </ng-container>
+              <ng-template #viewAuto>
+                <p-tag [severity]="row.autonomiaConfigurada ? 'success' : 'warn'" [value]="row.autonomiaConfigurada ? 'CONFIGURADA' : 'NO'"></p-tag>
+              </ng-template>
+            </ng-template>
           </td>
+
+          <!-- Columna Acciones -->
           <td class="flex gap-xs ai-center justify-center">
-            <button pButton type="button" icon="pi pi-pencil" class="p-button-rounded p-button-text" [disabled]="true" pTooltip="Editar (próximamente)" tooltipPosition="top"></button>
+            <!-- Acciones para fila de alta -->
+            <ng-container *ngIf="adding && row.id === ''">
+              <button pButton type="button" icon="pi pi-check" label="Guardar" class="p-button-success" (click)="saveAdd()" [disabled]="saving"></button>
+              <button pButton type="button" icon="pi pi-times" label="Cancelar" class="p-button-text" (click)="cancelAdd()" [disabled]="saving"></button>
+            </ng-container>
+
+            <!-- Acciones para fila en edición -->
+            <ng-container *ngIf="!adding && editingId === row.id">
+              <button pButton type="button" icon="pi pi-check" label="Guardar" class="p-button-success" (click)="saveEdit()" [disabled]="saving"></button>
+              <button pButton type="button" icon="pi pi-times" label="Cancelar" class="p-button-text" (click)="cancelEdit()" [disabled]="saving"></button>
+            </ng-container>
+
+            <!-- Acciones normales -->
+            <ng-container *ngIf="!adding && editingId !== row.id">
+              <button pButton type="button" icon="pi pi-pencil" class="p-button-rounded p-button-text" (click)="startEdit(row)" [disabled]="saving" pTooltip="Editar" tooltipPosition="top"></button>
+              <button pButton type="button" icon="pi pi-trash" class="p-button-rounded p-button-text p-button-danger" (click)="remove(row)" [disabled]="saving || (row.estado||'').toUpperCase()!=='ACTIVA'" pTooltip="Eliminar (marcar INACTIVA)" tooltipPosition="top"></button>
+              <button *ngIf="(row.estado||'').toUpperCase()==='INACTIVA'" pButton type="button" icon="pi pi-replay" class="p-button-rounded p-button-text p-button-success" (click)="reactivate(row)" [disabled]="saving" pTooltip="Reactivar" tooltipPosition="top"></button>
+            </ng-container>
           </td>
         </tr>
       </ng-template>

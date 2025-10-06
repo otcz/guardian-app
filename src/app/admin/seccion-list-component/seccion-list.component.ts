@@ -1,19 +1,19 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { FormsModule } from '@angular/forms';
-import { TableModule } from 'primeng/table';
-import { ButtonModule } from 'primeng/button';
-import { InputTextModule } from 'primeng/inputtext';
-import { TagModule } from 'primeng/tag';
-import { TooltipModule } from 'primeng/tooltip';
-import { Subscription, combineLatest } from 'rxjs';
-import { SeccionEntity, SeccionService, UpdateSeccionRequest } from '../../service/seccion.service';
-import { OrgContextService } from '../../service/org-context.service';
-import { OrganizationService } from '../../service/organization.service';
-import { InputSwitchModule } from 'primeng/inputswitch';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { ConfirmationService, MessageService } from 'primeng/api';
+import {Component, OnDestroy, OnInit} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {ActivatedRoute, Router, RouterModule} from '@angular/router';
+import {FormsModule} from '@angular/forms';
+import {TableModule} from 'primeng/table';
+import {ButtonModule} from 'primeng/button';
+import {InputTextModule} from 'primeng/inputtext';
+import {TagModule} from 'primeng/tag';
+import {TooltipModule} from 'primeng/tooltip';
+import {Subscription, combineLatest} from 'rxjs';
+import {SeccionEntity, SeccionService, UpdateSeccionRequest} from '../../service/seccion.service';
+import {OrgContextService} from '../../service/org-context.service';
+import {OrganizationService} from '../../service/organization.service';
+import {InputSwitchModule} from 'primeng/inputswitch';
+import {ConfirmDialogModule} from 'primeng/confirmdialog';
+import {ConfirmationService, MessageService} from 'primeng/api';
 
 @Component({
   selector: 'app-seccion-list',
@@ -50,7 +50,8 @@ export class SeccionListComponent implements OnInit, OnDestroy {
     private orgService: OrganizationService,
     private confirm: ConfirmationService,
     private messages: MessageService
-  ) {}
+  ) {
+  }
 
   ngOnInit(): void {
     // Resolver id desde params o query y escuchar cambios
@@ -67,11 +68,16 @@ export class SeccionListComponent implements OnInit, OnDestroy {
     });
   }
 
-  ngOnDestroy(): void { this.sub?.unsubscribe(); }
+  ngOnDestroy(): void {
+    this.sub?.unsubscribe();
+  }
 
   private loadOrgName(id: string) {
     this.orgName = null;
-    this.orgService.get(id).subscribe({ next: (org) => this.orgName = org?.nombre || null, error: () => this.orgName = null });
+    this.orgService.get(id).subscribe({
+      next: (org) => this.orgName = org?.nombre || null,
+      error: () => this.orgName = null
+    });
   }
 
   load() {
@@ -93,12 +99,17 @@ export class SeccionListComponent implements OnInit, OnDestroy {
 
   applyFilter() {
     const f = (this.filter || '').trim().toLowerCase();
-    if (!f) { this.filtered = [...this.items]; return; }
+    if (!f) {
+      this.filtered = [...this.items];
+      return;
+    }
     this.filtered = this.items.filter(s => (s.nombre || '').toLowerCase().includes(f) || (s.descripcion || '').toLowerCase().includes(f));
   }
 
   // Draft helpers
-  private blank(): SeccionEntity { return { id: '', nombre: '', descripcion: '', estado: 'ACTIVA', autonomiaConfigurada: false, seccionPadreId: null }; }
+  private blank(): SeccionEntity {
+    return {id: '', nombre: '', descripcion: '', estado: 'ACTIVA', autonomiaConfigurada: false, seccionPadreId: null};
+  }
 
   // Add flow
   startAdd() {
@@ -106,14 +117,19 @@ export class SeccionListComponent implements OnInit, OnDestroy {
     this.adding = true;
     this.newDraft = this.blank();
   }
+
   cancelAdd() {
     this.adding = false;
     this.newDraft = this.blank();
   }
+
   saveAdd() {
     if (!this.orgId) return;
     const err = this.validate(this.newDraft);
-    if (err) { this.toastWarn('Validación', err); return; }
+    if (err) {
+      this.toastWarn('Validación', err);
+      return;
+    }
     const body = {
       nombre: (this.newDraft.nombre || '').trim(),
       descripcion: (this.newDraft.descripcion || '').trim() || undefined,
@@ -143,16 +159,21 @@ export class SeccionListComponent implements OnInit, OnDestroy {
   startEdit(row: SeccionEntity) {
     if (this.adding) return;
     this.editingId = row.id;
-    this.editDraft = { ...row };
+    this.editDraft = {...row};
   }
+
   cancelEdit() {
     this.editingId = null;
     this.editDraft = null;
   }
+
   saveEdit() {
     if (!this.orgId || !this.editDraft || !this.editingId) return;
     const err = this.validate(this.editDraft);
-    if (err) { this.toastWarn('Validación', err); return; }
+    if (err) {
+      this.toastWarn('Validación', err);
+      return;
+    }
     const body: UpdateSeccionRequest = {
       nombre: (this.editDraft.nombre || '').trim(),
       descripcion: (this.editDraft.descripcion || '').trim() || null,
@@ -171,7 +192,7 @@ export class SeccionListComponent implements OnInit, OnDestroy {
         const idx = this.items.findIndex(i => i.id === this.editingId);
         if (idx >= 0) {
           // Primero aplicar lo editado (optimista) y luego datos del backend
-          this.items[idx] = { ...this.items[idx], ...optimistic, ...res.seccion } as SeccionEntity;
+          this.items[idx] = {...this.items[idx], ...optimistic, ...res.seccion} as SeccionEntity;
         }
         this.applyFilter();
         const flashId = this.editingId;
@@ -203,7 +224,7 @@ export class SeccionListComponent implements OnInit, OnDestroy {
             if (res?.soft) {
               // Baja lógica: mantener fila y actualizar estado/devueltos
               const idx = this.items.findIndex(i => i.id === row.id);
-              if (idx >= 0) this.items[idx] = { ...this.items[idx], ...(res.seccion || {} as any) };
+              if (idx >= 0) this.items[idx] = {...this.items[idx], ...(res.seccion || {} as any)};
               this.applyFilter();
               this.saving = false;
               this.toastSuccess('Sección inactivada', res?.message || 'Se marcó como INACTIVA');
@@ -215,7 +236,10 @@ export class SeccionListComponent implements OnInit, OnDestroy {
               this.toastSuccess('Sección eliminada', res?.message || 'Eliminada correctamente');
             }
           },
-          error: (e) => { this.saving = false; this.toastError('Error', e?.error?.message || 'No se pudo eliminar la sección'); }
+          error: (e) => {
+            this.saving = false;
+            this.toastError('Error', e?.error?.message || 'No se pudo eliminar la sección');
+          }
         });
       }
     });
@@ -230,7 +254,7 @@ export class SeccionListComponent implements OnInit, OnDestroy {
     this.svc.changeState(this.orgId, row.id, estadoTarget).subscribe({
       next: (res) => {
         const idx = this.items.findIndex(i => i.id === row.id);
-        if (idx >= 0) this.items[idx] = { ...this.items[idx], ...res.seccion };
+        if (idx >= 0) this.items[idx] = {...this.items[idx], ...res.seccion};
         this.applyFilter();
         this.toastSuccess('ESTADO ACTUALIZADO', res.message || `SE MARCÓ COMO ${estadoTarget}`);
       },
@@ -242,28 +266,15 @@ export class SeccionListComponent implements OnInit, OnDestroy {
     });
   }
 
-  reactivate(row: SeccionEntity) {
-    if (!this.orgId || !row.id) return;
-    this.svc.changeState(this.orgId, row.id, 'ACTIVA').subscribe({
-      next: (res) => {
-        const idx = this.items.findIndex(i => i.id === row.id);
-        if (idx >= 0) this.items[idx] = { ...this.items[idx], ...res.seccion };
-        this.applyFilter();
-        this.toastSuccess('SECCIÓN REACTIVADA', res.message || 'SE MARCÓ COMO ACTIVA');
-      },
-      error: (e) => this.toastError('Error', e?.error?.message || 'NO SE PUDO REACTIVAR LA SECCIÓN')
-    });
-  }
-
   onToggleAutonomia(row: SeccionEntity, checked: boolean) {
     if (!this.orgId) return;
     const prev = !!row.autonomiaConfigurada;
     // Optimista
     row.autonomiaConfigurada = checked;
-    this.svc.update(this.orgId, row.id, { autonomiaConfigurada: checked }).subscribe({
+    this.svc.setAutonomia(this.orgId, row.id, checked).subscribe({
       next: (res) => {
         const idx = this.items.findIndex(i => i.id === row.id);
-        if (idx >= 0) this.items[idx] = { ...this.items[idx], ...res.seccion };
+        if (idx >= 0) this.items[idx] = {...this.items[idx], ...res.seccion};
         this.applyFilter();
         this.toastSuccess('AUTONOMÍA ACTUALIZADA', checked ? 'CONFIGURADA' : 'NO CONFIGURADA');
       },
@@ -280,21 +291,28 @@ export class SeccionListComponent implements OnInit, OnDestroy {
     if (model.descripcion && model.descripcion.length > 160) return 'LA DESCRIPCIÓN EXCEDE 160 CARACTERES';
     return null;
   }
-  flash(id: string) { this.flashRowId = id; setTimeout(() => this.flashRowId = null, 1200); }
+
+  flash(id: string) {
+    this.flashRowId = id;
+    setTimeout(() => this.flashRowId = null, 1200);
+  }
+
   toastSuccess(summary: string, detail?: string) {
     const s = (summary || '').toString().toUpperCase();
     const d = (detail || '').toString().toUpperCase();
-    this.messages.add({ severity: 'success', summary: s, detail: d, life: 3500 });
+    this.messages.add({severity: 'success', summary: s, detail: d, life: 3500});
   }
+
   toastWarn(summary: string, detail?: string) {
     const s = (summary || '').toString().toUpperCase();
     const d = (detail || '').toString().toUpperCase();
-    this.messages.add({ severity: 'warn', summary: s, detail: d, life: 3500 });
+    this.messages.add({severity: 'warn', summary: s, detail: d, life: 3500});
   }
+
   toastError(summary: string, detail?: string) {
     const s = (summary || '').toString().toUpperCase();
     const d = (detail || '').toString().toUpperCase();
-    this.messages.add({ severity: 'error', summary: s, detail: d, life: 4500 });
+    this.messages.add({severity: 'error', summary: s, detail: d, life: 4500});
   }
 
   get rows(): SeccionEntity[] {

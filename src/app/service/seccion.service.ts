@@ -151,6 +151,38 @@ export class SeccionService {
     );
   }
 
+  setAutonomia(orgId: string, seccionId: string, autonomia: boolean): Observable<{ seccion: SeccionEntity; message?: string }> {
+    const path = `/orgs/${orgId}/secciones/${seccionId}/autonomia`;
+    const url = `${this.base}${path}`;
+    const urlFallback = `${environment.backendHost}${this.base}${path}`;
+
+    const mapResp = (resp: ApiResponse<any>) => {
+      if (!resp || resp.success === false) {
+        throw { error: { message: resp?.message || 'NO SE PUDO ACTUALIZAR LA AUTONOMÍA' }, status: 400 };
+      }
+      const d = (resp.data || {}) as any;
+      const seccion: SeccionEntity = {
+        id: String(d.id ?? seccionId),
+        nombre: (d?.nombre != null ? String(d.nombre) : undefined) as any,
+        descripcion: d.descripcion || undefined,
+        estado: d.estado || undefined,
+        autonomiaConfigurada: d.autonomiaConfigurada != null ? !!d.autonomiaConfigurada : autonomia,
+        seccionPadreId: d.seccionPadreId ?? d.idSeccionPadre ?? null
+      } as SeccionEntity;
+      return { seccion, message: resp.message };
+    };
+
+    const options = { headers: this.accept, params: { autonomia } as any } as const;
+
+    return this.http.patch<ApiResponse<any>>(url, null, options).pipe(
+      map(mapResp),
+      catchError((e1) => this.http.patch<ApiResponse<any>>(urlFallback, null, options).pipe(
+        map(mapResp),
+        catchError((e2) => throwError(() => ({ error: { message: e1?.error?.message || e2?.error?.message || 'NO SE PUDO ACTUALIZAR LA AUTONOMÍA' }, status: e2?.status ?? e1?.status })))
+      ))
+    );
+  }
+
   delete(orgId: string, seccionId: string): Observable<{ message?: string; seccion?: SeccionEntity; soft?: boolean }> {
     const basePath = `/orgs/${orgId}/secciones/${seccionId}`;
     const url = `${this.base}${basePath}`;

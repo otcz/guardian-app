@@ -1,0 +1,100 @@
+<div class="list-wrapper">
+
+  <div class="list-header flex ai-center gap-sm">
+    <div class="titles">
+      <h2>Roles</h2>
+    </div>
+    <span class="spacer"></span>
+    <div class="list-actions flex ai-center gap-sm flex-wrap">
+      <span class="p-input-icon-left">
+        <i class="pi pi-search"></i>
+        <input pInputText type="text" placeholder="Filtrar por nombre o descripción" [(ngModel)]="filter" (ngModelChange)="applyFilter()" class="w-260" />
+      </span>
+      <button pButton type="button" label="Nuevo" icon="pi pi-plus" (click)="startAdd()" [disabled]="adding || !!editingId" class="p-button-success"></button>
+      <button pButton type="button" label="Recargar" icon="pi pi-refresh" (click)="load()" [disabled]="loading"></button>
+    </div>
+  </div>
+
+  <p *ngIf="error" class="p-error mb-sm fs-sm">{{error}}</p>
+  <p *ngIf="!loading && !error && filtered.length===0" class="mb-sm fs-sm text-muted">No hay roles.</p>
+
+  <div *ngIf="rows.length>0" class="table-shell">
+    <div class="table-meta fs-xs text-muted mb-xs">Mostrando {{filtered.length}} de {{items.length}}</div>
+    <p-table [value]="rows" [loading]="loading" styleClass="p-datatable-sm table-hover" responsiveLayout="scroll">
+      <ng-template pTemplate="header">
+        <tr>
+          <th class="w-70">#</th>
+          <th>Nombre</th>
+          <th>Descripción</th>
+          <th class="w-120">Estado</th>
+          <th class="w-220 text-center">Acciones</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-row let-i="rowIndex">
+        <tr [class.flash]="row.id === flashRowId">
+          <td>{{ i + 1 }}</td>
+
+          <td>
+            <ng-container *ngIf="adding && row.id === ''; else notAddingName">
+              <input pInputText [(ngModel)]="newDraft.nombre" placeholder="Nombre del rol" class="w-100" />
+            </ng-container>
+            <ng-template #notAddingName>
+              <ng-container *ngIf="editingId === row.id; else viewName">
+                <input pInputText [ngModel]="editDraft?.nombre" (ngModelChange)="onEditChange('nombre', $event)" placeholder="Nombre del rol" class="w-100" />
+              </ng-container>
+              <ng-template #viewName>
+                {{ row.nombre }}
+              </ng-template>
+            </ng-template>
+          </td>
+
+          <td>
+            <ng-container *ngIf="adding && row.id === ''; else notAddingDesc">
+              <input pInputText [(ngModel)]="newDraft.descripcion" placeholder="Descripción (opcional)" class="w-100" maxlength="160" />
+            </ng-container>
+            <ng-template #notAddingDesc>
+              <ng-container *ngIf="editingId === row.id; else viewDesc">
+                <input pInputText [ngModel]="editDraft?.descripcion" (ngModelChange)="onEditChange('descripcion', $event)" placeholder="Descripción (opcional)" class="w-100" maxlength="160" />
+              </ng-container>
+              <ng-template #viewDesc>
+                <span class="fs-sm opacity-85">{{ row.descripcion || '-' }}</span>
+              </ng-template>
+            </ng-template>
+          </td>
+
+          <td>
+            <div class="flex ai-center gap-xs">
+              <p-inputSwitch
+                [ngModel]="['ACTIVO'].includes((row.estado||'').toUpperCase())"
+                (onChange)="onToggleEstado(row, $event.checked)"
+                [disabled]="saving || (adding && row.id==='')">
+              </p-inputSwitch>
+              <p-tag [severity]="['ACTIVO'].includes((row.estado||'').toUpperCase()) ? 'success' : 'danger'" [value]="row.estado || '-' "></p-tag>
+            </div>
+          </td>
+
+          <td class="flex gap-xs ai-center justify-center">
+            <ng-container *ngIf="adding && row.id === ''">
+              <button pButton type="button" icon="pi pi-check" label="Guardar" class="p-button-success" (click)="saveAdd()" [disabled]="saving"></button>
+              <button pButton type="button" icon="pi pi-times" label="Cancelar" class="p-button-text" (click)="cancelAdd()" [disabled]="saving"></button>
+            </ng-container>
+
+            <ng-container *ngIf="!adding && editingId === row.id">
+              <button pButton type="button" icon="pi pi-check" label="Guardar" class="p-button-success" (click)="saveEdit()" [disabled]="saving"></button>
+              <button pButton type="button" icon="pi pi-times" label="Cancelar" class="p-button-text" (click)="cancelEdit()" [disabled]="saving"></button>
+            </ng-container>
+
+            <ng-container *ngIf="!adding && editingId !== row.id">
+              <button pButton type="button" icon="pi pi-pencil" class="p-button-rounded p-button-text" (click)="startEdit(row)" [disabled]="saving" pTooltip="EDITAR" tooltipPosition="top"></button>
+              <button pButton type="button" icon="pi pi-trash" class="p-button-rounded p-button-text p-button-danger" (click)="remove(row)" [disabled]="saving" pTooltip="ELIMINAR" tooltipPosition="top"></button>
+            </ng-container>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr><td colspan="5" class="text-center fs-sm text-muted">Sin datos</td></tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>
+

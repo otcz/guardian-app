@@ -9,15 +9,15 @@ import { MenuService, MenuOption } from './service/menu.service';
 import { Observable, map, BehaviorSubject, combineLatest, filter } from 'rxjs';
 import { InputTextModule } from 'primeng/inputtext';
 import { FormsModule } from '@angular/forms';
-import { ToastModule } from 'primeng/toast';
 import { UserAvatarProComponent } from './shared/user-avatar-pro.component';
+import { FeedbackCenterComponent } from './shared/feedback-center.component';
 
 @Component({
   standalone: true,
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.css'],
-  imports: [RouterModule, CommonModule, ButtonModule, TableModule, ThemeToggleComponent, InputTextModule, FormsModule, ToastModule, UserAvatarProComponent]
+  imports: [RouterModule, CommonModule, ButtonModule, TableModule, ThemeToggleComponent, InputTextModule, FormsModule, UserAvatarProComponent, FeedbackCenterComponent]
 })
 export class AppComponent {
   // Lógica migrada del antiguo DashboardComponent
@@ -102,7 +102,10 @@ export class AppComponent {
         '/configurar-parametros-globales',
         '/ver-auditoria-de-organizacion',
         '/crear-seccion',
-        '/listar-secciones'
+        '/listar-secciones',
+        '/listar-roles',
+        '/crear-rol',
+        '/gestionar-rol'
       ]);
       if (needsId.has(base)) {
         try { const id = localStorage.getItem('currentOrgId'); if (id) return { id }; } catch {}

@@ -15,6 +15,8 @@ import { StrategyChangePageComponent } from './admin/organizacion-strategy-chang
 import { SeccionFormComponent } from './admin/seccion-form-component/seccion-form.component';
 import { OrgRequiredGuard } from './service/org-required.guard';
 import { SeccionListComponent } from './admin/seccion-list-component/seccion-list.component';
+import { RolesListComponent } from './admin/roles-list-component/roles-list.component';
+import { RolesCreatePageComponent } from './admin/roles-create-page/roles-create-page.component';
 
 export const appRoutes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -34,6 +36,9 @@ export const appRoutes: Routes = [
       { path: 'cambiar-estrategia-de-gobernanza', component: StrategyChangePageComponent, canActivate: [OrgRequiredGuard] },
       { path: 'crear-seccion', component: SeccionFormComponent, canActivate: [OrgRequiredGuard] },
       { path: 'listar-secciones', component: SeccionListComponent, canActivate: [OrgRequiredGuard] },
+      { path: 'crear-rol', component: RolesCreatePageComponent, canActivate: [OrgRequiredGuard] },
+      { path: 'gestionar-rol', component: RolesListComponent, canActivate: [OrgRequiredGuard] },
+      { path: 'listar-roles', component: RolesListComponent, canActivate: [OrgRequiredGuard] },
       {
         path: 'admin',
         children: [
@@ -51,5 +56,8 @@ export const appRoutes: Routes = [
   { path: 'dashboard/configurar-parametros-globales', redirectTo: 'configurar-parametros-globales', pathMatch: 'full' },
   { path: 'dashboard/ver-auditoria-de-organizacion', redirectTo: 'ver-auditoria-de-organizacion', pathMatch: 'full' },
   { path: 'dashboard/listar-secciones', redirectTo: 'listar-secciones', pathMatch: 'full' },
+  { path: 'dashboard/listar-roles', redirectTo: 'listar-roles', pathMatch: 'full' },
+  { path: 'dashboard/crear-rol', redirectTo: 'crear-rol', pathMatch: 'full' },
+  { path: 'dashboard/gestionar-rol', redirectTo: 'gestionar-rol', pathMatch: 'full' },
   { path: '**', redirectTo: '' }
 ];

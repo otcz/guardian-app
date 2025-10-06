@@ -212,6 +212,9 @@ export class MenuService {
       const looksVerAuditoria = (nameNorm.includes('ver') || nameNorm.includes('auditoria')) && nameNorm.includes('organizacion');
       const looksCrearSeccion = nameNorm.includes('crear') && (nameNorm.includes('seccion') || nameNorm.includes('sección'));
       const looksListarSeccion = (nameNorm.includes('listar') || nameNorm.includes('listado')) && (nameNorm.includes('seccion') || nameNorm.includes('sección'));
+      const looksCrearRol = nameNorm.includes('crear') && nameNorm.includes('rol');
+      const looksGestionarRol = nameNorm.includes('gestionar') && nameNorm.includes('rol');
+      const looksListarRol = (nameNorm.includes('listar') || nameNorm.includes('listado')) && (nameNorm.includes('rol') || nameNorm.includes('roles'));
 
       if (looksCrearEstrategia) path = '/crear-estrategia-de-gobernanza';
       if (looksCambiarEstrategia) path = '/cambiar-estrategia-de-gobernanza';
@@ -222,6 +225,9 @@ export class MenuService {
       if (looksVerAuditoria) path = '/ver-auditoria-de-organizacion';
       if (looksCrearSeccion) path = '/crear-seccion';
       if (looksListarSeccion) path = '/listar-secciones';
+      if (looksCrearRol) path = '/crear-rol';
+      if (looksGestionarRol) path = '/gestionar-rol';
+      if (looksListarRol) path = '/listar-roles';
 
       // Si sigue sin path, usar heurística por menú padre (estrategias)
       if (!path && parentNorm.includes('gestion-de-estrategias-de-gobernanza')) {
@@ -233,9 +239,15 @@ export class MenuService {
         if (nameNorm.includes('crear')) path = '/crear-seccion';
         else if (nameNorm.includes('listar') || nameNorm.includes('listado')) path = '/listar-secciones';
       }
+      // Heurística por menú padre gestión de roles
+      if (!path && (parentNorm.includes('gestion-de-roles'))) {
+        if (nameNorm.includes('crear')) path = '/crear-rol';
+        else if (nameNorm.includes('gestionar')) path = '/gestionar-rol';
+        else if (nameNorm.includes('listar') || nameNorm.includes('listado')) path = '/listar-roles';
+      }
 
-      // Adjuntar id organización cuando aplica (cambiar estrategia, gestionar, configurar, auditar, crear/listar sección)
-      const needsOrgId = looksCambiarEstrategia || looksGestionarOrg || looksConfigParams || looksVerAuditoria || looksCrearSeccion || looksListarSeccion;
+      // Adjuntar id organización cuando aplica (cambiar estrategia, gestionar, configurar, auditar, crear/listar sección/roles)
+      const needsOrgId = looksCambiarEstrategia || looksGestionarOrg || looksConfigParams || looksVerAuditoria || looksCrearSeccion || looksListarSeccion || looksCrearRol || looksGestionarRol || looksListarRol;
       if (path && needsOrgId && !path.includes('?')) {
         try { const orgId = localStorage.getItem('currentOrgId'); if (orgId) path = `${path}?id=${encodeURIComponent(orgId)}`; } catch {}
       }

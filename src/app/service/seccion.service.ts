@@ -57,25 +57,40 @@ export class SeccionService {
   }
 
   list(orgId: string): Observable<SeccionEntity[]> {
-    const url = `${this.base}/orgs/${orgId}/secciones`;
-    return this.http.get<ApiResponse<any>>(url, { headers: this.accept }).pipe(
-      map((resp) => {
-        if (!resp || resp.success === false) {
-          throw { error: { message: resp?.message || 'No se pudieron obtener las secciones' }, status: 400 };
+    const path = `/orgs/${orgId}/secciones`;
+    const urlPrimary = `${this.base}${path}`; // e.g., /api/orgs/{id}/secciones
+    const urlFallback = `${environment.backendHost}${this.base}${path}`; // e.g., http://localhost:8080/api/...
+
+    const mapResponse = (resp: ApiResponse<any>): SeccionEntity[] => {
+      if (!resp || resp.success === false) {
+        throw { error: { message: resp?.message || 'No se pudieron obtener las secciones' }, status: 400 };
+      }
+      const arr = Array.isArray(resp.data) ? resp.data : [];
+      return arr.map((d: any) => ({
+        id: String(d.id),
+        nombre: String(d.nombre),
+        descripcion: d.descripcion || undefined,
+        estado: d.estado || undefined,
+        autonomiaConfigurada: !!(d.autonomiaConfigurada ?? d.autonomiaConfigurada === true),
+        seccionPadreId: d.seccionPadreId ?? d.idSeccionPadre ?? null
+      })) as SeccionEntity[];
+    };
+
+    return this.http.get<ApiResponse<any>>(urlPrimary, { headers: this.accept }).pipe(
+      map(mapResponse),
+      catchError((err) => {
+        const status = err?.status;
+        // Fallback en errores de red/proxy o 404 del proxy
+        if (status === 0 || status === 404 || status === 502 || status === 503) {
+          return this.http.get<ApiResponse<any>>(urlFallback, { headers: this.accept }).pipe(
+            map(mapResponse),
+            catchError((e2) =>
+              throwError(() => ({ error: { message: e2?.error?.message || e2?.message || 'No se pudieron obtener las secciones' }, status: e2?.status }))
+            )
+          );
         }
-        const arr = Array.isArray(resp.data) ? resp.data : [];
-        return arr.map((d: any) => ({
-          id: String(d.id),
-          nombre: String(d.nombre),
-          descripcion: d.descripcion || undefined,
-          estado: d.estado || undefined,
-          autonomiaConfigurada: !!d.autonomiaConfigurada,
-          seccionPadreId: d.seccionPadreId ?? null
-        })) as SeccionEntity[];
-      }),
-      catchError((err) =>
-        throwError(() => ({ error: { message: err?.error?.message || err?.message || 'No se pudieron obtener las secciones' }, status: err?.status }))
-      )
+        return throwError(() => ({ error: { message: err?.error?.message || err?.message || 'No se pudieron obtener las secciones' }, status }));
+      })
     );
   }
 }

@@ -10,13 +10,14 @@ import { Observable, map, BehaviorSubject, combineLatest, filter } from 'rxjs';
 import { InputTextModule } from 'primeng/inputtext';
 import { FormsModule } from '@angular/forms';
 import { ToastModule } from 'primeng/toast';
+import { UserAvatarComponent } from './shared/user-avatar.component';
 
 @Component({
   standalone: true,
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.css'],
-  imports: [RouterModule, CommonModule, ButtonModule, TableModule, ThemeToggleComponent, InputTextModule, FormsModule, ToastModule]
+  imports: [RouterModule, CommonModule, ButtonModule, TableModule, ThemeToggleComponent, InputTextModule, FormsModule, ToastModule, UserAvatarComponent]
 })
 export class AppComponent {
   title = 'guardian';

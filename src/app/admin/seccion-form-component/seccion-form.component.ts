@@ -9,6 +9,7 @@ import { ButtonModule } from 'primeng/button';
 import { SeccionService, CreateSeccionRequest, SeccionEntity } from '../../service/seccion.service';
 import { NotificationService } from '../../service/notification.service';
 import { DropdownModule } from 'primeng/dropdown';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-seccion-form',
@@ -23,6 +24,7 @@ export class SeccionFormComponent {
 
   form: FormGroup;
   secciones: SeccionEntity[] = [];
+  private sub?: Subscription;
 
   constructor(
     private fb: FormBuilder,
@@ -34,7 +36,7 @@ export class SeccionFormComponent {
     this.form = this.fb.group({
       nombre: ['', [Validators.required, Validators.maxLength(150)]],
       descripcion: [''],
-      seccionPadreId: [''],
+      seccionPadreId: [null],
       autonomiaConfigurada: [false]
     });
 
@@ -45,12 +47,28 @@ export class SeccionFormComponent {
   }
 
   ngOnInit() {
+    // Cargar secciones iniciales si hay orgId actual
     if (this.orgId) {
-      this.svc.list(this.orgId).subscribe({
-        next: (items) => (this.secciones = items),
-        error: (e) => this.notify.warn('Secciones', e?.error?.message || 'No se pudieron cargar las secciones')
-      });
+      this.loadSecciones(this.orgId);
     }
+    // Reaccionar a cambios en query params (p. ej., navegación interna)
+    this.sub = this.route.queryParamMap.subscribe((qp) => {
+      const qId = qp.get('id');
+      const nextOrgId = qId || localStorage.getItem('currentOrgId');
+      if (nextOrgId && nextOrgId !== this.orgId) {
+        this.orgId = nextOrgId;
+        this.loadSecciones(this.orgId);
+      }
+    });
+  }
+
+  ngOnDestroy() { this.sub?.unsubscribe(); }
+
+  private loadSecciones(orgId: string) {
+    this.svc.list(orgId).subscribe({
+      next: (items) => (this.secciones = items || []),
+      error: (e) => this.notify.warn('Secciones', e?.error?.message || 'No se pudieron cargar las secciones')
+    });
   }
 
   get f() { return this.form.controls; }

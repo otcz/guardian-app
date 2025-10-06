@@ -20,6 +20,17 @@
 :host-context(.theme-dark) .field label,
 :host-context(.theme-black) .field label { color: #fff; }
 
+/* Legibilidad en tema claro: labels y dropdown en negro */
+:host-context(.theme-light) .field label { color: #222 !important; }
+:host-context(.theme-light) ::ng-deep .seccion-padre-control.p-dropdown { background: #fff; border-color: rgba(0,0,0,.15); }
+:host-context(.theme-light) ::ng-deep .seccion-padre-control .p-dropdown-label { color: #222 !important; }
+:host-context(.theme-light) ::ng-deep .seccion-padre-control .p-dropdown-label.p-placeholder { color: rgba(0,0,0,.6) !important; }
+:host-context(.theme-light) ::ng-deep .seccion-padre-control .p-dropdown-items .p-dropdown-item { color: #222 !important; }
+
+/* Tema oscuro: asegurar contraste en dropdown */
+:host-context(.theme-dark) ::ng-deep .seccion-padre-control .p-dropdown-label,
+:host-context(.theme-black) ::ng-deep .seccion-padre-control .p-dropdown-label { color: #fff !important; }
+
 /* ===== Fix InputSwitch: mismo estilo que crear-estrategy ===== */
 :host ::ng-deep .p-inputswitch { width: 42px; height: 22px; }
 :host ::ng-deep .p-inputswitch .p-inputswitch-slider { position: relative; }

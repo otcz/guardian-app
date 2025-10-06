@@ -8,6 +8,7 @@ import { AuthService } from '../service/auth.service';
 import { ThemeToggleComponent } from '../shared/theme-toggle.component';
 import { UppercaseDirective } from '../shared/formatting.directives';
 import { MenuService } from '../service/menu.service';
+import { OrganizationService, Organization } from '../service/organization.service';
 
 @Component({
   selector: 'app-login',
@@ -23,7 +24,7 @@ export class LoginComponent {
 
   form!: FormGroup;
 
-  constructor(private fb: FormBuilder, private auth: AuthService, private router: Router, private menu: MenuService) {
+  constructor(private fb: FormBuilder, private auth: AuthService, private router: Router, private menu: MenuService, private orgSvc: OrganizationService) {
     this.form = this.fb.group({
       username: ['', Validators.required],
       password: ['', Validators.required]
@@ -60,9 +61,52 @@ export class LoginComponent {
         localStorage.setItem('expiresAt', String(expiresAt));
         // Menú (el servicio ya lo hace, pero mantenemos idempotente)
         this.menu.setFromLogin(resp.opcionesDetalle);
-        // Navegar al inicio (antes '/dashboard')
-        this.router.navigate(['/']);
-        this.loading = false;
+        // Intentar autoselección/conservación de organización
+        this.orgSvc.list().subscribe({
+          next: (orgs: Organization[]) => {
+            const nonSysAdmin = !isSys;
+            const prev = (() => { try { return localStorage.getItem('currentOrgId'); } catch { return null; } })();
+            const hasPrev = !!prev && Array.isArray(orgs) && orgs.some(o => String(o.id) === String(prev));
+
+            if (nonSysAdmin && Array.isArray(orgs) && orgs.length === 1 && orgs[0]?.id) {
+              try { localStorage.setItem('currentOrgId', String(orgs[0].id)); } catch {}
+              this.menu.setFromLogin(resp.opcionesDetalle);
+              this.router.navigate(['/']);
+              this.loading = false;
+              return;
+            }
+
+            if (nonSysAdmin && hasPrev) {
+              // Conservar selección anterior si sigue siendo válida
+              this.menu.setFromLogin(resp.opcionesDetalle);
+              this.router.navigate(['/']);
+              this.loading = false;
+              return;
+            }
+
+            if (nonSysAdmin) {
+              // Requiere selección explícita
+              this.router.navigate(['/listar-organizaciones']);
+              this.loading = false;
+              return;
+            }
+
+            // Sysadmin u otros: ir a home
+            this.router.navigate(['/']);
+            this.loading = false;
+          },
+          error: () => {
+            // Si falla, intentar con selección previa; si no hay, forzar selección
+            const prev = (() => { try { return localStorage.getItem('currentOrgId'); } catch { return null; } })();
+            if (prev) {
+              this.menu.setFromLogin(resp.opcionesDetalle);
+              this.router.navigate(['/']);
+            } else {
+              this.router.navigate(['/listar-organizaciones']);
+            }
+            this.loading = false;
+          }
+        });
       },
       error: (e: any) => {
         if (e?.status === 0) this.errorMsg = 'No fue posible conectar con el servidor.';

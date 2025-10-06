@@ -92,6 +92,7 @@ export class AuthService {
     localStorage.removeItem('expiresAt');
     localStorage.removeItem('username');
     localStorage.removeItem('roles');
+    try { localStorage.removeItem('currentOrgId'); } catch {}
     this.menu.clear();
   }
 }

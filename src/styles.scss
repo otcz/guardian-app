@@ -771,8 +771,8 @@ body .p-toast .p-toast-message-info {
 :root.theme-dark body .ng-star-inserted.p-dropdown-panel,
 :root.theme-dark body .ng-star-inserted.p-multiselect-panel,
 :root.theme-black body .ng-star-inserted.p-select-overlay,
-:root.theme-black body .ng-star-inserted.p-dropdown-panel,
-:root.theme-black body .ng-star-inserted.p-multiselect-panel {
+:root.theme_black body .ng-star-inserted.p-dropdown-panel,
+:root.theme_black body .ng-star-inserted.p-multiselect-panel {
   background: color-mix(in srgb, var(--surface) 92%, #000) !important;
   color: #fff !important;
 }
@@ -798,3 +798,27 @@ body .p-toast .p-toast-message-info {
   background: color-mix(in srgb, var(--primary) 8%, #ffffff) !important;
 }
 
+/* Tema claro: asegurar label negro para el control Sección Padre */
+:root.theme-light body .seccion-padre-control.p-dropdown .p-dropdown-label { color: #000 !important; }
+:root.theme-light body .seccion-padre-control.p-dropdown .p-dropdown-label.p-placeholder { color: #4b5563 !important; }
+
+/* Tema claro: refuerzo adicional para el texto del label (y su span interno) */
+:root.theme-light body .seccion-padre-control .p-dropdown-label,
+:root.theme-light body .seccion-padre-control .p-dropdown-label span { color: #000 !important; }
+
+/* ===== Popover (PrimeNG) en modo claro ===== */
+:root.theme-light body .p-popover {
+  background: #ffffff !important;
+  color: #111 !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: 0 14px 32px rgba(0,0,0,0.12), 0 6px 18px rgba(79,140,255,0.12) !important;
+}
+:root.theme-light body .p-popover .p-popover-content {
+  background: transparent !important;
+  color: inherit !important;
+  font-size: 0.95rem; /* un poco más alto */
+}
+:root.theme-light body .p-popover .p-popover-arrow {
+  border-right-color: #ffffff !important;
+  border-left-color: #ffffff !important;
+}

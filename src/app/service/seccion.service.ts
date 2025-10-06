@@ -55,5 +55,27 @@ export class SeccionService {
       catchError((err) => throwError(() => ({ error: { message: err?.error?.message || err?.message || 'No se pudo crear la sección' }, status: err?.status })))
     );
   }
-}
 
+  list(orgId: string): Observable<SeccionEntity[]> {
+    const url = `${this.base}/orgs/${orgId}/secciones`;
+    return this.http.get<ApiResponse<any>>(url, { headers: this.accept }).pipe(
+      map((resp) => {
+        if (!resp || resp.success === false) {
+          throw { error: { message: resp?.message || 'No se pudieron obtener las secciones' }, status: 400 };
+        }
+        const arr = Array.isArray(resp.data) ? resp.data : [];
+        return arr.map((d: any) => ({
+          id: String(d.id),
+          nombre: String(d.nombre),
+          descripcion: d.descripcion || undefined,
+          estado: d.estado || undefined,
+          autonomiaConfigurada: !!d.autonomiaConfigurada,
+          seccionPadreId: d.seccionPadreId ?? null
+        })) as SeccionEntity[];
+      }),
+      catchError((err) =>
+        throwError(() => ({ error: { message: err?.error?.message || err?.message || 'No se pudieron obtener las secciones' }, status: err?.status }))
+      )
+    );
+  }
+}

@@ -6,13 +6,14 @@ import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputSwitchModule } from 'primeng/inputswitch';
 import { ButtonModule } from 'primeng/button';
-import { SeccionService, CreateSeccionRequest } from '../../service/seccion.service';
+import { SeccionService, CreateSeccionRequest, SeccionEntity } from '../../service/seccion.service';
 import { NotificationService } from '../../service/notification.service';
+import { DropdownModule } from 'primeng/dropdown';
 
 @Component({
   selector: 'app-seccion-form',
   standalone: true,
-  imports: [CommonModule, RouterModule, ReactiveFormsModule, CardModule, InputTextModule, InputSwitchModule, ButtonModule],
+  imports: [CommonModule, RouterModule, ReactiveFormsModule, CardModule, InputTextModule, InputSwitchModule, ButtonModule, DropdownModule],
   templateUrl: './seccion-form.component.html',
   styleUrls: ['./seccion-form.component.scss']
 })
@@ -21,6 +22,7 @@ export class SeccionFormComponent {
   loading = false;
 
   form: FormGroup;
+  secciones: SeccionEntity[] = [];
 
   constructor(
     private fb: FormBuilder,
@@ -39,6 +41,15 @@ export class SeccionFormComponent {
     this.orgId = this.route.snapshot.queryParamMap.get('id') || localStorage.getItem('currentOrgId');
     if (!this.orgId) {
       this.notify.warn('Falta organización', 'No se ha seleccionado organización');
+    }
+  }
+
+  ngOnInit() {
+    if (this.orgId) {
+      this.svc.list(this.orgId).subscribe({
+        next: (items) => (this.secciones = items),
+        error: (e) => this.notify.warn('Secciones', e?.error?.message || 'No se pudieron cargar las secciones')
+      });
     }
   }
 

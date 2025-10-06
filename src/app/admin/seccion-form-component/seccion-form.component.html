@@ -24,7 +24,16 @@
 
       <div class="field">
         <label for="seccionPadreId">Sección Padre (UUID)</label>
-        <input pInputText id="seccionPadreId" formControlName="seccionPadreId" placeholder="UUID de la sección padre o vacío"/>
+        <p-dropdown id="seccionPadreId"
+                    [options]="secciones"
+                    optionLabel="nombre"
+                    optionValue="id"
+                    [filter]="true"
+                    [showClear]="true"
+                    [editable]="false"
+                    placeholder="Seleccionar sección padre"
+                    formControlName="seccionPadreId">
+        </p-dropdown>
       </div>
 
       <div class="field inline">

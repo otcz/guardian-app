@@ -8,7 +8,9 @@
 
 .form-grid { display: grid; gap: 1rem; grid-template-columns: minmax(280px, 720px); }
 .field { display: flex; flex-direction: column; gap: .45rem; }
-.field.inline { align-items: center; flex-direction: row; justify-content: space-between; }
+.field.inline { display: grid !important; grid-auto-flow: column; grid-auto-columns: max-content; align-items: center; gap: .75rem; }
+.field.inline label:first-child { display: inline-flex; align-items: center; height: auto; line-height: 1em; margin: 0; }
+.field.inline .ui-switch { display: inline-flex; align-items: center; align-self: center; /* sin margin-left:auto para quedar junto al label */ }
 .field label { font-weight: 600; color: var(--text); }
 .req { color: var(--danger, #e53e3e); }
 .error { color: var(--danger, #e53e3e); font-size: .82rem; }
@@ -26,6 +28,8 @@
 :host-context(.theme-light) ::ng-deep .seccion-padre-control .p-dropdown-label { color: #222 !important; }
 :host-context(.theme-light) ::ng-deep .seccion-padre-control .p-dropdown-label.p-placeholder { color: rgba(0,0,0,.6) !important; }
 :host-context(.theme-light) ::ng-deep .seccion-padre-control .p-dropdown-items .p-dropdown-item { color: #222 !important; }
+:host-context(.theme-light) ::ng-deep .seccion-padre-control .p-select-label { color: #222 !important; }
+:host-context(.theme-light) ::ng-deep .seccion-padre-control .p-select-label.p-placeholder { color: rgba(0,0,0,.6) !important; }
 
 /* Tema oscuro: asegurar contraste en dropdown */
 :host-context(.theme-dark) ::ng-deep .seccion-padre-control .p-dropdown-label,
@@ -52,7 +56,7 @@
 /* Opcional: estados visuales como en crear-strategy */
 :host ::ng-deep .p-inputswitch .p-inputswitch-slider {
   background: color-mix(in srgb, var(--surface) 78%, #ffffff 22%) !important;
-  background-color: color-mix(in srgb, var(--surface) 78%, #ffffff 22%) !important;
+  /* background-color duplicada eliminada */
   border: 1px solid color-mix(in srgb, var(--border) 75%, transparent) !important;
   transition: background .2s ease, box-shadow .2s ease, border-color .2s ease;
 }
@@ -61,7 +65,7 @@
 }
 :host ::ng-deep .p-inputswitch.p-inputswitch-checked .p-inputswitch-slider {
   background: color-mix(in srgb, var(--success) 72%, var(--surface) 28%) !important;
-  background-color: color-mix(in srgb, var(--success) 72%, var(--surface) 28%) !important;
+  /* background-color duplicada eliminada */
   border-color: color-mix(in srgb, var(--success) 70%, var(--border)) !important;
 }
 :host ::ng-deep .p-inputswitch.p-focus .p-inputswitch-slider {
@@ -70,14 +74,14 @@
 /* Tema claro coherente */
 :host-context(.theme-light) ::ng-deep .p-inputswitch .p-inputswitch-slider {
   background: #f3f4f6 !important;
-  background-color: #f3f4f6 !important;
+  /* background-color duplicada eliminada */
   border-color: rgba(0,0,0,.12) !important;
 }
 /* Tema oscuro coherente (OFF) */
 :host-context(.theme-dark) ::ng-deep .p-inputswitch .p-inputswitch-slider,
 :host-context(.theme-black) ::ng-deep .p-inputswitch .p-inputswitch-slider {
   background: #3a3d44 !important;
-  background-color: #3a3d44 !important;
+  /* background-color duplicada eliminada */
   border-color: #555a65 !important;
 }
 

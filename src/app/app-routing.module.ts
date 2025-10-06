@@ -14,6 +14,7 @@ import { OrganizationConfigComponent } from './admin/organizacion-config-compone
 import { StrategyChangePageComponent } from './admin/organizacion-strategy-change-page/strategy-change-page.component';
 import { SeccionFormComponent } from './admin/seccion-form-component/seccion-form.component';
 import { OrgRequiredGuard } from './service/org-required.guard';
+import { SeccionListComponent } from './admin/seccion-list-component/seccion-list.component';
 
 export const appRoutes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -32,6 +33,7 @@ export const appRoutes: Routes = [
       { path: 'crear-estrategia-de-gobernanza', component: CrearStrategyComponent, canActivate: [OrgRequiredGuard] },
       { path: 'cambiar-estrategia-de-gobernanza', component: StrategyChangePageComponent, canActivate: [OrgRequiredGuard] },
       { path: 'crear-seccion', component: SeccionFormComponent, canActivate: [OrgRequiredGuard] },
+      { path: 'listar-secciones', component: SeccionListComponent, canActivate: [OrgRequiredGuard] },
       {
         path: 'admin',
         children: [

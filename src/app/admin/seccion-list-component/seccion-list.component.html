@@ -1,0 +1,56 @@
+<div class="list-wrapper">
+  <!-- Toolbar principal -->
+  <div class="list-header sec-toolbar">
+    <div class="titles">
+      <h2>Secciones</h2>
+      <p class="subtitle" *ngIf="orgName">Organización: <b>{{ orgName }}</b></p>
+    </div>
+    <span class="spacer"></span>
+    <div class="list-actions flex ai-center gap-sm flex-wrap">
+      <span class="p-input-icon-left">
+        <i class="pi pi-search"></i>
+        <input pInputText type="text" placeholder="Filtrar por nombre o descripción" [(ngModel)]="filter" (ngModelChange)="applyFilter()" class="w-200" />
+      </span>
+      <button pButton type="button" label="Crear" icon="pi pi-plus" (click)="goCreate()" class="p-button-success"></button>
+      <button pButton type="button" label="Recargar" icon="pi pi-refresh" (click)="load()" [disabled]="loading"></button>
+    </div>
+  </div>
+
+  <p *ngIf="error" class="p-error mb-sm fs-sm">{{error}}</p>
+  <p *ngIf="!loading && !error && filtered.length===0" class="mb-sm fs-sm text-muted">No hay secciones.</p>
+
+  <div *ngIf="filtered.length>0" class="table-shell">
+    <div class="table-meta fs-xs text-muted mb-xs">Mostrando {{filtered.length}} de {{items.length}}</div>
+    <p-table [value]="filtered" [loading]="loading" styleClass="p-datatable-sm sec-table table-hover" responsiveLayout="scroll">
+      <ng-template pTemplate="header">
+        <tr>
+          <th class="w-70">#</th>
+          <th>Nombre</th>
+          <th>Descripción</th>
+          <th class="w-110">Estado</th>
+          <th class="w-110">Autonomía</th>
+          <th class="w-160 text-center">Acciones</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-row let-i="rowIndex">
+        <tr>
+          <td>{{i+1}}</td>
+          <td>{{row.nombre}}</td>
+          <td><span class="fs-sm opacity-85">{{row.descripcion || '-'}}</span></td>
+          <td>
+            <p-tag [severity]="(row.estado||'').toUpperCase()==='ACTIVA' ? 'success' : 'danger'" [value]="row.estado || '-' "></p-tag>
+          </td>
+          <td>
+            <p-tag [severity]="row.autonomiaConfigurada ? 'success' : 'warn'" [value]="row.autonomiaConfigurada ? 'CONFIGURADA' : 'NO'" ></p-tag>
+          </td>
+          <td class="flex gap-xs ai-center justify-center">
+            <button pButton type="button" icon="pi pi-pencil" class="p-button-rounded p-button-text" [disabled]="true" pTooltip="Editar (próximamente)" tooltipPosition="top"></button>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr><td colspan="6" class="text-center fs-sm text-muted">Sin datos</td></tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>

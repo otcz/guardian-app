@@ -10,6 +10,7 @@ import { SeccionService, CreateSeccionRequest, SeccionEntity } from '../../servi
 import { NotificationService } from '../../service/notification.service';
 import { DropdownModule } from 'primeng/dropdown';
 import { Subscription } from 'rxjs';
+import { OrgContextService } from '../../service/org-context.service';
 
 @Component({
   selector: 'app-seccion-form',
@@ -31,7 +32,8 @@ export class SeccionFormComponent {
     private route: ActivatedRoute,
     private router: Router,
     private svc: SeccionService,
-    private notify: NotificationService
+    private notify: NotificationService,
+    private orgCtx: OrgContextService
   ) {
     this.form = this.fb.group({
       nombre: ['', [Validators.required, Validators.maxLength(150)]],
@@ -40,29 +42,20 @@ export class SeccionFormComponent {
       autonomiaConfigurada: [false]
     });
 
-    this.orgId = this.route.snapshot.queryParamMap.get('id') || localStorage.getItem('currentOrgId');
+    const byQuery = this.route.snapshot.queryParamMap.get('id');
+    this.orgId = this.orgCtx.ensureFromQuery(byQuery);
     if (!this.orgId) {
-      // Avisar aquí por si navegan directamente
       this.notify.warn('Falta organización', 'No se ha seleccionado organización');
     }
   }
 
   ngOnInit() {
-    // Si no hay organización seleccionada, redirigir a selección inmediatamente
-    if (!this.orgId) {
-      this.router.navigate(['/listar-organizaciones']);
-      return;
-    }
-
-    // Cargar secciones iniciales si hay orgId actual
+    if (!this.orgId) { this.router.navigate(['/listar-organizaciones']); return; }
     this.loadSecciones(this.orgId);
-
-    // Reaccionar a cambios en query params (p. ej., navegación interna)
     this.sub = this.route.queryParamMap.subscribe((qp) => {
-      const qId = qp.get('id');
-      const nextOrgId = qId || localStorage.getItem('currentOrgId');
-      if (nextOrgId && nextOrgId !== this.orgId) {
-        this.orgId = nextOrgId;
+      const next = this.orgCtx.ensureFromQuery(qp.get('id'));
+      if (next && next !== this.orgId) {
+        this.orgId = next;
         this.loadSecciones(this.orgId);
       }
     });

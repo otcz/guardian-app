@@ -1,7 +1,7 @@
 // filepath: c:\Users\oscar.carrillo\WebstormProjects\guardian-app\src\app\admin\organization-list.component.ts
 import {Component, OnInit} from '@angular/core';
 import {CommonModule} from '@angular/common';
-import {Router, RouterModule} from '@angular/router';
+import {Router, RouterModule, ActivatedRoute} from '@angular/router';
 import {Organization, OrganizationService} from '../../service/organization.service';
 import {TableModule} from 'primeng/table';
 import {ButtonModule} from 'primeng/button';
@@ -9,6 +9,7 @@ import {InputTextModule} from 'primeng/inputtext';
 import {TagModule} from 'primeng/tag';
 import {FormsModule} from '@angular/forms';
 import {TooltipModule} from 'primeng/tooltip';
+import { OrgContextService } from '../../service/org-context.service';
 
 @Component({
   selector: 'app-organization-list',
@@ -23,11 +24,13 @@ export class OrganizationListComponent implements OnInit {
   filtered: Organization[] = [];
   filter = '';
   error: string | null = null;
+  private returnUrl: string | null = null;
 
-  constructor(private orgService: OrganizationService, private router: Router) {
+  constructor(private orgService: OrganizationService, private router: Router, private orgCtx: OrgContextService, private route: ActivatedRoute) {
   }
 
   ngOnInit() {
+    this.returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
     this.load();
   }
 
@@ -61,12 +64,26 @@ export class OrganizationListComponent implements OnInit {
   }
 
   manage(org: Organization) {
-    if (org.id) localStorage.setItem('currentOrgId', org.id);
+    if (org.id) {
+      localStorage.setItem('currentOrgId', org.id);
+      this.orgCtx.set(org.id);
+    }
+    if (this.returnUrl) {
+      this.router.navigateByUrl(this.returnUrl);
+      return;
+    }
     this.router.navigate(['/gestionar-organizacion'], {queryParams: {id: org.id}});
   }
 
   strategy(org: Organization) {
-    if (org.id) localStorage.setItem('currentOrgId', org.id);
+    if (org.id) {
+      localStorage.setItem('currentOrgId', org.id);
+      this.orgCtx.set(org.id);
+    }
+    if (this.returnUrl) {
+      this.router.navigateByUrl(this.returnUrl);
+      return;
+    }
     this.router.navigate(['/cambiar-estrategia-de-gobernanza'], { queryParams: { id: org.id } });
   }
 }

@@ -13,6 +13,7 @@ import { CrearStrategyComponent } from './admin/crear-strategy-component/crear-s
 import { OrganizationConfigComponent } from './admin/organizacion-config-component/organization-config.component';
 import { StrategyChangePageComponent } from './admin/organizacion-strategy-change-page/strategy-change-page.component';
 import { SeccionFormComponent } from './admin/seccion-form-component/seccion-form.component';
+import { OrgRequiredGuard } from './service/org-required.guard';
 
 export const appRoutes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -24,13 +25,13 @@ export const appRoutes: Routes = [
       { path: '', component: DashboardHomeComponent },
       { path: 'listar-organizaciones', component: OrganizationListComponent },
       { path: 'crear-organizacion', component: OrganizationFormComponent },
-      { path: 'gestionar-organizacion', component: OrganizationConfigComponent },
-      { path: 'configurar-parametros-globales', component: OrganizationParamsComponent },
-      { path: 'configurar-parametros-globales/:id', component: OrganizationParamsComponent },
-      { path: 'ver-auditoria-de-organizacion', component: OrganizationAuditComponent },
-      { path: 'crear-estrategia-de-gobernanza', component: CrearStrategyComponent },
-      { path: 'cambiar-estrategia-de-gobernanza', component: StrategyChangePageComponent },
-      { path: 'crear-seccion', component: SeccionFormComponent },
+      { path: 'gestionar-organizacion', component: OrganizationConfigComponent, canActivate: [OrgRequiredGuard] },
+      { path: 'configurar-parametros-globales', component: OrganizationParamsComponent, canActivate: [OrgRequiredGuard] },
+      { path: 'configurar-parametros-globales/:id', component: OrganizationParamsComponent, canActivate: [OrgRequiredGuard] },
+      { path: 'ver-auditoria-de-organizacion', component: OrganizationAuditComponent, canActivate: [OrgRequiredGuard] },
+      { path: 'crear-estrategia-de-gobernanza', component: CrearStrategyComponent, canActivate: [OrgRequiredGuard] },
+      { path: 'cambiar-estrategia-de-gobernanza', component: StrategyChangePageComponent, canActivate: [OrgRequiredGuard] },
+      { path: 'crear-seccion', component: SeccionFormComponent, canActivate: [OrgRequiredGuard] },
       {
         path: 'admin',
         children: [

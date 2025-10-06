@@ -23,7 +23,7 @@
       </div>
 
       <div class="field">
-        <label for="seccionPadreId">Sección Padre (UUID)</label>
+        <label for="seccionPadreId">Sección Padre</label>
         <p-dropdown id="seccionPadreId"
                     class="seccion-padre-control"
                     [options]="secciones"
@@ -34,10 +34,15 @@
                     [editable]="false"
                     placeholder="Seleccionar sección padre"
                     formControlName="seccionPadreId">
+          <ng-template pTemplate="selectedItem" let-s>
+            <div class="opt">
+              <span class="opt-name">{{ s?.nombre }}</span>
+            </div>
+          </ng-template>
           <ng-template pTemplate="item" let-s>
             <div class="opt">
               <span class="opt-name">{{ s?.nombre }}</span>
-              <small class="opt-id">{{ s?.id }}</small>
+              <small class="opt-desc" *ngIf="s?.descripcion">{{ s?.descripcion }}</small>
             </div>
           </ng-template>
         </p-dropdown>

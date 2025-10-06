@@ -86,13 +86,27 @@ export class AppComponent {
   parseQuery(url?: string | null): any {
     try {
       if (!url) return null;
+      const base = url.split('?')[0] || '';
       const qIndex = url.indexOf('?');
-      if (qIndex < 0) return null;
-      const query = url.substring(qIndex + 1);
-      const params = new URLSearchParams(query);
-      const obj: any = {};
-      params.forEach((v, k) => { obj[k] = v; });
-      return obj;
+      if (qIndex >= 0) {
+        const query = url.substring(qIndex + 1);
+        const params = new URLSearchParams(query);
+        const obj: any = {};
+        params.forEach((v, k) => { obj[k] = v; });
+        return obj;
+      }
+      // Añadir dinámicamente id para rutas que lo requieren
+      const needsId = new Set([
+        '/gestionar-organizacion',
+        '/cambiar-estrategia-de-gobernanza',
+        '/configurar-parametros-globales',
+        '/ver-auditoria-de-organizacion',
+        '/crear-seccion'
+      ]);
+      if (needsId.has(base)) {
+        try { const id = localStorage.getItem('currentOrgId'); if (id) return { id }; } catch {}
+      }
+      return null;
     } catch { return null; }
   }
 }

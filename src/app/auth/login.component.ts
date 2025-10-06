@@ -9,6 +9,7 @@ import { ThemeToggleComponent } from '../shared/theme-toggle.component';
 import { UppercaseDirective } from '../shared/formatting.directives';
 import { MenuService } from '../service/menu.service';
 import { OrganizationService, Organization } from '../service/organization.service';
+import { OrgContextService } from '../service/org-context.service';
 
 @Component({
   selector: 'app-login',
@@ -24,7 +25,7 @@ export class LoginComponent {
 
   form!: FormGroup;
 
-  constructor(private fb: FormBuilder, private auth: AuthService, private router: Router, private menu: MenuService, private orgSvc: OrganizationService) {
+  constructor(private fb: FormBuilder, private auth: AuthService, private router: Router, private menu: MenuService, private orgSvc: OrganizationService, private orgCtx: OrgContextService) {
     this.form = this.fb.group({
       username: ['', Validators.required],
       password: ['', Validators.required]
@@ -70,6 +71,7 @@ export class LoginComponent {
 
             if (nonSysAdmin && Array.isArray(orgs) && orgs.length === 1 && orgs[0]?.id) {
               try { localStorage.setItem('currentOrgId', String(orgs[0].id)); } catch {}
+              this.orgCtx.set(String(orgs[0].id));
               this.menu.setFromLogin(resp.opcionesDetalle);
               this.router.navigate(['/']);
               this.loading = false;
@@ -78,6 +80,7 @@ export class LoginComponent {
 
             if (nonSysAdmin && hasPrev) {
               // Conservar selección anterior si sigue siendo válida
+              if (prev) this.orgCtx.set(String(prev));
               this.menu.setFromLogin(resp.opcionesDetalle);
               this.router.navigate(['/']);
               this.loading = false;
@@ -99,6 +102,7 @@ export class LoginComponent {
             // Si falla, intentar con selección previa; si no hay, forzar selección
             const prev = (() => { try { return localStorage.getItem('currentOrgId'); } catch { return null; } })();
             if (prev) {
+              this.orgCtx.set(String(prev));
               this.menu.setFromLogin(resp.opcionesDetalle);
               this.router.navigate(['/']);
             } else {

@@ -82,16 +82,18 @@
 
           <!-- Columna Autonomía -->
           <td>
-            <ng-container *ngIf="adding && row.id === ''; else notAddingAuto">
+            <ng-container *ngIf="adding && row.id === ''; else existingAuto">
               <p-inputSwitch [(ngModel)]="newDraft.autonomiaConfigurada"></p-inputSwitch>
             </ng-container>
-            <ng-template #notAddingAuto>
-              <ng-container *ngIf="editingId === row.id; else viewAuto">
-                <p-inputSwitch [ngModel]="editDraft?.autonomiaConfigurada" (ngModelChange)="onEditChange('autonomiaConfigurada', $event)"></p-inputSwitch>
-              </ng-container>
-              <ng-template #viewAuto>
+            <ng-template #existingAuto>
+              <div class="flex ai-center gap-xs">
+                <p-inputSwitch
+                  [ngModel]="!!row.autonomiaConfigurada"
+                  (onChange)="onToggleAutonomia(row, $event.checked)"
+                  [disabled]="saving || (editingId === row.id)">
+                </p-inputSwitch>
                 <p-tag [severity]="row.autonomiaConfigurada ? 'success' : 'warn'" [value]="row.autonomiaConfigurada ? 'CONFIGURADA' : 'NO'"></p-tag>
-              </ng-template>
+              </div>
             </ng-template>
           </td>
 

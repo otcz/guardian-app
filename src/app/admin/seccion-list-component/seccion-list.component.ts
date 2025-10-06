@@ -255,9 +255,28 @@ export class SeccionListComponent implements OnInit, OnDestroy {
     });
   }
 
+  onToggleAutonomia(row: SeccionEntity, checked: boolean) {
+    if (!this.orgId) return;
+    const prev = !!row.autonomiaConfigurada;
+    // Optimista
+    row.autonomiaConfigurada = checked;
+    this.svc.update(this.orgId, row.id, { autonomiaConfigurada: checked }).subscribe({
+      next: (res) => {
+        const idx = this.items.findIndex(i => i.id === row.id);
+        if (idx >= 0) this.items[idx] = { ...this.items[idx], ...res.seccion };
+        this.applyFilter();
+        this.toastSuccess('AUTONOMÍA ACTUALIZADA', checked ? 'CONFIGURADA' : 'NO CONFIGURADA');
+      },
+      error: (e) => {
+        row.autonomiaConfigurada = prev;
+        this.toastError('ERROR', e?.error?.message || 'NO SE PUDO ACTUALIZAR LA AUTONOMÍA');
+      }
+    });
+  }
+
   // Utils
   validate(model: SeccionEntity): string | null {
-    if (!model.nombre || model.nombre.trim().length < 3) return 'EL NOMBRE ES REQUERIDO (MÍN. 3 CARACTERES))';
+    if (!model.nombre || model.nombre.trim().length < 3) return 'EL NOMBRE ES REQUERIDO (MÍN. 3 CARACTERES)';
     if (model.descripcion && model.descripcion.length > 160) return 'LA DESCRIPCIÓN EXCEDE 160 CARACTERES';
     return null;
   }

@@ -41,10 +41,10 @@
           </td>
           <td>
             <div class="actions">
-              <button pButton type="button" icon="pi pi-cog" label="Gestionar" class="p-button p-button-text" [routerLink]="['/gestion-de-usuarios/gestionar-usuario']" [queryParams]="{ id: u.id }" pTooltip="Gestionar usuario" tooltipPosition="top"></button>
-              <button pButton type="button" [label]="u.activo ? 'Desactivar' : 'Activar'" [icon]="u.activo ? 'pi pi-ban' : 'pi pi-check'" [class]="u.activo ? 'p-button p-button-outlined p-button-danger' : 'p-button p-button-outlined p-button-success'" (click)="toggle(u)" pTooltip="Cambiar estado" tooltipPosition="top"></button>
-              <button pButton type="button" icon="pi pi-user-plus" label="Asignar roles" class="p-button p-button-text" [routerLink]="['/gestion-de-usuarios/asignar-roles']" [queryParams]="{ id: u.id }"></button>
-              <button pButton type="button" icon="pi pi-sitemap" label="Asignar sección" class="p-button p-button-text" [routerLink]="['/gestion-de-usuarios/asignar-usuario-a-seccion']" [queryParams]="{ id: u.id }"></button>
+              <button pButton type="button" icon="pi pi-cog" class="p-button p-button-text p-button-sm p-button-rounded btn-icon" [routerLink]="['/gestion-de-usuarios/gestionar-usuario']" [queryParams]="{ id: u.id }" pTooltip="Gestionar" tooltipPosition="top"></button>
+              <button pButton type="button" [icon]="u.activo ? 'pi pi-ban' : 'pi pi-check'" [class]="u.activo ? 'p-button p-button-outlined p-button-danger p-button-sm p-button-rounded btn-icon' : 'p-button p-button-outlined p-button-success p-button-sm p-button-rounded btn-icon'" (click)="toggle(u)" pTooltip="Cambiar estado" tooltipPosition="top"></button>
+              <button pButton type="button" icon="pi pi-user-plus" class="p-button p-button-text p-button-sm p-button-rounded btn-icon" [routerLink]="['/gestion-de-usuarios/asignar-roles']" [queryParams]="{ id: u.id }" pTooltip="Asignar roles" tooltipPosition="top"></button>
+              <button pButton type="button" icon="pi pi-sitemap" class="p-button p-button-text p-button-sm p-button-rounded btn-icon" [routerLink]="['/gestion-de-usuarios/asignar-usuario-a-seccion']" [queryParams]="{ id: u.id }" pTooltip="Asignar sección" tooltipPosition="top"></button>
             </div>
           </td>
         </tr>

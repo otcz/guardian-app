@@ -1,5 +1,18 @@
 .actions { display:flex; gap:.5rem; flex-wrap:wrap; }
 
+/* Botones de acciones: solo icono, tamaño consistente */
+:host ::ng-deep .btn-icon.p-button {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  min-height: 36px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+:host ::ng-deep .btn-icon.p-button .p-button-label { display: none; }
+
 /* Celda de usuario con avatar */
 .user-cell { display: flex; align-items: center; gap: 10px; }
 .user-cell .meta { display: flex; flex-direction: column; }

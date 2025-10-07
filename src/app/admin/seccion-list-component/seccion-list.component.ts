@@ -218,18 +218,18 @@ export class SeccionListComponent implements OnInit, OnDestroy {
       acceptLabel: 'Sí, eliminar',
       rejectLabel: 'Cancelar',
       accept: () => {
+        // Cerrar el diálogo inmediatamente para evitar que quede abierto
+        try { this.confirm.close(); } catch {}
         this.saving = true;
         this.svc.delete(this.orgId!, row.id).subscribe({
           next: (res) => {
             if (res?.soft) {
-              // Baja lógica: mantener fila y actualizar estado/devueltos
               const idx = this.items.findIndex(i => i.id === row.id);
               if (idx >= 0) this.items[idx] = {...this.items[idx], ...(res.seccion || {} as any)};
               this.applyFilter();
               this.saving = false;
               this.toastSuccess('Sección inactivada', res?.message || 'Se marcó como INACTIVA');
             } else {
-              // Eliminación real: remover fila
               this.items = this.items.filter(i => i.id !== row.id);
               this.applyFilter();
               this.saving = false;
@@ -241,6 +241,10 @@ export class SeccionListComponent implements OnInit, OnDestroy {
             this.toastError('Error', e?.error?.message || 'No se pudo eliminar la sección');
           }
         });
+      },
+      reject: () => {
+        // Asegurar cierre también en cancelación
+        try { this.confirm.close(); } catch {}
       }
     });
   }

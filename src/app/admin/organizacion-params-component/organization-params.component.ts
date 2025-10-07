@@ -401,6 +401,8 @@ export class OrganizationParamsComponent implements OnInit {
       acceptLabel: 'Sí, eliminar',
       rejectLabel: 'Cancelar',
       accept: () => {
+        // Cerrar el diálogo inmediatamente para evitar que quede abierto
+        try { this.confirmationService.close(); } catch {}
         this.saving = true;
         this.orgService.deleteOrgParam(this.orgId!, p.id!).subscribe({
           next: res => {
@@ -419,6 +421,10 @@ export class OrganizationParamsComponent implements OnInit {
             this.messageService.add({severity: 'error', summary: 'Error', detail: msg, life: 4500});
           }
         });
+      },
+      reject: () => {
+        // Asegurar cierre también en cancelación
+        try { this.confirmationService.close(); } catch {}
       }
     });
   }

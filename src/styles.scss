@@ -768,8 +768,8 @@ body .p-toast .p-toast-message-info {
   color: #000 !important;
 }
 :root.theme-dark body .ng-star-inserted.p-select-overlay,
-:root.theme-dark body .ng-star-inserted.p-dropdown-panel,
-:root.theme-dark body .ng-star-inserted.p-multiselect-panel,
+:root.theme_dark body .ng-star-inserted.p-dropdown-panel,
+:root.theme_dark body .ng-star-inserted.p-multiselect-panel,
 :root.theme-black body .ng-star-inserted.p-select-overlay,
 :root.theme_black body .ng-star-inserted.p-dropdown-panel,
 :root.theme_black body .ng-star-inserted.p-multiselect-panel {
@@ -822,3 +822,25 @@ body .p-toast .p-toast-message-info {
   border-right-color: #ffffff !important;
   border-left-color: #ffffff !important;
 }
+
+/* ===== ConfirmDialog global (usa tokens del tema) ===== */
+body .p-confirm-dialog.p-dialog {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+  border: 1px solid var(--border) !important;
+}
+body .p-confirm-dialog .p-dialog-header,
+body .p-confirm-dialog .p-dialog-content,
+body .p-confirm-dialog .p-dialog-footer {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+}
+body .p-confirm-dialog .p-dialog-header { border-bottom: 1px solid var(--border) !important; }
+body .p-confirm-dialog .p-dialog-footer { border-top: 1px solid var(--border) !important; }
+body .p-confirm-dialog .p-confirm-dialog-message,
+body .p-confirm-dialog .p-confirm-dialog-message * { color: var(--text) !important; }
+body .p-confirm-dialog .p-confirm-dialog-icon { color: var(--danger) !important; }
+
+/* Máscara según tema */
+:root.theme-light body .p-dialog-mask { background-color: rgba(0, 0, 0, 0.35) !important; }
+:root.theme-dark body .p-dialog-mask, :root.theme-black body .p-dialog-mask { background-color: rgba(0, 0, 0, 0.6) !important; }

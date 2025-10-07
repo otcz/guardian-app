@@ -130,6 +130,8 @@ export class RolesListComponent implements OnInit, OnDestroy {
       acceptLabel: 'Sí, eliminar',
       rejectLabel: 'Cancelar',
       accept: () => {
+        // Cerrar el diálogo inmediatamente para evitar que quede abierto
+        try { this.confirm.close(); } catch {}
         this.saving = true;
         this.svc.delete(this.orgId!, row.id).subscribe({
           next: (res) => {
@@ -139,6 +141,10 @@ export class RolesListComponent implements OnInit, OnDestroy {
           },
           error: (e) => { this.saving = false; this.toastError(e?.error?.message || e?.message || ''); }
         });
+      },
+      reject: () => {
+        // Asegurar cierre también en cancelación
+        try { this.confirm.close(); } catch {}
       }
     });
   }

@@ -285,6 +285,17 @@ a:hover { text-decoration: underline; }
 /* Botón flotante mantiene tamaño compacto */
 .theme-fab .p-button { min-height: 52px; padding: 0; font-size: 1rem; }
 
+/* Variantes de tamaño de botón */
+.p-button.p-button-sm {
+  width: auto;           /* no full-width */
+  min-height: 36px;      /* más bajo que el global (48px) */
+  padding: 6px 12px;     /* padding estándar pequeño */
+  font-size: 0.95rem;    /* tipografía ligeramente menor */
+  border-radius: 8px;    /* radios consistentes */
+  flex: 0 0 auto;        /* no crecer en contenedores flex */
+}
+.p-button.p-button-sm .p-button-icon { font-size: 0.95rem; }
+
 /* Intensificar glows por tema y estado */
 :root.theme-light {
   /* Halo azul más visible en foco (inputs/dropdowns) — menos grueso */
@@ -888,7 +899,7 @@ body .p-confirm-dialog .p-confirm-dialog-icon { color: var(--danger) !important;
   border: 1px solid var(--border) !important;
   box-shadow: 0 14px 32px rgba(0,0,0,0.12), 0 6px 18px rgba(79,140,255,0.12) !important;
 }
-:root.theme-light body .p-dialog .p-dialog-header,
+:root.theme-light body .p_dialog .p-dialog-header,
 :root.theme-light body .p_dialog .p-dialog-content,
 :root.theme-light body .p_dialog .p-dialog-footer {
   background-color: #ffffff !important;
@@ -938,4 +949,3 @@ body .p-card {
   padding: 0 !important;
   overflow: hidden;
 }
-

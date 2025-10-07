@@ -30,7 +30,7 @@
       </div>
 
       <div class="actions">
-        <button pButton type="button" label="Asignar rol" icon="pi pi-plus" class="btn-compact" (click)="assignRole()" [disabled]="!usuarioId || !rolSeleccionado || saving" pTooltip="Asignar rol"></button>
+        <button pButton type="button" icon="pi pi-plus" class="p-button-sm p-button-rounded p-button-success btn-icon" (click)="assignRole()" [disabled]="!usuarioId || !rolSeleccionado || saving" pTooltip="Asignar rol" tooltipPosition="top"></button>
       </div>
     </div>
 

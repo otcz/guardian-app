@@ -6,5 +6,9 @@ export const environment = {
   version: 'dev',
   buildTime: new Date().toISOString(),
   backendHost: 'http://localhost:8080', // Fallback absoluto cuando proxy falle (404)
-  organizationsEndpoint: '/api/orgs' // Opcional: si conoces la colección exacta, ej. '/api/organizaciones'
+  organizationsEndpoint: '/api/orgs', // Opcional: si conoces la colección exacta, ej. '/api/organizaciones'
+  security: {
+    // El frontend usará literalmente las rutas enviadas por backend (sin heurísticas)
+    keepBackendRoutesLiterally: true
+  }
 };

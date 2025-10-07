@@ -2,6 +2,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
+import { NotificationService } from './service/notification.service';
 
 @Component({
   selector: 'app-page-placeholder',
@@ -23,8 +24,9 @@ import { Router, RouterModule } from '@angular/router';
 })
 export class PagePlaceholderComponent {
   currentUrl = '';
-  constructor(private router: Router) {
+  constructor(private router: Router, private notify: NotificationService) {
     this.currentUrl = this.router.url;
+    this.notify.info('Funcionalidad en construcción', `Vista no implementada para ${this.currentUrl}`);
   }
   goDashboard() { this.router.navigate(['/']); }
   goBack() { history.back(); }

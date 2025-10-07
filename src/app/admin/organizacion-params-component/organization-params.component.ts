@@ -13,6 +13,7 @@ import {ConfirmDialogModule} from 'primeng/confirmdialog';
 import {ToastModule} from 'primeng/toast';
 import {ConfirmationService, MessageService} from 'primeng/api';
 import {TooltipModule} from 'primeng/tooltip';
+import { OrgContextService } from '../../service/org-context.service';
 
 interface GlobalParamValue {
   id?: string;
@@ -65,25 +66,26 @@ export class OrganizationParamsComponent implements OnInit {
   editDraft: GlobalParamValue | null = null;
   flashRowId: string | null = null;
 
-  constructor(private route: ActivatedRoute, private router: Router, private orgService: OrganizationService, private confirmationService: ConfirmationService, private messageService: MessageService) {
+  constructor(private route: ActivatedRoute, private router: Router, private orgService: OrganizationService, private confirmationService: ConfirmationService, private messageService: MessageService, private orgCtx: OrgContextService) {
   }
 
   ngOnInit(): void {
-    // Resolver id desde params, query o localStorage y reaccionar a cambios de ruta y query
+    // Resolver id desde params, query o contexto y reaccionar a cambios de ruta y query
     combineLatest([this.route.paramMap, this.route.queryParamMap]).subscribe(([pm, qm]) => {
       const pId = pm.get('id');
       const qId = qm.get('id');
-      const stored = localStorage.getItem('currentOrgId');
-      const newId = pId || qId || stored || null;
+      const ensured = this.orgCtx.ensureFromQuery(pId || qId);
+      const newId = ensured;
       if (newId && newId !== this.orgId) {
         this.orgId = newId;
-        try { localStorage.setItem('currentOrgId', newId); } catch {}
         this.error = null;
         this.loadOrg();
         this.loadParams();
       } else if (!newId) {
         this.orgId = null;
         this.error = 'No se ha seleccionado organización';
+        // Redirigir al listado para seleccionar organización, conservando returnUrl
+        this.router.navigate(['/listar-organizaciones'], { state: { returnUrl: this.router.url } });
       }
     });
   }

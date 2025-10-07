@@ -1,6 +1,9 @@
 // filepath: c:\Users\OTCZ\WebstormProjects\guardian-app\src\app\service\menu.service.ts
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
+import { OrgContextService } from './org-context.service';
+import { environment } from '../config/environment';
+import { NotificationService } from './notification.service';
 
 // RawOption refleja exactamente lo que viene del backend
 export interface RawOption {
@@ -9,6 +12,7 @@ export interface RawOption {
   icono: string | null;       // Nombre icono (clase, key, etc.)
   ruta: string | null;        // Path navegable (solo para ITEM normalmente)
   padreNombre: string | null; // Nombre del menú padre (para ITEM)
+  codigo?: string | null;     // NUEVO: código de permiso/menú provisto por backend (e.g., SECTION_CREATE)
 }
 
 // Nodo interno construido para el sidebar
@@ -33,7 +37,8 @@ export class MenuService {
   private flatItems$ = new BehaviorSubject<MenuNode[]>([]);   // Solo items hoja con path
   private tree$ = new BehaviorSubject<MenuNode[]>([]);        // Árbol jerárquico completo
   private paths = new Set<string>();                          // Rutas permitidas
-  private keys = new Set<string>();                           // Claves normalizadas
+  private keys = new Set<string>();                           // Claves normalizadas por nombre
+  private codes = new Set<string>();                          // NUEVO: Códigos de permiso provistos por backend (normalizados)
   private readonly FUZZY_THRESHOLD = 2; // distancia máxima permitida para considerar duplicado / similar
 
   private readonly ICON_MAP: Record<string, string> = {
@@ -71,8 +76,10 @@ export class MenuService {
   // Compatibilidad con código existente (dashboard usa list$)
   get list$() { return this.items$; }
 
-  constructor() {
+  constructor(private orgCtx: OrgContextService, private notify: NotificationService) {
     this.loadFromStorage();
+    // Rebuild menú cuando cambie la organización activa para propagar ?id=orgId a rutas que lo requieran
+    try { this.orgCtx.orgId$.subscribe(() => this.rebuild()); } catch {}
   }
 
   /** Punto principal desde login: recibe arreglo crudo opcionesDetalle */
@@ -81,6 +88,8 @@ export class MenuService {
     this.rawOptions = safe;
     localStorage.setItem(this.STORAGE_RAW, JSON.stringify(safe));
     this.rebuild();
+    // Auditar discrepancias entre lo recibido y lo mostrado
+    this.auditAgainstRaw(safe);
   }
 
   clear() {
@@ -90,6 +99,7 @@ export class MenuService {
     this.tree$.next([]);
     this.paths.clear();
     this.keys.clear();
+    this.codes.clear();
   }
 
   /** Verifica acceso por path exacto (ignorando query params) */
@@ -98,8 +108,11 @@ export class MenuService {
     return this.paths.has(p);
   }
 
-  /** Verifica acceso por key (nombre normalizado) */
+  /** Verifica acceso por código exacto; acepta variantes normalizadas */
   canAccessCode(code: string): boolean {
+    const norm = this.normalizeCode(code);
+    if (this.codes.has(norm)) return true;
+    // Fallback legacy: algunos lugares usan nombre normalizado como "código"
     return this.keys.has(this.normalize(code));
   }
 
@@ -123,18 +136,18 @@ export class MenuService {
   }
 
   private rebuild() {
+    // Reiniciar colecciones
+    this.codes.clear();
+
+    const keepLiteral = !!((environment as any)?.security?.keepBackendRoutesLiterally);
+
     // 1. Normalizar duplicados y corregir problemas de codificación (acentos / caracteres raros)
     const normalizedMap = new Map<string, RawOption>();
-    const sanitizePath = (p: string | null | undefined): string | null => {
-      if (!p) return null;
-      let s = p.trim();
-      if (!s.startsWith('/')) s = '/' + s; // forzar absoluto
-      s = s.replace(/^\/dashboard(\/)?/, '/'); // quitar prefijo legacy
-      if (s.length > 1) s = s.replace(/\/+/g, '/').replace(/\/$/, '');
-      return s;
-    };
+    const sanitizePath = (p: string | null | undefined): string | null => this.sanitizePathCommon(p);
     for (const r of this.rawOptions) {
       const nKey = this.normalize(r.tipo === 'MENU' ? r.nombre : (r.padreNombre || r.nombre));
+      // Códigos de permiso
+      if (r.codigo) this.codes.add(this.normalizeCode(r.codigo));
       // Guardar el último que llegue para menú, pero si ya existe y el nuevo tiene icono usarlo
       if (r.tipo === 'MENU') {
         const existing = normalizedMap.get(nKey);
@@ -200,56 +213,42 @@ export class MenuService {
       const parentKey = parentKeyRaw ? findSimilarMenuKey(parentKeyRaw) : null;
       const nodeKey = this.normalize(raw.nombre);
       let path = sanitizePath(raw.ruta || null);
-      // Forzar rutas estándar por nombre normalizado (robusto contra acentos/variantes)
-      const nameNorm = this.normalize(raw.nombre);
-      const parentNorm = this.normalize(raw.padreNombre || '');
-      const looksCrearEstrategia = nameNorm.includes('crear') && nameNorm.includes('estrateg');
-      const looksCambiarEstrategia = nameNorm.includes('cambiar') && nameNorm.includes('estrateg');
-      const looksGestionarOrg = nameNorm.includes('gestionar') && nameNorm.includes('organizacion');
-      const looksCrearOrg = nameNorm.includes('crear') && nameNorm.includes('organizacion');
-      const looksListarOrgs = (nameNorm.includes('listar') || nameNorm.includes('listado')) && nameNorm.includes('organizacion');
-      const looksConfigParams = (nameNorm.includes('configurar') || nameNorm.includes('parametro')) && nameNorm.includes('global');
-      const looksVerAuditoria = (nameNorm.includes('ver') || nameNorm.includes('auditoria')) && nameNorm.includes('organizacion');
-      const looksCrearSeccion = nameNorm.includes('crear') && (nameNorm.includes('seccion') || nameNorm.includes('sección'));
-      const looksListarSeccion = (nameNorm.includes('listar') || nameNorm.includes('listado')) && (nameNorm.includes('seccion') || nameNorm.includes('sección'));
-      const looksCrearRol = nameNorm.includes('crear') && nameNorm.includes('rol');
-      const looksGestionarRol = nameNorm.includes('gestionar') && nameNorm.includes('rol');
-      const looksListarRol = (nameNorm.includes('listar') || nameNorm.includes('listado')) && (nameNorm.includes('rol') || nameNorm.includes('roles'));
 
-      if (looksCrearEstrategia) path = '/crear-estrategia-de-gobernanza';
-      if (looksCambiarEstrategia) path = '/cambiar-estrategia-de-gobernanza';
-      if (looksGestionarOrg) path = '/gestionar-organizacion';
-      if (looksCrearOrg) path = '/crear-organizacion';
-      if (looksListarOrgs) path = '/listar-organizaciones';
-      if (looksConfigParams) path = '/configurar-parametros-globales';
-      if (looksVerAuditoria) path = '/ver-auditoria-de-organizacion';
-      if (looksCrearSeccion) path = '/crear-seccion';
-      if (looksListarSeccion) path = '/listar-secciones';
-      if (looksCrearRol) path = '/crear-rol';
-      if (looksGestionarRol) path = '/gestionar-rol';
-      if (looksListarRol) path = '/listar-roles';
+      if (!keepLiteral) {
+        // Heurísticas de reasignación a rutas canónicas solo si NO se pidió literal
+        const nameNorm = this.normalize(raw.nombre);
+        const parentNorm = this.normalize(raw.padreNombre || '');
+        const looksCrearEstrategia = nameNorm.includes('crear') && nameNorm.includes('estrateg');
+        const looksCambiarEstrategia = nameNorm.includes('cambiar') && nameNorm.includes('estrateg');
+        const looksGestionarOrg = nameNorm.includes('gestionar') && nameNorm.includes('organizacion');
+        const looksCrearOrg = nameNorm.includes('crear') && nameNorm.includes('organizacion');
+        const looksListarOrgs = (nameNorm.includes('listar') || nameNorm.includes('listado')) && nameNorm.includes('organizacion');
+        const looksConfigParams = (nameNorm.includes('configurar') || nameNorm.includes('parametro')) && nameNorm.includes('global');
+        const looksVerAuditoria = (nameNorm.includes('ver') || nameNorm.includes('auditoria')) && nameNorm.includes('organizacion');
+        const looksCrearSeccion = nameNorm.includes('crear') && (nameNorm.includes('seccion') || nameNorm.includes('sección'));
+        const looksListarSeccion = (nameNorm.includes('listar') || nameNorm.includes('listado')) && (nameNorm.includes('seccion') || nameNorm.includes('sección'));
+        const looksCrearRol = nameNorm.includes('crear') && nameNorm.includes('rol');
+        const looksGestionarRol = nameNorm.includes('gestionar') && nameNorm.includes('rol');
+        const looksListarRol = (nameNorm.includes('listar') || nameNorm.includes('listado')) && (nameNorm.includes('rol') || nameNorm.includes('roles'));
 
-      // Si sigue sin path, usar heurística por menú padre (estrategias)
-      if (!path && parentNorm.includes('gestion-de-estrategias-de-gobernanza')) {
-        if (nameNorm.includes('crear')) path = '/crear-estrategia-de-gobernanza';
-        else if (nameNorm.includes('cambiar')) path = '/cambiar-estrategia-de-gobernanza';
-      }
-      // Heurística por menú padre gestión de secciones
-      if (!path && (parentNorm.includes('gestion-de-secciones') || parentNorm.includes('gestion-de-secciones'))) {
-        if (nameNorm.includes('crear')) path = '/crear-seccion';
-        else if (nameNorm.includes('listar') || nameNorm.includes('listado')) path = '/listar-secciones';
-      }
-      // Heurística por menú padre gestión de roles
-      if (!path && (parentNorm.includes('gestion-de-roles'))) {
-        if (nameNorm.includes('crear')) path = '/crear-rol';
-        else if (nameNorm.includes('gestionar')) path = '/gestionar-rol';
-        else if (nameNorm.includes('listar') || nameNorm.includes('listado')) path = '/listar-roles';
-      }
+        if (looksCrearEstrategia) path = '/crear-estrategia-de-gobernanza';
+        if (looksCambiarEstrategia) path = '/cambiar-estrategia-de-gobernanza';
+        if (looksGestionarOrg) path = '/gestionar-organizacion';
+        if (looksCrearOrg) path = '/crear-organizacion';
+        if (looksListarOrgs) path = '/listar-organizaciones';
+        if (looksConfigParams) path = '/configurar-parametros-globales';
+        if (looksVerAuditoria) path = '/ver-auditoria-de-organizacion';
+        if (looksCrearSeccion) path = '/crear-seccion';
+        if (looksListarSeccion) path = '/listar-secciones';
+        if (looksCrearRol) path = '/crear-rol';
+        if (looksGestionarRol) path = '/gestionar-rol';
+        if (looksListarRol) path = '/listar-roles';
 
-      // Adjuntar id organización cuando aplica (cambiar estrategia, gestionar, configurar, auditar, crear/listar sección/roles)
-      const needsOrgId = looksCambiarEstrategia || looksGestionarOrg || looksConfigParams || looksVerAuditoria || looksCrearSeccion || looksListarSeccion || looksCrearRol || looksGestionarRol || looksListarRol;
-      if (path && needsOrgId && !path.includes('?')) {
-        try { const orgId = localStorage.getItem('currentOrgId'); if (orgId) path = `${path}?id=${encodeURIComponent(orgId)}`; } catch {}
+        // Adjuntar id organización cuando aplica (solo si no es literal)
+        const needsOrgId = looksCambiarEstrategia || looksGestionarOrg || looksConfigParams || looksVerAuditoria || looksCrearSeccion || looksListarSeccion || looksCrearRol || looksGestionarRol || looksListarRol;
+        if (path && needsOrgId && !path.includes('?')) {
+          try { const orgId = localStorage.getItem('currentOrgId'); if (orgId) path = `${path}?id=${encodeURIComponent(orgId)}`; } catch {}
+        }
       }
 
       const node: MenuNode = {
@@ -325,6 +324,16 @@ export class MenuService {
       .replace(/^-+|-+$/g, '');
   }
 
+  private normalizeCode(code: string): string {
+    return (code || '')
+      .toString()
+      .trim()
+      .toUpperCase()
+      .replace(/\s+/g, '_')
+      .replace(/[^A-Z0-9_]+/g, '_')
+      .replace(/^_+|_+$/g, '');
+  }
+
   private loadFromStorage() {
     try {
       const raw = localStorage.getItem(this.STORAGE_RAW);
@@ -351,5 +360,44 @@ export class MenuService {
       }
     }
     return dp[bl];
+  }
+
+  private sanitizePathCommon(p: string | null | undefined): string | null {
+    if (!p) return null;
+    let s = p.trim();
+    if (!s.startsWith('/')) s = '/' + s;
+    s = s.replace(/^\/dashboard(\/)?/, '/');
+    if (s.length > 1) s = s.replace(/\/+/g, '/').replace(/\/$/, '');
+    return s;
+  }
+
+  private auditAgainstRaw(raw: RawOption[]) {
+    try {
+      const rawItems = (raw || []).filter(r => r && r.tipo === 'ITEM' && !!r.ruta);
+      const rawPaths = new Set(rawItems.map(r => this.sanitizePathCommon(r.ruta)!).filter(Boolean) as string[]);
+      const uiPaths = new Set(this.flatItems$.value.filter(n => !!n.path).map(n => (n.path as string).split('?')[0]));
+
+      const missingInUI: string[] = [];
+      rawPaths.forEach(p => { if (!uiPaths.has(p)) missingInUI.push(p); });
+
+      if (missingInUI.length > 0) {
+        console.warn('[MenuAudit] Opciones recibidas no renderizadas en UI:', missingInUI);
+        const preview = missingInUI.slice(0, 4).join(', ');
+        const detail = missingInUI.length > 4 ? `${preview}, y ${missingInUI.length - 4} más…` : preview;
+        this.notify.warn('Alerta de menú', `Hay ${missingInUI.length} opciones sin vista: ${detail}`);
+      }
+
+      // También avisar si la UI tiene items sin estar en raw (no debería pasar en modo literal)
+      const extraInUI: string[] = [];
+      this.flatItems$.value.forEach(n => { const p = (n.path || '').split('?')[0]; if (p && !rawPaths.has(p)) extraInUI.push(p); });
+      if (extraInUI.length > 0) {
+        console.warn('[MenuAudit] Items en UI no presentes en opcionesDetalle:', extraInUI);
+        const preview = extraInUI.slice(0, 4).join(', ');
+        const detail = extraInUI.length > 4 ? `${preview}, y ${extraInUI.length - 4} más…` : preview;
+        this.notify.info('Menú adicional', `Se detectaron ${extraInUI.length} items locales: ${detail}`);
+      }
+    } catch (e) {
+      console.warn('[MenuAudit] No se pudo auditar menús:', e);
+    }
   }
 }

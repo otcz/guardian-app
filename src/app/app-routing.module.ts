@@ -27,18 +27,64 @@ export const appRoutes: Routes = [
     children: [
       { path: '', component: DashboardHomeComponent },
       { path: 'listar-organizaciones', component: OrganizationListComponent },
-      { path: 'crear-organizacion', component: OrganizationFormComponent },
-      { path: 'gestionar-organizacion', component: OrganizationConfigComponent, canActivate: [OrgRequiredGuard] },
-      { path: 'configurar-parametros-globales', component: OrganizationParamsComponent, canActivate: [OrgRequiredGuard] },
-      { path: 'configurar-parametros-globales/:id', component: OrganizationParamsComponent, canActivate: [OrgRequiredGuard] },
-      { path: 'ver-auditoria-de-organizacion', component: OrganizationAuditComponent, canActivate: [OrgRequiredGuard] },
-      { path: 'crear-estrategia-de-gobernanza', component: CrearStrategyComponent, canActivate: [OrgRequiredGuard] },
-      { path: 'cambiar-estrategia-de-gobernanza', component: StrategyChangePageComponent, canActivate: [OrgRequiredGuard] },
-      { path: 'crear-seccion', component: SeccionFormComponent, canActivate: [OrgRequiredGuard] },
-      { path: 'listar-secciones', component: SeccionListComponent, canActivate: [OrgRequiredGuard] },
-      { path: 'crear-rol', component: RolesCreatePageComponent, canActivate: [OrgRequiredGuard] },
-      { path: 'gestionar-rol', component: RolesListComponent, canActivate: [OrgRequiredGuard] },
-      { path: 'listar-roles', component: RolesListComponent, canActivate: [OrgRequiredGuard] },
+      { path: 'crear-organizacion', component: OrganizationFormComponent, canActivate: [PermissionGuard], data: { code: 'ORG_CREATE' } },
+      { path: 'gestionar-organizacion', component: OrganizationConfigComponent, canActivate: [OrgRequiredGuard, PermissionGuard], data: { code: 'ORG_MANAGE' } },
+      { path: 'configurar-parametros-globales', component: OrganizationParamsComponent, canActivate: [OrgRequiredGuard, PermissionGuard], data: { code: 'PARAM_GLOBAL_MANAGE' } },
+      { path: 'configurar-parametros-globales/:id', component: OrganizationParamsComponent, canActivate: [OrgRequiredGuard, PermissionGuard], data: { code: 'PARAM_GLOBAL_MANAGE' } },
+      { path: 'ver-auditoria-de-organizacion', component: OrganizationAuditComponent, canActivate: [OrgRequiredGuard, PermissionGuard], data: { code: 'AUDIT_ORG_VIEW' } },
+      { path: 'crear-estrategia-de-gobernanza', component: CrearStrategyComponent, canActivate: [OrgRequiredGuard, PermissionGuard], data: { code: 'STRATEGY_CREATE' } },
+      { path: 'cambiar-estrategia-de-gobernanza', component: StrategyChangePageComponent, canActivate: [OrgRequiredGuard, PermissionGuard], data: { code: 'STRATEGY_CONFIGURE' } },
+      { path: 'crear-seccion', component: SeccionFormComponent, canActivate: [OrgRequiredGuard, PermissionGuard], data: { code: 'SECTION_CREATE' } },
+      { path: 'listar-secciones', component: SeccionListComponent, canActivate: [OrgRequiredGuard, PermissionGuard], data: { code: 'SECTION_REPORT_VIEW' } },
+      { path: 'crear-rol', component: RolesCreatePageComponent, canActivate: [OrgRequiredGuard, PermissionGuard], data: { code: 'ROLE_CREATE' } },
+      { path: 'gestionar-rol', component: RolesListComponent, canActivate: [OrgRequiredGuard, PermissionGuard], data: { code: 'ROLE_MANAGE' } },
+      { path: 'listar-roles', component: RolesListComponent, canActivate: [OrgRequiredGuard, PermissionGuard], data: { code: 'ROLE_LIST' } },
+
+      // --- Redirects from literal backend routes to canonical app routes ---
+      // Gestión de Organización
+      { path: 'gestion-de-organizacion/listar-organizaciones', redirectTo: 'listar-organizaciones', pathMatch: 'full' },
+      { path: 'gestion-de-organizacion/crear-organizacion', redirectTo: 'crear-organizacion', pathMatch: 'full' },
+      { path: 'gestion-de-organizacion/gestionar-organizacion', redirectTo: 'gestionar-organizacion', pathMatch: 'full' },
+      { path: 'gestion-de-organizacion/cambiar-estrategia-de-gobernanza', redirectTo: 'cambiar-estrategia-de-gobernanza', pathMatch: 'full' },
+      { path: 'gestion-de-organizacion/configurar-parametros-globales', redirectTo: 'configurar-parametros-globales', pathMatch: 'full' },
+      { path: 'gestion-de-organizacion/ver-auditoria-de-organizacion', redirectTo: 'ver-auditoria-de-organizacion', pathMatch: 'full' },
+
+      // Gestión de Secciones
+      { path: 'gestion-de-secciones/crear-seccion', redirectTo: 'crear-seccion', pathMatch: 'full' },
+      { path: 'gestion-de-secciones/listar-secciones', redirectTo: 'listar-secciones', pathMatch: 'full' },
+
+      // Gestión de Roles
+      { path: 'gestion-de-roles/crear-rol', redirectTo: 'crear-rol', pathMatch: 'full' },
+      { path: 'gestion-de-roles/listar-roles', redirectTo: 'listar-roles', pathMatch: 'full' },
+      { path: 'gestion-de-roles/gestionar-rol', redirectTo: 'gestionar-rol', pathMatch: 'full' },
+
+      // Gestión de Estrategias de Gobernanza
+      { path: 'gestion-de-estrategias-de-gobernanza/crear-estrategia', redirectTo: 'crear-estrategia-de-gobernanza', pathMatch: 'full' },
+      { path: 'gestion-de-estrategias-de-gobernanza/cambiar-estrategia', redirectTo: 'cambiar-estrategia-de-gobernanza', pathMatch: 'full' },
+
+      // --- Prefix placeholders keep catching everything else ---
+      { path: 'gestion-de-organizacion', component: PagePlaceholderComponent, canActivate: [PermissionGuard] },
+      { path: 'gestion-de-organizacion', children: [ { path: '**', component: PagePlaceholderComponent, canActivate: [PermissionGuard] } ] },
+      { path: 'gestion-de-secciones', component: PagePlaceholderComponent, canActivate: [PermissionGuard] },
+      { path: 'gestion-de-secciones', children: [ { path: '**', component: PagePlaceholderComponent, canActivate: [PermissionGuard] } ] },
+      { path: 'gestion-de-roles', component: PagePlaceholderComponent, canActivate: [PermissionGuard] },
+      { path: 'gestion-de-roles', children: [ { path: '**', component: PagePlaceholderComponent, canActivate: [PermissionGuard] } ] },
+      { path: 'gestion-de-usuarios', component: PagePlaceholderComponent, canActivate: [PermissionGuard] },
+      { path: 'gestion-de-usuarios', children: [ { path: '**', component: PagePlaceholderComponent, canActivate: [PermissionGuard] } ] },
+      { path: 'gestion-de-opciones-menu', component: PagePlaceholderComponent, canActivate: [PermissionGuard] },
+      { path: 'gestion-de-opciones-menu', children: [ { path: '**', component: PagePlaceholderComponent, canActivate: [PermissionGuard] } ] },
+      { path: 'gestion-de-vehiculos', component: PagePlaceholderComponent, canActivate: [PermissionGuard] },
+      { path: 'gestion-de-vehiculos', children: [ { path: '**', component: PagePlaceholderComponent, canActivate: [PermissionGuard] } ] },
+      { path: 'gestion-de-permisos', component: PagePlaceholderComponent, canActivate: [PermissionGuard] },
+      { path: 'gestion-de-permisos', children: [ { path: '**', component: PagePlaceholderComponent, canActivate: [PermissionGuard] } ] },
+      { path: 'gestion-de-parametros-locales', component: PagePlaceholderComponent, canActivate: [PermissionGuard] },
+      { path: 'gestion-de-parametros-locales', children: [ { path: '**', component: PagePlaceholderComponent, canActivate: [PermissionGuard] } ] },
+      { path: 'gestion-de-estrategias-de-gobernanza', component: PagePlaceholderComponent, canActivate: [PermissionGuard] },
+      { path: 'gestion-de-estrategias-de-gobernanza', children: [ { path: '**', component: PagePlaceholderComponent, canActivate: [PermissionGuard] } ] },
+      { path: 'gestion-de-ingresos', component: PagePlaceholderComponent, canActivate: [PermissionGuard] },
+      { path: 'gestion-de-ingresos', children: [ { path: '**', component: PagePlaceholderComponent, canActivate: [PermissionGuard] } ] },
+      { path: 'reportes-y-metricas', component: PagePlaceholderComponent, canActivate: [PermissionGuard] },
+      { path: 'reportes-y-metricas', children: [ { path: '**', component: PagePlaceholderComponent, canActivate: [PermissionGuard] } ] },
       {
         path: 'admin',
         children: [

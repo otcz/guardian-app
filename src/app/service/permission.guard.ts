@@ -14,14 +14,20 @@ export const PermissionGuard: CanActivateFn = (route, state) => {
     return false;
   }
 
-  // SYSADMIN tiene acceso universal
-  if (auth.hasRole('SYSADMIN')) return true;
-
-  const url = (state.url || '').split('?')[0];
+  // Normalizar URL (sin query) y sin slash final
+  let url = (state.url || '').split('?')[0];
+  if (url.length > 1 && url.endsWith('/')) url = url.replace(/\/$/, '');
   if (url === '/') return true;
 
-  // Validar acceso por path directo
+  // Validar acceso por path directo exacto
   if (menu.canAccessPath(url)) return true;
+
+  // Soporte para rutas con parámetros (e.g., /ruta/:id) usando la definición del routeConfig
+  const cfgPath = route.routeConfig?.path || '';
+  if (cfgPath && cfgPath.includes(':')) {
+    const base = '/' + cfgPath.split('/').filter(seg => seg && !seg.startsWith(':')).join('/');
+    if (base && menu.canAccessPath(base)) return true;
+  }
 
   // Validar por código si la ruta declara data.code
   const code = route.data && route.data['code'];

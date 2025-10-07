@@ -41,6 +41,20 @@ export class AuthService {
   private api(path: string) { return `${environment.apiBase}${path}`; }
   private absolute(path: string) { return `${environment.backendHost}${path}`; }
 
+  // --- Helpers de sesión/expiración ---
+  private getExpiresAt(): number | null {
+    try { const v = localStorage.getItem('expiresAt'); return v ? Number(v) : null; } catch { return null; }
+  }
+  tokenRemainingMillis(): number {
+    const exp = this.getExpiresAt();
+    if (!exp) return 0;
+    return Math.max(0, exp - Date.now());
+  }
+  isTokenExpired(): boolean {
+    const exp = this.getExpiresAt();
+    return !!exp && Date.now() >= exp;
+  }
+
   /** Devuelve los roles actuales almacenados (normalizados en mayúsculas) */
   getRoles(): string[] {
     try {
@@ -101,7 +115,16 @@ export class AuthService {
     return this.http.post<ApiResponse<any>>(this.api('/auth/register'), data);
   }
 
-  isAuthenticated(): boolean { return !!localStorage.getItem('token'); }
+  isAuthenticated(): boolean {
+    const hasToken = !!localStorage.getItem('token');
+    if (!hasToken) return false;
+    if (this.isTokenExpired()) {
+      // Limpiar si expiró
+      this.logout();
+      return false;
+    }
+    return true;
+  }
 
   logout() {
     localStorage.removeItem('token');

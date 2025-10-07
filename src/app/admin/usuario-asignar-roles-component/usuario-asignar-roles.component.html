@@ -1,0 +1,41 @@
+<div class="container">
+  <p-card class="card">
+    <div class="page-header">
+      <h2>Asignar roles a usuario</h2>
+      <span class="spacer"></span>
+      <button pButton type="button" icon="pi pi-arrow-left" class="p-button p-button-text" [routerLink]="['/gestion-de-usuarios/listar-usuarios']">Volver</button>
+    </div>
+
+    <div class="field">
+      <label>Usuario</label>
+      <p-dropdown [options]="usuarios" optionLabel="username" optionValue="id" [(ngModel)]="usuarioId" name="usuarioId" placeholder="Seleccione usuario" (onChange)="loadUserRoles()"></p-dropdown>
+    </div>
+
+    <div class="field">
+      <label>Roles disponibles</label>
+      <p-dropdown [options]="roles" optionLabel="nombre" optionValue="id" [(ngModel)]="rolSeleccionado" name="rolId" placeholder="Seleccione rol"></p-dropdown>
+    </div>
+
+    <div class="actions">
+      <button pButton type="button" label="Asignar rol" icon="pi pi-plus" (click)="assignRole()" [disabled]="!usuarioId || !rolSeleccionado || saving"></button>
+    </div>
+
+    <h3 style="margin-top:1rem;">Roles asignados</h3>
+    <p-table [value]="rolesUsuario" [responsiveLayout]="'scroll'">
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Rol</th>
+          <th style="width:180px;">Acciones</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-ru>
+        <tr>
+          <td>{{ ru.rol?.nombre || ru.rolId }}</td>
+          <td>
+            <button pButton type="button" label="Quitar" icon="pi pi-times" class="p-button p-button-outlined" (click)="unassignRole(ru.id)"></button>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+</div>

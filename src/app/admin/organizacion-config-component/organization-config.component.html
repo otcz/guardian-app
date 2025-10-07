@@ -8,22 +8,6 @@
       </p>
     </div>
 
-    <div class="org-selector">
-      <label class="sr-only" for="orgSelect">Organización</label>
-      <p-dropdown id="orgSelect"
-                  [options]="orgs"
-                  optionLabel="nombre"
-                  optionValue="id"
-                  [filter]="true"
-                  [showClear]="false"
-                  placeholder="Seleccione organización"
-                  [(ngModel)]="orgId"
-                  (ngModelChange)="onOrgChanged($event)"
-                  [disabled]="loading || loadingOrgs"
-                  appendTo="body">
-      </p-dropdown>
-    </div>
-
     <span class="spacer"></span>
     <button pButton type="button" icon="pi pi-arrow-left" label="Volver" class="p-button-text" (click)="back()"></button>
   </div>

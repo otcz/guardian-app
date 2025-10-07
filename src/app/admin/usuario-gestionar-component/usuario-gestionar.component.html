@@ -1,0 +1,47 @@
+<div class="container" *ngIf="user; else loadingTpl">
+  <p-card class="card">
+    <div class="page-header">
+      <h2>Gestionar usuario</h2>
+      <span class="spacer"></span>
+      <button pButton type="button" icon="pi pi-arrow-left" class="p-button p-button-text" [routerLink]="['/gestion-de-usuarios/listar-usuarios']">Volver</button>
+    </div>
+
+    <div class="actions" style="margin-bottom:1rem;">
+      <button pButton type="button" icon="pi pi-pencil" label="Editar" class="p-button p-button-outlined" (click)="toggleEdit()" [disabled]="editing"></button>
+      <button pButton type="button" [label]="user.activo ? 'Desactivar' : 'Activar'" [icon]="user.activo ? 'pi pi-ban' : 'pi pi-check'" class="p-button p-button-outlined" (click)="toggleActive()"></button>
+    </div>
+
+    <form (ngSubmit)="save()" *ngIf="editing" novalidate>
+      <div class="field">
+        <label>Username</label>
+        <input pInputText type="text" [(ngModel)]="draft.username" name="username" appUppercase />
+      </div>
+      <div class="field">
+        <label>Nombre completo</label>
+        <input pInputText type="text" [(ngModel)]="draft.nombreCompleto" name="nombreCompleto" appUppercase />
+      </div>
+      <div class="field">
+        <label>Email</label>
+        <input pInputText type="email" [(ngModel)]="draft.email" name="email" />
+      </div>
+      <div class="actions">
+        <button pButton type="submit" label="Guardar" [disabled]="saving"></button>
+        <button pButton type="button" class="p-button p-button-text" label="Cancelar" (click)="cancel()" [disabled]="saving"></button>
+      </div>
+    </form>
+
+    <div *ngIf="!editing" class="readonly-grid">
+      <div class="kv"><span>Username</span><b>{{ user.username }}</b></div>
+      <div class="kv"><span>Nombre completo</span><b>{{ user.nombreCompleto || '-' }}</b></div>
+      <div class="kv"><span>Email</span><b>{{ user.email || '-' }}</b></div>
+      <div class="kv"><span>Alcance</span><b>{{ user.scopeNivel || '-' }}</b></div>
+      <div class="kv"><span>Sección principal</span><b>{{ user.seccionEntityPrincipal?.id || '-' }}</b></div>
+      <div class="kv"><span>Estado</span><b>{{ user.activo ? 'ACTIVO' : 'INACTIVO' }}</b></div>
+    </div>
+  </p-card>
+</div>
+
+<ng-template #loadingTpl>
+  <p-progressSpinner class="overlay-spinner"></p-progressSpinner>
+</ng-template>
+

@@ -16,6 +16,11 @@ import { SeccionFormComponent } from './admin/seccion-form-component/seccion-for
 import { SeccionListComponent } from './admin/seccion-list-component/seccion-list.component';
 import { RolesListComponent } from './admin/roles-list-component/roles-list.component';
 import { RolesCreatePageComponent } from './admin/roles-create-page/roles-create-page.component';
+import { UsuariosCrearComponent } from './admin/usuarios-crear-component/usuarios-crear.component';
+import { UsuariosListarComponent } from './admin/usuarios-listar-component/usuarios-listar.component';
+import { UsuarioGestionarComponent } from './admin/usuario-gestionar-component/usuario-gestionar.component';
+import { UsuarioAsignarSeccionComponent } from './admin/usuario-asignar-seccion-component/usuario-asignar-seccion.component';
+import { UsuarioAsignarRolesComponent } from './admin/usuario-asignar-roles-component/usuario-asignar-roles.component';
 
 export const appRoutes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -38,6 +43,13 @@ export const appRoutes: Routes = [
       { path: 'crear-rol', component: RolesCreatePageComponent, canActivate: [PermissionGuard], data: { code: 'ROLE_CREATE' } },
       { path: 'gestionar-rol', component: RolesListComponent, canActivate: [PermissionGuard], data: { code: 'ROLE_MANAGE' } },
       { path: 'listar-roles', component: RolesListComponent, canActivate: [PermissionGuard], data: { code: 'ROLE_LIST' } },
+
+      // --- Gestión de Usuarios ---
+      { path: 'gestion-de-usuarios/crear-usuario', component: UsuariosCrearComponent, canActivate: [PermissionGuard], data: { code: 'USER_CREATE' } },
+      { path: 'gestion-de-usuarios/listar-usuarios', component: UsuariosListarComponent, canActivate: [PermissionGuard], data: { code: 'USER_LIST' } },
+      { path: 'gestion-de-usuarios/gestionar-usuario', component: UsuarioGestionarComponent, canActivate: [PermissionGuard], data: { code: 'USER_MANAGE' } },
+      { path: 'gestion-de-usuarios/asignar-usuario-a-seccion', component: UsuarioAsignarSeccionComponent, canActivate: [PermissionGuard], data: { code: 'USER_ASSIGN_SECTION' } },
+      { path: 'gestion-de-usuarios/asignar-roles', component: UsuarioAsignarRolesComponent, canActivate: [PermissionGuard], data: { code: 'USER_ASSIGN_ROLES' } },
 
       // --- Redirects from literal backend routes to canonical app routes ---
       // Gestión de Organización

@@ -1,0 +1,5 @@
+.actions { display:flex; gap:.4rem; flex-wrap:wrap; }
+.chip { display:inline-flex; align-items:center; padding:.15rem .5rem; border-radius:999px; font-size:.72rem; font-weight:800; color:#fff; background:#6b7280; }
+.chip-success { background: var(--success); }
+.chip-danger { background: #ef4444; }
+

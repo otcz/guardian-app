@@ -1,0 +1,25 @@
+<div class="container">
+  <p-card class="card">
+    <div class="page-header">
+      <h2>Asignar usuario a sección</h2>
+      <span class="spacer"></span>
+      <button pButton type="button" icon="pi pi-arrow-left" class="p-button p-button-text" [routerLink]="['/gestion-de-usuarios/listar-usuarios']">Volver</button>
+    </div>
+
+    <div class="field">
+      <label>Usuario</label>
+      <p-dropdown [options]="usuarios" optionLabel="username" optionValue="id" [(ngModel)]="usuarioId" name="usuarioId" placeholder="Seleccione usuario"></p-dropdown>
+    </div>
+
+    <div class="field">
+      <label>Sección</label>
+      <p-dropdown [options]="secciones" optionLabel="nombre" optionValue="id" [(ngModel)]="seccionId" name="seccionId" placeholder="Seleccione sección"></p-dropdown>
+    </div>
+
+    <div class="actions">
+      <button pButton type="button" label="Asignar" icon="pi pi-check" (click)="assign()" [disabled]="saving || !usuarioId || !seccionId"></button>
+      <button pButton type="button" label="Quitar sección" class="p-button p-button-outlined" icon="pi pi-times" (click)="remove()" [disabled]="saving || !usuarioId"></button>
+    </div>
+  </p-card>
+</div>
+

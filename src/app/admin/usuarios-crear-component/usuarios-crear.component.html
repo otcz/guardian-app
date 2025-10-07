@@ -1,0 +1,44 @@
+<div class="container">
+  <p-card class="card">
+    <div class="page-header">
+      <h2>Crear usuario</h2>
+      <span class="spacer"></span>
+      <button pButton type="button" icon="pi pi-arrow-left" class="p-button p-button-text" [routerLink]="['/gestion-de-usuarios/listar-usuarios']">Volver</button>
+    </div>
+
+    <form (ngSubmit)="onSubmit()" #formRef="ngForm" novalidate>
+      <div class="field">
+        <label>Username *</label>
+        <input pInputText type="text" name="username" [(ngModel)]="model.username" required minlength="3" maxlength="64" appUppercase />
+      </div>
+
+      <div class="field">
+        <label>Nombre completo</label>
+        <input pInputText type="text" name="nombreCompleto" [(ngModel)]="model.nombreCompleto" maxlength="120" appUppercase />
+      </div>
+
+      <div class="field">
+        <label>Email</label>
+        <input pInputText type="email" name="email" [(ngModel)]="model.email" maxlength="160" />
+      </div>
+
+      <div class="field">
+        <label>Alcance</label>
+        <p-dropdown [options]="scopeOptions" optionLabel="label" optionValue="value" [(ngModel)]="model.scopeNivel" name="scopeNivel"></p-dropdown>
+      </div>
+
+      <div class="field" *ngIf="model.scopeNivel === 'SECCION'">
+        <label>Sección principal</label>
+        <p-dropdown [options]="secciones" optionLabel="nombre" optionValue="id" [(ngModel)]="model.seccionPrincipalId" name="seccionPrincipalId" placeholder="Seleccione sección"></p-dropdown>
+        <small class="hint">Requerido si el alcance es SECCIÓN.</small>
+      </div>
+
+      <div class="actions">
+        <button pButton type="submit" label="Crear" [disabled]="saving"></button>
+        <button pButton type="button" class="p-button p-button-text" label="Limpiar" (click)="reset()" [disabled]="saving"></button>
+      </div>
+    </form>
+  </p-card>
+  <p-progressSpinner *ngIf="loading" styleClass="overlay-spinner"></p-progressSpinner>
+</div>
+

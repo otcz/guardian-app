@@ -1,0 +1,7 @@
+.overlay-spinner { position: fixed; inset: 0; margin: auto; }
+.kv { display:flex; gap:.5rem; align-items:center; margin-bottom:.5rem; }
+.kv span { width: 180px; color: var(--muted); font-size: .82rem; }
+.kv b { font-weight: 800; color: var(--text); }
+.field { display:flex; flex-direction:column; gap:.5rem; margin-bottom:1rem; }
+.actions { display:flex; gap:.5rem; flex-wrap:wrap; }
+

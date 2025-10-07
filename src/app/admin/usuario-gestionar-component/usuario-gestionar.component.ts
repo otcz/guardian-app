@@ -11,11 +11,19 @@ import { OrgContextService } from '../../service/org-context.service';
 import { UsersService, UserEntity, UpdateUserRequest } from '../../service/users.service';
 import { NotificationService } from '../../service/notification.service';
 import { SeccionService, SeccionEntity } from '../../service/seccion.service';
+import { TagModule } from 'primeng/tag';
+import { DividerModule } from 'primeng/divider';
+import { TooltipModule } from 'primeng/tooltip';
+import { AvatarModule } from 'primeng/avatar';
+// Agregados para mejoras visuales
+import { ToolbarModule } from 'primeng/toolbar';
+import { SkeletonModule } from 'primeng/skeleton';
+import { ChipModule } from 'primeng/chip';
 
 @Component({
   selector: 'app-usuario-gestionar',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, CardModule, InputTextModule, ButtonModule, ProgressSpinnerModule, UppercaseDirective],
+  imports: [CommonModule, FormsModule, RouterModule, CardModule, InputTextModule, ButtonModule, ProgressSpinnerModule, UppercaseDirective, TagModule, DividerModule, TooltipModule, AvatarModule, ToolbarModule, SkeletonModule, ChipModule],
   templateUrl: './usuario-gestionar.component.html',
   styleUrls: ['./usuario-gestionar.component.scss']
 })
@@ -30,6 +38,14 @@ export class UsuarioGestionarComponent implements OnInit {
   principalSeccionNombre: string | null = null;
 
   constructor(private route: ActivatedRoute, private router: Router, private orgCtx: OrgContextService, private users: UsersService, private notify: NotificationService, private secciones: SeccionService) {}
+
+  get userInitial(): string {
+    const src = (this.user?.nombreCompleto || this.user?.username || '').trim();
+    if (!src) return '?';
+    const parts = src.split(/\s+/).filter(Boolean);
+    if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+    return src[0].toUpperCase();
+  }
 
   ngOnInit(): void {
     this.orgId = this.orgCtx.value;
@@ -91,5 +107,17 @@ export class UsuarioGestionarComponent implements OnInit {
       next: res => { this.user!.activo = value; this.notify.success('Éxito', res.message || (value ? 'USUARIO ACTIVADO.' : 'USUARIO DESACTIVADO.')); },
       error: e => this.notify.error('Error', e?.error?.message || 'No se pudo cambiar el estado')
     });
+  }
+
+  copy(text?: string | null) {
+    const t = (text || '').toString();
+    if (!t) return;
+    try { navigator.clipboard.writeText(t); this.notify.info('Copiado', 'Texto copiado al portapapeles'); } catch {}
+  }
+
+  openEmail(email?: string | null) {
+    const e = (email || '').toString().trim();
+    if (!e) return;
+    window.location.href = `mailto:${e}`;
   }
 }

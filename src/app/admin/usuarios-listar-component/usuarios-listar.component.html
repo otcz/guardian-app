@@ -7,33 +7,44 @@
     </div>
 
     <div class="field">
-      <input pInputText type="text" placeholder="Filtrar..." [(ngModel)]="filter" (ngModelChange)="applyFilter()" />
+      <input pInputText type="text" placeholder="Buscar por username, nombre, email o alcance..." [(ngModel)]="filter" (ngModelChange)="applyFilter()" />
     </div>
 
     <p-table [value]="filtered" [loading]="loading" [rows]="10" [paginator]="true" [responsiveLayout]="'scroll'">
       <ng-template pTemplate="header">
         <tr>
-          <th>Username</th>
-          <th>Nombre</th>
-          <th>Email</th>
-          <th>Alcance</th>
-          <th>Activo</th>
-          <th style="width:220px;">Acciones</th>
+          <th>Usuario</th>
+          <th>Alcance/Sección</th>
+          <th>Estado</th>
+          <th style="width:360px;">Acciones</th>
         </tr>
       </ng-template>
       <ng-template pTemplate="body" let-u>
         <tr>
-          <td>{{ u.username }}</td>
-          <td>{{ u.nombreCompleto || '-' }}</td>
-          <td>{{ u.email || '-' }}</td>
-          <td>{{ u.scopeNivel || '-' }}</td>
           <td>
-            <span class="chip" [ngClass]="u.activo ? 'chip-success' : 'chip-danger'">{{ u.activo ? 'ACTIVO' : 'INACTIVO' }}</span>
+            <div class="user-cell">
+              <p-avatar [label]="userInitial(u)" shape="circle" size="large" [style]="{ background: 'linear-gradient(135deg, var(--primary), var(--secondary))', color: '#fff' }"></p-avatar>
+              <div class="meta">
+                <div class="top">{{ u.username }}</div>
+                <div class="sub">{{ u.nombreCompleto || u.email || '—' }}</div>
+              </div>
+            </div>
+          </td>
+          <td>
+            <div class="stack">
+              <p-chip icon="pi pi-shield" [label]="u.scopeNivel || '-'" class="pill muted"></p-chip>
+              <p-chip *ngIf="u.seccionPrincipalId" icon="pi pi-sitemap" [label]="'Sección: ' + sectionName(u)" class="pill"></p-chip>
+            </div>
+          </td>
+          <td>
+            <p-tag [value]="u.activo ? 'ACTIVO' : 'INACTIVO'" [severity]="u.activo ? 'success' : 'danger'"></p-tag>
           </td>
           <td>
             <div class="actions">
-              <button pButton type="button" icon="pi pi-cog" class="p-button p-button-text" [routerLink]="['/gestion-de-usuarios/gestionar-usuario']" [queryParams]="{ id: u.id }" title="Gestionar"></button>
-              <button pButton type="button" [label]="u.activo ? 'Desactivar' : 'Activar'" [icon]="u.activo ? 'pi pi-ban' : 'pi pi-check'" class="p-button p-button-outlined" (click)="toggle(u)"></button>
+              <button pButton type="button" icon="pi pi-cog" label="Gestionar" class="p-button p-button-text" [routerLink]="['/gestion-de-usuarios/gestionar-usuario']" [queryParams]="{ id: u.id }" pTooltip="Gestionar usuario" tooltipPosition="top"></button>
+              <button pButton type="button" [label]="u.activo ? 'Desactivar' : 'Activar'" [icon]="u.activo ? 'pi pi-ban' : 'pi pi-check'" [class]="u.activo ? 'p-button p-button-outlined p-button-danger' : 'p-button p-button-outlined p-button-success'" (click)="toggle(u)" pTooltip="Cambiar estado" tooltipPosition="top"></button>
+              <button pButton type="button" icon="pi pi-user-plus" label="Asignar roles" class="p-button p-button-text" [routerLink]="['/gestion-de-usuarios/asignar-roles']" [queryParams]="{ id: u.id }"></button>
+              <button pButton type="button" icon="pi pi-sitemap" label="Asignar sección" class="p-button p-button-text" [routerLink]="['/gestion-de-usuarios/asignar-usuario-a-seccion']" [queryParams]="{ id: u.id }"></button>
             </div>
           </td>
         </tr>
@@ -41,4 +52,3 @@
     </p-table>
   </p-card>
 </div>
-

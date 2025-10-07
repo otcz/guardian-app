@@ -912,3 +912,45 @@ body .p-card {
 :root.theme-dark body .p-select-label.p-placeholder,
 :root.theme-black body .p-select-label.p-placeholder { color: rgba(255,255,255,0.75) !important; }
 
+/* Chips: contraste por tema (requisito) */
+:root.theme-light body .p-chip,
+:root.theme-light body .pill .p-chip {
+  background: #ffffff !important;
+  color: #000000 !important;
+}
+:root.theme-dark body .p-chip,
+:root.theme-dark body .pill .p-chip,
+:root.theme-black body .p-chip,
+:root.theme-black body .pill .p-chip {
+  background: var(--surface-alt) !important;
+  color: #ffffff !important;
+}
+
+/* Cards con layout user-card: sin padding del host y sin desbordes */
+.card.user-card,
+.p-card.user-card {
+  padding: 0 !important;
+  overflow: hidden;
+}
+
+/* Opciones del Select: texto verde en todos los temas; nunca negro */
+:root.theme-light body .p-select-overlay .p-select-item,
+:root.theme-light body .p-select-overlay .p-select-option {
+  color: var(--success) !important;
+}
+:root.theme-dark body .p-select-overlay .p-select-item,
+:root.theme-dark body .p-select-overlay .p-select-option,
+:root.theme-black body .p-select-overlay .p-select-item,
+:root.theme-black body .p-select-overlay .p-select-option {
+  color: var(--success) !important;
+}
+/* Estados resaltados: texto blanco para asegurar contraste, nunca negro */
+:root.theme-light body .p-select-overlay .p-select-item.p-highlight,
+:root.theme-light body .p-select-overlay .p-select-option.p-highlight,
+:root.theme-dark body .p-select-overlay .p-select-item.p-highlight,
+:root.theme-dark body .p-select-overlay .p-select-option.p-highlight,
+:root.theme-black body .p-select-overlay .p-select-item.p-highlight,
+:root.theme-black body .p-select-overlay .p-select-option.p-highlight {
+  color: #ffffff !important;
+}
+

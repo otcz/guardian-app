@@ -7,17 +7,21 @@ import { InputTextModule } from 'primeng/inputtext';
 import { DropdownModule } from 'primeng/dropdown';
 import { ButtonModule } from 'primeng/button';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
-import { ConfirmationService } from 'primeng/api';
 import { UppercaseDirective } from '../../shared/formatting.directives';
 import { OrgContextService } from '../../service/org-context.service';
 import { SeccionService, SeccionEntity } from '../../service/seccion.service';
 import { UsersService, CreateUserRequest, ScopeNivel } from '../../service/users.service';
 import { NotificationService } from '../../service/notification.service';
+import { SkeletonModule } from 'primeng/skeleton';
+import { ChipModule } from 'primeng/chip';
+import { TagModule } from 'primeng/tag';
+import { TooltipModule } from 'primeng/tooltip';
+import { AvatarModule } from 'primeng/avatar';
 
 @Component({
   selector: 'app-usuarios-crear',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, CardModule, InputTextModule, DropdownModule, ButtonModule, ProgressSpinnerModule, UppercaseDirective],
+  imports: [CommonModule, FormsModule, RouterModule, CardModule, InputTextModule, DropdownModule, ButtonModule, ProgressSpinnerModule, UppercaseDirective, SkeletonModule, ChipModule, TagModule, TooltipModule, AvatarModule],
   templateUrl: './usuarios-crear.component.html',
   styleUrls: ['./usuarios-crear.component.scss']
 })
@@ -45,8 +49,7 @@ export class UsuariosCrearComponent implements OnInit {
     private seccionService: SeccionService,
     private users: UsersService,
     private notify: NotificationService,
-    private router: Router,
-    private confirm: ConfirmationService
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -57,6 +60,18 @@ export class UsuariosCrearComponent implements OnInit {
       return;
     }
     this.loadSecciones();
+  }
+
+  get scopeLabel(): string {
+    return this.model.scopeNivel === 'SECCION' ? 'Alcance: SECCIÓN' : 'Alcance: ORGANIZACIÓN';
+    }
+
+  get initial(): string {
+    const src = (this.model.nombreCompleto || this.model.username || '').trim();
+    if (!src) return 'U';
+    const parts = src.split(/\s+/).filter(Boolean);
+    if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+    return src[0].toUpperCase();
   }
 
   loadSecciones() {
@@ -103,4 +118,3 @@ export class UsuariosCrearComponent implements OnInit {
     });
   }
 }
-

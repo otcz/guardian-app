@@ -1,2 +1,21 @@
+/* Estructura principal */
+.container { padding: 12px 0 32px; }
+
+/* Hero */
+.user-hero { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 16px; padding: 12px 8px 8px; border-bottom: 1px dashed var(--border); }
+.user-meta { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.title-row { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
+.title { margin: 0; line-height: 1.2; font-weight: 800; letter-spacing: .2px; }
+.actions-toolbar { display: flex; align-items: center; gap: 8px; }
+.actions-toolbar .spacer { flex: 1; }
+.chip-row { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+.pill .p-chip { background: var(--surface-alt); color: var(--text); border-radius: 999px; }
+.pill.muted .p-chip { opacity: .9; }
+
+/* Formulario */
+.form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px 16px; padding: 12px 8px; }
+.field { display: flex; flex-direction: column; gap: .5rem; }
 .actions { display:flex; gap:.5rem; flex-wrap:wrap; }
 
+/* Tabla */
+:host ::ng-deep .p-table .p-datatable-wrapper table td { vertical-align: middle; }

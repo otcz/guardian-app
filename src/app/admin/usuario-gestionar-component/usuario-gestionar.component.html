@@ -1,46 +1,137 @@
-<div class="container" *ngIf="user; else loadingTpl">
-  <p-card class="card">
-    <div class="page-header">
-      <h2>Gestionar usuario</h2>
-      <span class="spacer"></span>
-      <button pButton type="button" icon="pi pi-arrow-left" class="p-button p-button-text" [routerLink]="['/gestion-de-usuarios/listar-usuarios']">Volver</button>
+<div class="container">
+  <p-card class="card user-card" *ngIf="user && !loading; else loadingTpl">
+    <!-- Header / Hero -->
+    <div class="user-hero">
+      <p-avatar [label]="userInitial" shape="circle" size="large" styleClass="user-avatar" [style]="{ background: 'linear-gradient(135deg, var(--primary), var(--secondary))', color: '#fff' }"></p-avatar>
+      <div class="user-meta">
+        <div class="title-row">
+          <h2 class="title">{{ user.nombreCompleto || user.username }}</h2>
+          <p-tag [value]="user.activo ? 'ACTIVO' : 'INACTIVO'" [severity]="user.activo ? 'success' : 'danger'" styleClass="state-tag"></p-tag>
+        </div>
+        <div class="chip-row">
+          <p-chip icon="pi pi-id-card" [label]="user.username || '-'" class="pill"></p-chip>
+          <p-chip *ngIf="user.email" icon="pi pi-envelope" [label]="user.email || ''" class="pill" (click)="openEmail(user.email)" pTooltip="Enviar correo" tooltipPosition="top"></p-chip>
+          <p-chip *ngIf="principalSeccionNombre || user.seccionPrincipalId" icon="pi pi-sitemap" [label]="principalSeccionNombre || (user.seccionPrincipalId + '')" class="pill muted"></p-chip>
+          <p-chip *ngIf="user.scopeNivel" icon="pi pi-shield" [label]="(user.scopeNivel || '') + ''" class="pill muted" pTooltip="Alcance"></p-chip>
+        </div>
+      </div>
+      <div class="actions-toolbar">
+        <button pButton type="button" icon="pi pi-arrow-left" class="p-button p-button-text" [routerLink]="['/gestion-de-usuarios/listar-usuarios']" pTooltip="Volver" tooltipPosition="top"></button>
+        <span class="spacer"></span>
+        <button pButton type="button" icon="pi pi-pencil" label="Editar" class="p-button p-button-outlined" (click)="toggleEdit()" [disabled]="editing"></button>
+        <button pButton type="button" [label]="user.activo ? 'Desactivar' : 'Activar'" [icon]="user.activo ? 'pi pi-ban' : 'pi pi-check'" [class]="user.activo ? 'p-button p-button-outlined p-button-danger' : 'p-button p-button-outlined p-button-success'" (click)="toggleActive()"></button>
+        <button pButton type="button" icon="pi pi-user-plus" label="Asignar roles" class="p-button p-button-text" [routerLink]="['/gestion-de-usuarios/asignar-roles']" [queryParams]="{ id: user.id }"></button>
+        <button pButton type="button" icon="pi pi-sitemap" label="Asignar sección" class="p-button p-button-text" [routerLink]="['/gestion-de-usuarios/asignar-usuario-a-seccion']" [queryParams]="{ id: user.id }"></button>
+      </div>
     </div>
 
-    <div class="actions" style="margin-bottom:1rem;">
-      <button pButton type="button" icon="pi pi-pencil" label="Editar" class="p-button p-button-outlined" (click)="toggleEdit()" [disabled]="editing"></button>
-      <button pButton type="button" [label]="user.activo ? 'Desactivar' : 'Activar'" [icon]="user.activo ? 'pi pi-ban' : 'pi pi-check'" class="p-button p-button-outlined" (click)="toggleActive()"></button>
-    </div>
-
-    <form (ngSubmit)="save()" *ngIf="editing" novalidate>
-      <div class="field">
-        <label>Username</label>
-        <input pInputText type="text" [(ngModel)]="draft.username" name="username" appUppercase />
+    <!-- Formulario de edición -->
+    <form class="edit-form" (ngSubmit)="save()" *ngIf="editing" novalidate>
+      <div class="form-grid">
+        <div class="field">
+          <label>Username</label>
+          <div class="input-with-tools">
+            <input pInputText type="text" [(ngModel)]="draft.username" name="username" appUppercase placeholder="USUARIO" />
+            <button pButton type="button" icon="pi pi-copy" class="p-button p-button-text p-button-rounded" (click)="copy(draft.username)" pTooltip="Copiar" tooltipPosition="top"></button>
+          </div>
+        </div>
+        <div class="field">
+          <label>Nombre completo</label>
+          <input pInputText type="text" [(ngModel)]="draft.nombreCompleto" name="nombreCompleto" appUppercase placeholder="Nombre y Apellido" />
+        </div>
+        <div class="field">
+          <label>Email</label>
+          <div class="input-with-tools">
+            <input pInputText type="email" [(ngModel)]="draft.email" name="email" placeholder="usuario@dominio.com" />
+            <button pButton type="button" icon="pi pi-envelope" class="p-button p-button-text p-button-rounded" (click)="openEmail(draft.email)" pTooltip="Enviar correo" tooltipPosition="top" [disabled]="!draft.email"></button>
+          </div>
+        </div>
       </div>
-      <div class="field">
-        <label>Nombre completo</label>
-        <input pInputText type="text" [(ngModel)]="draft.nombreCompleto" name="nombreCompleto" appUppercase />
-      </div>
-      <div class="field">
-        <label>Email</label>
-        <input pInputText type="email" [(ngModel)]="draft.email" name="email" />
-      </div>
-      <div class="actions">
+      <div class="actions footer-actions">
         <button pButton type="submit" label="Guardar" [disabled]="saving"></button>
         <button pButton type="button" class="p-button p-button-text" label="Cancelar" (click)="cancel()" [disabled]="saving"></button>
       </div>
     </form>
 
-    <div *ngIf="!editing" class="readonly-grid">
-      <div class="kv"><span>Username</span><b>{{ user.username }}</b></div>
-      <div class="kv"><span>Nombre completo</span><b>{{ user.nombreCompleto || '-' }}</b></div>
-      <div class="kv"><span>Email</span><b>{{ user.email || '-' }}</b></div>
-      <div class="kv"><span>Alcance</span><b>{{ user.scopeNivel || '-' }}</b></div>
-      <div class="kv"><span>Sección principal</span><b>{{ principalSeccionNombre || user.seccionPrincipalId || '-' }}</b></div>
-      <div class="kv"><span>Estado</span><b>{{ user.activo ? 'ACTIVO' : 'INACTIVO' }}</b></div>
+    <!-- Vista solo lectura -->
+    <div *ngIf="!editing" class="content-grid">
+      <div class="section">
+        <h3 class="section-title">Cuenta</h3>
+        <div class="kv"><span>Username</span>
+          <div class="value-row">
+            <b>{{ user.username }}</b>
+            <button pButton type="button" icon="pi pi-copy" class="p-button p-button-text p-button-rounded" (click)="copy(user.username)" pTooltip="Copiar" tooltipPosition="top"></button>
+          </div>
+        </div>
+        <div class="kv"><span>Nombre completo</span><b>{{ user.nombreCompleto || '-' }}</b></div>
+        <div class="kv"><span>Email</span>
+          <div class="value-row">
+            <b>{{ user.email || '-' }}</b>
+            <button pButton type="button" icon="pi pi-envelope" class="p-button p-button-text p-button-rounded" (click)="openEmail(user.email)" [disabled]="!user.email" pTooltip="Enviar correo" tooltipPosition="top"></button>
+            <button pButton type="button" icon="pi pi-copy" class="p-button p-button-text p-button-rounded" (click)="copy(user.email)" [disabled]="!user.email" pTooltip="Copiar" tooltipPosition="top"></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3 class="section-title">Organización</h3>
+        <div class="kv"><span>Sección principal</span><b>{{ principalSeccionNombre || (user.seccionPrincipalId + '') || '-' }}</b></div>
+        <div class="kv"><span>Alcance</span><b>{{ user.scopeNivel || '-' }}</b></div>
+        <div class="kv"><span>Estado</span>
+          <b class="state-wrap">
+            <p-tag [value]="user.activo ? 'ACTIVO' : 'INACTIVO'" [severity]="user.activo ? 'success' : 'danger'"></p-tag>
+          </b>
+        </div>
+      </div>
+
+      <div class="section actions-quick">
+        <h3 class="section-title">Acciones rápidas</h3>
+        <div class="quick-grid">
+          <button pButton type="button" icon="pi pi-user-edit" label="Editar datos" class="p-button p-button-outlined" (click)="toggleEdit()" [disabled]="editing"></button>
+          <button pButton type="button" [label]="user.activo ? 'Desactivar usuario' : 'Activar usuario'" [icon]="user.activo ? 'pi pi-ban' : 'pi pi-check'" [class]="user.activo ? 'p-button p-button-outlined p-button-danger' : 'p-button p-button-outlined p-button-success'" (click)="toggleActive()"></button>
+          <button pButton type="button" icon="pi pi-user-plus" label="Asignar roles" class="p-button p-button-text" [routerLink]="['/gestion-de-usuarios/asignar-roles']" [queryParams]="{ id: user.id }"></button>
+          <button pButton type="button" icon="pi pi-sitemap" label="Asignar sección" class="p-button p-button-text" [routerLink]="['/gestion-de-usuarios/asignar-usuario-a-seccion']" [queryParams]="{ id: user.id }"></button>
+        </div>
+      </div>
     </div>
   </p-card>
 </div>
 
 <ng-template #loadingTpl>
-  <p-progressSpinner class="overlay-spinner"></p-progressSpinner>
+  <p-card class="card user-card">
+    <div class="user-hero">
+      <p-skeleton shape="circle" size="4rem" styleClass="avatar-skeleton"></p-skeleton>
+      <div class="user-meta">
+        <div class="title-row">
+          <p-skeleton width="240px" height="24px"></p-skeleton>
+          <p-skeleton width="90px" height="24px"></p-skeleton>
+        </div>
+        <div class="chip-row">
+          <p-skeleton width="120px" height="28px"></p-skeleton>
+          <p-skeleton width="180px" height="28px"></p-skeleton>
+          <p-skeleton width="160px" height="28px"></p-skeleton>
+        </div>
+      </div>
+      <div class="actions-toolbar">
+        <p-skeleton width="90px" height="36px"></p-skeleton>
+        <span class="spacer"></span>
+        <p-skeleton width="120px" height="36px"></p-skeleton>
+        <p-skeleton width="160px" height="36px"></p-skeleton>
+      </div>
+    </div>
+    <div class="content-grid">
+      <div class="section">
+        <h3 class="section-title">Cuenta</h3>
+        <p-skeleton width="100%" height="18px" [ngStyle]="{ 'margin-bottom': '8px' }"></p-skeleton>
+        <p-skeleton width="100%" height="18px" [ngStyle]="{ 'margin-bottom': '8px' }"></p-skeleton>
+        <p-skeleton width="80%" height="18px"></p-skeleton>
+      </div>
+      <div class="section">
+        <h3 class="section-title">Organización</h3>
+        <p-skeleton width="80%" height="18px" [ngStyle]="{ 'margin-bottom': '8px' }"></p-skeleton>
+        <p-skeleton width="70%" height="18px" [ngStyle]="{ 'margin-bottom': '8px' }"></p-skeleton>
+        <p-skeleton width="60%" height="18px"></p-skeleton>
+      </div>
+    </div>
+  </p-card>
 </ng-template>

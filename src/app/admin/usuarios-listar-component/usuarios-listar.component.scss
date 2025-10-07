@@ -1,5 +1,15 @@
-.actions { display:flex; gap:.4rem; flex-wrap:wrap; }
-.chip { display:inline-flex; align-items:center; padding:.15rem .5rem; border-radius:999px; font-size:.72rem; font-weight:800; color:#fff; background:#6b7280; }
-.chip-success { background: var(--success); }
-.chip-danger { background: #ef4444; }
+.actions { display:flex; gap:.5rem; flex-wrap:wrap; }
 
+/* Celda de usuario con avatar */
+.user-cell { display: flex; align-items: center; gap: 10px; }
+.user-cell .meta { display: flex; flex-direction: column; }
+.user-cell .meta .top { font-weight: 800; }
+.user-cell .meta .sub { font-size: .88rem; color: var(--muted); }
+
+/* Chips y stack */
+.stack { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.pill .p-chip { background: var(--surface-alt); color: var(--text); border-radius: 999px; }
+.pill.muted .p-chip { opacity: .9; }
+
+/* Tabla: ancho y espaciado cómodo */
+:host ::ng-deep .p-table .p-datatable-wrapper table td { vertical-align: middle; }

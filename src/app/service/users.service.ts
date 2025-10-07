@@ -16,7 +16,10 @@ export interface UserEntity {
   email?: string | null;
   activo: boolean;
   scopeNivel?: ScopeNivel | null;
-  seccionEntityPrincipal?: { id: string } | null;
+  seccionPrincipalId?: string | null;
+  orgId?: string | null;
+  fechaCreacion?: string | null;
+  fechaActualizacion?: string | null;
 }
 
 export interface CreateUserRequest {
@@ -55,8 +58,34 @@ export class UsersService {
       email: d?.email ?? null,
       activo: d?.activo != null ? !!d?.activo : (d?.active != null ? !!d?.active : true),
       scopeNivel: (d?.scopeNivel ?? d?.nivel ?? null) as ScopeNivel | null,
-      seccionEntityPrincipal: d?.seccionEntityPrincipal?.id ? { id: String(d?.seccionEntityPrincipal.id) } : (d?.seccionPrincipalId ? { id: String(d?.seccionPrincipalId) } : null)
+      seccionPrincipalId: d?.seccionPrincipalId != null ? String(d?.seccionPrincipalId) : null,
+      orgId: d?.orgId != null ? String(d?.orgId) : (d?.organizacionId != null ? String(d?.organizacionId) : null),
+      fechaCreacion: d?.fechaCreacion ? String(d?.fechaCreacion) : null,
+      fechaActualizacion: d?.fechaActualizacion ? String(d?.fechaActualizacion) : null
     } as UserEntity;
+  }
+
+  // Parser seguro para respuestas que puedan venir como texto/HTML o vacías
+  private toApiResponse(payload: any): ApiResponse<any> {
+    if (payload == null) return { success: true, data: undefined };
+    if (typeof payload === 'string') {
+      const text = payload.trim();
+      if (!text) return { success: true, data: undefined };
+      try {
+        const obj = JSON.parse(text);
+        if (obj && typeof obj === 'object' && 'success' in obj) return obj as ApiResponse<any>;
+        if (obj && typeof obj === 'object' && ('data' in obj || 'message' in obj)) return { success: true, ...(obj as any) } as ApiResponse<any>;
+        return { success: true, data: obj } as ApiResponse<any>;
+      } catch {
+        // Cuando el backend devuelve texto plano/HTML, evitar romper
+        return { success: true, data: undefined } as ApiResponse<any>;
+      }
+    }
+    if (typeof payload === 'object') {
+      if ('success' in payload) return payload as ApiResponse<any>;
+      return { success: true, data: payload } as ApiResponse<any>;
+    }
+    return { success: true, data: payload } as ApiResponse<any>;
   }
 
   create(orgId: string, body: CreateUserRequest): Observable<{ user: UserEntity; message?: string }> {
@@ -123,13 +152,21 @@ export class UsersService {
     const path = `/orgs/${orgId}/usuarios`;
     const url = `${this.base}${path}`;
     const urlFallback = `${environment.backendHost}${this.base}${path}`;
-    const mapResp = (resp: any) => {
-      const arr = Array.isArray((resp && resp.data)) ? resp.data : (Array.isArray(resp) ? resp : []);
+
+    const mapResp = (resp: ApiResponse<any>) => {
+      if (resp && resp.success === false) {
+        throw { error: { message: resp?.message || 'No se pudieron listar usuarios' }, status: 400 };
+      }
+      const data = resp?.data as any;
+      const arr = Array.isArray(data) ? data : (Array.isArray((data as any)?.items) ? (data as any).items : (Array.isArray((resp as any)) ? (resp as any) : []));
       return arr.map((d: any) => this.ensureUser(d));
     };
-    return this.http.get<any>(url, { headers: this.accept }).pipe(
+
+    return this.http.get<any>(url, { headers: this.accept, responseType: 'text' as 'json' }).pipe(
+      map((payload: any) => this.toApiResponse(payload)),
       map(mapResp),
-      catchError((e1) => this.http.get<any>(urlFallback, { headers: this.accept }).pipe(
+      catchError((_e1) => this.http.get<any>(urlFallback, { headers: this.accept, responseType: 'text' as 'json' }).pipe(
+        map((payload: any) => this.toApiResponse(payload)),
         map(mapResp),
         catchError((e2) => throwError(() => ({ error: { message: e2?.error?.message || e2?.message || 'No se pudieron listar usuarios' }, status: e2?.status })))
       ))
@@ -138,10 +175,13 @@ export class UsersService {
 
   get(orgId: string, usuarioId: string): Observable<UserEntity> {
     const url = `${this.base}/orgs/${orgId}/usuarios/${usuarioId}`;
-    return this.http.get<ApiResponse<any>>(url, { headers: this.accept }).pipe(
-      map((resp) => this.ensureUser(this.unwrap<any>(resp))),
+    return this.http.get<any>(url, { headers: this.accept, responseType: 'text' as 'json' }).pipe(
+      map((payload: any) => this.toApiResponse(payload)),
+      map((resp) => {
+        if (resp && resp.success === false) throw { error: { message: resp?.message || 'No se pudo obtener el usuario' }, status: 400 };
+        return this.ensureUser(this.unwrap<any>(resp));
+      }),
       catchError((err) => throwError(() => ({ error: { message: err?.error?.message || err?.message || 'No se pudo obtener el usuario' }, status: err?.status })))
     );
   }
 }
-

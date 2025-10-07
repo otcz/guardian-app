@@ -883,16 +883,32 @@ body .p-confirm-dialog .p-confirm-dialog-icon { color: var(--danger) !important;
   box-shadow: 0 14px 32px rgba(0,0,0,0.12), 0 6px 18px rgba(79,140,255,0.12) !important;
 }
 :root.theme-light body .p-dialog .p-dialog-header,
-:root.theme-light body .p-dialog .p-dialog-content,
-:root.theme-light body .p-dialog .p-dialog-footer {
+:root.theme-light body .p_dialog .p-dialog-content,
+:root.theme-light body .p_dialog .p-dialog-footer {
   background-color: #ffffff !important;
   color: #000000 !important;
 }
-:root.theme-light body .p-dialog .p-dialog-header { border-bottom: 1px solid var(--border) !important; }
-:root.theme-light body .p-dialog .p-dialog-footer { border-top: 1px solid var(--border) !important; }
+:root.theme-light body .p_dialog .p-dialog-header { border-bottom: 1px solid var(--border) !important; }
+:root.theme-light body .p_dialog .p-dialog-footer { border-top: 1px solid var(--border) !important; }
 :root.theme-light body .p-confirm-dialog .p-confirm-dialog-message,
 :root.theme-light body .p-confirm-dialog .p-confirm-dialog-message * { color: #000000 !important; }
 
 /* ===== Refuerzo overlay/máscara ===== */
 :root.theme-light body .p-dialog-mask { background-color: rgba(0,0,0,.35) !important; }
 :root.theme-dark body .p-dialog-mask, :root.theme-black body .p-dialog-mask { background-color: rgba(0,0,0,.6) !important; }
+
+/* Alineación global de PrimeNG Card con el tema actual */
+body .p-card {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+  border: none !important;
+}
+
+/* Etiqueta del control Select (PrimeNG 18) por tema */
+:root.theme-light body .p-select-label { color: #000000 !important; }
+:root.theme-light body .p-select-label.p-placeholder { color: #4b5563 !important; }
+:root.theme-dark body .p-select-label,
+:root.theme-black body .p-select-label { color: #ffffff !important; }
+:root.theme-dark body .p-select-label.p-placeholder,
+:root.theme-black body .p-select-label.p-placeholder { color: rgba(255,255,255,0.75) !important; }
+

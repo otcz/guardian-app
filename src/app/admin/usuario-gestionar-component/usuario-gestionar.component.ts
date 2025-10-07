@@ -10,6 +10,7 @@ import { UppercaseDirective } from '../../shared/formatting.directives';
 import { OrgContextService } from '../../service/org-context.service';
 import { UsersService, UserEntity, UpdateUserRequest } from '../../service/users.service';
 import { NotificationService } from '../../service/notification.service';
+import { SeccionService, SeccionEntity } from '../../service/seccion.service';
 
 @Component({
   selector: 'app-usuario-gestionar',
@@ -26,8 +27,9 @@ export class UsuarioGestionarComponent implements OnInit {
   editing = false;
   saving = false;
   draft: UpdateUserRequest = {};
+  principalSeccionNombre: string | null = null;
 
-  constructor(private route: ActivatedRoute, private router: Router, private orgCtx: OrgContextService, private users: UsersService, private notify: NotificationService) {}
+  constructor(private route: ActivatedRoute, private router: Router, private orgCtx: OrgContextService, private users: UsersService, private notify: NotificationService, private secciones: SeccionService) {}
 
   ngOnInit(): void {
     this.orgId = this.orgCtx.value;
@@ -39,11 +41,23 @@ export class UsuarioGestionarComponent implements OnInit {
     });
   }
 
+  private loadSeccionNombreIfNeeded() {
+    this.principalSeccionNombre = null;
+    if (!this.orgId || !this.user?.seccionPrincipalId) return;
+    this.secciones.list(this.orgId).subscribe({
+      next: (list: SeccionEntity[]) => {
+        const found = list.find(s => String(s.id) === String(this.user!.seccionPrincipalId));
+        this.principalSeccionNombre = found ? found.nombre : null;
+      },
+      error: () => { this.principalSeccionNombre = null; }
+    });
+  }
+
   load() {
     if (!this.orgId || !this.userId) return;
     this.loading = true;
     this.users.get(this.orgId, this.userId).subscribe({
-      next: u => { this.user = u; this.loading = false; },
+      next: u => { this.user = u; this.loading = false; this.loadSeccionNombreIfNeeded(); },
       error: e => { this.loading = false; this.notify.error('Error', e?.error?.message || 'No se pudo obtener el usuario'); }
     });
   }
@@ -65,7 +79,7 @@ export class UsuarioGestionarComponent implements OnInit {
       email: (this.draft.email || '').toString().trim() || undefined
     };
     this.users.update(this.orgId, this.userId, body).subscribe({
-      next: res => { this.user = res.user; this.saving = false; this.editing = false; this.notify.success('Éxito', res.message || 'USUARIO ACTUALIZADO CORRECTAMENTE.'); },
+      next: res => { this.user = res.user; this.saving = false; this.editing = false; this.notify.success('Éxito', res.message || 'USUARIO ACTUALIZADO CORRECTAMENTE.'); this.loadSeccionNombreIfNeeded(); },
       error: e => { this.saving = false; this.notify.error('Error', e?.error?.message || 'No se pudo actualizar el usuario'); }
     });
   }
@@ -79,4 +93,3 @@ export class UsuarioGestionarComponent implements OnInit {
     });
   }
 }
-

@@ -35,7 +35,7 @@
       <div class="kv"><span>Nombre completo</span><b>{{ user.nombreCompleto || '-' }}</b></div>
       <div class="kv"><span>Email</span><b>{{ user.email || '-' }}</b></div>
       <div class="kv"><span>Alcance</span><b>{{ user.scopeNivel || '-' }}</b></div>
-      <div class="kv"><span>Sección principal</span><b>{{ user.seccionEntityPrincipal?.id || '-' }}</b></div>
+      <div class="kv"><span>Sección principal</span><b>{{ principalSeccionNombre || user.seccionPrincipalId || '-' }}</b></div>
       <div class="kv"><span>Estado</span><b>{{ user.activo ? 'ACTIVO' : 'INACTIVO' }}</b></div>
     </div>
   </p-card>
@@ -44,4 +44,3 @@
 <ng-template #loadingTpl>
   <p-progressSpinner class="overlay-spinner"></p-progressSpinner>
 </ng-template>
-

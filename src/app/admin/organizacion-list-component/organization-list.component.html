@@ -1,5 +1,5 @@
 <div class="list-wrapper">
-  <!-- Toolbar principal -->
+
   <div class="list-header org-toolbar">
     <h2>Organizaciones</h2>
     <span class="spacer"></span>
@@ -8,40 +8,82 @@
         <i class="pi pi-search"></i>
         <input pInputText type="text" placeholder="Filtrar" [(ngModel)]="filter" (ngModelChange)="applyFilter()" class="w-200" />
       </span>
-      <button pButton type="button" label="Crear" icon="pi pi-plus" (click)="goCreate()" class="p-button-success"></button>
+      <button pButton type="button" label="Crear" icon="pi pi-plus" (click)="startAdd()" [disabled]="adding || !!editingId" class="p-button-success"></button>
       <button pButton type="button" label="Recargar" icon="pi pi-refresh" (click)="load()" [disabled]="loading"></button>
     </div>
   </div>
 
   <p *ngIf="error" class="p-error mb-sm fs-sm">{{error}}</p>
-  <p *ngIf="!loading && !error && filtered.length===0" class="mb-sm fs-sm text-muted">No hay organizaciones.</p>
+  <p *ngIf="!loading && !error && filtered.length===0 && !adding" class="mb-sm fs-sm text-muted">No hay organizaciones.</p>
 
-  <div *ngIf="filtered.length>0" class="table-shell">
+  <div *ngIf="filtered.length>0 || adding" class="table-shell">
     <div class="table-meta fs-xs text-muted mb-xs">Mostrando {{filtered.length}} de {{orgs.length}}</div>
-    <p-table [value]="filtered" [loading]="loading" styleClass="p-datatable-sm org-table table-hover" responsiveLayout="scroll">
+    <p-table [value]="rows" [loading]="loading" styleClass="p-datatable-sm org-table table-hover" responsiveLayout="scroll">
       <ng-template pTemplate="header">
         <tr>
           <th class="w-70">#</th>
           <th>Nombre</th>
-            <th class="w-110">Activa</th>
+          <th class="w-110">Activa</th>
           <th class="w-160">Creación</th>
-          <th class="w-160 text-center">Acciones</th>
+          <th class="w-200 text-center">Acciones</th>
         </tr>
       </ng-template>
+
       <ng-template pTemplate="body" let-row let-i="rowIndex">
-        <tr>
-          <td>{{i+1}}</td>
-          <td>{{row.nombre}}</td>
+        <tr [class.flash]="row.id && row.id === flashRowId" [class.row-editing]="(adding && row.id==='') || (editingId===row.id)">
+          <td>{{ i + 1 }}</td>
+
           <td>
-            <p-tag [severity]="row.activa ? 'success' : 'danger'" [value]="row.activa ? 'SÍ' : 'NO'"></p-tag>
+            <ng-container *ngIf="adding && row.id === ''; else notAddingName">
+              <input pInputText [(ngModel)]="newDraft.nombre" (keydown)="onKeyAdd($event)" placeholder="Nombre de la organización" class="w-100" />
+            </ng-container>
+            <ng-template #notAddingName>
+              <ng-container *ngIf="editingId === row.id; else viewName">
+                <input pInputText [ngModel]="editDraft?.nombre" (ngModelChange)="onEditChange('nombre', $event)" (keydown)="onKeyEdit($event)" placeholder="Nombre de la organización" class="w-100" />
+              </ng-container>
+              <ng-template #viewName>
+                {{ row.nombre }}
+              </ng-template>
+            </ng-template>
           </td>
-          <td><span class="fs-xs opacity-80">{{row.fecha_creacion | date:'yyyy-MM-dd HH:mm'}}</span></td>
+
+          <td>
+            <ng-container *ngIf="adding && row.id === ''; else notAddingActiva">
+              <p-inputSwitch [(ngModel)]="newDraft.activa"></p-inputSwitch>
+            </ng-container>
+            <ng-template #notAddingActiva>
+              <ng-container *ngIf="editingId === row.id; else viewActiva">
+                <p-inputSwitch [(ngModel)]="editDraft!.activa"></p-inputSwitch>
+              </ng-container>
+              <ng-template #viewActiva>
+                <p-tag [severity]="row.activa ? 'success' : 'danger'" [value]="row.activa ? 'SÍ' : 'NO'"></p-tag>
+              </ng-template>
+            </ng-template>
+          </td>
+
+          <td>
+            <span class="fs-xs opacity-80">{{ row.fecha_creacion | date:'yyyy-MM-dd HH:mm' }}</span>
+          </td>
+
           <td class="flex gap-xs ai-center justify-center">
-            <button pButton type="button" icon="pi pi-pencil" class="p-button-rounded p-button-text" (click)="manage(row)" pTooltip="Gestionar" tooltipPosition="top"></button>
-            <button pButton type="button" icon="pi pi-cog" class="p-button-rounded p-button-text" (click)="strategy(row)" pTooltip="Estrategia" tooltipPosition="top"></button>
+            <ng-container *ngIf="adding && row.id === ''">
+              <button pButton type="button" icon="pi pi-check" label="Guardar" class="p-button-success" (click)="saveAdd()" [disabled]="saving"></button>
+              <button pButton type="button" icon="pi pi-times" label="Cancelar" class="p-button-text" (click)="cancelAdd()" [disabled]="saving"></button>
+            </ng-container>
+
+            <ng-container *ngIf="!adding && editingId === row.id">
+              <button pButton type="button" icon="pi pi-check" label="Guardar" class="p-button-success" (click)="saveEdit()" [disabled]="saving"></button>
+              <button pButton type="button" icon="pi pi-times" label="Cancelar" class="p-button-text" (click)="cancelEdit()" [disabled]="saving"></button>
+            </ng-container>
+
+            <ng-container *ngIf="!adding && editingId !== row.id">
+              <button pButton type="button" icon="pi pi-pencil" class="p-button-rounded p-button-text" (click)="startEdit(row)" [disabled]="saving" pTooltip="EDITAR" tooltipPosition="top"></button>
+              <button pButton type="button" icon="pi pi-cog" class="p-button-rounded p-button-text" (click)="strategy(row)" [disabled]="saving" pTooltip="ESTRATEGIA" tooltipPosition="top"></button>
+            </ng-container>
           </td>
         </tr>
       </ng-template>
+
       <ng-template pTemplate="emptymessage">
         <tr><td colspan="5" class="text-center fs-sm text-muted">Sin datos</td></tr>
       </ng-template>

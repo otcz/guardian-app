@@ -8,6 +8,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-organization-form',
@@ -25,7 +26,7 @@ export class OrganizationFormComponent implements OnInit {
   orgId: string | null = null;
   orgLoaded: Organization | null = null;
 
-  constructor(private fb: FormBuilder, private orgService: OrganizationService, private route: ActivatedRoute, public router: Router) {
+  constructor(private fb: FormBuilder, private orgService: OrganizationService, private route: ActivatedRoute, public router: Router, private messages: MessageService) {
     this.form = this.fb.group({
       nombre: ['', [Validators.required, Validators.minLength(3)]],
       activa: [true]
@@ -49,20 +50,56 @@ export class OrganizationFormComponent implements OnInit {
 
   isEdit() { return !!this.orgId; }
 
+  private validateForm(): string | null {
+    const nombreCtrl = this.form.get('nombre');
+    if (!nombreCtrl) return 'Formulario inválido';
+    const nombre = (nombreCtrl.value || '').toString().trim();
+    if (!nombre) return 'EL NOMBRE ES REQUERIDO (MÍN. 3 CARACTERES)';
+    if (nombre.length < 3) return 'EL NOMBRE ES REQUERIDO (MÍN. 3 CARACTERES)';
+    return null;
+  }
+
   submit() {
     this.error = null; this.success = null;
-    if (this.form.invalid) { this.error = 'Formulario inválido'; return; }
+    const validation = this.validateForm();
+    if (validation) {
+      this.error = validation;
+      this.messages.add({ severity: 'warn', summary: 'Validación', detail: validation, life: 3500 });
+      this.form.markAllAsTouched();
+      return;
+    }
     const value = this.form.value as { nombre: string; activa: boolean };
     this.saving = true;
     if (this.isEdit()) {
       this.orgService.update(this.orgId!, { nombre: value.nombre, activa: value.activa }).subscribe({
-        next: (org) => { this.success = 'Organización actualizada'; this.saving = false; this.orgLoaded = org; },
-        error: (e) => { this.error = e?.error?.message || 'Error al actualizar'; this.saving = false; }
+        next: (res) => {
+          this.success = res?.message || 'Organización actualizada';
+          this.saving = false;
+          this.orgLoaded = res.org;
+          this.messages.add({ severity: 'success', summary: 'Actualizado', detail: this.success, life: 3500 });
+        },
+        error: (e) => {
+          const msg = e?.error?.message || 'Error al actualizar';
+          this.error = msg;
+          this.saving = false;
+          this.messages.add({ severity: 'error', summary: 'Error', detail: msg, life: 4500 });
+        }
       });
     } else {
       this.orgService.create({ nombre: value.nombre, activa: value.activa }).subscribe({
-        next: (org) => { this.success = 'Organización creada'; this.saving = false; this.orgLoaded = org; this.orgId = org.id || null; },
-        error: (e) => { this.error = e?.error?.message || 'Error al crear'; this.saving = false; }
+        next: (res) => {
+          this.success = res?.message || 'Organización creada';
+          this.saving = false;
+          this.orgLoaded = res.org;
+          this.orgId = res.org.id || null;
+          this.messages.add({ severity: 'success', summary: 'Creado', detail: this.success, life: 3500 });
+        },
+        error: (e) => {
+          const msg = e?.error?.message || 'Error al crear';
+          this.error = msg;
+          this.saving = false;
+          this.messages.add({ severity: 'error', summary: 'Error', detail: msg, life: 4500 });
+        }
       });
     }
   }

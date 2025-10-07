@@ -124,10 +124,20 @@ export class OrganizationService {
 
   // -------------------- Mapeos --------------------
   private mapOrgFromBackend(d: any): Organization {
+    const estadoRaw = (d?.estado ?? d?.status ?? d?.state ?? null);
+    let activaBool: boolean;
+    if (d?.activa != null) activaBool = !!d.activa;
+    else if (d?.active != null) activaBool = !!d.active;
+    else if (d?.isActive != null) activaBool = !!d.isActive;
+    else if (d?.activo != null) activaBool = !!d.activo;
+    else if (typeof estadoRaw === 'string') {
+      const s = estadoRaw.toString().toUpperCase();
+      activaBool = ['ACTIVO', 'ACTIVE', 'HABILITADO', 'ENABLED', 'SI', 'SÍ'].includes(s);
+    } else activaBool = false;
     return {
       id: d?.id != null ? String(d?.id ?? d?._id ?? d?.uuid ?? d?.idOrganizacion ?? d?.organizacionId) : undefined,
       nombre: String(d?.nombre ?? d?.name ?? d?.razonSocial ?? ''),
-      activa: !!(d?.activa ?? d?.active ?? d?.isActive ?? false),
+      activa: activaBool,
       id_estrategia_gobernanza: d?.id_estrategia_gobernanza ? String(d?.id_estrategia_gobernanza) : undefined,
       fecha_creacion: (d?.fecha_creacion ?? d?.fechaCreacion ?? d?.createdAt ?? d?.fechaRegistro ?? undefined) ? String(d?.fecha_creacion ?? d?.fechaCreacion ?? d?.createdAt ?? d?.fechaRegistro) : undefined,
       fecha_actualizacion: (d?.fecha_actualizacion ?? d?.fechaActualizacion ?? d?.updatedAt ?? undefined) ? String(d?.fecha_actualizacion ?? d?.fechaActualizacion ?? d?.updatedAt) : undefined
@@ -192,7 +202,9 @@ export class OrganizationService {
   // -------------------- CRUD Organización (se mantiene) --------------------
   list(): Observable<Organization[]> {
     const url = this.collectionUrl();
-    return this.http.get<any>(url, { headers: this.acceptJsonHeaders() }).pipe(
+    const headers = this.acceptJsonHeaders().set('Cache-Control', 'no-cache').set('Pragma', 'no-cache');
+    const params = { t: Date.now().toString() } as any;
+    return this.http.get<any>(url, { headers, params }).pipe(
       map((resp: any) => {
         if (resp && resp.success === false) { throw { error: { message: resp.message } }; }
         return this.normalizeListResponse(resp).map(x => this.mapOrgFromBackend(x));
@@ -212,23 +224,32 @@ export class OrganizationService {
     );
   }
 
-  create(dto: CreateOrganizationDTO): Observable<Organization> {
-    return this.http.post<any>(this.collectionUrl(), dto, { headers: this.jsonHeaders() }).pipe(
+  create(dto: CreateOrganizationDTO): Observable<{ org: Organization; message?: string }> {
+    const payload: any = { nombre: dto.nombre };
+    if (dto.activa !== undefined) { payload.activa = !!dto.activa; payload.activo = !!dto.activa; }
+    if (dto.estrategia !== undefined) payload.estrategia = dto.estrategia;
+    return this.http.post<any>(this.collectionUrl(), payload, { headers: this.jsonHeaders() }).pipe(
       map((resp: any) => {
         if (resp && resp.success === false) { throw { error: { message: resp.message } }; }
         const d = this.unwrapApi(resp);
-        return this.mapOrgFromBackend(d);
+        const org = this.mapOrgFromBackend(d);
+        return { org, message: resp?.message };
       }),
       catchError(err => throwError(() => ({ error: { message: (err?.error?.message ?? err?.message) as string | undefined } })))
     );
   }
 
-  update(id: string, dto: UpdateOrganizationDTO): Observable<Organization> {
-    return this.http.patch<any>(`${this.collectionUrl()}/${id}`, dto, { headers: this.jsonHeaders() }).pipe(
+  update(id: string, dto: UpdateOrganizationDTO): Observable<{ org: Organization; message?: string }> {
+    const payload: any = {};
+    if (dto.nombre !== undefined) payload.nombre = dto.nombre;
+    if (dto.activa !== undefined) { payload.activa = !!dto.activa; payload.activo = !!dto.activa; }
+    if (dto.estrategia !== undefined) payload.estrategia = dto.estrategia;
+    return this.http.patch<any>(`${this.collectionUrl()}/${id}`, payload, { headers: this.jsonHeaders() }).pipe(
       map((resp: any) => {
         if (resp && resp.success === false) { throw { error: { message: resp.message } }; }
         const d = this.unwrapApi(resp);
-        return this.mapOrgFromBackend(d);
+        const org = this.mapOrgFromBackend(d);
+        return { org, message: resp?.message };
       }),
       catchError(err => throwError(() => ({ error: { message: (err?.error?.message ?? err?.message) as string | undefined } })))
     );

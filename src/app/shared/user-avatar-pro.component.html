@@ -5,8 +5,10 @@
       <div class="hero-meta">
         <div class="title">{{ displayName() }}</div>
         <div class="hint">{{ emailHint() }}</div>
-        <div *ngIf="primaryRole()">
+        <div class="roles-row" *ngIf="primaryRole()">
+          <span class="label" style="opacity:.8; margin-right:6px; font-size:.85rem;">Rol:</span>
           <p-tag [value]="primaryRole()" severity="info"></p-tag>
+          <small *ngIf="(roles() || []).length > 1" style="margin-left:6px; opacity:.7;">(+{{ (roles() || []).length - 1 }})</small>
         </div>
       </div>
     </div>
@@ -38,7 +40,7 @@
 <div class="chip" (click)="pop.toggle($event)">
   <div class="initials">{{ initials() }}</div>
   <div class="meta">
+    <div class="org">{{ orgShort() }}</div>
     <div class="name">{{ shortName() }}</div>
-    <div class="sub">{{ orgShort() }}</div>
   </div>
 </div>

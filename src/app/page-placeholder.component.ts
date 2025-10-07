@@ -1,8 +1,9 @@
 // Componente placeholder genérico para rutas no implementadas todavía
-import { Component } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterModule } from '@angular/router';
+import { Router, RouterModule, NavigationEnd } from '@angular/router';
 import { NotificationService } from './service/notification.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-page-placeholder',
@@ -22,12 +23,44 @@ import { NotificationService } from './service/notification.service';
     </div>
   `
 })
-export class PagePlaceholderComponent {
+export class PagePlaceholderComponent implements OnInit, OnDestroy {
   currentUrl = '';
+  private sub?: Subscription;
+  private static notifiedUrls = new Set<string>();
+
   constructor(private router: Router, private notify: NotificationService) {
-    this.currentUrl = this.router.url;
-    this.notify.info('Funcionalidad en construcción', `Vista no implementada para ${this.currentUrl}`);
+    this.currentUrl = this.normalizeUrl(this.router.url);
+    this.maybeNotify(this.currentUrl);
   }
+
+  ngOnInit() {
+    this.sub = this.router.events.subscribe(ev => {
+      if (ev instanceof NavigationEnd) {
+        const url = this.normalizeUrl(ev.urlAfterRedirects || ev.url);
+        this.currentUrl = url;
+        this.maybeNotify(url);
+      }
+    });
+  }
+
+  ngOnDestroy() { this.sub?.unsubscribe?.(); }
+
   goDashboard() { this.router.navigate(['/']); }
-  goBack() { history.back(); }
+  goBack() {
+    if (history.length > 1) history.back();
+    else this.router.navigate(['/']);
+  }
+
+  private normalizeUrl(u: string) {
+    const base = (u || '').split('?')[0].split('#')[0];
+    if (base.length > 1 && base.endsWith('/')) return base.replace(/\/$/, '');
+    return base || '/';
+  }
+
+  private maybeNotify(url: string) {
+    if (!PagePlaceholderComponent.notifiedUrls.has(url)) {
+      PagePlaceholderComponent.notifiedUrls.add(url);
+      this.notify.info('Funcionalidad en construcción', `Vista no implementada para ${url}`);
+    }
+  }
 }

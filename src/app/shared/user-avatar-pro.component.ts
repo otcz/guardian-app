@@ -27,16 +27,23 @@ export class UserAvatarProComponent {
   expiresAt = signal<number | null>(null);
   orgs = signal<Organization[]>([]);
 
+  private timer?: any;
+  private tick = signal<number>(Date.now());
+
   constructor() {
     this.loadFromStorage();
 
-    // Refrescar nombre de organización actual
+    // Refrescar nombre de organización actual y persistirlo
     effect((onCleanup) => {
       const id = this.orgId();
       let sub: any;
       if (id) {
         sub = this.orgSvc.get(id).subscribe({
-          next: (org: Organization) => this.orgName.set(org?.nombre || null),
+          next: (org: Organization) => {
+            const name = org?.nombre || null;
+            this.orgName.set(name);
+            try { if (name) localStorage.setItem('currentOrgName', name); } catch {}
+          },
           error: () => this.orgName.set(null)
         });
       } else {
@@ -47,11 +54,36 @@ export class UserAvatarProComponent {
       }
     }, { allowSignalWrites: true });
 
-    // Cargar lista de organizaciones (para cambiar rápido)
+    // Cargar lista de organizaciones (para cambiar rápido) y auto-seleccionar si falta
     this.orgSvc.list().subscribe({
-      next: (list) => this.orgs.set(Array.isArray(list) ? list : []),
+      next: (list) => {
+        const arr = Array.isArray(list) ? list : [];
+        this.orgs.set(arr);
+        const current = this.orgId();
+        const exists = current ? arr.some(o => String(o.id) === String(current)) : false;
+        if (!current || !exists) {
+          const active = arr.find(o => (o as any)?.activa);
+          const chosen = active || arr[0] || null;
+          if (chosen?.id) {
+            const id = String(chosen.id);
+            const name = chosen.nombre || null;
+            try { localStorage.setItem('currentOrgId', id); } catch {}
+            if (name) { try { localStorage.setItem('currentOrgName', name); } catch {} }
+            this.orgId.set(id);
+            this.orgName.set(name);
+          } else {
+            // Sin organizaciones
+            try { localStorage.removeItem('currentOrgId'); localStorage.removeItem('currentOrgName'); } catch {}
+            this.orgId.set(null);
+            this.orgName.set(null);
+          }
+        }
+      },
       error: () => this.orgs.set([])
     });
+
+    // Iniciar intervalo para refrescar cuenta regresiva y progreso
+    this.timer = setInterval(() => this.tick.set(Date.now()), 1000);
   }
 
   private loadFromStorage() {
@@ -61,6 +93,7 @@ export class UserAvatarProComponent {
       this.roles.set(Array.isArray(JSON.parse(rolesRaw || 'null')) ? JSON.parse(rolesRaw!) : []);
     } catch { this.roles.set([]); }
     try { this.orgId.set(localStorage.getItem('currentOrgId')); } catch { this.orgId.set(null); }
+    try { this.orgName.set(localStorage.getItem('currentOrgName')); } catch { this.orgName.set(null); }
     try { this.expiresAt.set(Number(localStorage.getItem('expiresAt') || '0') || null); } catch { this.expiresAt.set(null); }
   }
 
@@ -88,6 +121,8 @@ export class UserAvatarProComponent {
 
   // Sesión: progreso
   private sessionBounds() {
+    // forzar dependencia reactiva en tick para recalcular cada segundo
+    this.tick();
     const exp = this.expiresAt();
     if (!exp) return { totalMs: 0, leftMs: 0 };
     // Intentar inferir total a partir de expiresAt y un TTL típico si no guardamos issuedAt
@@ -115,9 +150,12 @@ export class UserAvatarProComponent {
   // Acciones
   switchOrg(o: Organization, pop: any) {
     if (!o?.id) return;
-    try { localStorage.setItem('currentOrgId', String(o.id)); } catch {}
-    this.orgId.set(String(o.id));
-    this.orgName.set(o.nombre || null);
+    const id = String(o.id);
+    const name = o.nombre || null;
+    try { localStorage.setItem('currentOrgId', id); } catch {}
+    if (name) { try { localStorage.setItem('currentOrgName', name); } catch {} }
+    this.orgId.set(id);
+    this.orgName.set(name);
     if (pop?.hide) pop.hide();
     // Navegar al panel de gestión de la org seleccionada
     this.router.navigate(['/gestionar-organizacion'], { queryParams: { id: o.id } });
@@ -138,5 +176,9 @@ export class UserAvatarProComponent {
   logout() {
     this.auth.logout();
     this.router.navigate(['/login']);
+  }
+
+  ngOnDestroy() {
+    if (this.timer) { clearInterval(this.timer); this.timer = undefined; }
   }
 }

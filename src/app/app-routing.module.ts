@@ -13,7 +13,6 @@ import { CrearStrategyComponent } from './admin/crear-strategy-component/crear-s
 import { OrganizationConfigComponent } from './admin/organizacion-config-component/organization-config.component';
 import { StrategyChangePageComponent } from './admin/organizacion-strategy-change-page/strategy-change-page.component';
 import { SeccionFormComponent } from './admin/seccion-form-component/seccion-form.component';
-import { OrgRequiredGuard } from './service/org-required.guard';
 import { SeccionListComponent } from './admin/seccion-list-component/seccion-list.component';
 import { RolesListComponent } from './admin/roles-list-component/roles-list.component';
 import { RolesCreatePageComponent } from './admin/roles-create-page/roles-create-page.component';
@@ -28,17 +27,17 @@ export const appRoutes: Routes = [
       { path: '', component: DashboardHomeComponent },
       { path: 'listar-organizaciones', component: OrganizationListComponent },
       { path: 'crear-organizacion', component: OrganizationFormComponent, canActivate: [PermissionGuard], data: { code: 'ORG_CREATE' } },
-      { path: 'gestionar-organizacion', component: OrganizationConfigComponent, canActivate: [OrgRequiredGuard, PermissionGuard], data: { code: 'ORG_MANAGE' } },
-      { path: 'configurar-parametros-globales', component: OrganizationParamsComponent, canActivate: [OrgRequiredGuard, PermissionGuard], data: { code: 'PARAM_GLOBAL_MANAGE' } },
-      { path: 'configurar-parametros-globales/:id', component: OrganizationParamsComponent, canActivate: [OrgRequiredGuard, PermissionGuard], data: { code: 'PARAM_GLOBAL_MANAGE' } },
-      { path: 'ver-auditoria-de-organizacion', component: OrganizationAuditComponent, canActivate: [OrgRequiredGuard, PermissionGuard], data: { code: 'AUDIT_ORG_VIEW' } },
-      { path: 'crear-estrategia-de-gobernanza', component: CrearStrategyComponent, canActivate: [OrgRequiredGuard, PermissionGuard], data: { code: 'STRATEGY_CREATE' } },
-      { path: 'cambiar-estrategia-de-gobernanza', component: StrategyChangePageComponent, canActivate: [OrgRequiredGuard, PermissionGuard], data: { code: 'STRATEGY_CONFIGURE' } },
-      { path: 'crear-seccion', component: SeccionFormComponent, canActivate: [OrgRequiredGuard, PermissionGuard], data: { code: 'SECTION_CREATE' } },
-      { path: 'listar-secciones', component: SeccionListComponent, canActivate: [OrgRequiredGuard, PermissionGuard], data: { code: 'SECTION_REPORT_VIEW' } },
-      { path: 'crear-rol', component: RolesCreatePageComponent, canActivate: [OrgRequiredGuard, PermissionGuard], data: { code: 'ROLE_CREATE' } },
-      { path: 'gestionar-rol', component: RolesListComponent, canActivate: [OrgRequiredGuard, PermissionGuard], data: { code: 'ROLE_MANAGE' } },
-      { path: 'listar-roles', component: RolesListComponent, canActivate: [OrgRequiredGuard, PermissionGuard], data: { code: 'ROLE_LIST' } },
+      { path: 'gestionar-organizacion', component: OrganizationConfigComponent, canActivate: [PermissionGuard], data: { code: 'ORG_MANAGE' } },
+      { path: 'configurar-parametros-globales', component: OrganizationParamsComponent, canActivate: [PermissionGuard], data: { code: 'PARAM_GLOBAL_MANAGE' } },
+      { path: 'configurar-parametros-globales/:id', component: OrganizationParamsComponent, canActivate: [PermissionGuard], data: { code: 'PARAM_GLOBAL_MANAGE' } },
+      { path: 'ver-auditoria-de-organizacion', component: OrganizationAuditComponent, canActivate: [PermissionGuard], data: { code: 'AUDIT_ORG_VIEW' } },
+      { path: 'crear-estrategia-de-gobernanza', component: CrearStrategyComponent, canActivate: [PermissionGuard], data: { code: 'STRATEGY_CREATE' } },
+      { path: 'cambiar-estrategia-de-gobernanza', component: StrategyChangePageComponent, canActivate: [PermissionGuard], data: { code: 'STRATEGY_CONFIGURE' } },
+      { path: 'crear-seccion', component: SeccionFormComponent, canActivate: [PermissionGuard], data: { code: 'SECTION_CREATE' } },
+      { path: 'listar-secciones', component: SeccionListComponent, canActivate: [PermissionGuard], data: { code: 'SECTION_REPORT_VIEW' } },
+      { path: 'crear-rol', component: RolesCreatePageComponent, canActivate: [PermissionGuard], data: { code: 'ROLE_CREATE' } },
+      { path: 'gestionar-rol', component: RolesListComponent, canActivate: [PermissionGuard], data: { code: 'ROLE_MANAGE' } },
+      { path: 'listar-roles', component: RolesListComponent, canActivate: [PermissionGuard], data: { code: 'ROLE_LIST' } },
 
       // --- Redirects from literal backend routes to canonical app routes ---
       // Gestión de Organización

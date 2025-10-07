@@ -11,6 +11,13 @@ export interface BackendLoginResponse {
   username: string;
   roles: string[];
   opcionesDetalle: RawOption[];
+  // Opcionales: distintos backends pueden incluir estos campos
+  orgId?: string | number;
+  organizacionId?: string | number;
+  organizationId?: string | number;
+  organization?: { id?: string | number; nombre?: string; name?: string } | null;
+  organizacion?: { id?: string | number; nombre?: string; name?: string } | null;
+  orgName?: string;
 }
 
 // Interfaces reintroducidas para compatibilidad con register.component
@@ -90,6 +97,15 @@ export class AuthService {
             localStorage.setItem('roles', JSON.stringify(resp.roles || []));
             const expiresAt = Date.now() + (resp.expiresIn * 1000);
             localStorage.setItem('expiresAt', String(expiresAt));
+
+            // Intentar guardar organización por defecto desde la respuesta, si viene
+            try {
+              const orgId = (resp.orgId ?? resp.organizacionId ?? resp.organizationId ?? resp.organization?.id ?? resp.organizacion?.id);
+              const orgName = (resp.orgName ?? resp.organization?.nombre ?? resp.organization?.name ?? resp.organizacion?.nombre ?? resp.organizacion?.name);
+              if (orgId != null) localStorage.setItem('currentOrgId', String(orgId));
+              if (orgName != null) localStorage.setItem('currentOrgName', String(orgName));
+            } catch {}
+
             // Menú
             this.menu.setFromLogin(resp.opcionesDetalle);
             subscriber.next(resp);

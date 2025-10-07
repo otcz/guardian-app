@@ -768,8 +768,8 @@ body .p-toast .p-toast-message-info {
   color: #000 !important;
 }
 :root.theme-dark body .ng-star-inserted.p-select-overlay,
-:root.theme_dark body .ng-star-inserted.p-dropdown-panel,
-:root.theme_dark body .ng-star-inserted.p-multiselect-panel,
+:root.theme-dark body .ng-star-inserted.p-dropdown-panel,
+:root.theme-dark body .ng-star-inserted.p-multiselect-panel,
 :root.theme-black body .ng-star-inserted.p-select-overlay,
 :root.theme_black body .ng-star-inserted.p-dropdown-panel,
 :root.theme_black body .ng-star-inserted.p-multiselect-panel {
@@ -841,6 +841,50 @@ body .p-confirm-dialog .p-confirm-dialog-message,
 body .p-confirm-dialog .p-confirm-dialog-message * { color: var(--text) !important; }
 body .p-confirm-dialog .p-confirm-dialog-icon { color: var(--danger) !important; }
 
-/* Máscara según tema */
-:root.theme-light body .p-dialog-mask { background-color: rgba(0, 0, 0, 0.35) !important; }
-:root.theme-dark body .p-dialog-mask, :root.theme-black body .p-dialog-mask { background-color: rgba(0, 0, 0, 0.6) !important; }
+/* ===== Correcciones de selectores mal escritos (tema oscuro/negro) ===== */
+:root.theme-dark body .ng-star-inserted.p-select-overlay,
+:root.theme-dark body .ng-star-inserted.p-dropdown-panel,
+:root.theme-dark body .ng-star-inserted.p-multiselect-panel,
+:root.theme-black body .ng-star-inserted.p-select-overlay,
+:root.theme-black body .ng-star-inserted.p-dropdown-panel,
+:root.theme-black body .ng-star-inserted.p-multiselect-panel {
+  background: color-mix(in srgb, var(--surface) 92%, #000) !important;
+  color: #fff !important;
+}
+
+/* ===== Tokens de PrimeNG para Dialog por tema ===== */
+:root.theme-light {
+  --p-dialog-background: #ffffff;
+  --p-dialog-header-background: #ffffff;
+  --p-dialog-content-background: #ffffff;
+  --p-dialog-text-color: #000000;
+}
+:root.theme-dark, :root.theme-black {
+  --p-dialog-background: var(--surface);
+  --p-dialog-header-background: var(--surface);
+  --p-dialog-content-background: var(--surface);
+  --p-dialog-text-color: var(--text);
+}
+
+/* ===== Refuerzo FINAL: .p-dialog en modo claro (máxima especificidad) ===== */
+:root.theme-light body .p-dialog,
+:root.theme-light body .p-confirm-dialog.p-dialog {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: 0 14px 32px rgba(0,0,0,0.12), 0 6px 18px rgba(79,140,255,0.12) !important;
+}
+:root.theme-light body .p-dialog .p-dialog-header,
+:root.theme-light body .p_dialog .p-dialog-content,
+:root.theme-light body .p_dialog .p-dialog-footer {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+}
+:root.theme-light body .p_dialog .p-dialog-header { border-bottom: 1px solid var(--border) !important; }
+:root.theme-light body .p_dialog .p-dialog-footer { border-top: 1px solid var(--border) !important; }
+:root.theme-light body .p-confirm-dialog .p-confirm-dialog-message,
+:root.theme-light body .p-confirm-dialog .p-confirm-dialog-message * { color: #000000 !important; }
+
+/* ===== Refuerzo overlay/máscara ===== */
+:root.theme-light body .p-dialog-mask { background-color: rgba(0,0,0,.35) !important; }
+:root.theme-dark body .p-dialog-mask, :root.theme-black body .p-dialog-mask { background-color: rgba(0,0,0,.6) !important; }

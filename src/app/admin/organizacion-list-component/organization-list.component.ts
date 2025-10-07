@@ -30,7 +30,14 @@ export class OrganizationListComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
+    // Preferir navigation state, con fallback a query param (legacy)
+    const stateReturn: string | null = (this.router.getCurrentNavigation()?.extras?.state as any)?.returnUrl ?? (history && (history.state as any)?.returnUrl) ?? null;
+    const qpReturn = this.route.snapshot.queryParamMap.get('returnUrl');
+    this.returnUrl = stateReturn || qpReturn || null;
+    // Limpiar la URL si venía por query param legacy
+    if (qpReturn) {
+      this.router.navigate([], { relativeTo: this.route, queryParams: {}, replaceUrl: true });
+    }
     this.load();
   }
 

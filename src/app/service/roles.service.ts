@@ -263,13 +263,17 @@ export class RolesService {
 
   unassignUserRole(usuarioId: string, rolUsuarioId: string): Observable<{ message?: string }> {
     const url = `${this.base}/usuarios/${usuarioId}/roles/${rolUsuarioId}`;
-    return this.http.delete<ApiResponse<any>>(url, {headers: this.accept}).pipe(
-      map((resp) => {
-        if (!resp || resp.success === false) throw {
-          error: {message: resp?.message || 'No se pudo desasignar el rol'},
-          status: 400
-        };
-        return {message: resp.message};
+    return this.http.delete<ApiResponse<any> | any>(url, {headers: this.accept}).pipe(
+      map((payload) => {
+        // 204 No Content -> payload null/undefined
+        if (payload == null) return { message: undefined };
+        const resp = (payload && typeof payload === 'object' && 'success' in payload) ? payload as ApiResponse<any> : ({
+          success: true,
+          message: undefined,
+          data: payload
+        } as any);
+        if (resp.success === false) throw { error: { message: resp.message || 'No se pudo desasignar el rol' }, status: 400 };
+        return { message: resp.message };
       })
     );
   }

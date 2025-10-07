@@ -14,6 +14,9 @@ export const PermissionGuard: CanActivateFn = (route, state) => {
     return false;
   }
 
+  // SYSADMIN tiene acceso universal
+  if (auth.hasRole('SYSADMIN')) return true;
+
   const url = (state.url || '').split('?')[0];
   if (url === '/') return true;
 

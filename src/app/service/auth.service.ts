@@ -41,6 +41,22 @@ export class AuthService {
   private api(path: string) { return `${environment.apiBase}${path}`; }
   private absolute(path: string) { return `${environment.backendHost}${path}`; }
 
+  /** Devuelve los roles actuales almacenados (normalizados en mayúsculas) */
+  getRoles(): string[] {
+    try {
+      const raw = localStorage.getItem('roles');
+      const arr = raw ? JSON.parse(raw) : [];
+      return Array.isArray(arr) ? arr.map((r: any) => String(r).toUpperCase()) : [];
+    } catch { return []; }
+  }
+  /** True si el usuario posee el rol indicado (case-insensitive) */
+  hasRole(role: string): boolean { return this.getRoles().includes(String(role || '').toUpperCase()); }
+  /** True si el usuario posee alguno de los roles indicados */
+  hasAnyRole(...roles: string[]): boolean {
+    const set = new Set(this.getRoles());
+    return roles.some(r => set.has(String(r || '').toUpperCase()));
+  }
+
   /** Login basado en formato real devuelto por backend (sin envoltorio) */
   login(data: { username: string; password: string; orgCode?: string }): Observable<BackendLoginResponse> {
     const proxyUrl = this.api('/auth/login');

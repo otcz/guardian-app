@@ -777,6 +777,14 @@ body .p-toast .p-toast-message-info {
   color: #fff !important;
 }
 
+/* ===== Tabla Roles Create Page: fondo blanco en modo claro ===== */
+:root.theme-light app-roles-create-page .p-datatable .p-datatable-wrapper table,
+:root.theme-light app-roles-create-page .p-datatable .p-datatable-tbody,
+:root.theme-light app-roles-create-page .p-datatable-tbody > tr > td {
+  background: #ffffff !important;
+  color: #000000 !important;
+}
+
 /* ===== Tablas en modo claro (global) ===== */
 :root.theme-light body .p-datatable .p-datatable-wrapper table,
 :root.theme-light body .p-table .p-datatable-wrapper table {
@@ -875,13 +883,13 @@ body .p-confirm-dialog .p-confirm-dialog-icon { color: var(--danger) !important;
   box-shadow: 0 14px 32px rgba(0,0,0,0.12), 0 6px 18px rgba(79,140,255,0.12) !important;
 }
 :root.theme-light body .p-dialog .p-dialog-header,
-:root.theme-light body .p_dialog .p-dialog-content,
-:root.theme-light body .p_dialog .p-dialog-footer {
+:root.theme-light body .p-dialog .p-dialog-content,
+:root.theme-light body .p-dialog .p-dialog-footer {
   background-color: #ffffff !important;
   color: #000000 !important;
 }
-:root.theme-light body .p_dialog .p-dialog-header { border-bottom: 1px solid var(--border) !important; }
-:root.theme-light body .p_dialog .p-dialog-footer { border-top: 1px solid var(--border) !important; }
+:root.theme-light body .p-dialog .p-dialog-header { border-bottom: 1px solid var(--border) !important; }
+:root.theme-light body .p-dialog .p-dialog-footer { border-top: 1px solid var(--border) !important; }
 :root.theme-light body .p-confirm-dialog .p-confirm-dialog-message,
 :root.theme-light body .p-confirm-dialog .p-confirm-dialog-message * { color: #000000 !important; }
 

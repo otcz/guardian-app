@@ -117,11 +117,49 @@ export class OrganizationListComponent implements OnInit {
     const err = this.validate(this.editDraft);
     if (err) { this.messages.add({ severity: 'warn', summary: 'Validación', detail: err, life: 3500 }); return; }
     this.saving = true;
-    const body = { nombre: (this.editDraft.nombre || '').trim(), activa: !!this.editDraft.activa };
+    const desiredName = (this.editDraft.nombre || '').trim();
+    const desiredActive = !!this.editDraft.activa;
+    const original = this.orgs.find(o => o.id === this.editingId);
+    const nameChanged = original ? (desiredName !== (original.nombre || '').trim()) : true;
+    const activeChanged = original ? (desiredActive !== !!original.activa) : true;
+
+    if (!nameChanged && activeChanged) {
+      // Solo cambia 'activa' -> usar endpoint dedicado ?value=...
+      this.orgService.setOrgActive(this.editingId, desiredActive).subscribe({
+        next: (res) => {
+          const idx = this.orgs.findIndex(o => o.id === this.editingId);
+          if (idx >= 0) {
+            const resp: any = (res as any)?.org || {};
+            const newActiva = (typeof resp.activa === 'boolean') ? resp.activa : desiredActive;
+            this.orgs[idx] = { ...this.orgs[idx], ...resp, activa: newActiva } as Organization;
+          }
+          this.applyFilter();
+          const flashId = this.editingId;
+          this.cancelEdit();
+          this.saving = false;
+          if (flashId) this.flash(flashId);
+          const msg = res?.message || 'Estado actualizado';
+          this.messages.add({ severity: 'success', summary: 'Actualizado', detail: msg, life: 3000 });
+        },
+        error: (e) => {
+          const msg = e?.error?.message || 'Error al actualizar estado';
+          this.saving = false;
+          this.messages.add({ severity: 'error', summary: 'Error', detail: msg, life: 4500 });
+        }
+      });
+      return;
+    }
+
+    // Nombre cambiado (con o sin activa) -> PATCH unificado
+    const body = { nombre: desiredName, activa: desiredActive };
     this.orgService.update(this.editingId, body).subscribe({
       next: (res) => {
         const idx = this.orgs.findIndex(o => o.id === this.editingId);
-        if (idx >= 0) this.orgs[idx] = { ...this.orgs[idx], ...res.org } as Organization;
+        if (idx >= 0) {
+          const resp: any = (res as any)?.org || {};
+          const newActiva = (typeof resp.activa === 'boolean') ? resp.activa : desiredActive;
+          this.orgs[idx] = { ...this.orgs[idx], ...resp, activa: newActiva } as Organization;
+        }
         this.applyFilter();
         const flashId = this.editingId;
         this.cancelEdit();

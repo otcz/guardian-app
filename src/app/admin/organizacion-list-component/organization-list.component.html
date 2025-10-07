@@ -49,11 +49,11 @@
 
           <td>
             <ng-container *ngIf="adding && row.id === ''; else notAddingActiva">
-              <p-inputSwitch [(ngModel)]="newDraft.activa"></p-inputSwitch>
+              <p-inputSwitch [(ngModel)]="newDraft.activa" [trueValue]="true" [falseValue]="false" (onChange)="newDraft.activa = $event.checked"></p-inputSwitch>
             </ng-container>
             <ng-template #notAddingActiva>
               <ng-container *ngIf="editingId === row.id; else viewActiva">
-                <p-inputSwitch [(ngModel)]="editDraft!.activa"></p-inputSwitch>
+                <p-inputSwitch [(ngModel)]="editDraft!.activa" [trueValue]="true" [falseValue]="false" (onChange)="onEditChange('activa', $event.checked)"></p-inputSwitch>
               </ng-container>
               <ng-template #viewActiva>
                 <p-tag [severity]="row.activa ? 'success' : 'danger'" [value]="row.activa ? 'SÍ' : 'NO'"></p-tag>

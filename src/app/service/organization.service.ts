@@ -225,8 +225,9 @@ export class OrganizationService {
   }
 
   create(dto: CreateOrganizationDTO): Observable<{ org: Organization; message?: string }> {
-    const payload: any = { nombre: dto.nombre };
-    if (dto.activa !== undefined) { payload.activa = !!dto.activa; payload.activo = !!dto.activa; }
+    const payload: any = {};
+    if (dto.nombre !== undefined) payload.nombre = dto.nombre;
+    if (dto.activa !== undefined) payload.activa = !!dto.activa;
     if (dto.estrategia !== undefined) payload.estrategia = dto.estrategia;
     return this.http.post<any>(this.collectionUrl(), payload, { headers: this.jsonHeaders() }).pipe(
       map((resp: any) => {
@@ -242,13 +243,27 @@ export class OrganizationService {
   update(id: string, dto: UpdateOrganizationDTO): Observable<{ org: Organization; message?: string }> {
     const payload: any = {};
     if (dto.nombre !== undefined) payload.nombre = dto.nombre;
-    if (dto.activa !== undefined) { payload.activa = !!dto.activa; payload.activo = !!dto.activa; }
+    if (dto.activa !== undefined) payload.activa = !!dto.activa;
     if (dto.estrategia !== undefined) payload.estrategia = dto.estrategia;
     return this.http.patch<any>(`${this.collectionUrl()}/${id}`, payload, { headers: this.jsonHeaders() }).pipe(
       map((resp: any) => {
         if (resp && resp.success === false) { throw { error: { message: resp.message } }; }
         const d = this.unwrapApi(resp);
         const org = this.mapOrgFromBackend(d);
+        return { org, message: resp?.message };
+      }),
+      catchError(err => throwError(() => ({ error: { message: (err?.error?.message ?? err?.message) as string | undefined } })))
+    );
+  }
+
+  // Activar/Desactivar por query param
+  setOrgActive(orgId: string | number, value: boolean): Observable<{ org?: Organization; message?: string }> {
+    const url = `${this.collectionUrl()}/${orgId}/activo`;
+    return this.http.patch<any>(url, null, { params: { value } as any, headers: this.acceptJsonHeaders() }).pipe(
+      map((resp: any) => {
+        if (resp && resp.success === false) { throw { error: { message: resp.message } }; }
+        const d = this.unwrapApi(resp);
+        const org = d ? this.mapOrgFromBackend(d) : undefined;
         return { org, message: resp?.message };
       }),
       catchError(err => throwError(() => ({ error: { message: (err?.error?.message ?? err?.message) as string | undefined } })))
@@ -279,7 +294,7 @@ export class OrganizationService {
   }
 
   getOrgCurrentStrategy(orgId: string | number) {
-    const url = `${this.orgStrategyBase(orgId)}/actual`;
+    const url = `${this.collectionUrl()}/${orgId}/estrategia/actual`;
     return this.http.get<any>(url, { headers: this.acceptJsonHeaders() }).pipe(
       map((resp: any) => {
         if (resp && resp.success === false) { throw { error: { message: resp.message }, status: 404 }; }

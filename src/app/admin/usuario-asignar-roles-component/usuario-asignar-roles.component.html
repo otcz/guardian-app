@@ -30,7 +30,7 @@
       </div>
 
       <div class="actions">
-        <button pButton type="button" label="Asignar rol" icon="pi pi-plus" (click)="assignRole()" [disabled]="!usuarioId || !rolSeleccionado || saving"></button>
+        <button pButton type="button" label="Asignar rol" icon="pi pi-plus" class="btn-compact" (click)="assignRole()" [disabled]="!usuarioId || !rolSeleccionado || saving" pTooltip="Asignar rol"></button>
       </div>
     </div>
 
@@ -39,14 +39,14 @@
       <ng-template pTemplate="header">
         <tr>
           <th>Rol</th>
-          <th style="width:180px;">Acciones</th>
+          <th style="width:120px; text-align:center;">Acciones</th>
         </tr>
       </ng-template>
       <ng-template pTemplate="body" let-ru>
         <tr>
           <td>{{ ru.rol?.nombre || ru.rolId }}</td>
-          <td>
-            <button pButton type="button" label="Quitar" icon="pi pi-times" class="p-button p-button-outlined" (click)="unassignRole(ru.id)"></button>
+          <td class="table-actions">
+            <button pButton type="button" icon="pi pi-times" class="p-button p-button-text p-button-rounded btn-icon" (click)="unassignRole(ru.id)" pTooltip="Quitar"></button>
           </td>
         </tr>
       </ng-template>

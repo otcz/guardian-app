@@ -718,12 +718,12 @@ body .p-toast .p-toast-message-info {
 :root.theme-dark body .p-select-overlay .p-select-item,
 :root.theme-black body .p-select-overlay .p-select-item,
 :root.theme-dark body .p-select-overlay .p-select-option,
-:root.theme-black body .p-select-overlay .p-select-option { color: #fff !important; }
+:root.theme-black body .p-select-overlay .p-select-option { color: #fff !important; background: transparent !important; }
 
 :root.theme-dark body .p-select-overlay .p-select-item.p-highlight,
 :root.theme-black body .p-select-overlay .p-select-item.p-highlight,
 :root.theme-dark body .p-select-overlay .p-select-option.p-highlight,
-:root.theme-black body .p-select-overlay .p-select-option.p-highlight { background: color-mix(in srgb, var(--primary) 22%, transparent) !important; }
+:root.theme-black body .p-select-overlay .p-select-option.p-highlight { background: var(--success) !important; color: #ffffff !important; }
 
 :root.theme-dark body .p-select-overlay .p-select-item:not(.p-highlight):hover,
 :root.theme-black body .p-select-overlay .p-select-item:not(.p-highlight):hover,
@@ -753,11 +753,17 @@ body .p-toast .p-toast-message-info {
 :root.theme-light body .p-select-overlay .p-select-items,
 :root.theme-light body .p-select-overlay .p-select-items-wrapper { background: transparent !important; }
 :root.theme-light body .p-select-overlay .p-select-item,
-:root.theme-light body .p-select-overlay .p-select-option { color: #000 !important; }
+:root.theme-light body .p-select-overlay .p-select-option { color: #000 !important; background: transparent !important; }
 :root.theme-light body .p-select-overlay .p-select-item.p-highlight,
-:root.theme-light body .p-select-overlay .p-select-option.p-highlight { background: color-mix(in srgb, var(--primary) 14%, transparent) !important; color: #000 !important; }
+:root.theme-light body .p-select-overlay .p-select-option.p-highlight { background: var(--success) !important; color: #ffffff !important; }
 :root.theme-light body .p-select-overlay .p-select-item:not(.p-highlight):hover,
 :root.theme-light body .p-select-overlay .p-select-option:not(.p-highlight):hover { background: color-mix(in srgb, var(--primary) 10%, transparent) !important; }
+
+/* --- Limpieza de overrides anteriores para opciones verdes globales --- */
+/* Se eliminan bloques previos que forzaban:
+   - "Opciones del Select: texto verde en todos los temas; nunca negro"
+   - "Opciones del Select: FONDO VERDE en todos los temas; nunca oscuro/negro"
+   para respetar el nuevo requerimiento: fondo según tema y verde solo al seleccionar. */
 
 /* === Reglas específicas para overlays insertados (.ng-star-inserted) === */
 /* Limitar a paneles PrimeNG para evitar efectos colaterales */
@@ -931,26 +937,5 @@ body .p-card {
 .p-card.user-card {
   padding: 0 !important;
   overflow: hidden;
-}
-
-/* Opciones del Select: texto verde en todos los temas; nunca negro */
-:root.theme-light body .p-select-overlay .p-select-item,
-:root.theme-light body .p-select-overlay .p-select-option {
-  color: var(--success) !important;
-}
-:root.theme-dark body .p-select-overlay .p-select-item,
-:root.theme-dark body .p-select-overlay .p-select-option,
-:root.theme-black body .p-select-overlay .p-select-item,
-:root.theme-black body .p-select-overlay .p-select-option {
-  color: var(--success) !important;
-}
-/* Estados resaltados: texto blanco para asegurar contraste, nunca negro */
-:root.theme-light body .p-select-overlay .p-select-item.p-highlight,
-:root.theme-light body .p-select-overlay .p-select-option.p-highlight,
-:root.theme-dark body .p-select-overlay .p-select-item.p-highlight,
-:root.theme-dark body .p-select-overlay .p-select-option.p-highlight,
-:root.theme-black body .p-select-overlay .p-select-item.p-highlight,
-:root.theme-black body .p-select-overlay .p-select-option.p-highlight {
-  color: #ffffff !important;
 }
 

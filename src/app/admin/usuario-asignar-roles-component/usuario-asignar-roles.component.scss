@@ -19,3 +19,28 @@
 
 /* Tabla */
 :host ::ng-deep .p-table .p-datatable-wrapper table td { vertical-align: middle; }
+.table-actions { display:flex; align-items:center; justify-content:center; gap:8px; }
+
+/* Botón compacto principal */
+:host ::ng-deep .btn-compact.p-button {
+  display: inline-flex;
+  flex: 0 0 auto;
+  width: auto;
+  min-height: 34px;
+  padding: 6px 10px;
+  font-size: .9rem;
+  line-height: 1.1;
+  border-radius: 8px;
+}
+:host ::ng-deep .btn-compact.p-button .pi { font-size: 0.95rem; }
+
+/* Botón solo icono en acciones */
+:host ::ng-deep .btn-icon.p-button {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+:host ::ng-deep .btn-icon.p-button .p-button-label { display: none; }

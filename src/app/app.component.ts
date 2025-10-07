@@ -11,6 +11,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { FormsModule } from '@angular/forms';
 import { UserAvatarProComponent } from './shared/user-avatar-pro.component';
 import { FeedbackCenterComponent } from './shared/feedback-center.component';
+import { UppercaseGlobalService } from './shared/uppercase-global.service';
 
 @Component({
   standalone: true,
@@ -30,7 +31,7 @@ export class AppComponent {
   expanded: Record<string, boolean> = {};
   isAuthScreen = false; // para ocultar layout en login/register
 
-  constructor(private theme: ThemeService, private menu: MenuService, private router: Router) {
+  constructor(private theme: ThemeService, private menu: MenuService, private router: Router, _upper: UppercaseGlobalService) {
     this.menus$ = this.menu.treeObservable$.pipe(
       map(tree => tree.filter(m => (m.children && m.children.length > 0)))
     );

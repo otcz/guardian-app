@@ -257,3 +257,15 @@
   --border: #333333;
   --shadow: rgba(0, 0, 0, 0.3);
 }
+
+/* Color de la etiqueta seleccionada (label del control) por tema */
+:host-context(.theme-light) ::ng-deep .p-dropdown .p-dropdown-label,
+:host-context(.theme-light) ::ng-deep .p-multiselect .p-multiselect-label,
+:host-context(.theme-light) ::ng-deep .p-select-label { color: #111 !important; }
+
+:host-context(.theme-dark) ::ng-deep .p-dropdown .p-dropdown-label,
+:host-context(.theme-black) ::ng-deep .p-dropdown .p-dropdown-label,
+:host-context(.theme-dark) ::ng-deep .p-multiselect .p-multiselect-label,
+:host-context(.theme-black) ::ng-deep .p-multiselect .p-multiselect-label,
+:host-context(.theme-dark) ::ng-deep .p-select-label,
+:host-context(.theme-black) ::ng-deep .p-select-label { color: #fff !important; }

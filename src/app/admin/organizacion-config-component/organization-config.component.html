@@ -7,6 +7,23 @@
         <span class="chip" [class.chip-success]="org.activa" [class.chip-danger]="!org.activa">{{ org.activa ? 'ACTIVA' : 'INACTIVA' }}</span>
       </p>
     </div>
+
+    <div class="org-selector">
+      <label class="sr-only" for="orgSelect">Organización</label>
+      <p-dropdown id="orgSelect"
+                  [options]="orgs"
+                  optionLabel="nombre"
+                  optionValue="id"
+                  [filter]="true"
+                  [showClear]="false"
+                  placeholder="Seleccione organización"
+                  [(ngModel)]="orgId"
+                  (ngModelChange)="onOrgChanged($event)"
+                  [disabled]="loading || loadingOrgs"
+                  appendTo="body">
+      </p-dropdown>
+    </div>
+
     <span class="spacer"></span>
     <button pButton type="button" icon="pi pi-arrow-left" label="Volver" class="p-button-text" (click)="back()"></button>
   </div>
@@ -14,6 +31,23 @@
   <div class="grid">
     <p-card class="card strategy-card">
       <div class="card-header"><h3>Estrategia de Gobernanza</h3></div>
+
+      <!-- NUEVO: selector de Organización dentro de la tarjeta -->
+      <div class="field">
+        <label for="orgSelectCard">Organización</label>
+        <p-dropdown id="orgSelectCard"
+                    [options]="orgs"
+                    optionLabel="nombre"
+                    optionValue="id"
+                    [filter]="true"
+                    [showClear]="false"
+                    placeholder="Seleccione organización"
+                    [(ngModel)]="orgId"
+                    (ngModelChange)="onOrgChanged($event)"
+                    [disabled]="loading || loadingOrgs"
+                    appendTo="body">
+        </p-dropdown>
+      </div>
 
       <!-- Estrategia vigente (única) -->
       <div class="field">

@@ -41,6 +41,10 @@ export class OrganizationConfigComponent implements OnInit {
   savingVigente = false;
   savingActivas = false;
 
+  // NUEVO: listado y carga de organizaciones para selector
+  orgs: Organization[] = [];
+  loadingOrgs = false;
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -50,11 +54,37 @@ export class OrganizationConfigComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.orgId = this.route.snapshot.queryParamMap.get('id') || localStorage.getItem('currentOrgId') || '';
-    if (!this.orgId) {
-      this.router.navigate(['/listar-organizaciones']);
-      return;
+    const resolved = this.route.snapshot.queryParamMap.get('id') || localStorage.getItem('currentOrgId') || '';
+    if (!resolved) {
+      // Si no hay id, cargar listado y seleccionar por defecto
+      this.loadOrganizations(true);
+    } else {
+      this.orgId = resolved;
+      localStorage.setItem('currentOrgId', this.orgId);
+      this.loadAll();
+      // Precargar listado en segundo plano
+      this.loadOrganizations(false);
     }
+  }
+
+  private loadOrganizations(selectFirst: boolean) {
+    this.loadingOrgs = true;
+    this.orgSvc.list().subscribe({
+      next: (list) => {
+        this.orgs = list || [];
+        this.loadingOrgs = false;
+        if (selectFirst && this.orgs.length > 0) {
+          const first = this.orgs.find(o => o.activa) || this.orgs[0];
+          if (first?.id) this.onOrgChanged(first.id);
+        }
+      },
+      error: () => { this.loadingOrgs = false; }
+    });
+  }
+
+  onOrgChanged(newId: string) {
+    if (!newId) return;
+    this.orgId = newId;
     localStorage.setItem('currentOrgId', this.orgId);
     this.loadAll();
   }

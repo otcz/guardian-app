@@ -10,5 +10,9 @@ export const environment = {
   security: {
     // El frontend usará literalmente las rutas enviadas por backend (sin heurísticas)
     keepBackendRoutesLiterally: true
+  },
+  features: {
+    // Si el backend expone GET /organizaciones/accesibles, habilitar en true
+    accessibleOrgsEndpoint: false
   }
 };

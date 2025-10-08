@@ -29,6 +29,7 @@
 .chip-row { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
 .pill .p-chip { background: var(--surface-alt); color: var(--text); border-radius: 999px; }
 .pill.muted .p-chip { opacity: .9; }
+.chip-row .p-chip .p-chip-text { display: inline-block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 /* Formularios */
 .edit-form { padding: 16px 8px 8px; }

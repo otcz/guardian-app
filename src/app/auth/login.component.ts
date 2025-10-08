@@ -98,8 +98,9 @@ export class LoginComponent {
     if (this.form.invalid) { this.errorMsg = 'Completa todos los campos.'; return; }
     this.loading = true;
     const { username, password } = this.form.value as { username: string; password: string };
-    const isSys = (username || '').trim().toLowerCase() === 'sysadmin';
-    const payload: any = { username, password };
+    const usernameU = (username || '').toString().trim().toUpperCase();
+    const isSys = usernameU === 'SYSADMIN';
+    const payload: any = { username: usernameU, password };
     if (isSys) payload.orgCode = 'SYSTEM';
 
     this.auth.login(payload).subscribe({
@@ -111,7 +112,7 @@ export class LoginComponent {
         }
         // Guardar sesión básica (ya lo hace el servicio, pero mantenemos por claridad redundante mínima)
         localStorage.setItem('token', token);
-        localStorage.setItem('username', resp.username || username);
+        localStorage.setItem('username', resp.username || usernameU);
         localStorage.setItem('roles', JSON.stringify(resp.roles || []));
         const expiresAt = Date.now() + (resp.expiresIn * 1000);
         localStorage.setItem('expiresAt', String(expiresAt));

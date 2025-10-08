@@ -19,6 +19,7 @@ import { AvatarModule } from 'primeng/avatar';
 import { ToolbarModule } from 'primeng/toolbar';
 import { SkeletonModule } from 'primeng/skeleton';
 import { ChipModule } from 'primeng/chip';
+import { RolesService, UserRoleAssignment } from '../../service/roles.service';
 
 @Component({
   selector: 'app-usuario-gestionar',
@@ -36,8 +37,10 @@ export class UsuarioGestionarComponent implements OnInit {
   saving = false;
   draft: UpdateUserRequest = {};
   principalSeccionNombre: string | null = null;
+  roles: UserRoleAssignment[] = [];
+  rolesLoading = false;
 
-  constructor(private route: ActivatedRoute, private router: Router, private orgCtx: OrgContextService, private users: UsersService, private notify: NotificationService, private secciones: SeccionService) {}
+  constructor(private route: ActivatedRoute, private router: Router, private orgCtx: OrgContextService, private users: UsersService, private notify: NotificationService, private secciones: SeccionService, private rolesSvc: RolesService) {}
 
   get userInitial(): string {
     const src = (this.user?.nombreCompleto || this.user?.username || '').trim();
@@ -69,11 +72,20 @@ export class UsuarioGestionarComponent implements OnInit {
     });
   }
 
+  private loadRoles() {
+    this.roles = []; this.rolesLoading = true;
+    if (!this.user?.id) { this.rolesLoading = false; return; }
+    this.rolesSvc.listUserRoles(this.user.id).subscribe({
+      next: (arr) => { this.roles = Array.isArray(arr) ? arr : []; this.rolesLoading = false; },
+      error: () => { this.roles = []; this.rolesLoading = false; }
+    });
+  }
+
   load() {
     if (!this.orgId || !this.userId) return;
     this.loading = true;
     this.users.get(this.orgId, this.userId).subscribe({
-      next: u => { this.user = u; this.loading = false; this.loadSeccionNombreIfNeeded(); },
+      next: u => { this.user = u; this.loading = false; this.loadSeccionNombreIfNeeded(); this.loadRoles(); },
       error: e => { this.loading = false; this.notify.error('Error', e?.error?.message || 'No se pudo obtener el usuario'); }
     });
   }

@@ -215,6 +215,10 @@ export class OrganizationService {
 
   /** Lista de organizaciones accesibles para el usuario autenticado. Fallback: list() */
   listAccessible(): Observable<Organization[]> {
+    if (!(environment as any).features || (environment as any).features.accessibleOrgsEndpoint === false) {
+      // Bandera deshabilitada: no intentar endpoint especial, usar list() directamente
+      return this.list();
+    }
     const url = `${environment.apiBase}/organizaciones/accesibles`;
     const headers = this.acceptJsonHeaders().set('Cache-Control', 'no-cache').set('Pragma', 'no-cache');
     const params = { t: Date.now().toString() } as any;

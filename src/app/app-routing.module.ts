@@ -21,13 +21,14 @@ import { UsuariosListarComponent } from './admin/usuarios-listar-component/usuar
 import { UsuarioGestionarComponent } from './admin/usuario-gestionar-component/usuario-gestionar.component';
 import { UsuarioAsignarSeccionComponent } from './admin/usuario-asignar-seccion-component/usuario-asignar-seccion.component';
 import { UsuarioAsignarRolesComponent } from './admin/usuario-asignar-roles-component/usuario-asignar-roles.component';
+import { OrgRequiredGuard } from './service/org-required.guard';
 
 export const appRoutes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
   {
     path: '',
-    canActivate: [AuthGuard],
+    canActivate: [AuthGuard, OrgRequiredGuard],
     children: [
       { path: '', component: DashboardHomeComponent },
       { path: 'listar-organizaciones', component: OrganizationListComponent },

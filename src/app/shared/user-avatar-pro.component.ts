@@ -7,6 +7,8 @@ import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
 import { AuthService } from '../service/auth.service';
 import { OrganizationService, Organization } from '../service/organization.service';
+import { OrgContextService, ScopeNivel } from '../service/org-context.service';
+import { SeccionService, SeccionEntity } from '../service/seccion.service';
 
 @Component({
   selector: 'app-user-avatar-pro',
@@ -19,13 +21,28 @@ export class UserAvatarProComponent {
   private router = inject(Router);
   private auth = inject(AuthService);
   private orgSvc = inject(OrganizationService);
+  private ctx = inject(OrgContextService);
+  private secSvc = inject(SeccionService);
 
   username = signal<string>('');
   roles = signal<string[]>([]);
   orgId = signal<string | null>(null);
   orgName = signal<string | null>(null);
+  scopeNivel = signal<ScopeNivel | null>(null);
+  seccionId = signal<string | null>(null);
+  seccionName = signal<string | null>(null);
   expiresAt = signal<number | null>(null);
   orgs = signal<Organization[]>([]);
+  displayedOrgs = computed(() => {
+    const list = this.orgs() || [];
+    const scope = (this.scopeNivel() || '').toString().toUpperCase();
+    const currentId = this.orgId();
+    // Si el alcance es ORGANIZACION o SECCION y hay orgId activo, restringir a esa organización
+    if ((scope === 'ORGANIZACION' || scope === 'SECCION') && currentId) {
+      return list.filter(o => String(o.id) === String(currentId));
+    }
+    return list;
+  });
 
   private timer?: any;
   private tick = signal<number>(Date.now());
@@ -54,8 +71,8 @@ export class UserAvatarProComponent {
       }
     }, { allowSignalWrites: true });
 
-    // Cargar lista de organizaciones (para cambiar rápido) y auto-seleccionar si falta
-    this.orgSvc.list().subscribe({
+    // Cargar lista de organizaciones accesibles y auto-seleccionar si falta
+    this.orgSvc.listAccessible().subscribe({
       next: (list) => {
         const arr = Array.isArray(list) ? list : [];
         this.orgs.set(arr);
@@ -71,16 +88,37 @@ export class UserAvatarProComponent {
             if (name) { try { localStorage.setItem('currentOrgName', name); } catch {} }
             this.orgId.set(id);
             this.orgName.set(name);
+            this.ctx.set(id);
           } else {
             // Sin organizaciones
             try { localStorage.removeItem('currentOrgId'); localStorage.removeItem('currentOrgName'); } catch {}
             this.orgId.set(null);
             this.orgName.set(null);
+            this.ctx.set(null);
           }
         }
       },
       error: () => this.orgs.set([])
     });
+
+    // Cargar nombre de sección si aplica
+    effect((onCleanup) => {
+      const orgId = this.orgId();
+      const secId = this.seccionId();
+      this.seccionName.set(null);
+      if (!orgId || !secId) return;
+      let sub: any;
+      sub = this.secSvc.list(orgId).subscribe({
+        next: (list: SeccionEntity[]) => {
+          const found = (list || []).find(s => String(s.id) === String(secId));
+          const n = found?.nombre || null;
+          this.seccionName.set(n);
+          try { if (n) localStorage.setItem('currentSectionName', n); } catch {}
+        },
+        error: () => this.seccionName.set(null)
+      });
+      if (onCleanup) onCleanup(() => { if (sub?.unsubscribe) sub.unsubscribe(); });
+    }, { allowSignalWrites: true });
 
     // Iniciar intervalo para refrescar cuenta regresiva y progreso
     this.timer = setInterval(() => this.tick.set(Date.now()), 1000);
@@ -95,6 +133,10 @@ export class UserAvatarProComponent {
     try { this.orgId.set(localStorage.getItem('currentOrgId')); } catch { this.orgId.set(null); }
     try { this.orgName.set(localStorage.getItem('currentOrgName')); } catch { this.orgName.set(null); }
     try { this.expiresAt.set(Number(localStorage.getItem('expiresAt') || '0') || null); } catch { this.expiresAt.set(null); }
+    // contexto
+    try { this.scopeNivel.set((localStorage.getItem('scopeNivel') as any) || null); } catch { this.scopeNivel.set(null); }
+    try { this.seccionId.set(localStorage.getItem('seccionPrincipalId')); } catch { this.seccionId.set(null); }
+    try { this.seccionName.set(localStorage.getItem('currentSectionName')); } catch { this.seccionName.set(null); }
   }
 
   // Computados UI
@@ -156,6 +198,7 @@ export class UserAvatarProComponent {
     if (name) { try { localStorage.setItem('currentOrgName', name); } catch {} }
     this.orgId.set(id);
     this.orgName.set(name);
+    this.ctx.set(id);
     if (pop?.hide) pop.hide();
     // Navegar al panel de gestión de la org seleccionada
     this.router.navigate(['/gestionar-organizacion'], { queryParams: { id: o.id } });

@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { MenuService, RawOption } from './menu.service';
 import { environment } from '../config/environment';
+import { OrgContextService, ScopeNivel } from './org-context.service';
 
 export interface BackendLoginResponse {
   token: string;
@@ -18,6 +19,8 @@ export interface BackendLoginResponse {
   organization?: { id?: string | number; nombre?: string; name?: string } | null;
   organizacion?: { id?: string | number; nombre?: string; name?: string } | null;
   orgName?: string;
+  scopeNivel?: ScopeNivel | string | null;
+  seccionPrincipalId?: string | number | null;
 }
 
 // Interfaces reintroducidas para compatibilidad con register.component
@@ -43,7 +46,7 @@ export interface ApiResponse<T> {
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  constructor(private http: HttpClient, private menu: MenuService) {}
+  constructor(private http: HttpClient, private menu: MenuService, private orgCtx: OrgContextService) {}
 
   private api(path: string) { return `${environment.apiBase}${path}`; }
   private absolute(path: string) { return `${environment.backendHost}${path}`; }
@@ -98,12 +101,19 @@ export class AuthService {
             const expiresAt = Date.now() + (resp.expiresIn * 1000);
             localStorage.setItem('expiresAt', String(expiresAt));
 
-            // Intentar guardar organización por defecto desde la respuesta, si viene
+            // Intentar guardar organización por defecto y contexto desde la respuesta, si viene
             try {
               const orgId = (resp.orgId ?? resp.organizacionId ?? resp.organizationId ?? resp.organization?.id ?? resp.organizacion?.id);
               const orgName = (resp.orgName ?? resp.organization?.nombre ?? resp.organization?.name ?? resp.organizacion?.nombre ?? resp.organizacion?.name);
               if (orgId != null) localStorage.setItem('currentOrgId', String(orgId));
               if (orgName != null) localStorage.setItem('currentOrgName', String(orgName));
+              const scope = resp.scopeNivel != null ? String(resp.scopeNivel).toUpperCase() : null;
+              const seccionId = resp.seccionPrincipalId != null ? String(resp.seccionPrincipalId) : null;
+              if (scope) localStorage.setItem('scopeNivel', scope);
+              else localStorage.removeItem('scopeNivel');
+              if (seccionId) localStorage.setItem('seccionPrincipalId', seccionId);
+              else localStorage.removeItem('seccionPrincipalId');
+              this.orgCtx.setContext({ orgId: orgId != null ? String(orgId) : null, scopeNivel: (scope as any), seccionPrincipalId: seccionId });
             } catch {}
 
             // Menú
@@ -171,6 +181,10 @@ export class AuthService {
     localStorage.removeItem('username');
     localStorage.removeItem('roles');
     try { localStorage.removeItem('currentOrgId'); } catch {}
+    try { localStorage.removeItem('currentOrgName'); } catch {}
+    try { localStorage.removeItem('scopeNivel'); } catch {}
+    try { localStorage.removeItem('seccionPrincipalId'); } catch {}
+    this.orgCtx.clear();
     this.menu.clear();
   }
 }

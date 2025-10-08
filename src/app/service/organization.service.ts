@@ -213,6 +213,26 @@ export class OrganizationService {
     );
   }
 
+  /** Lista de organizaciones accesibles para el usuario autenticado. Fallback: list() */
+  listAccessible(): Observable<Organization[]> {
+    const url = `${environment.apiBase}/organizaciones/accesibles`;
+    const headers = this.acceptJsonHeaders().set('Cache-Control', 'no-cache').set('Pragma', 'no-cache');
+    const params = { t: Date.now().toString() } as any;
+    return this.http.get<any>(url, { headers, params }).pipe(
+      map((resp: any) => {
+        if (resp && resp.success === false) { throw { error: { message: resp.message } }; }
+        return this.normalizeListResponse(resp).map(x => this.mapOrgFromBackend(x));
+      }),
+      catchError((err) => {
+        const status = err?.status;
+        if (status === 404 || status === 0) {
+          return this.list();
+        }
+        return throwError(() => ({ error: { message: (err?.error?.message ?? err?.message) as string | undefined } }));
+      })
+    );
+  }
+
   get(id: string): Observable<Organization> {
     return this.http.get<any>(`${this.collectionUrl()}/${id}`, { headers: this.acceptJsonHeaders() }).pipe(
       map((resp: any) => {

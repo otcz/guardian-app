@@ -7,7 +7,6 @@ import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { AuthService } from '../service/auth.service';
 import { ThemeToggleComponent } from '../shared/theme-toggle.component';
-import { UppercaseDirective } from '../shared/formatting.directives';
 import { MenuService } from '../service/menu.service';
 import { OrganizationService, Organization } from '../service/organization.service';
 import { OrgContextService } from '../service/org-context.service';
@@ -15,7 +14,7 @@ import { OrgContextService } from '../service/org-context.service';
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, RouterModule, ReactiveFormsModule, InputTextModule, ButtonModule, DialogModule, ThemeToggleComponent, UppercaseDirective],
+  imports: [CommonModule, RouterModule, ReactiveFormsModule, InputTextModule, ButtonModule, DialogModule, ThemeToggleComponent],
   templateUrl: './login.component.html'
 })
 export class LoginComponent {

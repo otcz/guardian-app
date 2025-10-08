@@ -230,6 +230,7 @@ export class MenuService {
         const looksCrearRol = nameNorm.includes('crear') && nameNorm.includes('rol');
         const looksGestionarRol = nameNorm.includes('gestionar') && nameNorm.includes('rol');
         const looksListarRol = (nameNorm.includes('listar') || nameNorm.includes('listado')) && (nameNorm.includes('rol') || nameNorm.includes('roles'));
+        const looksAsignarAdminSeccion = nameNorm.includes('asignar') && nameNorm.includes('administrador') && (nameNorm.includes('seccion') || nameNorm.includes('sección'));
 
         if (looksCrearEstrategia) path = '/crear-estrategia-de-gobernanza';
         if (looksCambiarEstrategia) path = '/cambiar-estrategia-de-gobernanza';
@@ -243,6 +244,7 @@ export class MenuService {
         if (looksCrearRol) path = '/crear-rol';
         if (looksGestionarRol) path = '/gestionar-rol';
         if (looksListarRol) path = '/listar-roles';
+        if (looksAsignarAdminSeccion) path = '/asignar-administrador-de-seccion';
 
         // Adjuntar id organización cuando aplica (solo si no es literal)
         const needsOrgId = looksCambiarEstrategia || looksGestionarOrg || looksConfigParams || looksVerAuditoria || looksCrearSeccion || looksListarSeccion || looksCrearRol || looksGestionarRol || looksListarRol;

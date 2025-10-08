@@ -213,4 +213,24 @@ export class SeccionService {
       ))
     );
   }
+
+  assignAdministrador(orgId: string, seccionId: string, usuarioId: string): Observable<{ seccion: SeccionEntity; message?: string }> {
+    const url = `${this.base}/orgs/${orgId}/secciones/${seccionId}/administrador`;
+    return this.http.post<any>(url, { usuarioId }, { headers: this.json }).pipe(
+      map((payload) => {
+        // Respuesta esperada: entidad plana SeccionEntity
+        const d = (payload || {}) as any;
+        const seccion: SeccionEntity = {
+          id: String(d.id ?? seccionId),
+          nombre: String(d.nombre ?? ''),
+          descripcion: d.descripcion || undefined,
+          estado: d.estado || undefined,
+          autonomiaConfigurada: d.autonomiaConfigurada != null ? !!d.autonomiaConfigurada : undefined,
+          seccionPadreId: d.seccionPadreId ?? d.idSeccionPadre ?? null
+        } as SeccionEntity;
+        return { seccion, message: (payload as any)?.message };
+      }),
+      catchError((err) => throwError(() => ({ error: { message: err?.error?.message || err?.message || 'No se pudo asignar el administrador' }, status: err?.status })))
+    );
+  }
 }

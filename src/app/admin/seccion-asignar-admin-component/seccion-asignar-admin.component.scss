@@ -1,0 +1,24 @@
+.container { padding: 12px 0 32px; }
+.card { background: var(--surface); border: 1px solid color-mix(in srgb, var(--border) 70%, transparent); border-radius: 12px; }
+.header { display: flex; align-items: center; justify-content: space-between; padding: 8px; border-bottom: 1px dashed var(--border); }
+.title { margin: 0; font-weight: 800; letter-spacing: .2px; color: var(--text); }
+
+.form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; padding: 16px 8px; }
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field > label { font-weight: 700; color: #000; }
+
+.actions { display: flex; gap: 8px; padding: 8px; border-top: 1px dashed var(--border); }
+
+.preview { padding: 8px; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; }
+.preview-item { background: color-mix(in srgb, var(--surface-alt) 92%, transparent); border: 1px solid color-mix(in srgb, var(--border) 70%, transparent); border-radius: 10px; padding: 10px; }
+.preview-item .label { display: block; color: var(--muted); font-weight: 600; margin-bottom: 4px; }
+.preview-item b { color: var(--text); font-weight: 800; }
+
+/* Modos oscuros: fondos oscuros, labels legibles */
+:host-context(.dark),
+:host-context(.black),
+:host-context(.theme-dark) {
+  .card { background: var(--surface); box-shadow: 0 0 0 1px color-mix(in srgb, var(--border) 60%, transparent) inset; }
+  .field > label { color: var(--text); }
+}
+

@@ -1,0 +1,32 @@
+<div class="container">
+  <h2 class="title" style="margin:0 0 8px;">Asignar administrador de sección</h2>
+  <p class="helper" style="margin:0 0 12px; opacity:.8;">Seleccione una sección y un usuario, luego presione “Asignar”.</p>
+  <p-card class="card">
+    <div class="form-grid">
+      <div class="field">
+        <label>Sección</label>
+        <p-dropdown [options]="secciones" optionLabel="nombre" optionValue="id" [(ngModel)]="seccionId" name="seccionId" placeholder="Seleccione sección" [filter]="true" [showClear]="true"></p-dropdown>
+      </div>
+      <div class="field">
+        <label>Usuario</label>
+        <p-dropdown [options]="usuarios" optionLabel="username" optionValue="id" [(ngModel)]="usuarioId" name="usuarioId" placeholder="Seleccione usuario" [filter]="true" [showClear]="true"></p-dropdown>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button pButton type="button" label="Asignar" icon="pi pi-check" (click)="assign()" [disabled]="!seccionId || !usuarioId || saving"></button>
+      <button pButton type="button" class="p-button-text" label="Volver" icon="pi pi-arrow-left" [routerLink]="['/listar-secciones']"></button>
+    </div>
+
+    <div class="preview" *ngIf="selectedSection || selectedUser">
+      <div class="preview-item" *ngIf="selectedSection">
+        <span class="label">Sección seleccionada</span>
+        <b>{{ selectedSection!.nombre }}</b>
+      </div>
+      <div class="preview-item" *ngIf="selectedUser">
+        <span class="label">Usuario seleccionado</span>
+        <b>{{ selectedUser!.username }}</b>
+      </div>
+    </div>
+  </p-card>
+</div>

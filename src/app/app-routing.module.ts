@@ -22,6 +22,7 @@ import { UsuarioGestionarComponent } from './admin/usuario-gestionar-component/u
 import { UsuarioAsignarSeccionComponent } from './admin/usuario-asignar-seccion-component/usuario-asignar-seccion.component';
 import { UsuarioAsignarRolesComponent } from './admin/usuario-asignar-roles-component/usuario-asignar-roles.component';
 import { OrgRequiredGuard } from './service/org-required.guard';
+import { SeccionAsignarAdminComponent } from './admin/seccion-asignar-admin-component/seccion-asignar-admin.component';
 
 export const appRoutes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -41,6 +42,7 @@ export const appRoutes: Routes = [
       { path: 'cambiar-estrategia-de-gobernanza', component: StrategyChangePageComponent, canActivate: [PermissionGuard], data: { code: 'STRATEGY_CONFIGURE' } },
       { path: 'crear-seccion', component: SeccionFormComponent, canActivate: [PermissionGuard], data: { code: 'SECTION_CREATE' } },
       { path: 'listar-secciones', component: SeccionListComponent, canActivate: [PermissionGuard], data: { code: 'SECTION_REPORT_VIEW' } },
+      { path: 'asignar-administrador-de-seccion', component: SeccionAsignarAdminComponent, canActivate: [PermissionGuard], data: { code: 'SECTION_ASSIGN_ADMIN' } },
       { path: 'crear-rol', component: RolesCreatePageComponent, canActivate: [PermissionGuard], data: { code: 'ROLE_CREATE' } },
       { path: 'gestionar-rol', component: RolesListComponent, canActivate: [PermissionGuard], data: { code: 'ROLE_MANAGE' } },
       { path: 'listar-roles', component: RolesListComponent, canActivate: [PermissionGuard], data: { code: 'ROLE_LIST' } },
@@ -64,6 +66,7 @@ export const appRoutes: Routes = [
       // Gestión de Secciones
       { path: 'gestion-de-secciones/crear-seccion', redirectTo: 'crear-seccion', pathMatch: 'full' },
       { path: 'gestion-de-secciones/listar-secciones', redirectTo: 'listar-secciones', pathMatch: 'full' },
+      { path: 'gestion-de-secciones/asignar-administrador-de-seccion', redirectTo: 'asignar-administrador-de-seccion', pathMatch: 'full' },
 
       // Gestión de Roles
       { path: 'gestion-de-roles/crear-rol', redirectTo: 'crear-rol', pathMatch: 'full' },

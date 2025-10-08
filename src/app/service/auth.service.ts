@@ -131,6 +131,29 @@ export class AuthService {
     return this.http.post<ApiResponse<any>>(this.api('/auth/register'), data);
   }
 
+  /** Establecer primera contraseña usando un setupToken de un solo propósito */
+  firstSetPassword(data: { setupToken: string; newPassword: string; confirmPassword: string }): Observable<any> {
+    const proxyUrl = this.api('/auth/password/first-set');
+    const fallbackUrl = this.absolute('/api/auth/password/first-set');
+
+    return new Observable<any>(subscriber => {
+      const attempt = (url: string, isFallback = false) => {
+        this.http.post<any>(url, data).subscribe({
+          next: resp => { subscriber.next(resp); subscriber.complete(); },
+          error: err => {
+            const status = err?.status;
+            if (!isFallback && (status === 0 || status === 404)) {
+              attempt(fallbackUrl, true);
+            } else {
+              subscriber.error(err);
+            }
+          }
+        });
+      };
+      attempt(proxyUrl);
+    });
+  }
+
   isAuthenticated(): boolean {
     const hasToken = !!localStorage.getItem('token');
     if (!hasToken) return false;

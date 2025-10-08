@@ -46,8 +46,10 @@
 .kv { display: flex; gap: .5rem; align-items: center; margin-bottom: .5rem; }
 .kv span { width: 200px; color: var(--muted); font-size: .9rem; font-weight: 600; }
 .kv b { font-weight: 800; color: var(--text); }
-.value-row { display: inline-flex; align-items: center; gap: 6px; }
+.value-row { display: flex; align-items: center; gap: 6px; flex: 1 1 auto; min-width: 0; }
 .state-wrap .p-tag { border-radius: 999px; font-weight: 800; }
+/* Truncado seguro para valores largos (ej. email) */
+.value-row b { display: block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 /* Acciones */
 .actions { display: flex; gap: .5rem; flex-wrap: wrap; }

@@ -85,22 +85,6 @@
         </div>
       </div>
 
-      <div class="section">
-        <h3 class="section-title">Roles asignados</h3>
-        <ng-container *ngIf="!rolesLoading; else rolesLoadingTpl">
-          <div *ngIf="roles && roles.length; else noRolesTpl" class="roles-wrap">
-            <p-tag *ngFor="let r of roles" [value]="r.rol?.nombre || '—'" severity="info" styleClass="mr-2 mb-2"></p-tag>
-          </div>
-        </ng-container>
-        <ng-template #rolesLoadingTpl>
-          <p-skeleton width="180px" height="28px"></p-skeleton>
-          <p-skeleton width="140px" height="28px"></p-skeleton>
-        </ng-template>
-        <ng-template #noRolesTpl>
-          <span style="opacity:.7;">Sin roles asignados.</span>
-        </ng-template>
-      </div>
-
       <div class="section actions-quick">
         <h3 class="section-title">Acciones rápidas</h3>
         <div class="quick-grid">

@@ -76,8 +76,21 @@ export class UsuarioGestionarComponent implements OnInit {
     this.roles = []; this.rolesLoading = true;
     if (!this.user?.id) { this.rolesLoading = false; return; }
     this.rolesSvc.listUserRoles(this.user.id).subscribe({
-      next: (arr) => { this.roles = Array.isArray(arr) ? arr : []; this.rolesLoading = false; },
+      next: (arr) => { this.roles = Array.isArray(arr) ? arr : []; this.rolesLoading = false; this.enrichRolesWithCatalog(); },
       error: () => { this.roles = []; this.rolesLoading = false; }
+    });
+  }
+
+  private enrichRolesWithCatalog() {
+    if (!this.orgId || !this.roles?.length) return;
+    const needs = this.roles.some(r => !r.rol || !r.rol.nombre);
+    if (!needs) return;
+    this.rolesSvc.list(this.orgId).subscribe({
+      next: (catalog) => {
+        const map = new Map(catalog.map(ro => [String(ro.id), ro] as const));
+        this.roles = this.roles.map(a => (a.rol && a.rol.nombre) ? a : ({ ...a, rol: map.get(String(a.rolId)) || a.rol }));
+      },
+      error: () => {}
     });
   }
 

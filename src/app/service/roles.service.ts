@@ -243,20 +243,43 @@ export class RolesService {
   }
 
   listUserRoles(usuarioId: string): Observable<UserRoleAssignment[]> {
-    const url = `${this.base}/usuarios/${usuarioId}/roles`;
-    return this.http.get<ApiResponse<any>>(url, {headers: this.accept}).pipe(
-      map((resp) => {
-        if (!resp || resp.success === false) throw {
-          error: {message: resp?.message || 'No se pudieron listar roles del usuario'},
-          status: 400
-        };
-        const arr = Array.isArray(resp.data) ? resp.data : [];
-        return arr.map((d: any) => ({
-          id: String(d?.id ?? d?._id ?? ''),
-          usuarioId: String(d?.usuarioId ?? ''),
-          rolId: String(d?.rolId ?? d?.rol?.id ?? ''),
-          rol: d?.rol ? this.ensureRole(d?.rol) : undefined
-        } as UserRoleAssignment));
+    const path = `/usuarios/${usuarioId}/roles`;
+    const url = `${this.base}${path}`;
+    const urlFallback = `${environment.backendHost}${this.base}${path}`;
+    const mapResp = (resp: ApiResponse<any> | any) => {
+      // Aceptar tanto { success, data } como array directo o data.items
+      if (resp && typeof resp === 'object' && 'success' in resp && (resp as ApiResponse<any>).success === false) {
+        throw { error: { message: (resp as ApiResponse<any>)?.message || 'No se pudieron listar roles del usuario' }, status: 400 };
+      }
+      const r = (resp && typeof resp === 'object' && 'success' in resp) ? (resp as ApiResponse<any>) : ({ success: true, data: resp } as ApiResponse<any>);
+      const data: any = r.data as any;
+      const arr = Array.isArray(data) ? data : (Array.isArray(data?.items) ? data.items : ([] as any[]));
+      return arr.map((d: any) => ({
+        id: String(d?.id ?? d?._id ?? ''),
+        usuarioId: String(d?.usuarioId ?? ''),
+        rolId: String(d?.rolId ?? d?.rol?.id ?? ''),
+        rol: d?.rol ? this.ensureRole(d?.rol) : undefined
+      } as UserRoleAssignment));
+    };
+    return this.http.get<any>(url, { headers: this.accept, responseType: 'text' as 'json' }).pipe(
+      map((payload: any) => this.toApiResponse(payload)),
+      map(mapResp),
+      catchError((e1) => {
+        const status = e1?.status;
+        if (status === 0 || status === 200 || status === 204 || status === 404 || status === 502 || status === 503) {
+          return this.http.get<any>(urlFallback, { headers: this.accept, responseType: 'text' as 'json' }).pipe(
+            map((payload: any) => this.toApiResponse(payload)),
+            map(mapResp),
+            catchError((e2) => throwError(() => ({
+              error: { message: e2?.error?.message || e2?.message || 'No se pudieron listar roles del usuario' },
+              status: e2?.status
+            })))
+          );
+        }
+        return throwError(() => ({
+          error: { message: e1?.error?.message || e1?.message || 'No se pudieron listar roles del usuario' },
+          status
+        }));
       })
     );
   }

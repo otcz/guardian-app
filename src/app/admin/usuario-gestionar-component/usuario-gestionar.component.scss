@@ -31,6 +31,12 @@
 .pill.muted .p-chip { opacity: .9; }
 .chip-row .p-chip .p-chip-text { display: inline-block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
+/* Ocultar chips de correo y alcance SOLO en cabecera */
+.user-hero .chip-row .p-chip:has(.pi.pi-envelope),
+.user-hero .chip-row .p-chip:has(.pi.pi-shield) {
+  display: none !important;
+}
+
 /* Formularios */
 .edit-form { padding: 16px 8px 8px; }
 .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px 16px; }

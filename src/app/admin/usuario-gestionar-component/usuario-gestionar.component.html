@@ -10,9 +10,7 @@
         </div>
         <div class="chip-row">
           <p-chip icon="pi pi-id-card" [label]="user.username || '-'" class="pill"></p-chip>
-          <p-chip *ngIf="user.email" icon="pi pi-envelope" [label]="user.email || ''" class="pill" (click)="openEmail(user.email)" pTooltip="Enviar correo" tooltipPosition="top"></p-chip>
           <p-chip *ngIf="principalSeccionNombre || user.seccionPrincipalId" icon="pi pi-sitemap" [label]="principalSeccionNombre || (user.seccionPrincipalId + '')" class="pill muted"></p-chip>
-          <p-chip *ngIf="user.scopeNivel" icon="pi pi-shield" [label]="(user.scopeNivel || '') + ''" class="pill muted" pTooltip="Alcance"></p-chip>
           <p-chip *ngIf="roles && roles.length" icon="pi pi-user" [label]="roles[0].rol?.nombre || 'ROL'" class="pill" pTooltip="Rol principal"></p-chip>
         </div>
       </div>

@@ -50,6 +50,7 @@ export class AuthService {
 
   private api(path: string) { return `${environment.apiBase}${path}`; }
   private absolute(path: string) { return `${environment.backendHost}${path}`; }
+  private authAbsolute(path: string) { return `${environment.authHost}${environment.authBase}${path}`; }
 
   // --- Helpers de sesión/expiración ---
   private getExpiresAt(): number | null {
@@ -83,17 +84,21 @@ export class AuthService {
 
   /** Login basado en formato real devuelto por backend (sin envoltorio) */
   login(data: { username: string; password: string; orgCode?: string }): Observable<BackendLoginResponse> {
-    const proxyUrl = this.api('/auth/login');
-    const fallbackUrl = this.absolute('/api/auth/login');
+    // Primario: host de AUTH dedicado (8081)
+    const primaryUrl = this.authAbsolute('/login');
+    // Fallbacks: vía proxy (si hay /auth expuesto) y API histórica /api/auth/login
+    const proxyAuthUrl = `${environment.apiFallbackBases[0] || ''}/auth/login`;
+    const apiAuthUrl = this.api('/auth/login');
+    const absoluteApiAuthUrl = this.absolute('/api/auth/login');
 
     return new Observable<BackendLoginResponse>(subscriber => {
-      const attempt = (url: string, isFallback = false) => {
+      const tryQueue = [primaryUrl, proxyAuthUrl, apiAuthUrl, absoluteApiAuthUrl];
+      const attemptNext = (idx: number) => {
+        if (idx >= tryQueue.length) { subscriber.error({ status: 0, message: 'No fue posible contactar el servicio de autenticación.' }); return; }
+        const url = tryQueue[idx];
         this.http.post<BackendLoginResponse>(url, data).subscribe({
           next: resp => {
-            if (!resp?.token) {
-              subscriber.error({ status: 400, message: 'Respuesta sin token' });
-              return;
-            }
+            if (!resp?.token) { subscriber.error({ status: 400, message: 'Respuesta sin token' }); return; }
             // Persistir sesión mínima
             localStorage.setItem('token', resp.token);
             localStorage.setItem('username', resp.username || data.username);
@@ -101,7 +106,7 @@ export class AuthService {
             const expiresAt = Date.now() + (resp.expiresIn * 1000);
             localStorage.setItem('expiresAt', String(expiresAt));
 
-            // Intentar guardar organización por defecto y contexto desde la respuesta, si viene
+            // Contexto de organización
             try {
               const orgId = (resp.orgId ?? resp.organizacionId ?? resp.organizationId ?? resp.organization?.id ?? resp.organizacion?.id);
               const orgName = (resp.orgName ?? resp.organization?.nombre ?? resp.organization?.name ?? resp.organizacion?.nombre ?? resp.organizacion?.name);
@@ -109,10 +114,8 @@ export class AuthService {
               if (orgName != null) localStorage.setItem('currentOrgName', String(orgName));
               const scope = resp.scopeNivel != null ? String(resp.scopeNivel).toUpperCase() : null;
               const seccionId = resp.seccionPrincipalId != null ? String(resp.seccionPrincipalId) : null;
-              if (scope) localStorage.setItem('scopeNivel', scope);
-              else localStorage.removeItem('scopeNivel');
-              if (seccionId) localStorage.setItem('seccionPrincipalId', seccionId);
-              else localStorage.removeItem('seccionPrincipalId');
+              if (scope) localStorage.setItem('scopeNivel', scope); else localStorage.removeItem('scopeNivel');
+              if (seccionId) localStorage.setItem('seccionPrincipalId', seccionId); else localStorage.removeItem('seccionPrincipalId');
               this.orgCtx.setContext({ orgId: orgId != null ? String(orgId) : null, scopeNivel: (scope as any), seccionPrincipalId: seccionId });
             } catch {}
 
@@ -121,46 +124,46 @@ export class AuthService {
             subscriber.next(resp);
             subscriber.complete();
           },
-          error: err => {
-            const status = err?.status;
-            if (!isFallback && (status === 0 || status === 404)) {
-              // Reintentar directo
-              attempt(fallbackUrl, true);
-            } else {
-              subscriber.error(err);
-            }
-          }
+          error: () => attemptNext(idx + 1)
         });
       };
-      attempt(proxyUrl);
+      attemptNext(0);
     });
   }
 
   /** Registro de usuario (si backend lo expone). Mantiene contrato ApiResponse<T>. */
   register(data: RegisterPayload): Observable<ApiResponse<any>> {
-    return this.http.post<ApiResponse<any>>(this.api('/auth/register'), data);
+    // Intentar en host de AUTH y luego fallback al proxy clásico
+    const primary = this.authAbsolute('/register');
+    const fallback = this.api('/auth/register');
+    return new Observable<ApiResponse<any>>(subscriber => {
+      this.http.post<ApiResponse<any>>(primary, data).subscribe({
+        next: r => { subscriber.next(r); subscriber.complete(); },
+        error: () => {
+          this.http.post<ApiResponse<any>>(fallback, data).subscribe({
+            next: r => { subscriber.next(r); subscriber.complete(); },
+            error: e => subscriber.error(e)
+          });
+        }
+      });
+    });
   }
 
   /** Establecer primera contraseña usando un setupToken de un solo propósito */
   firstSetPassword(data: { setupToken: string; newPassword: string; confirmPassword: string }): Observable<any> {
-    const proxyUrl = this.api('/auth/password/first-set');
+    const primaryUrl = this.authAbsolute('/password/first-set');
     const fallbackUrl = this.absolute('/api/auth/password/first-set');
 
     return new Observable<any>(subscriber => {
-      const attempt = (url: string, isFallback = false) => {
-        this.http.post<any>(url, data).subscribe({
-          next: resp => { subscriber.next(resp); subscriber.complete(); },
-          error: err => {
-            const status = err?.status;
-            if (!isFallback && (status === 0 || status === 404)) {
-              attempt(fallbackUrl, true);
-            } else {
-              subscriber.error(err);
-            }
-          }
-        });
-      };
-      attempt(proxyUrl);
+      this.http.post<any>(primaryUrl, data).subscribe({
+        next: resp => { subscriber.next(resp); subscriber.complete(); },
+        error: () => {
+          this.http.post<any>(fallbackUrl, data).subscribe({
+            next: resp => { subscriber.next(resp); subscriber.complete(); },
+            error: err => subscriber.error(err)
+          });
+        }
+      });
     });
   }
 

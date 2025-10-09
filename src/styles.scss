@@ -33,6 +33,10 @@
   --success-100: #0b2d1c;
   --danger: #ff6b6b;
   --danger-100: #3a1f1f;
+  /* PrimeNG tokens en modo oscuro: texto blanco */
+  --p-text-color: #ffffff;
+  --p-inputtext-color: #ffffff;
+  --p-inputtext-placeholder-color: rgba(255,255,255,0.75);
 }
 :root.theme-black {
   --bg: #0b0b0b;
@@ -48,6 +52,10 @@
   --success-100: #0d2218;
   --danger: #ff6b6b;
   --danger-100: #2a1414;
+  /* PrimeNG tokens en modo negro: texto blanco */
+  --p-text-color: #ffffff;
+  --p-inputtext-color: #ffffff;
+  --p-inputtext-placeholder-color: rgba(255,255,255,0.75);
 }
 
 /* Base */
@@ -326,44 +334,42 @@ a:hover { text-decoration: underline; }
   padding: 14px 20px;  /* un poco más de presencia */
 }
 
-/* Revertir inputs y dropdowns al estilo del tema por defecto */
-.p-inputtext,
-.p-inputtextarea {
-  background: unset !important;
-  border: unset !important;
-  box-shadow: unset !important;
-  border-radius: unset !important;
-}
-.p-inputtext:hover,
-.p-inputtext:focus {
-  box-shadow: unset !important;
-}
-.p-dropdown {
-  background: unset !important;
-  border: unset !important;
-  box-shadow: unset !important;
-  border-radius: unset !important;
-}
-.p-dropdown:hover,
-.p-dropdown.p-focus {
-  box-shadow: unset !important;
-}
-
-/* Tipografía blanca en inputs/dropdowns para temas oscuro y negro */
-:root.theme-dark, :root.theme-black {
+/* INPUTS: Ajustes finales por tema */
+/* Tema claro: inputs con fondo blanco y texto negro (como estaban antes) */
+:root.theme-light {
+  input:not([type="checkbox"]):not([type="radio"]),
+  textarea,
   .p-inputtext,
-  .p-inputtextarea,
+  .p-password input,
+  .p-dropdown,
+  .p-dropdown .p-dropdown-label {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+  input::placeholder,
+  textarea::placeholder,
+  .p-inputtext::placeholder {
+    color: #4b5563 !important;
+  }
+}
+/* Temas oscuro/negro: tipografía blanca en inputs y placeholders suaves */
+:root.theme-dark, :root.theme-black {
+  input:not([type="checkbox"]):not([type="radio"]),
+  textarea,
+  .p-inputtext,
   .p-password input,
   .p-dropdown .p-dropdown-label {
     color: #ffffff !important;
   }
-  .p-inputtext::placeholder,
-  .p-inputtextarea::placeholder {
+  input::placeholder,
+  textarea::placeholder,
+  .p-inputtext::placeholder {
     color: rgba(255,255,255,0.75) !important;
   }
 }
 
-/* Tabla 'Actividad reciente' en modo claro (scoped a app-dashboard) */
+/* Tabla 'Actividad reciente' */
+/* Modo claro (ya presente) */
 :root.theme-light app-dashboard .recent-activity .p-datatable-wrapper table {
   background: var(--surface) !important;
   color: #000 !important;
@@ -380,6 +386,30 @@ a:hover { text-decoration: underline; }
   border-top: 1px solid var(--border) !important;
 }
 :root.theme-light app-dashboard .recent-activity {
+  border-radius: 12px;
+  overflow: hidden;
+}
+/* Modo oscuro/negro: fondo oscuro y texto claro */
+:root.theme-dark app-dashboard .recent-activity .p-datatable-wrapper table,
+:root.theme-black app-dashboard .recent-activity .p-datatable-wrapper table {
+  background: var(--surface-alt) !important;
+  color: #ffffff !important;
+}
+:root.theme-dark app-dashboard .recent-activity .p-datatable-thead > tr > th,
+:root.theme-black app-dashboard .recent-activity .p-datatable-thead > tr > th {
+  background: color-mix(in srgb, var(--surface) 85%, black) !important;
+  color: #ffffff !important;
+  border-bottom: 1px solid var(--border) !important;
+  font-weight: 700 !important;
+}
+:root.theme-dark app-dashboard .recent-activity .p-datatable-tbody > tr > td,
+:root.theme-black app-dashboard .recent-activity .p-datatable-tbody > tr > td {
+  background: var(--surface-alt) !important;
+  color: #ffffff !important;
+  border-top: 1px solid var(--border) !important;
+}
+:root.theme-dark app-dashboard .recent-activity,
+:root.theme-black app-dashboard .recent-activity {
   border-radius: 12px;
   overflow: hidden;
 }

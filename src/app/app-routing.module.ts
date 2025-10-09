@@ -42,6 +42,7 @@ export const appRoutes: Routes = [
 
   // Ruta pública para mostrar mensaje de acceso restringido
   { path: 'no-autorizado', component: NoAutorizadoComponent },
+  { path: 'system/login', redirectTo: 'login', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
   {

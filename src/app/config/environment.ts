@@ -9,7 +9,7 @@ export const environment = {
   organizationsEndpoint: '/api/orgs', // Opcional: si conoces la colección exacta, ej. '/api/organizaciones'
   security: {
     // El frontend usará literalmente las rutas enviadas por backend (sin heurísticas)
-    keepBackendRoutesLiterally: true
+    keepBackendRoutesLiterally: false
   },
   features: {
     // Si el backend expone GET /organizaciones/accesibles, habilitar en true

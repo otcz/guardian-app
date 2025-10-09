@@ -23,8 +23,25 @@ import { UsuarioAsignarSeccionComponent } from './admin/usuario-asignar-seccion-
 import { UsuarioAsignarRolesComponent } from './admin/usuario-asignar-roles-component/usuario-asignar-roles.component';
 import { OrgRequiredGuard } from './service/org-required.guard';
 import { SeccionAsignarAdminComponent } from './admin/seccion-asignar-admin-component/seccion-asignar-admin.component';
+import { MenuAccessGuard } from './service/menu-access.guard';
+import { AsignarOpcionesPorSeccionComponent } from './admin/opciones-menu/asignar-opciones-por-seccion/asignar-opciones-por-seccion.component';
+import { CrearOpcionComponent } from './admin/opciones-menu/crear-opcion/crear-opcion.component';
+import { GestionarOpcionComponent } from './admin/opciones-menu/gestionar-opcion/gestionar-opcion.component';
+import { ListarOpcionesComponent } from './admin/opciones-menu/listar-opciones/listar-opciones.component';
+import { OverrideMenuLocalComponent } from './admin/opciones-menu/override-menu-local/override-menu-local.component';
+import { NoAutorizadoComponent } from './shared/no-autorizado/no-autorizado.component';
 
 export const appRoutes: Routes = [
+  // Rutas públicas para pruebas de gestión de opciones (sin guards)
+  { path: 'gestion-de-opciones-menu', redirectTo: 'gestion-de-opciones-menu/listar-opciones', pathMatch: 'full' },
+  { path: 'gestion-de-opciones-menu/asignar-opciones-por-seccion', component: AsignarOpcionesPorSeccionComponent },
+  { path: 'gestion-de-opciones-menu/crear-opcion', component: CrearOpcionComponent },
+  { path: 'gestion-de-opciones-menu/gestionar-opcion', component: GestionarOpcionComponent },
+  { path: 'gestion-de-opciones-menu/listar-opciones', component: ListarOpcionesComponent },
+  { path: 'gestion-de-opciones-menu/override-menu-local', component: OverrideMenuLocalComponent },
+
+  // Ruta pública para mostrar mensaje de acceso restringido
+  { path: 'no-autorizado', component: NoAutorizadoComponent },
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
   {
@@ -47,12 +64,20 @@ export const appRoutes: Routes = [
       { path: 'gestionar-rol', component: RolesListComponent, canActivate: [PermissionGuard], data: { code: 'ROLE_MANAGE' } },
       { path: 'listar-roles', component: RolesListComponent, canActivate: [PermissionGuard], data: { code: 'ROLE_LIST' } },
 
-      // --- Gestión de Usuarios ---
+      // --- Gestión de usuarios ---
       { path: 'gestion-de-usuarios/crear-usuario', component: UsuariosCrearComponent, canActivate: [PermissionGuard], data: { code: 'USER_CREATE' } },
       { path: 'gestion-de-usuarios/listar-usuarios', component: UsuariosListarComponent, canActivate: [PermissionGuard], data: { code: 'USER_LIST' } },
       { path: 'gestion-de-usuarios/gestionar-usuario', component: UsuarioGestionarComponent, canActivate: [PermissionGuard], data: { code: 'USER_MANAGE' } },
       { path: 'gestion-de-usuarios/asignar-usuario-a-seccion', component: UsuarioAsignarSeccionComponent, canActivate: [PermissionGuard], data: { code: 'USER_ASSIGN_SECTION' } },
       { path: 'gestion-de-usuarios/asignar-roles', component: UsuarioAsignarRolesComponent, canActivate: [PermissionGuard], data: { code: 'USER_ASSIGN_ROLES' } },
+
+      // --- Gestión de opciones de menú ---
+      { path: 'gestion-de-opciones-menu', redirectTo: 'gestion-de-opciones-menu/listar-opciones', pathMatch: 'full' },
+      { path: 'gestion-de-opciones-menu/asignar-opciones-por-seccion', component: AsignarOpcionesPorSeccionComponent },
+      { path: 'gestion-de-opciones-menu/crear-opcion', component: CrearOpcionComponent },
+      { path: 'gestion-de-opciones-menu/gestionar-opcion', component: GestionarOpcionComponent },
+      { path: 'gestion-de-opciones-menu/listar-opciones', component: ListarOpcionesComponent },
+      { path: 'gestion-de-opciones-menu/override-menu-local', component: OverrideMenuLocalComponent },
 
       // --- Redirects from literal backend routes to canonical app routes ---
       // Gestión de Organización
@@ -86,8 +111,6 @@ export const appRoutes: Routes = [
       { path: 'gestion-de-roles', children: [ { path: '**', component: PagePlaceholderComponent, canActivate: [PermissionGuard] } ] },
       { path: 'gestion-de-usuarios', component: PagePlaceholderComponent, canActivate: [PermissionGuard] },
       { path: 'gestion-de-usuarios', children: [ { path: '**', component: PagePlaceholderComponent, canActivate: [PermissionGuard] } ] },
-      { path: 'gestion-de-opciones-menu', component: PagePlaceholderComponent, canActivate: [PermissionGuard] },
-      { path: 'gestion-de-opciones-menu', children: [ { path: '**', component: PagePlaceholderComponent, canActivate: [PermissionGuard] } ] },
       { path: 'gestion-de-vehiculos', component: PagePlaceholderComponent, canActivate: [PermissionGuard] },
       { path: 'gestion-de-vehiculos', children: [ { path: '**', component: PagePlaceholderComponent, canActivate: [PermissionGuard] } ] },
       { path: 'gestion-de-permisos', component: PagePlaceholderComponent, canActivate: [PermissionGuard] },
@@ -120,5 +143,12 @@ export const appRoutes: Routes = [
   { path: 'dashboard/listar-roles', redirectTo: 'listar-roles', pathMatch: 'full' },
   { path: 'dashboard/crear-rol', redirectTo: 'crear-rol', pathMatch: 'full' },
   { path: 'dashboard/gestionar-rol', redirectTo: 'gestionar-rol', pathMatch: 'full' },
+  // Legacy redirects para Gestión de Opciones de Menú
+  { path: 'dashboard/gestion-de-opciones-menu', redirectTo: 'gestion-de-opciones-menu/listar-opciones', pathMatch: 'full' },
+  { path: 'dashboard/gestion-de-opciones-menu/asignar-opciones-por-seccion', redirectTo: 'gestion-de-opciones-menu/asignar-opciones-por-seccion', pathMatch: 'full' },
+  { path: 'dashboard/gestion-de-opciones-menu/crear-opcion', redirectTo: 'gestion-de-opciones-menu/crear-opcion', pathMatch: 'full' },
+  { path: 'dashboard/gestion-de-opciones-menu/gestionar-opcion', redirectTo: 'gestion-de-opciones-menu/gestionar-opcion', pathMatch: 'full' },
+  { path: 'dashboard/gestion-de-opciones-menu/listar-opciones', redirectTo: 'gestion-de-opciones-menu/listar-opciones', pathMatch: 'full' },
+  { path: 'dashboard/gestion-de-opciones-menu/override-menu-local', redirectTo: 'gestion-de-opciones-menu/override-menu-local', pathMatch: 'full' },
   { path: '**', redirectTo: '' }
 ];

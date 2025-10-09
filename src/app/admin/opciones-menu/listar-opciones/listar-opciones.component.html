@@ -1,0 +1,28 @@
+<div class="container">
+  <p-card class="card">
+    <div class="header"><h2 class="title">Listar opciones</h2></div>
+    <div class="body">
+      <div class="form-grid">
+        <div class="field">
+          <label>Buscar</label>
+          <input pInputText type="text" [(ngModel)]="query" (ngModelChange)="applyFilter()" placeholder="Nombre o ruta" />
+        </div>
+      </div>
+      <p-table [value]="filtered" [paginator]="true" [rows]="10">
+        <ng-template pTemplate="header">
+          <tr>
+            <th>Opción</th>
+            <th>Ruta</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-row>
+          <tr>
+            <td>{{ row.label }}</td>
+            <td>{{ row.path }}</td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </p-card>
+</div>
+

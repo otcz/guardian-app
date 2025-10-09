@@ -1,0 +1,52 @@
+<div class="container">
+  <p-card class="card">
+    <div class="header"><h2 class="title">Override menú local</h2></div>
+    <div class="body">
+      <div class="form-grid">
+        <div class="field">
+          <label>Activar override local</label>
+          <p-inputSwitch [(ngModel)]="enabled" name="enabled"></p-inputSwitch>
+        </div>
+        <div class="field">
+          <label>Aplicar por sección</label>
+          <p-inputSwitch [(ngModel)]="bySection" name="bySection"></p-inputSwitch>
+        </div>
+        <div class="field" *ngIf="bySection">
+          <label>Sección</label>
+          <p-dropdown [options]="secciones" optionLabel="nombre" optionValue="id" [(ngModel)]="seccionId" name="seccionId" placeholder="Seleccione sección" [filter]="true" [showClear]="true"></p-dropdown>
+        </div>
+        <div class="field">
+          <label>Buscar opción</label>
+          <input pInputText type="text" [(ngModel)]="query" (ngModelChange)="applyFilter()" placeholder="Nombre o ruta" />
+        </div>
+      </div>
+
+      <p-table [value]="filtered" [paginator]="true" [rows]="10">
+        <ng-template pTemplate="header">
+          <tr>
+            <th>Opción</th>
+            <th>Ruta</th>
+            <th class="cell-narrow">Ocultar</th>
+            <th>Etiqueta personalizada</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-row>
+          <tr>
+            <td>{{ row.label }}</td>
+            <td>{{ row.path }}</td>
+            <td>
+              <p-inputSwitch [(ngModel)]="overrides[row.path].hidden" [ngModelOptions]="{standalone: true}"></p-inputSwitch>
+            </td>
+            <td>
+              <input pInputText type="text" [ngModel]="overrides[row.path].label" (ngModelChange)="setLabel(row.path, $event)" [ngModelOptions]="{standalone: true}" placeholder="Dejar vacío para usar la original" />
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+    <div class="actions">
+      <button pButton type="button" label="Guardar" icon="pi pi-save" (click)="save()" [disabled]="saving || (bySection && !seccionId)"></button>
+      <button pButton type="button" class="p-button-text" label="Restablecer" icon="pi pi-undo" (click)="reset()"></button>
+    </div>
+  </p-card>
+</div>

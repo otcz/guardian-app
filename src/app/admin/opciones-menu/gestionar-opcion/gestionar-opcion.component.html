@@ -1,0 +1,38 @@
+<div class="container">
+  <p-card class="card">
+    <div class="header"><h2 class="title">Gestionar opción</h2></div>
+    <div class="body">
+      <div class="form-grid">
+        <div class="field">
+          <label>Buscar opción</label>
+          <input pInputText type="text" [(ngModel)]="query" (ngModelChange)="applyFilter()" placeholder="Nombre o ruta" />
+        </div>
+        <div class="field">
+          <label>Seleccionar</label>
+          <p-dropdown [options]="filtered" optionLabel="label" optionValue="path" [(ngModel)]="selectedPath" name="selectedPath" placeholder="Elija opción" [filter]="true"></p-dropdown>
+        </div>
+      </div>
+
+      <form (ngSubmit)="save()" *ngIf="model">
+        <div class="form-grid">
+          <div class="field">
+            <label>Nombre</label>
+            <input pInputText type="text" [(ngModel)]="model.label" name="nombre" />
+          </div>
+          <div class="field">
+            <label>Ruta</label>
+            <input pInputText type="text" [(ngModel)]="model.path" name="ruta" />
+          </div>
+          <div class="field">
+            <label>Icono (referencial)</label>
+            <input pInputText type="text" [(ngModel)]="model.icon" name="icono" placeholder="pi pi-… / mdi mdi-…" />
+          </div>
+        </div>
+        <div class="actions">
+          <button pButton type="submit" label="Guardar" icon="pi pi-save" [disabled]="saving"></button>
+          <button pButton type="button" class="p-button-text" label="Cancelar" icon="pi pi-times" (click)="cancel()"></button>
+        </div>
+      </form>
+    </div>
+  </p-card>
+</div>

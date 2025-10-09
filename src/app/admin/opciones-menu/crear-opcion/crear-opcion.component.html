@@ -1,0 +1,36 @@
+<div class="container">
+  <p-card class="card">
+    <div class="header"><h2 class="title">Crear opción</h2></div>
+    <div class="body">
+      <form (ngSubmit)="save()">
+        <div class="form-grid">
+          <div class="field">
+            <label>Nombre</label>
+            <input pInputText type="text" [(ngModel)]="form.nombre" name="nombre" required />
+          </div>
+          <div class="field">
+            <label>Tipo</label>
+            <p-dropdown [options]="tipos" optionLabel="label" optionValue="value" [(ngModel)]="form.tipo" name="tipo" placeholder="Seleccione tipo"></p-dropdown>
+          </div>
+          <div class="field">
+            <label>Icono</label>
+            <input pInputText type="text" [(ngModel)]="form.icono" name="icono" placeholder="pi pi-… / mdi mdi-…" />
+          </div>
+          <div class="field" *ngIf="form.tipo === 'ITEM'">
+            <label>Ruta</label>
+            <input pInputText type="text" [(ngModel)]="form.ruta" name="ruta" placeholder="/ruta/del/item" />
+          </div>
+          <div class="field">
+            <label>Menú padre (nombre)</label>
+            <input pInputText type="text" [(ngModel)]="form.padreNombre" name="padreNombre" placeholder="Ej: GESTIÓN DE OPCIONES/MENÚ" />
+          </div>
+        </div>
+        <div class="actions">
+          <button pButton type="submit" label="Guardar" icon="pi pi-save" [disabled]="saving || !form.nombre || !form.tipo"></button>
+          <button pButton type="button" class="p-button-text" label="Limpiar" icon="pi pi-undo" (click)="reset()"></button>
+        </div>
+      </form>
+    </div>
+  </p-card>
+</div>
+

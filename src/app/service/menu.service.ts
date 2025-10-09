@@ -225,12 +225,20 @@ export class MenuService {
         const looksListarOrgs = (nameNorm.includes('listar') || nameNorm.includes('listado')) && nameNorm.includes('organizacion');
         const looksConfigParams = (nameNorm.includes('configurar') || nameNorm.includes('parametro')) && nameNorm.includes('global');
         const looksVerAuditoria = (nameNorm.includes('ver') || nameNorm.includes('auditoria')) && nameNorm.includes('organizacion');
-        const looksCrearSeccion = nameNorm.includes('crear') && (nameNorm.includes('seccion') || nameNorm.includes('sección'));
-        const looksListarSeccion = (nameNorm.includes('listar') || nameNorm.includes('listado')) && (nameNorm.includes('seccion') || nameNorm.includes('sección'));
+        const looksCrearSeccion = nameNorm.includes('crear') && (nameNorm.includes('seccion') || nameNorm.includes('seccion'));
+        const looksListarSeccion = (nameNorm.includes('listar') || nameNorm.includes('listado')) && (nameNorm.includes('seccion') || nameNorm.includes('seccion'));
         const looksCrearRol = nameNorm.includes('crear') && nameNorm.includes('rol');
         const looksGestionarRol = nameNorm.includes('gestionar') && nameNorm.includes('rol');
         const looksListarRol = (nameNorm.includes('listar') || nameNorm.includes('listado')) && (nameNorm.includes('rol') || nameNorm.includes('roles'));
-        const looksAsignarAdminSeccion = nameNorm.includes('asignar') && nameNorm.includes('administrador') && (nameNorm.includes('seccion') || nameNorm.includes('sección'));
+        const looksAsignarAdminSeccion = nameNorm.includes('asignar') && nameNorm.includes('administrador') && (nameNorm.includes('seccion') || nameNorm.includes('seccion'));
+
+        // NUEVO: Gestión de opciones/menú
+        const parentLooksMenuOpts = parentNorm.includes('opciones') || parentNorm.includes('menu');
+        const looksAsignarOpcionesSeccion = parentLooksMenuOpts && nameNorm.includes('asignar') && (nameNorm.includes('seccion') || nameNorm.includes('seccion'));
+        const looksCrearOpcion = parentLooksMenuOpts && nameNorm.includes('crear') && nameNorm.includes('opcion');
+        const looksGestionarOpcion = parentLooksMenuOpts && nameNorm.includes('gestionar') && nameNorm.includes('opcion');
+        const looksListarOpciones = parentLooksMenuOpts && (nameNorm.includes('listar') || nameNorm.includes('listado')) && (nameNorm.includes('opcion') || nameNorm.includes('opciones'));
+        const looksOverrideMenuLocal = parentLooksMenuOpts && (nameNorm.includes('override') || (nameNorm.includes('menu') && nameNorm.includes('local')));
 
         if (looksCrearEstrategia) path = '/crear-estrategia-de-gobernanza';
         if (looksCambiarEstrategia) path = '/cambiar-estrategia-de-gobernanza';
@@ -245,6 +253,13 @@ export class MenuService {
         if (looksGestionarRol) path = '/gestionar-rol';
         if (looksListarRol) path = '/listar-roles';
         if (looksAsignarAdminSeccion) path = '/asignar-administrador-de-seccion';
+
+        // Asignaciones canónicas para opciones de menú
+        if (looksAsignarOpcionesSeccion) path = '/gestion-de-opciones-menu/asignar-opciones-por-seccion';
+        if (looksCrearOpcion) path = '/gestion-de-opciones-menu/crear-opcion';
+        if (looksGestionarOpcion) path = '/gestion-de-opciones-menu/gestionar-opcion';
+        if (looksListarOpciones) path = '/gestion-de-opciones-menu/listar-opciones';
+        if (looksOverrideMenuLocal) path = '/gestion-de-opciones-menu/override-menu-local';
 
         // Adjuntar id organización cuando aplica (solo si no es literal)
         const needsOrgId = looksCambiarEstrategia || looksGestionarOrg || looksConfigParams || looksVerAuditoria || looksCrearSeccion || looksListarSeccion || looksCrearRol || looksGestionarRol || looksListarRol;

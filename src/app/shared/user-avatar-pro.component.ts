@@ -50,8 +50,11 @@ export class UserAvatarProComponent {
   constructor() {
     this.loadFromStorage();
 
-    // Refrescar nombre de organización actual y persistirlo
+    const isAuth = this.auth.isAuthenticated();
+
+    // Refrescar nombre de organización actual y persistirlo (solo si autenticado)
     effect((onCleanup) => {
+      if (!isAuth) { this.orgName.set(null); return; }
       const id = this.orgId();
       let sub: any;
       if (id) {
@@ -71,38 +74,41 @@ export class UserAvatarProComponent {
       }
     }, { allowSignalWrites: true });
 
-    // Cargar lista de organizaciones accesibles y auto-seleccionar si falta
-    this.orgSvc.listAccessible().subscribe({
-      next: (list) => {
-        const arr = Array.isArray(list) ? list : [];
-        this.orgs.set(arr);
-        const current = this.orgId();
-        const exists = current ? arr.some(o => String(o.id) === String(current)) : false;
-        if (!current || !exists) {
-          const active = arr.find(o => (o as any)?.activa);
-          const chosen = active || arr[0] || null;
-          if (chosen?.id) {
-            const id = String(chosen.id);
-            const name = chosen.nombre || null;
-            try { localStorage.setItem('currentOrgId', id); } catch {}
-            if (name) { try { localStorage.setItem('currentOrgName', name); } catch {} }
-            this.orgId.set(id);
-            this.orgName.set(name);
-            this.ctx.set(id);
-          } else {
-            // Sin organizaciones
-            try { localStorage.removeItem('currentOrgId'); localStorage.removeItem('currentOrgName'); } catch {}
-            this.orgId.set(null);
-            this.orgName.set(null);
-            this.ctx.set(null);
+    // Cargar lista de organizaciones accesibles y auto-seleccionar si falta (solo si autenticado)
+    if (isAuth) {
+      this.orgSvc.listAccessible().subscribe({
+        next: (list) => {
+          const arr = Array.isArray(list) ? list : [];
+          this.orgs.set(arr);
+          const current = this.orgId();
+          const exists = current ? arr.some(o => String(o.id) === String(current)) : false;
+          if (!current || !exists) {
+            const active = arr.find(o => (o as any)?.activa);
+            const chosen = active || arr[0] || null;
+            if (chosen?.id) {
+              const id = String(chosen.id);
+              const name = chosen.nombre || null;
+              try { localStorage.setItem('currentOrgId', id); } catch {}
+              if (name) { try { localStorage.setItem('currentOrgName', name); } catch {} }
+              this.orgId.set(id);
+              this.orgName.set(name);
+              this.ctx.set(id);
+            } else {
+              // Sin organizaciones
+              try { localStorage.removeItem('currentOrgId'); localStorage.removeItem('currentOrgName'); } catch {}
+              this.orgId.set(null);
+              this.orgName.set(null);
+              this.ctx.set(null);
+            }
           }
-        }
-      },
-      error: () => this.orgs.set([])
-    });
+        },
+        error: () => this.orgs.set([])
+      });
+    }
 
-    // Cargar nombre de sección si aplica
+    // Cargar nombre de sección si aplica (solo si autenticado)
     effect((onCleanup) => {
+      if (!isAuth) { this.seccionName.set(null); return; }
       const orgId = this.orgId();
       const secId = this.seccionId();
       this.seccionName.set(null);

@@ -1,0 +1,27 @@
+/* Layout base y tarjeta */
+.container { padding: 12px 0 32px; }
+.card { background: var(--surface); border: 1px solid color-mix(in srgb, var(--border) 70%, transparent); border-radius: 12px; }
+.header { display: flex; align-items: center; justify-content: space-between; padding: 8px; border-bottom: 1px dashed var(--border); }
+.title { margin: 0; font-weight: 800; letter-spacing: .2px; color: var(--text); }
+.body { padding: 16px 8px; }
+
+/* Formularios */
+.form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field > label { font-weight: 700; color: var(--text); }
+
+/* Acciones */
+.actions { display: flex; gap: 8px; padding: 8px; border-top: 1px dashed var(--border); }
+
+/* Celda estrecha opcional */
+.cell-narrow { width: 2rem; }
+
+/* Ajustes por tema oscuro/negro */
+:host-context(.dark),
+:host-context(.black),
+:host-context(.theme-dark) {
+  .card { background: var(--surface); box-shadow: 0 0 0 1px color-mix(in srgb, var(--border) 60%, transparent) inset; }
+  .title { color: var(--text); }
+  .field > label { color: var(--text); }
+}
+

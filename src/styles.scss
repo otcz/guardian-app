@@ -949,3 +949,19 @@ body .p-card {
   padding: 0 !important;
   overflow: hidden;
 }
+
+/* ===== PrimeNG Tag: variante de alto contraste por tema ===== */
+:root.theme-light body .p-tag.p-tag-contrast {
+  background: #ffffff !important; /* fondo claro en tema claro */
+  color: #000000 !important;      /* texto oscuro para contraste */
+  border: 1px solid var(--border) !important;
+}
+:root.theme-dark body .p-tag.p-tag-contrast,
+:root.theme-black body .p-tag.p-tag-contrast {
+  background: var(--surface-alt) !important; /* fondo oscuro en temas oscuros */
+  color: #ffffff !important;                 /* texto claro para contraste */
+  border: 1px solid color-mix(in srgb, var(--border) 70%, transparent) !important;
+}
+/* Ajuste opcional para tags redondeados/pequeños (mantener legibilidad) */
+body .p-tag.p-tag-contrast.p-tag-rounded { padding-inline: 0.5rem; }
+body .p-tag.p-tag-contrast .p-tag-icon { color: inherit !important; }

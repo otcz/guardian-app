@@ -394,8 +394,110 @@ export class MenuService {
       const rawPaths = new Set(rawItems.map(r => this.sanitizePathCommon(r.ruta)!).filter(Boolean) as string[]);
       const uiPaths = new Set(this.flatItems$.value.filter(n => !!n.path).map(n => (n.path as string).split('?')[0]));
 
+      // --- Mejor coincidencia: primero exacta, luego por último segmento ---
       const missingInUI: string[] = [];
-      rawPaths.forEach(p => { if (!uiPaths.has(p)) missingInUI.push(p); });
+      const extraInUI: string[] = [];
+
+      // Mapear por último segmento para segundo intento de emparejamiento
+      const lastSegment = (p: string) => {
+        const segs = (p || '').split('?')[0].split('/').filter(Boolean);
+        return segs.length ? segs[segs.length - 1] : '';
+      };
+
+      // 1) Comprobación exacta
+      const rawOnly = new Set<string>();
+      rawPaths.forEach(p => { if (!uiPaths.has(p)) rawOnly.add(p); });
+      const uiOnly = new Set<string>();
+      uiPaths.forEach(p => { if (!rawPaths.has(p)) uiOnly.add(p); });
+
+      // 2) Segundo pase: emparejar por último segmento (evita falsos positivos por prefijos)
+      if (rawOnly.size > 0 && uiOnly.size > 0) {
+        // Crear mapas de últimoSegmento -> rutas
+        const rawLastMap = new Map<string, string[]>();
+        rawOnly.forEach(p => {
+          const k = lastSegment(p);
+          const arr = rawLastMap.get(k) || [];
+          arr.push(p);
+          rawLastMap.set(k, arr);
+        });
+        const uiLastMap = new Map<string, string[]>();
+        uiOnly.forEach(p => {
+          const k = lastSegment(p);
+          const arr = uiLastMap.get(k) || [];
+          arr.push(p);
+          uiLastMap.set(k, arr);
+        });
+
+        // Mejor intento: emparejar por sufijo, contención o Levenshtein sobre último segmento
+        const rawArr = Array.from(rawOnly);
+        const uiArr = Array.from(uiOnly);
+        const normalizeSegment = (seg: string) => (seg || '').replace(/-/g, '').toLowerCase();
+        const DIST_THRESHOLD = 3; // tolerancia para Levenshtein en segmentos
+
+        for (const rp of rawArr) {
+          let paired = false;
+          for (const up of uiArr) {
+            if (!rawOnly.has(rp) || !uiOnly.has(up)) continue; // ya emparejado
+
+            // 1) sufijo completo: '/.../x' vs '/.../.../x'
+            if (up.endsWith(rp) || rp.endsWith(up)) {
+              uiOnly.delete(up);
+              rawOnly.delete(rp);
+              paired = true;
+              break;
+            }
+
+            // 2) última segment equality o contención (sin guiones)
+            const rs = normalizeSegment(lastSegment(rp));
+            const us = normalizeSegment(lastSegment(up));
+            if (rs && us) {
+              if (rs === us || rs.includes(us) || us.includes(rs)) {
+                uiOnly.delete(up);
+                rawOnly.delete(rp);
+                paired = true;
+                break;
+              }
+
+              // 2b) Token-overlap: dividir por '-' y comparar intersección
+              const splitTokens = (s: string) => (s || '').split(' ').join('-').split('-').map(x => x.trim()).filter(Boolean);
+              const rTokens = splitTokens(lastSegment(rp).toLowerCase());
+              const uTokens = splitTokens(lastSegment(up).toLowerCase());
+              if (rTokens.length && uTokens.length) {
+                const setR = new Set(rTokens);
+                const setU = new Set(uTokens);
+                let common = 0;
+                setR.forEach(t => { if (setU.has(t)) common++; });
+                const minLen = Math.min(rTokens.length, uTokens.length);
+                if (minLen > 0 && (common / minLen) >= 0.5) { // >=50% tokens en común
+                  uiOnly.delete(up);
+                  rawOnly.delete(rp);
+                  paired = true;
+                  break;
+                }
+              }
+
+              // 3) Levenshtein tolerante
+              try {
+                const d = this.levenshtein(rs, us);
+                if (d <= DIST_THRESHOLD) {
+                  uiOnly.delete(up);
+                  rawOnly.delete(rp);
+                  paired = true;
+                  break;
+                }
+              } catch (e) {
+                // si falla levenshtein por cualquier motivo, no bloquear
+              }
+            }
+          }
+          if (paired) continue;
+        }
+      }
+
+      // Los que queden en rawOnly son realmente faltantes en la UI
+      rawOnly.forEach(p => missingInUI.push(p));
+      // Los que queden en uiOnly son realmente extra locales
+      uiOnly.forEach(p => extraInUI.push(p));
 
       if (missingInUI.length > 0) {
         console.warn('[MenuAudit] Opciones recibidas no renderizadas en UI:', missingInUI);
@@ -404,9 +506,6 @@ export class MenuService {
         this.notify.warn('Alerta de menú', `Hay ${missingInUI.length} opciones sin vista: ${detail}`);
       }
 
-      // También avisar si la UI tiene items sin estar en raw (no debería pasar en modo literal)
-      const extraInUI: string[] = [];
-      this.flatItems$.value.forEach(n => { const p = (n.path || '').split('?')[0]; if (p && !rawPaths.has(p)) extraInUI.push(p); });
       if (extraInUI.length > 0) {
         console.warn('[MenuAudit] Items en UI no presentes en opcionesDetalle:', extraInUI);
         const preview = extraInUI.slice(0, 4).join(', ');

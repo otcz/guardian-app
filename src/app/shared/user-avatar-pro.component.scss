@@ -15,7 +15,7 @@
 /* Panel del popover */
 .panel {
   min-width: 360px; border-radius: 16px; overflow: hidden;
-  background: var(--surface); color: var(--text); border: 1px solid var(--border);
+  background: var(--surface); color: var(--text); border: none; // quitar borde blanco
   box-shadow: 0 14px 32px rgba(0,0,0,0.12), 0 6px 18px rgba(0,0,0,0.08);
 }
 
@@ -73,3 +73,37 @@
   background: color-mix(in srgb, var(--surface-alt) 70%, #000);
   color: var(--text);
 }
+
+/* Overrides del Popover (PrimeNG) - solo para este componente */
+:host ::ng-deep .user-popover {
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+:host ::ng-deep .user-popover::before,
+:host ::ng-deep .user-popover::after {
+  /* por si el tema agrega fondos/bordes con pseudo-elementos */
+  display: none !important;
+}
+
+:host ::ng-deep .user-popover .p-popover-content {
+  background: transparent !important;
+  padding: 0 !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* Popover del usuario: flecha visible pero con mismo color del panel y sin bordes blancos */
+:host ::ng-deep .user-popover .p-popover-arrow {
+  display: none !important;
+}
+:host ::ng-deep .user-popover .p-popover-arrow::before,
+:host ::ng-deep .user-popover .p-popover-arrow::after {
+  display: none !important;
+}
+
+.panel { overflow: hidden !important; position: relative; }
+/* Sin flecha: desactivar triángulo personalizado y restaurar overflow */
+.panel::after { content: none !important; }

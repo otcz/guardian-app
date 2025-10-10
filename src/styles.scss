@@ -863,19 +863,45 @@ body .p-toast .p-toast-message-info {
 
 /* ===== Popover (PrimeNG) en modo claro ===== */
 :root.theme-light body .p-popover {
-  background: #ffffff !important;
+  background: transparent !important;
   color: #111 !important;
-  border: 1px solid var(--border) !important;
-  box-shadow: 0 14px 32px rgba(0,0,0,0.12), 0 6px 18px rgba(79,140,255,0.12) !important;
+  border: none !important;
+  box-shadow: none !important;
 }
 :root.theme-light body .p-popover .p-popover-content {
   background: transparent !important;
   color: inherit !important;
-  font-size: 0.95rem; /* un poco más alto */
+  font-size: 0.95rem;
 }
 :root.theme-light body .p-popover .p-popover-arrow {
-  border-right-color: #ffffff !important;
-  border-left-color: #ffffff !important;
+  /* sin colores de borde para evitar halo/blanco */
+  border-right-color: transparent !important;
+  border-left-color: transparent !important;
+}
+
+/* Overrides globales para PrimeNG Popover: sin marco y flecha arriba-izquierda */
+.p-popover {
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+}
+.p-popover .p-popover-content {
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+}
+.p-popover .p-popover-arrow {
+  top: 0 !important;
+  left: 12px !important;
+  right: auto !important;
+}
+.p-popover .p-popover-arrow::before,
+.p-popover .p-popover-arrow::after {
+  background: var(--surface) !important; /* mismo color del panel interno */
+  border: none !important;
+  box-shadow: none !important;
 }
 
 /* ===== ConfirmDialog global (usa tokens del tema) ===== */
@@ -944,7 +970,7 @@ body .p-confirm-dialog .p-confirm-dialog-icon { color: var(--danger) !important;
 :root.theme-light body .p-dialog-mask { background-color: rgba(0,0,0,.35) !important; }
 :root.theme-dark body .p-dialog-mask, :root.theme-black body .p-dialog-mask { background-color: rgba(0,0,0,.6) !important; }
 
-/* Alineación global de PrimeNG Card con el tema actual */
+/* Alineación global de PrimeNG Card con el tema currente */
 body .p-card {
   background: var(--surface) !important;
   color: var(--text) !important;
@@ -1088,3 +1114,13 @@ body .p-tag.p-tag-contrast .p-tag-icon { color: inherit !important; }
 :root.theme-black body .p-dialog .login-input::placeholder {
   color: rgba(255,255,255,0.75) !important;
 }
+
+/* Popover del usuario (user-popover): ocultar flecha nativa para evitar triángulo blanco */
+.user-popover .p-popover-arrow,
+.user-popover .p-popover-arrow::before,
+.user-popover .p-popover-arrow::after { display: none !important; }
+/* Refuerzo: ocultar cualquier pseudo-elemento de flecha para el popover del avatar */
+.user-popover::before,
+.user-popover::after,
+.user-popover .p-popover-content::before,
+.user-popover .p-popover-content::after { display: none !important; content: none !important; border: 0 !important; box-shadow: none !important; }

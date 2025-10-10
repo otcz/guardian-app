@@ -995,3 +995,17 @@ body .p-card {
 /* Ajuste opcional para tags redondeados/pequeños (mantener legibilidad) */
 body .p-tag.p-tag-contrast.p-tag-rounded { padding-inline: 0.5rem; }
 body .p-tag.p-tag-contrast .p-tag-icon { color: inherit !important; }
+
+/* Input buscador en sidebar: fondo perfectamente integrado con el color del sidebar en modo claro */
+:root.theme-light .sidebar input:not([type=checkbox]):not([type=radio]) {
+  background: #1a2530 !important; /* color sólido igual al fondo del sidebar */
+  color: #fff !important;
+  border: none !important;
+  border-radius: 10px !important;
+  padding: 10px 14px !important;
+  box-shadow: none !important;
+}
+:root.theme-light .sidebar input::placeholder {
+  color: #e0e6ed !important;
+  opacity: 0.85;
+}

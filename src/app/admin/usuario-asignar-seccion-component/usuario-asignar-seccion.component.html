@@ -19,6 +19,12 @@
     </div>
 
     <div class="form-grid">
+      <!-- Organización destino para Administrador (primero) -->
+      <div class="field" *ngIf="isSysadmin">
+        <label>Organización destino (Administrador)</label>
+        <p-dropdown [options]="orgOptions" optionLabel="nombre" optionValue="id" [(ngModel)]="orgAdminTargetOrgId" name="orgAdminTargetOrgId" placeholder="Seleccione organización" pTooltip="Seleccione la organización a la que será administrador (no incluye DEFAULT)"></p-dropdown>
+      </div>
+
       <div class="field">
         <label>Usuario</label>
         <p-dropdown [options]="usuarios" optionLabel="username" optionValue="id" [(ngModel)]="usuarioId" name="usuarioId" placeholder="Seleccione usuario"></p-dropdown>
@@ -27,12 +33,6 @@
       <div class="field">
         <label>Sección</label>
         <p-dropdown [options]="secciones" optionLabel="nombre" optionValue="id" [(ngModel)]="seccionId" name="seccionId" placeholder="Seleccione sección"></p-dropdown>
-      </div>
-
-      <!-- Organización destino para Administrador (solo SYSADMIN) -->
-      <div class="field" *ngIf="isSysadmin">
-        <label>Organización destino (Administrador)</label>
-        <p-dropdown [options]="orgs" optionLabel="nombre" optionValue="id" [(ngModel)]="orgAdminTargetOrgId" name="orgAdminTargetOrgId" placeholder="Seleccione organización"></p-dropdown>
       </div>
 
       <div class="actions">

@@ -36,6 +36,16 @@ export class UsuarioAsignarSeccionComponent implements OnInit {
   orgs: Organization[] = [];
   orgAdminTargetOrgId: string | null = null;
 
+  // Organizaciones filtradas (excluye DEFAULT_ORG)
+  get orgOptions(): Organization[] {
+    return (this.orgs || []).filter(o => !this.isDefaultOrgName(o?.nombre));
+  }
+  private isDefaultOrgName(name?: string | null): boolean {
+    if (!name) return false;
+    const n = String(name).trim().toUpperCase();
+    return n === 'DEFAULT_ORG' || n === 'DEFAULT';
+  }
+
   constructor(
     private orgCtx: OrgContextService,
     private users: UsersService,
@@ -95,11 +105,14 @@ export class UsuarioAsignarSeccionComponent implements OnInit {
     });
   }
 
-  // Asignar como Administrador de la Organizaci��n seleccionada (requiere SYSADMIN)
+  // Asignar como Administrador de la Organización seleccionada (requiere SYSADMIN)
   assignAsOrgAdmin() {
     if (!this.isSysadmin) { this.notify.warn('No autorizado', 'Requiere rol SYSADMIN'); return; }
     if (!this.usuarioId) { this.notify.warn('Falta usuario', 'Seleccione un usuario'); return; }
     if (!this.orgAdminTargetOrgId) { this.notify.warn('Falta organización', 'Seleccione la organización destino'); return; }
+    const target = this.orgs.find(o => String(o.id) === String(this.orgAdminTargetOrgId)) || null;
+    if (!target) { this.notify.warn('Falta organización', 'Seleccione la organización destino'); return; }
+    if (this.isDefaultOrgName(target.nombre)) { this.notify.warn('No permitido', 'No se puede asignar administrador en DEFAULT_ORG'); return; }
     this.saving = true;
     this.orgService.assignOrgAdmin(this.orgAdminTargetOrgId, this.usuarioId).subscribe({
       next: (resp) => {

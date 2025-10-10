@@ -391,8 +391,17 @@ export class MenuService {
   private auditAgainstRaw(raw: RawOption[]) {
     try {
       const rawItems = (raw || []).filter(r => r && r.tipo === 'ITEM' && !!r.ruta);
-      const rawPaths = new Set(rawItems.map(r => this.sanitizePathCommon(r.ruta)!).filter(Boolean) as string[]);
-      const uiPaths = new Set(this.flatItems$.value.filter(n => !!n.path).map(n => (n.path as string).split('?')[0]));
+      const canonPath = (p: string) => {
+        let s = (p || '').split('?')[0];
+        // Normalización de prefijos legacy
+        s = s.replace(/^\/gestion-de-[^/]+\//, '/');
+        // Aliases comunes a rutas canónicas
+        if (s === '/crear-estrategia') s = '/crear-estrategia-de-gobernanza';
+        if (s === '/cambiar-estrategia') s = '/cambiar-estrategia-de-gobernanza';
+        return s;
+      };
+      const rawPaths = new Set((rawItems.map(r => this.sanitizePathCommon(r.ruta)!).filter(Boolean) as string[]).map(canonPath));
+      const uiPaths = new Set(this.flatItems$.value.filter(n => !!n.path).map(n => (n.path as string).split('?')[0]).map(canonPath));
 
       // --- Mejor coincidencia: primero exacta, luego por último segmento ---
       const missingInUI: string[] = [];
@@ -412,23 +421,6 @@ export class MenuService {
 
       // 2) Segundo pase: emparejar por último segmento (evita falsos positivos por prefijos)
       if (rawOnly.size > 0 && uiOnly.size > 0) {
-        // Crear mapas de últimoSegmento -> rutas
-        const rawLastMap = new Map<string, string[]>();
-        rawOnly.forEach(p => {
-          const k = lastSegment(p);
-          const arr = rawLastMap.get(k) || [];
-          arr.push(p);
-          rawLastMap.set(k, arr);
-        });
-        const uiLastMap = new Map<string, string[]>();
-        uiOnly.forEach(p => {
-          const k = lastSegment(p);
-          const arr = uiLastMap.get(k) || [];
-          arr.push(p);
-          uiLastMap.set(k, arr);
-        });
-
-        // Mejor intento: emparejar por sufijo, contención o Levenshtein sobre último segmento
         const rawArr = Array.from(rawOnly);
         const uiArr = Array.from(uiOnly);
         const normalizeSegment = (seg: string) => (seg || '').replace(/-/g, '').toLowerCase();

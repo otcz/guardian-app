@@ -1033,9 +1033,28 @@ body .p-tag.p-tag-contrast .p-tag-icon { color: inherit !important; }
 :root.theme-light body .login-page input.login-input,
 :root.theme-light body .login-page .login-input.p-inputtext,
 :root.theme-light body.p-input-filled .login-page .login-input.p-inputtext,
-:root.theme-light body .p-input-filled .login-page .login-input.p-inputtext {
+:root.theme-light body.p-input-filled .login-page .login-input.p-inputtext {
   background: #ffffff !important;
   background-color: #ffffff !important;
   color: #000000 !important;
   caret-color: #000000 !important;
+}
+:root.theme-light .login-page .p-inputtext:disabled,
+:root.theme-light .login-page .p-inputtext[readonly],
+:root.theme-light .login-page input.login-input:disabled,
+:root.theme-light .login-page input.login-input[readonly] {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  color: #000000 !important;
+  opacity: 1 !important;
+}
+:root.theme-light .login-page .p-inputtext,
+:root.theme-light .login-page .p-inputtext:hover,
+:root.theme-light .login-page .p-inputtext:focus,
+:root.theme-light .login-page input.login-input,
+:root.theme-light .login-page input.login-input:hover,
+:root.theme-light .login-page input.login-input:focus {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  color: #000000 !important;
 }

@@ -108,6 +108,52 @@ export class OrganizationService {
   private jsonHeaders(): HttpHeaders { return new HttpHeaders({ 'Content-Type': 'application/json', Accept: 'application/json' }); }
   private acceptJsonHeaders(): HttpHeaders { return new HttpHeaders({ Accept: 'application/json' }); }
 
+  // Bypass SYSADMIN (desarrollo): compone headers/params según environment.adminBypass u opciones
+  private composeAdminBypass(opts?: { mode?: 'header' | 'apikey' | 'basic' | false; sysUser?: string; apiKey?: string }) {
+    const cfg = (environment as any)?.adminBypass || {};
+    const enabled: boolean = cfg.enabled === true;
+    const mode: 'header' | 'apikey' | 'basic' | false = (opts?.mode ?? (enabled ? (cfg.mode as any) : false)) || false;
+    let headers = this.acceptJsonHeaders();
+    const params: any = {};
+
+    if (!mode) return { headers, params };
+
+    if (mode === 'header') {
+      const preferredHeaderName = (cfg.headerUserName || cfg.userHeaderName || 'X-User') as string;
+      const fallbackNames: string[] = [preferredHeaderName].concat(
+        (cfg.userHeaderSynonyms || cfg.headerUserSynonyms || ['X-Username', 'X-User-Name']) as string[]
+      );
+      const sysUser = (opts?.sysUser || cfg.headerUserValue || cfg.userHeaderValue || cfg.basicUser || localStorage.getItem('username') || 'sysadmin').toString();
+      // Enviar al menos X-User; opcionalmente roles si está configurado
+      headers = headers.set(preferredHeaderName, sysUser);
+      if (Array.isArray(fallbackNames)) {
+        for (const name of fallbackNames) {
+          if (!name || name === preferredHeaderName) continue;
+          headers = headers.set(name, sysUser);
+        }
+      }
+      if (cfg.addHeaderRoles && cfg.headerName && cfg.headerValue) {
+        headers = headers.set(cfg.headerName as string, cfg.headerValue as string);
+      }
+    } else if (mode === 'apikey') {
+      const keyHeader = (cfg.apiKeyHeader || 'X-Api-Sysadmin-Key') as string;
+      const keyValue = (opts?.apiKey || cfg.apiKey || '').toString();
+      if (keyValue) headers = headers.set(keyHeader, keyValue);
+      const qn = (cfg.bypassQueryName || 'bypass') as string;
+      const qv = (cfg.bypassQueryValue || 'true') as string;
+      params[qn] = qv;
+    } else if (mode === 'basic') {
+      // Por compatibilidad: enviar Authorization: Basic ... si está configurado
+      const u = (opts?.sysUser || cfg.basicUser || '').toString();
+      const p = (cfg.basicPass || '').toString();
+      if (u && p) {
+        const token = btoa(`${u}:${p}`);
+        headers = headers.set('Authorization', `Basic ${token}`);
+      }
+    }
+    return { headers, params };
+  }
+
   // -------------------- Normalización --------------------
   private normalizeListResponse(payload: any): any[] {
     if (Array.isArray(payload)) return payload;
@@ -340,9 +386,14 @@ export class OrganizationService {
     );
   }
 
-  applyOrgStrategy(orgId: string | number, strategyId: string | number) {
-    const url = `${this.orgStrategyBase(orgId)}/${strategyId}/aplicar`;
-    return this.http.post<any>(url, null, { headers: this.acceptJsonHeaders() }).pipe(
+  applyOrgStrategy(orgId: string | number, strategyId: string | number, options?: { bypassMode?: 'header' | 'apikey' | 'basic' | false; sysUser?: string; apiKey?: string }) {
+    const baseUrl = `${this.orgStrategyBase(orgId)}/${strategyId}/aplicar`;
+    const { headers, params } = this.composeAdminBypass({
+      mode: options?.bypassMode ?? undefined,
+      sysUser: options?.sysUser,
+      apiKey: options?.apiKey
+    });
+    return this.http.post<any>(baseUrl, null, { headers, params }).pipe(
       map((resp: any) => {
         if (resp && resp.success === false) { throw { error: { message: resp.message } }; }
         return { message: resp?.message } as { message?: string };

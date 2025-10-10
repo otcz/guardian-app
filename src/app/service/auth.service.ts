@@ -84,15 +84,14 @@ export class AuthService {
 
   /** Login basado en formato real devuelto por backend (sin envoltorio) */
   login(data: { username: string; password: string; orgCode?: string }): Observable<BackendLoginResponse> {
-    // Primario: host de AUTH dedicado (8081)
     const primaryUrl = this.authAbsolute('/login');
-    // Fallbacks: vía proxy (si hay /auth expuesto) y API histórica /api/auth/login
     const proxyAuthUrl = `${environment.apiFallbackBases[0] || ''}/auth/login`;
     const apiAuthUrl = this.api('/auth/login');
     const absoluteApiAuthUrl = this.absolute('/api/auth/login');
 
     return new Observable<BackendLoginResponse>(subscriber => {
-      const tryQueue = [primaryUrl, proxyAuthUrl, apiAuthUrl, absoluteApiAuthUrl];
+      const tryQueue: string[] = [proxyAuthUrl, apiAuthUrl, absoluteApiAuthUrl];
+      if (environment.preferAuthDedicated) tryQueue.push(primaryUrl);
       const attemptNext = (idx: number) => {
         if (idx >= tryQueue.length) { subscriber.error({ status: 0, message: 'No fue posible contactar el servicio de autenticación.' }); return; }
         const url = tryQueue[idx];
@@ -133,14 +132,19 @@ export class AuthService {
 
   /** Registro de usuario (si backend lo expone). Mantiene contrato ApiResponse<T>. */
   register(data: RegisterPayload): Observable<ApiResponse<any>> {
-    // Intentar en host de AUTH y luego fallback al proxy clásico
     const primary = this.authAbsolute('/register');
     const fallback = this.api('/auth/register');
+
+    if (!environment.preferAuthDedicated) {
+      return this.http.post<ApiResponse<any>>(fallback, data);
+    }
+
+    // Intentar primero /api y si falla, usar host dedicado
     return new Observable<ApiResponse<any>>(subscriber => {
-      this.http.post<ApiResponse<any>>(primary, data).subscribe({
+      this.http.post<ApiResponse<any>>(fallback, data).subscribe({
         next: r => { subscriber.next(r); subscriber.complete(); },
         error: () => {
-          this.http.post<ApiResponse<any>>(fallback, data).subscribe({
+          this.http.post<ApiResponse<any>>(primary, data).subscribe({
             next: r => { subscriber.next(r); subscriber.complete(); },
             error: e => subscriber.error(e)
           });
@@ -154,11 +158,16 @@ export class AuthService {
     const primaryUrl = this.authAbsolute('/password/first-set');
     const fallbackUrl = this.absolute('/api/auth/password/first-set');
 
+    if (!environment.preferAuthDedicated) {
+      return this.http.post<any>(fallbackUrl, data);
+    }
+
+    // Intentar primero /api y luego el host dedicado si falla
     return new Observable<any>(subscriber => {
-      this.http.post<any>(primaryUrl, data).subscribe({
+      this.http.post<any>(fallbackUrl, data).subscribe({
         next: resp => { subscriber.next(resp); subscriber.complete(); },
         error: () => {
-          this.http.post<any>(fallbackUrl, data).subscribe({
+          this.http.post<any>(primaryUrl, data).subscribe({
             next: resp => { subscriber.next(resp); subscriber.complete(); },
             error: err => subscriber.error(err)
           });

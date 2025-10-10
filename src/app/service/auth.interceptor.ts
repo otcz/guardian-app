@@ -6,6 +6,23 @@ import { AuthService } from './auth.service';
 import { OrgContextService } from './org-context.service';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
+  // Evitar adjuntar Authorization/X-* a endpoints de auth para no interferir con login/registro/cambios de password
+  const isAuthCall = /\/(auth)\/(login|register|password)/.test(req.url);
+  if (isAuthCall) {
+    return next(req).pipe(
+      catchError((err) => {
+        const status = err?.status;
+        if (status === 401) {
+          const router = inject(Router);
+          const auth = inject(AuthService);
+          auth.logout();
+          router.navigate(['/login']);
+        }
+        return throwError(() => err);
+      })
+    );
+  }
+
   const token = localStorage.getItem('token');
   const ctx = inject(OrgContextService);
   const orgId = ctx.value || localStorage.getItem('currentOrgId') || undefined as any;

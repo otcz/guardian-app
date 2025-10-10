@@ -12,6 +12,7 @@ import {MultiSelectModule} from 'primeng/multiselect';
 import {forkJoin, Observable} from 'rxjs';
 import {OrganizationService, GovernanceStrategy, Organization} from '../../service/organization.service';
 import {MessageService} from 'primeng/api';
+import { environment } from '../../config/environment';
 
 @Component({
   selector: 'app-organization-config',
@@ -161,8 +162,10 @@ export class OrganizationConfigComponent implements OnInit {
     this.savingVigente = true;
     this.error = null;
     this.success = null;
-    // Aplicar como actual vía endpoint dedicado (POST /aplicar)
-    this.orgSvc.applyOrgStrategy(this.orgId, this.selectedStrategyId).subscribe({
+    const bypassMode = ((environment as any)?.adminBypass?.mode || 'header') as any;
+    const sysUser = ((environment as any)?.adminBypass?.headerUserValue || (environment as any)?.adminBypass?.basicUser || 'sysadmin') as string;
+    const apiKey = ((environment as any)?.adminBypass?.apiKey || '') as string;
+    this.orgSvc.applyOrgStrategy(this.orgId, this.selectedStrategyId, { bypassMode, sysUser, apiKey }).subscribe({
       next: (res) => {
         const msg = res?.message || 'Estrategia aplicada correctamente';
         this.success = msg;

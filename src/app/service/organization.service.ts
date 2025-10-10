@@ -118,13 +118,24 @@ export class OrganizationService {
 
     if (!mode) return { headers, params };
 
+    const ensureBypassQuery = () => {
+      const qn = (cfg.bypassQueryName || 'bypass') as string;
+      const qv = (cfg.bypassQueryValue || 'true') as string;
+      if (qn && qv) params[qn] = qv;
+    };
+
+    const maybeAttachApiKey = () => {
+      const keyHeader = (cfg.apiKeyHeader || 'X-Api-Sysadmin-Key') as string;
+      const keyValue = (opts?.apiKey || cfg.apiKey || '').toString();
+      if (keyValue) headers = headers.set(keyHeader, keyValue);
+    };
+
     if (mode === 'header') {
       const preferredHeaderName = (cfg.headerUserName || cfg.userHeaderName || 'X-User') as string;
       const fallbackNames: string[] = [preferredHeaderName].concat(
         (cfg.userHeaderSynonyms || cfg.headerUserSynonyms || ['X-Username', 'X-User-Name']) as string[]
       );
       const sysUser = (opts?.sysUser || cfg.headerUserValue || cfg.userHeaderValue || cfg.basicUser || localStorage.getItem('username') || 'sysadmin').toString();
-      // Enviar al menos X-User; opcionalmente roles si está configurado
       headers = headers.set(preferredHeaderName, sysUser);
       if (Array.isArray(fallbackNames)) {
         for (const name of fallbackNames) {
@@ -135,21 +146,22 @@ export class OrganizationService {
       if (cfg.addHeaderRoles && cfg.headerName && cfg.headerValue) {
         headers = headers.set(cfg.headerName as string, cfg.headerValue as string);
       }
+      ensureBypassQuery();
+      // Adjuntar API key si está disponible, incluso en modo header
+      maybeAttachApiKey();
     } else if (mode === 'apikey') {
-      const keyHeader = (cfg.apiKeyHeader || 'X-Api-Sysadmin-Key') as string;
-      const keyValue = (opts?.apiKey || cfg.apiKey || '').toString();
-      if (keyValue) headers = headers.set(keyHeader, keyValue);
-      const qn = (cfg.bypassQueryName || 'bypass') as string;
-      const qv = (cfg.bypassQueryValue || 'true') as string;
-      params[qn] = qv;
+      maybeAttachApiKey();
+      ensureBypassQuery();
     } else if (mode === 'basic') {
-      // Por compatibilidad: enviar Authorization: Basic ... si está configurado
       const u = (opts?.sysUser || cfg.basicUser || '').toString();
       const p = (cfg.basicPass || '').toString();
       if (u && p) {
         const token = btoa(`${u}:${p}`);
         headers = headers.set('Authorization', `Basic ${token}`);
       }
+      ensureBypassQuery();
+      // Adjuntar API key si está disponible, para máxima compatibilidad
+      maybeAttachApiKey();
     }
     return { headers, params };
   }

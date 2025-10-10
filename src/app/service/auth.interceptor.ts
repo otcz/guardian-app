@@ -8,7 +8,13 @@ import { OrgContextService } from './org-context.service';
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   // Evitar adjuntar Authorization/X-* a endpoints de auth para no interferir con login/registro/cambios de password
   const isAuthCall = /\/(auth)\/(login|register|password)/.test(req.url);
-  if (isAuthCall) {
+  // Evitar adjuntar Authorization/X-* si hay bypass SYSADMIN explícito o si es el endpoint de aplicar estrategia
+  const hasBypassHeader = req.headers.has('X-User') || req.headers.has('X-Api-Sysadmin-Key');
+  const hasBypassQuery = /[?&]bypass=true(?![^#])/i.test(req.url);
+  const isApplyStrategy = /\/orgs\/.+\/estrategias\/.+\/aplicar(\b|\?)/.test(req.url);
+  const shouldSkipAuth = isAuthCall || hasBypassHeader || hasBypassQuery || isApplyStrategy;
+
+  if (shouldSkipAuth) {
     return next(req).pipe(
       catchError((err) => {
         const status = err?.status;

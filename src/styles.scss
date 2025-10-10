@@ -1058,3 +1058,33 @@ body .p-tag.p-tag-contrast .p-tag-icon { color: inherit !important; }
   background-color: #ffffff !important;
   color: #000000 !important;
 }
+
+/* Login: inputs en temas oscuros con fondo oscuro y texto blanco */
+:root.theme-dark app-login .login-input,
+:root.theme-black app-login .login-input,
+:root.theme-dark body .p-dialog .login-input,
+:root.theme-black body .p-dialog .login-input {
+  background: var(--surface) !important;
+  color: #ffffff !important;
+  caret-color: #ffffff !important;
+}
+:root.theme-dark app-login .login-input:hover,
+:root.theme-black app-login .login-input:hover,
+:root.theme-dark body .p-dialog .login-input:hover,
+:root.theme-black body .p-dialog .login-input:hover {
+  background: color-mix(in srgb, var(--surface) 92%, #000) !important;
+}
+:root.theme-dark app-login .login-input:focus,
+:root.theme-black app-login .login-input:focus,
+:root.theme-dark body .p-dialog .login-input:focus,
+:root.theme-black body .p-dialog .login-input:focus {
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary) 20%, transparent), inset 0 0 0 1.5px color-mix(in srgb, var(--primary) 50%, var(--border)) !important;
+}
+
+/* Placeholders en login (oscuros) ya están cubiertos por reglas globales, pero reforzamos */
+:root.theme-dark app-login .login-input::placeholder,
+:root.theme-black app-login .login-input::placeholder,
+:root.theme-dark body .p-dialog .login-input::placeholder,
+:root.theme-black body .p-dialog .login-input::placeholder {
+  color: rgba(255,255,255,0.75) !important;
+}

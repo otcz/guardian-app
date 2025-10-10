@@ -29,9 +29,17 @@
         <p-dropdown [options]="secciones" optionLabel="nombre" optionValue="id" [(ngModel)]="seccionId" name="seccionId" placeholder="Seleccione sección"></p-dropdown>
       </div>
 
+      <!-- Organización destino para Administrador (solo SYSADMIN) -->
+      <div class="field" *ngIf="isSysadmin">
+        <label>Organización destino (Administrador)</label>
+        <p-dropdown [options]="orgs" optionLabel="nombre" optionValue="id" [(ngModel)]="orgAdminTargetOrgId" name="orgAdminTargetOrgId" placeholder="Seleccione organización"></p-dropdown>
+      </div>
+
       <div class="actions">
         <button pButton type="button" label="Asignar" icon="pi pi-check" (click)="assign()" [disabled]="saving || !usuarioId || !seccionId"></button>
         <button pButton type="button" label="Quitar sección" class="p-button p-button-outlined" icon="pi pi-times" (click)="remove()" [disabled]="saving || !usuarioId"></button>
+        <!-- Asignar Administrador de Organización (solo SYSADMIN) -->
+        <button *ngIf="isSysadmin" pButton type="button" label="Asignar como Administrador" class="p-button p-button-secondary" icon="pi pi-shield" (click)="assignAsOrgAdmin()" [disabled]="saving || !usuarioId || !orgAdminTargetOrgId" pTooltip="Otorga rol ORGADMIN y mueve al usuario a la organización seleccionada"></button>
       </div>
     </div>
   </p-card>

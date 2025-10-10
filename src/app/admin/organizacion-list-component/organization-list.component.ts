@@ -12,6 +12,7 @@ import {TooltipModule} from 'primeng/tooltip';
 import { OrgContextService } from '../../service/org-context.service';
 import { MessageService } from 'primeng/api';
 import { InputSwitchModule } from 'primeng/inputswitch';
+import { AuthService } from '../../service/auth.service';
 
 @Component({
   selector: 'app-organization-list',
@@ -36,8 +37,10 @@ export class OrganizationListComponent implements OnInit {
   editDraft: Organization | null = null;
   flashRowId: string | null = null;
 
-  constructor(private orgService: OrganizationService, private router: Router, private orgCtx: OrgContextService, private route: ActivatedRoute, private messages: MessageService) {
+  constructor(private orgService: OrganizationService, private router: Router, private orgCtx: OrgContextService, private route: ActivatedRoute, private messages: MessageService, private auth: AuthService) {
   }
+
+  get isSysadmin(): boolean { return this.auth.hasRole('SYSADMIN'); }
 
   ngOnInit() {
     // Preferir navigation state, con fallback a query param (legacy)
@@ -216,5 +219,15 @@ export class OrganizationListComponent implements OnInit {
       return;
     }
     this.router.navigate(['/cambiar-estrategia-de-gobernanza'], { queryParams: { id: org.id } });
+  }
+
+  // Nuevo: Ir a asignar Administrador de la Organización (solo SYSADMIN)
+  assignAdmin(org: Organization) {
+    if (!this.isSysadmin) { return; }
+    if (org.id) {
+      localStorage.setItem('currentOrgId', org.id);
+      this.orgCtx.set(org.id);
+    }
+    this.router.navigate(['/gestion-de-usuarios/asignar-usuario-a-seccion'], { queryParams: { targetOrgId: org.id } });
   }
 }

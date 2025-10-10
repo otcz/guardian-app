@@ -612,4 +612,23 @@ export class OrganizationService {
       catchError(err => throwError(() => ({ error: { message: (err?.error?.message ?? err?.message) as string | undefined } })))
     );
   }
+
+  // -------------------- Administración de Organización --------------------
+  /**
+   * Asigna un usuario como Administrador de la Organización (ORGADMIN).
+   * Efecto esperado en backend: mueve al usuario a la org destino (si estaba en otra),
+   * asegura/otorga el rol ORGADMIN y lo asigna como administrador.
+   */
+  assignOrgAdmin(orgId: string | number, usuarioId: string | number): Observable<{ message?: string; orgId: string; usuarioId: string }> {
+    const url = `${this.collectionUrl()}/${orgId}/administrador`;
+    const body = { usuarioId } as any;
+    return this.http.post<any>(url, body, { headers: this.jsonHeaders() }).pipe(
+      map((resp: any) => {
+        if (resp && resp.success === false) { throw { error: { message: resp.message } }; }
+        const message = (resp && typeof resp === 'object' && 'message' in resp) ? (resp.message as string) : undefined;
+        return { message, orgId: String(orgId), usuarioId: String(usuarioId) };
+      }),
+      catchError(err => throwError(() => ({ error: { message: (err?.error?.message ?? err?.message) as string | undefined }, status: err?.status })))
+    );
+  }
 }

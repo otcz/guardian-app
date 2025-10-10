@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
 import { AuthService } from './auth.service';
 import { OrgContextService } from './org-context.service';
+import { NotificationService } from './notification.service';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const isAuthCall = /\/(auth)\/(login|register|password)/.test(req.url);
@@ -40,6 +41,12 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
           const auth = inject(AuthService);
           auth.logout();
           router.navigate(['/login']);
+        } else if (status === 403) {
+          inject(Router).navigate(['/no-autorizado']);
+        } else if (status === 400) {
+          const notify = inject(NotificationService);
+          const msg = err?.error?.message || err?.message || 'Solicitud inválida';
+          notify.warn('Solicitud inválida', msg);
         }
         return throwError(() => err);
       })
@@ -65,6 +72,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   const router = inject(Router);
   const auth = inject(AuthService);
+  const notify = inject(NotificationService);
 
   return next(req).pipe(
     catchError((err) => {
@@ -72,6 +80,11 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
       if (status === 401) {
         auth.logout();
         router.navigate(['/login']);
+      } else if (status === 403) {
+        router.navigate(['/no-autorizado']);
+      } else if (status === 400) {
+        const msg = err?.error?.message || err?.message || 'Solicitud inválida';
+        notify.warn('Solicitud inválida', msg);
       }
       return throwError(() => err);
     })

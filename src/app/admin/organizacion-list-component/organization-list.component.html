@@ -8,7 +8,7 @@
         <i class="pi pi-search"></i>
         <input pInputText type="text" placeholder="Filtrar" [(ngModel)]="filter" (ngModelChange)="applyFilter()" class="w-200" />
       </span>
-      <button pButton type="button" label="Crear" icon="pi pi-plus" (click)="startAdd()" [disabled]="adding || !!editingId" class="p-button-success"></button>
+      <button *ngIf="isSysadmin" pButton type="button" label="Crear" icon="pi pi-plus" (click)="startAdd()" [disabled]="adding || !!editingId" class="p-button-success"></button>
       <button pButton type="button" label="Recargar" icon="pi pi-refresh" (click)="load()" [disabled]="loading"></button>
     </div>
   </div>
@@ -79,6 +79,8 @@
             <ng-container *ngIf="!adding && editingId !== row.id">
               <button pButton type="button" icon="pi pi-pencil" class="p-button-rounded p-button-text" (click)="startEdit(row)" [disabled]="saving" pTooltip="EDITAR" tooltipPosition="top"></button>
               <button pButton type="button" icon="pi pi-cog" class="p-button-rounded p-button-text" (click)="strategy(row)" [disabled]="saving" pTooltip="ESTRATEGIA" tooltipPosition="top"></button>
+              <!-- Nuevo: Asignar Administrador de Organización -->
+              <button *ngIf="isSysadmin" pButton type="button" icon="pi pi-shield" class="p-button-rounded p-button-text" (click)="assignAdmin(row)" [disabled]="saving" pTooltip="ASIGNAR ADMIN" tooltipPosition="top"></button>
             </ng-container>
           </td>
         </tr>

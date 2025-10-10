@@ -1009,3 +1009,33 @@ body .p-tag.p-tag-contrast .p-tag-icon { color: inherit !important; }
   color: #e0e6ed !important;
   opacity: 0.85;
 }
+
+/* Refuerzo específico: Login en tema claro con inputs blancos y texto negro */
+:root.theme-light .login-page input:not([type="checkbox"]):not([type="radio"]),
+:root.theme-light .login-page .p-inputtext,
+:root.theme-light .login-page .p-password input,
+:root.theme-light .login-page textarea {
+  background: #ffffff !important;
+  background-color: #ffffff !important; /* cubrir overrides con background-color */
+  color: #000000 !important;
+  caret-color: #000000 !important;
+}
+:root.theme-light .login-page input::placeholder,
+:root.theme-light .login-page textarea::placeholder,
+:root.theme-light .login-page .p-inputtext::placeholder {
+  color: #4b5563 !important;
+}
+:root.theme-light .login-page label,
+:root.theme-light .login-page .form-field label,
+:root.theme-light .login-page .field label { color: #000000 !important; }
+
+/* Selectores súper específicos para .login-input en modo claro */
+:root.theme-light body .login-page input.login-input,
+:root.theme-light body .login-page .login-input.p-inputtext,
+:root.theme-light body.p-input-filled .login-page .login-input.p-inputtext,
+:root.theme-light body .p-input-filled .login-page .login-input.p-inputtext {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  color: #000000 !important;
+  caret-color: #000000 !important;
+}

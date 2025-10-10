@@ -1,4 +1,4 @@
-<div class="container" style="display:grid; place-items:center; min-height:100vh;">
+<div class="container login-page" style="display:grid; place-items:center; min-height:100vh;">
   <div class="card" style="width:min(420px, 92vw); overflow:hidden;">
     <div style="background: linear-gradient(120deg, var(--primary) 0%, var(--secondary) 100%); height: 84px; display:flex; align-items:center; justify-content:space-between; padding:0 16px;">
       <img src="assets/logo.png" alt="Logo" style="height:36px; filter: drop-shadow(0 2px 6px rgba(0,0,0,.25));" />
@@ -11,11 +11,11 @@
 
       <form [formGroup]="form" (ngSubmit)="submit()" style="display:flex; flex-direction:column; gap:12px;">
         <div style="position:relative;">
-          <input pInputText appUppercase type="text" formControlName="username" placeholder="Usuario" style="width:100%; padding-right:86px;" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" data-no-uppercase />
+          <input class="login-input" pInputText appUppercase type="text" formControlName="username" placeholder="Usuario" style="width:100%; padding-right:86px;" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" data-no-uppercase />
           <span *ngIf="isSysadmin" style="position:absolute; right:8px; top:50%; transform: translateY(-50%); background:#e3f0ff; color:var(--primary-600); border:1px solid var(--border); border-radius:999px; padding:4px 10px; font-size:.78rem; font-weight:700;">SYSTEM</span>
         </div>
         <div style="position:relative;">
-          <input pInputText [type]="showPassword ? 'text' : 'password'" formControlName="password" placeholder="Contraseña" style="width:100%; padding-right:40px;" autocomplete="current-password" autocapitalize="none" autocorrect="off" spellcheck="false" data-no-uppercase />
+          <input class="login-input" pInputText [type]="showPassword ? 'text' : 'password'" formControlName="password" placeholder="Contraseña" style="width:100%; padding-right:40px;" autocomplete="current-password" autocapitalize="none" autocorrect="off" spellcheck="false" data-no-uppercase />
           <button type="button" pButton class="p-button-text" (click)="togglePassword()" style="position:absolute; right:0; top:0; height:100%;">
             <i class="pi" [ngClass]="showPassword ? 'pi-eye-slash' : 'pi-eye'"></i>
           </button>
@@ -54,7 +54,7 @@
 
     <form [formGroup]="firstPwdForm" (ngSubmit)="submitFirstPassword()" style="display:flex; flex-direction:column; gap:12px;">
       <div style="position:relative;">
-        <input pInputText [type]="showNewPwd ? 'text' : 'password'" formControlName="newPassword" placeholder="Nueva contraseña" style="width:100%; padding-right:40px;" autocomplete="new-password" autocapitalize="none" autocorrect="off" spellcheck="false" data-no-uppercase />
+        <input class="login-input" pInputText [type]="showNewPwd ? 'text' : 'password'" formControlName="newPassword" placeholder="Nueva contraseña" style="width:100%; padding-right:40px;" autocomplete="new-password" autocapitalize="none" autocorrect="off" spellcheck="false" data-no-uppercase />
         <button type="button" pButton class="p-button-text" (click)="toggleNewPwd()" style="position:absolute; right:0; top:0; height:100%;">
           <i class="pi" [ngClass]="showNewPwd ? 'pi-eye-slash' : 'pi-eye'"></i>
         </button>
@@ -92,7 +92,7 @@
       </div>
 
       <div style="position:relative;">
-        <input pInputText [type]="showConfirmPwd ? 'text' : 'password'" formControlName="confirmPassword" placeholder="Confirmar contraseña" style="width:100%; padding-right:40px;" autocomplete="new-password" autocapitalize="none" autocorrect="off" spellcheck="false" data-no-uppercase />
+        <input class="login-input" pInputText [type]="showConfirmPwd ? 'text' : 'password'" formControlName="confirmPassword" placeholder="Confirmar contraseña" style="width:100%; padding-right:40px;" autocomplete="new-password" autocapitalize="none" autocorrect="off" spellcheck="false" data-no-uppercase />
         <button type="button" pButton class="p-button-text" (click)="toggleConfirmPwd()" style="position:absolute; right:0; top:0; height:100%;">
           <i class="pi" [ngClass]="showConfirmPwd ? 'pi-eye-slash' : 'pi-eye'"></i>
         </button>

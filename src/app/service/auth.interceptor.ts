@@ -6,15 +6,12 @@ import { AuthService } from './auth.service';
 import { OrgContextService } from './org-context.service';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
-  // Evitar adjuntar Authorization/X-* a endpoints de auth para no interferir con login/registro/cambios de password
   const isAuthCall = /\/(auth)\/(login|register|password)/.test(req.url);
-  // Evitar adjuntar Authorization/X-* si hay bypass SYSADMIN explícito o si es el endpoint de aplicar estrategia
-  const hasBypassHeader = req.headers.has('X-User') || req.headers.has('X-Api-Sysadmin-Key');
   const hasBypassQuery = /[?&]bypass=true(?![^#])/i.test(req.url);
   const isApplyStrategy = /\/orgs\/.+\/estrategias\/.+\/aplicar(\b|\?)/.test(req.url);
-  const shouldSkipAuth = isAuthCall || hasBypassHeader || hasBypassQuery || isApplyStrategy;
 
-  if (shouldSkipAuth) {
+  // Nunca adjuntar auth/ctx en endpoints de auth
+  if (isAuthCall) {
     return next(req).pipe(
       catchError((err) => {
         const status = err?.status;
@@ -29,6 +26,27 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     );
   }
 
+  // En llamadas con bypass (?bypass=true) o al endpoint de aplicar, asegurarse de NO enviar Authorization,
+  // pero no tocar ni bloquear headers personalizados X-* existentes (X-User, X-User-Roles, X-Api-Sysadmin-Key, etc.)
+  if (hasBypassQuery || isApplyStrategy) {
+    if (req.headers.has('Authorization')) {
+      req = req.clone({ headers: req.headers.delete('Authorization') });
+    }
+    return next(req).pipe(
+      catchError((err) => {
+        const status = err?.status;
+        if (status === 401) {
+          const router = inject(Router);
+          const auth = inject(AuthService);
+          auth.logout();
+          router.navigate(['/login']);
+        }
+        return throwError(() => err);
+      })
+    );
+  }
+
+  // Resto de llamadas: adjuntar token y contexto organizacional si existen
   const token = localStorage.getItem('token');
   const ctx = inject(OrgContextService);
   const orgId = ctx.value || localStorage.getItem('currentOrgId') || undefined as any;
@@ -52,7 +70,6 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     catchError((err) => {
       const status = err?.status;
       if (status === 401) {
-        // Sesión inválida o expirada: limpiar y enviar a login
         auth.logout();
         router.navigate(['/login']);
       }

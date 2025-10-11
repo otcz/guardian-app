@@ -10,12 +10,14 @@ import { ThemeToggleComponent } from '../shared/theme-toggle.component';
 import { MenuService } from '../service/menu.service';
 import { OrganizationService, Organization } from '../service/organization.service';
 import { OrgContextService } from '../service/org-context.service';
+import { UppercaseDirective } from '../shared/formatting.directives';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, RouterModule, ReactiveFormsModule, InputTextModule, ButtonModule, DialogModule, ThemeToggleComponent],
-  templateUrl: './login.component.html'
+  imports: [CommonModule, RouterModule, ReactiveFormsModule, InputTextModule, ButtonModule, DialogModule, ThemeToggleComponent, UppercaseDirective],
+  templateUrl: './login.component.html',
+  styleUrls: ['./login.component.scss']
 })
 export class LoginComponent {
   loading = false;
@@ -200,21 +202,28 @@ export class LoginComponent {
     this.loading = true;
     this.auth.firstSetPassword(payload).subscribe({
       next: () => {
-        this.loading = false;
+        // Contraseña establecida: relanzar login automáticamente con la nueva contraseña
+        const u = (this.setupUsername || this.form.value?.username || '').toString();
         this.showPwdSetup = false;
         this.firstPwdForm.reset();
-        // Mensaje en pantalla de login para que vuelva a intentar
-        this.errorMsg = 'Contraseña establecida correctamente. Inicia sesión con tu nueva contraseña.';
-        if (this.setupUsername) this.form.patchValue({ username: this.setupUsername });
-        this.form.patchValue({ password: '' });
+        this.setupToken = null;
+        // Parchar formulario y reusar submit()
+        this.form.patchValue({ username: u, password: newPassword });
+        this.loading = false;
+        this.submit();
       },
       error: (err) => {
         this.loading = false;
         const msg = err?.error?.message || 'No fue posible establecer la contraseña.';
         this.firstPwdMsg = msg;
-        // Si el token expiró, cerrar modal y notificar para reintentar login
-        if (String(msg).toUpperCase().includes('EXPIRADO') || String(msg).toUpperCase().includes('INVÁLIDO')) {
-          // Mantener visible para que el usuario lea el mensaje; alternativa: cerrar
+        // Si el token expiró o es inválido, sugerir reiniciar el login para generar uno nuevo
+        const m = String(msg).toUpperCase();
+        if (m.includes('EXPIRA') || m.includes('INVÁLID') || m.includes('INVALID')) {
+          // Mantener el diálogo visible para que el usuario lea el mensaje
+        }
+        // Si mismatch, marcar controles
+        if (m.includes('NO COINCID')) {
+          this.firstPwdForm.setErrors({ mismatch: true });
         }
       }
     });

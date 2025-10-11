@@ -1,27 +1,27 @@
-<div class="container login-page" style="display:grid; place-items:center; min-height:100vh;">
-  <div class="card" style="width:min(420px, 92vw); overflow:hidden;">
-    <div style="background: linear-gradient(120deg, var(--primary) 0%, var(--secondary) 100%); height: 84px; display:flex; align-items:center; justify-content:space-between; padding:0 16px;">
-      <img src="assets/logo.png" alt="Logo" style="height:36px; filter: drop-shadow(0 2px 6px rgba(0,0,0,.25));" />
+<div class="container login-page">
+  <div class="login-card card">
+    <div class="login-card__header">
+      <img src="assets/logo.png" alt="Logo" class="login-card__logo" />
       <app-theme-toggle mode="cycle"></app-theme-toggle>
     </div>
 
-    <div style="padding:24px;">
-      <h2 style="margin:0 0 8px 0; color:var(--text)">Iniciar sesión</h2>
-      <p style="margin:0 0 16px 0; color:var(--muted)">Accede con tus credenciales.</p>
+    <div class="login-card__body">
+      <h2 class="login-title">Iniciar sesión</h2>
+      <p class="login-subtitle">Accede con tus credenciales.</p>
 
-      <form [formGroup]="form" (ngSubmit)="submit()" style="display:flex; flex-direction:column; gap:12px;">
-        <div style="position:relative;">
-          <input class="login-input" pInputText appUppercase type="text" formControlName="username" placeholder="Usuario" style="width:100%; padding-right:86px;" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" data-no-uppercase />
-          <span *ngIf="isSysadmin" style="position:absolute; right:8px; top:50%; transform: translateY(-50%); background:#e3f0ff; color:var(--primary-600); border:1px solid var(--border); border-radius:999px; padding:4px 10px; font-size:.78rem; font-weight:700;">SYSTEM</span>
+      <form [formGroup]="form" (ngSubmit)="submit()" class="login-form">
+        <div class="field field-with-chip">
+          <input class="login-input" pInputText appUppercase type="text" formControlName="username" placeholder="Usuario" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" data-no-uppercase />
+          <span *ngIf="isSysadmin" class="system-chip">SYSTEM</span>
         </div>
-        <div style="position:relative;">
-          <input class="login-input" pInputText [type]="showPassword ? 'text' : 'password'" formControlName="password" placeholder="Contraseña" style="width:100%; padding-right:40px;" autocomplete="current-password" autocapitalize="none" autocorrect="off" spellcheck="false" data-no-uppercase />
-          <button type="button" pButton class="p-button-text" (click)="togglePassword()" style="position:absolute; right:0; top:0; height:100%;">
+        <div class="field field-with-action">
+          <input class="login-input" pInputText [type]="showPassword ? 'text' : 'password'" formControlName="password" placeholder="Contraseña" autocomplete="current-password" autocapitalize="none" autocorrect="off" spellcheck="false" data-no-uppercase />
+          <button type="button" pButton class="p-button p-button-text field-action" (click)="togglePassword()">
             <i class="pi" [ngClass]="showPassword ? 'pi-eye-slash' : 'pi-eye'"></i>
           </button>
         </div>
 
-        <div style="display:flex; justify-content:flex-end;">
+        <div class="forgot-row">
           <a href="#">¿Olvidaste tu contraseña?</a>
         </div>
 
@@ -30,18 +30,17 @@
           <span *ngIf="loading"><i class="pi pi-spin pi-spinner"></i></span>
         </button>
 
-        <!-- Separador y acción de registro -->
-        <div style="display:flex; align-items:center; gap:12px; margin-top:4px;">
-          <span style="flex:1; height:1px; background: color-mix(in srgb, var(--border) 75%, transparent);"></span>
-          <span style="color:var(--muted); font-size:.92rem;">o</span>
-          <span style="flex:1; height:1px; background: color-mix(in srgb, var(--border) 75%, transparent);"></span>
+        <div class="divider-with-text">
+          <span class="divider"></span>
+          <span class="divider-text">o</span>
+          <span class="divider"></span>
         </div>
-        <a routerLink="/register" class="p-button p-button-outlined" style="text-decoration:none; display:inline-flex; align-items:center; justify-content:center; gap:8px;">
+        <a routerLink="/register" class="p-button p-button-outlined register-btn">
           <i class="pi pi-user-plus"></i>
           <span>Registrarse</span>
         </a>
 
-        <div *ngIf="errorMsg" class="snackbar snackbar-error" style="margin-top:8px;">{{ errorMsg }}</div>
+        <div *ngIf="errorMsg" class="snackbar snackbar-error error-banner">{{ errorMsg }}</div>
       </form>
     </div>
   </div>
@@ -49,64 +48,63 @@
 
 <!-- Diálogo: Crear contraseña inicial -->
 <p-dialog [(visible)]="showPwdSetup" [modal]="true" [draggable]="false" [resizable]="false" [closable]="true" (onHide)="cancelFirstPassword()" header="Crear contraseña inicial">
-  <div style="display:flex; flex-direction:column; gap:12px; min-width:min(420px, 92vw);">
-    <p style="margin:0; color:var(--muted)">Este es un paso único para establecer tu contraseña. Usuario: <strong>{{ setupUsername }}</strong></p>
+  <div class="pwd-setup">
+    <p class="pwd-setup__lead">Este es un paso único para establecer tu contraseña. Usuario: <strong>{{ setupUsername }}</strong></p>
 
-    <form [formGroup]="firstPwdForm" (ngSubmit)="submitFirstPassword()" style="display:flex; flex-direction:column; gap:12px;">
-      <div style="position:relative;">
-        <input class="login-input" pInputText [type]="showNewPwd ? 'text' : 'password'" formControlName="newPassword" placeholder="Nueva contraseña" style="width:100%; padding-right:40px;" autocomplete="new-password" autocapitalize="none" autocorrect="off" spellcheck="false" data-no-uppercase />
-        <button type="button" pButton class="p-button-text" (click)="toggleNewPwd()" style="position:absolute; right:0; top:0; height:100%;">
+    <form [formGroup]="firstPwdForm" (ngSubmit)="submitFirstPassword()" class="pwd-setup__form">
+      <div class="field field-with-action">
+        <input class="login-input" pInputText [type]="showNewPwd ? 'text' : 'password'" formControlName="newPassword" placeholder="Nueva contraseña" autocomplete="new-password" autocapitalize="none" autocorrect="off" spellcheck="false" data-no-uppercase />
+        <button type="button" pButton class="p-button p-button-text field-action" (click)="toggleNewPwd()">
           <i class="pi" [ngClass]="showNewPwd ? 'pi-eye-slash' : 'pi-eye'"></i>
         </button>
       </div>
 
-      <!-- Checklist de políticas de contraseña -->
-      <div aria-live="polite" style="font-size:.92rem; line-height:1.3; background: color-mix(in srgb, var(--border) 85%, transparent); border:1px solid var(--border); border-radius:8px; padding:10px 12px;">
-        <div style="font-weight:600; margin-bottom:6px; color:var(--text)">Requisitos de contraseña</div>
-        <ul style="list-style:none; padding:0; margin:0; display:grid; gap:4px;">
-          <li [style.color]="policyStatus.len ? 'var(--success)' : 'var(--muted)'">
-            <i class="pi" [ngClass]="policyStatus.len ? 'pi-check-circle' : 'pi-times-circle'" style="margin-right:6px;"></i>
+      <div class="policy-box" aria-live="polite">
+        <div class="policy-box__title">Requisitos de contraseña</div>
+        <ul class="policy-list">
+          <li [class.met]="policyStatus.len">
+            <i class="pi" [ngClass]="policyStatus.len ? 'pi-check-circle' : 'pi-times-circle'"></i>
             Mínimo 8 caracteres
           </li>
-          <li [style.color]="policyStatus.upper ? 'var(--success)' : 'var(--muted)'">
-            <i class="pi" [ngClass]="policyStatus.upper ? 'pi-check-circle' : 'pi-times-circle'" style="margin-right:6px;"></i>
+          <li [class.met]="policyStatus.upper">
+            <i class="pi" [ngClass]="policyStatus.upper ? 'pi-check-circle' : 'pi-times-circle'"></i>
             Al menos 1 letra mayúscula (A-Z)
           </li>
-          <li [style.color]="policyStatus.lower ? 'var(--success)' : 'var(--muted)'">
-            <i class="pi" [ngClass]="policyStatus.lower ? 'pi-check-circle' : 'pi-times-circle'" style="margin-right:6px;"></i>
+          <li [class.met]="policyStatus.lower">
+            <i class="pi" [ngClass]="policyStatus.lower ? 'pi-check-circle' : 'pi-times-circle'"></i>
             Al menos 1 letra minúscula (a-z)
           </li>
-          <li [style.color]="policyStatus.digit ? 'var(--success)' : 'var(--muted)'">
-            <i class="pi" [ngClass]="policyStatus.digit ? 'pi-check-circle' : 'pi-times-circle'" style="margin-right:6px;"></i>
+          <li [class.met]="policyStatus.digit">
+            <i class="pi" [ngClass]="policyStatus.digit ? 'pi-check-circle' : 'pi-times-circle'"></i>
             Al menos 1 dígito (0-9)
           </li>
-          <li [style.color]="policyStatus.symbol ? 'var(--success)' : 'var(--muted)'">
-            <i class="pi" [ngClass]="policyStatus.symbol ? 'pi-check-circle' : 'pi-times-circle'" style="margin-right:6px;"></i>
-            Al menos 1 símbolo: <span ngNonBindable style="font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace">! &#64; # $ % ^ &amp; * ( ) _ + - = [ ] &#123; &#125; ; : ' &quot; &#92; | , . &lt; &gt; / ? ` ~</span>
+          <li [class.met]="policyStatus.symbol">
+            <i class="pi" [ngClass]="policyStatus.symbol ? 'pi-check-circle' : 'pi-times-circle'"></i>
+            Al menos 1 símbolo: <span ngNonBindable class="symbols">! &#64; # $ % ^ &amp; * ( ) _ + - = [ ] &#123; &#125; ; : &#39; &quot; &#92; | , . &lt; &gt; / ? &#96; ~</span>
           </li>
-          <li [style.color]="policyStatus.nospace ? 'var(--success)' : 'var(--muted)'">
-            <i class="pi" [ngClass]="policyStatus.nospace ? 'pi-check-circle' : 'pi-times-circle'" style="margin-right:6px;"></i>
+          <li [class.met]="policyStatus.nospace">
+            <i class="pi" [ngClass]="policyStatus.nospace ? 'pi-check-circle' : 'pi-times-circle'"></i>
             Sin espacios en blanco
           </li>
         </ul>
       </div>
 
-      <div style="position:relative;">
-        <input class="login-input" pInputText [type]="showConfirmPwd ? 'text' : 'password'" formControlName="confirmPassword" placeholder="Confirmar contraseña" style="width:100%; padding-right:40px;" autocomplete="new-password" autocapitalize="none" autocorrect="off" spellcheck="false" data-no-uppercase />
-        <button type="button" pButton class="p-button-text" (click)="toggleConfirmPwd()" style="position:absolute; right:0; top:0; height:100%;">
+      <div class="field field-with-action">
+        <input class="login-input" pInputText [type]="showConfirmPwd ? 'text' : 'password'" formControlName="confirmPassword" placeholder="Confirmar contraseña" autocomplete="new-password" autocapitalize="none" autocorrect="off" spellcheck="false" data-no-uppercase />
+        <button type="button" pButton class="p-button p-button-text field-action" (click)="toggleConfirmPwd()">
           <i class="pi" [ngClass]="showConfirmPwd ? 'pi-eye-slash' : 'pi-eye'"></i>
         </button>
       </div>
 
-      <div *ngIf="firstPwdForm.errors?.['mismatch'] && (firstPwdForm.dirty || firstPwdForm.touched)" style="color:var(--danger)">
+      <div *ngIf="firstPwdForm.errors?.['mismatch'] && (firstPwdForm.dirty || firstPwdForm.touched)" class="field-error">
         Las contraseñas no coinciden.
       </div>
-      <div *ngIf="firstPwdForm.get('newPassword')?.errors?.['minlength']" style="color:var(--danger)">
+      <div *ngIf="firstPwdForm.get('newPassword')?.errors?.['minlength']" class="field-error">
         La contraseña debe tener al menos 8 caracteres.
       </div>
-      <div *ngIf="firstPwdMsg" class="snackbar snackbar-error">{{ firstPwdMsg }}</div>
+      <div *ngIf="firstPwdMsg" class="snackbar snackbar-error error-banner">{{ firstPwdMsg }}</div>
 
-      <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:4px;">
+      <div class="actions-row">
         <button pButton type="button" class="p-button p-button-text" (click)="cancelFirstPassword()">Cancelar</button>
         <button pButton type="submit" class="p-button p-button-success" [disabled]="firstPwdForm.invalid || loading">
           <span *ngIf="!loading">Guardar</span>

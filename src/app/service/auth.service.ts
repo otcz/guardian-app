@@ -123,7 +123,16 @@ export class AuthService {
             subscriber.next(resp);
             subscriber.complete();
           },
-          error: () => attemptNext(idx + 1)
+          error: (err) => {
+            const status = err?.status;
+            // Propagar inmediatamente errores "lógicos" del login para que el componente maneje 428, 401, 400
+            if (status === 428 || status === 401 || status === 400) {
+              subscriber.error(err);
+              return;
+            }
+            // Reintentar sólo en fallas de red/404/etc.
+            attemptNext(idx + 1);
+          }
         });
       };
       attemptNext(0);

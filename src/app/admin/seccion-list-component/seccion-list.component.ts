@@ -14,11 +14,12 @@ import {OrganizationService} from '../../service/organization.service';
 import {InputSwitchModule} from 'primeng/inputswitch';
 import {ConfirmDialogModule} from 'primeng/confirmdialog';
 import {ConfirmationService, MessageService} from 'primeng/api';
+import { SeccionUsuariosComponent } from '../seccion-usuarios-component/seccion-usuarios.component';
 
 @Component({
   selector: 'app-seccion-list',
   standalone: true,
-  imports: [CommonModule, RouterModule, TableModule, ButtonModule, InputTextModule, TagModule, FormsModule, TooltipModule, InputSwitchModule, ConfirmDialogModule],
+  imports: [CommonModule, RouterModule, TableModule, ButtonModule, InputTextModule, TagModule, FormsModule, TooltipModule, InputSwitchModule, ConfirmDialogModule, SeccionUsuariosComponent],
   templateUrl: './seccion-list.component.html',
   styleUrls: ['./seccion-list.component.scss']
 })
@@ -39,6 +40,9 @@ export class SeccionListComponent implements OnInit, OnDestroy {
   editingId: string | null = null;
   editDraft: SeccionEntity | null = null;
   flashRowId: string | null = null;
+
+  // Nueva: selección para panel de usuarios
+  selectedSeccionId: string | null = null;
 
   private sub?: Subscription;
 
@@ -287,6 +291,12 @@ export class SeccionListComponent implements OnInit, OnDestroy {
         this.toastError('ERROR', e?.error?.message || 'NO SE PUDO ACTUALIZAR LA AUTONOMÍA');
       }
     });
+  }
+
+  // Acción: ver usuarios de la sección
+  viewUsuarios(row: SeccionEntity) {
+    if (!row?.id) return;
+    this.selectedSeccionId = row.id;
   }
 
   // Utils

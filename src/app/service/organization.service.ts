@@ -426,6 +426,20 @@ export class OrganizationService {
     );
   }
 
+  /**
+   * Estrategia actual (solo nombre) vía ruta canónica /api/orgs/{orgId}/estrategias/actual con envoltura ApiResponse
+   */
+  getOrgStrategyName(orgId: string | number): Observable<'CENTRALIZADA' | 'HIBRIDA' | 'FEDERADA' | 'CUSTOM' | string> {
+    const url = `${environment.apiBase}/orgs/${orgId}/estrategias/actual`;
+    return this.http.get<any>(url, { headers: this.acceptJsonHeaders() }).pipe(
+      map((resp: any) => {
+        if (!resp || resp.success === false) { throw { status: 404, error: { message: resp?.message || 'No se pudo obtener la estrategia actual' } }; }
+        const nombre = (resp?.data?.nombre ?? resp?.data?.Nombre ?? resp?.data?.name ?? '').toString().toUpperCase();
+        return nombre || 'CUSTOM';
+      })
+    );
+  }
+
   // Guarda en catálogo o por organización según orgId; retorna mensaje + estrategia
   saveOrgGovernanceStrategy(orgId: string | number | null | undefined, input: Partial<GovernanceStrategy>, _options: SaveStrategyOptions = {}): Observable<SaveStrategyResult> {
     const model = this.normalizeStrategyInput(input);

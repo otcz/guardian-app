@@ -1,0 +1,36 @@
+<section class="seccion-usuarios">
+  <header class="su-header">
+    <h3>Usuarios</h3>
+    <div class="status" *ngIf="loadingStrategy || loadingUsuarios">
+      <span class="spinner"></span>
+      <span>Cargando...</span>
+    </div>
+  </header>
+
+  <div *ngIf="disabledByStrategy && !loadingStrategy" class="banner banner-warning" role="alert">
+    Acción no permitida por la estrategia de gobernanza
+  </div>
+
+  <div *ngIf="errorMsg && !disabledByStrategy" class="banner banner-error" role="alert">
+    {{ errorMsg }}
+  </div>
+
+  <div *ngIf="!disabledByStrategy && !errorMsg">
+    <div *ngIf="usuarios.length === 0 && !loadingUsuarios" class="empty-state">
+      <ng-container [ngSwitch]="estrategia">
+        <span *ngSwitchCase="'HIBRIDA'">No hay usuarios de alcance Sección asignados a esta sección.</span>
+        <span *ngSwitchDefault>No hay usuarios asignados a esta sección.</span>
+      </ng-container>
+    </div>
+
+    <ul *ngIf="usuarios.length > 0" class="usuarios-list">
+      <li *ngFor="let u of usuarios" class="usuarios-item">
+        <div class="cell username" title="Nombre de usuario">{{ u.usuarioEntity?.username }}</div>
+        <div class="cell nombre" title="Nombre completo">{{ u.usuarioEntity?.nombreCompleto || '—' }}</div>
+        <div class="cell scope" title="Alcance">{{ u.usuarioEntity?.scopeNivel || '—' }}</div>
+        <div class="cell rol" title="Rol contextual">{{ u.rolEntityContextual?.nombre || '—' }}</div>
+      </li>
+    </ul>
+  </div>
+</section>
+

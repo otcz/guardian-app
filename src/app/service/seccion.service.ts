@@ -28,6 +28,25 @@ export interface UpdateSeccionRequest {
   autonomiaConfigurada?: boolean;
 }
 
+export interface UsuarioSeccionEntity {
+  id: string;
+  activo: boolean;
+  usuarioEntity?: {
+    id: string;
+    username: string;
+    nombreCompleto?: string | null;
+    scopeNivel?: string;
+  } | null;
+  seccionEntity?: {
+    id: string;
+    nombre?: string | null;
+  } | null;
+  rolEntityContextual?: {
+    id: string;
+    nombre?: string | null;
+  } | null;
+}
+
 export interface ApiResponse<T> {
   success: boolean;
   message: string;
@@ -231,6 +250,18 @@ export class SeccionService {
         return { seccion, message: (payload as any)?.message };
       }),
       catchError((err) => throwError(() => ({ error: { message: err?.error?.message || err?.message || 'No se pudo asignar el administrador' }, status: err?.status })))
+    );
+  }
+
+  /**
+   * Lista usuarios asignados a una sección. Respuesta: JSON array directo (no envuelto en ApiResponse).
+   * En estrategia CENTRALIZADA puede responder 400 con mensaje de estrategia; se propaga para manejo en UI.
+   */
+  getUsuariosPorSeccion(orgId: string, seccionId: string) {
+    const url = `${this.base}/orgs/${orgId}/secciones/${seccionId}/usuarios`;
+    return this.http.get<UsuarioSeccionEntity[]>(url, { headers: this.accept }).pipe(
+      map(arr => Array.isArray(arr) ? arr : []),
+      catchError(err => throwError(() => ({ status: err?.status, error: { message: err?.error?.message || err?.message } })))
     );
   }
 }

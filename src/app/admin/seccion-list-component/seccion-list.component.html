@@ -31,7 +31,7 @@
           <th>Descripción</th>
           <th class="w-110">Estado</th>
           <th class="w-140">Autonomía</th>
-          <th class="w-220 text-center">Acciones</th>
+          <th class="w-280 text-center">Acciones</th>
         </tr>
       </ng-template>
       <ng-template pTemplate="body" let-row let-i="rowIndex">
@@ -113,6 +113,7 @@
 
             <!-- Acciones normales -->
             <ng-container *ngIf="!adding && editingId !== row.id">
+              <button pButton type="button" icon="pi pi-user" label="Usuarios" class="p-button-outlined p-button-sm" (click)="viewUsuarios(row)" [disabled]="saving" pTooltip="VER USUARIOS" tooltipPosition="top"></button>
               <button pButton type="button" icon="pi pi-pencil" class="p-button-rounded p-button-text" (click)="startEdit(row)" [disabled]="saving" pTooltip="EDITAR" tooltipPosition="top"></button>
               <button pButton type="button" icon="pi pi-trash" class="p-button-rounded p-button-text p-button-danger" (click)="remove(row)" [disabled]="saving" pTooltip="ELIMINAR (LÓGICA)" tooltipPosition="top"></button>
             </ng-container>
@@ -123,5 +124,10 @@
         <tr><td colspan="6" class="text-center fs-sm text-muted">Sin datos</td></tr>
       </ng-template>
     </p-table>
+
+    <!-- Panel de Usuarios por Sección -->
+    <div class="mt-md" *ngIf="orgId && selectedSeccionId">
+      <app-seccion-usuarios [orgId]="orgId!" [seccionId]="selectedSeccionId!"></app-seccion-usuarios>
+    </div>
   </div>
 </div>

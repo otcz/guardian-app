@@ -12,7 +12,11 @@ export interface BackendLoginResponse {
   username: string;
   roles: string[];
   opcionesDetalle: RawOption[];
-  // Opcionales: distintos backends pueden incluir estos campos
+  capabilities?: string[];
+  // Nuevos campos multi-tenant
+  orgCreadoraId?: string | number | null;
+  orgAdministraId?: string | number | null;
+  // Compat (legacy)
   orgId?: string | number;
   organizacionId?: string | number;
   organizationId?: string | number;
@@ -105,17 +109,32 @@ export class AuthService {
             const expiresAt = Date.now() + (resp.expiresIn * 1000);
             localStorage.setItem('expiresAt', String(expiresAt));
 
-            // Contexto de organización
+            // Guardar capacidades si vienen
+            try { if (resp.capabilities) localStorage.setItem('capabilities', JSON.stringify(resp.capabilities)); } catch {}
+
+            // Contexto multi-tenant (usar orgAdministraId como tenant efectivo)
             try {
-              const orgId = (resp.orgId ?? resp.organizacionId ?? resp.organizationId ?? resp.organization?.id ?? resp.organizacion?.id);
+              const adminId = (resp.orgAdministraId != null) ? resp.orgAdministraId
+                : (resp.orgId ?? resp.organizacionId ?? resp.organizationId ?? resp.organization?.id ?? resp.organizacion?.id);
+              const creadoraId = (resp.orgCreadoraId != null) ? resp.orgCreadoraId : null;
               const orgName = (resp.orgName ?? resp.organization?.nombre ?? resp.organization?.name ?? resp.organizacion?.nombre ?? resp.organizacion?.name);
-              if (orgId != null) localStorage.setItem('currentOrgId', String(orgId));
+
+              if (creadoraId != null) localStorage.setItem('orgCreadoraId', String(creadoraId)); else localStorage.removeItem('orgCreadoraId');
+              if (adminId != null) {
+                localStorage.setItem('orgAdministraId', String(adminId));
+                // Compat: currentOrgId ahora siempre es la organización administrada
+                localStorage.setItem('currentOrgId', String(adminId));
+              } else {
+                // sin adminId, limpiar compat
+                try { localStorage.removeItem('orgAdministraId'); localStorage.removeItem('currentOrgId'); } catch {}
+              }
               if (orgName != null) localStorage.setItem('currentOrgName', String(orgName));
+
               const scope = resp.scopeNivel != null ? String(resp.scopeNivel).toUpperCase() : null;
               const seccionId = resp.seccionPrincipalId != null ? String(resp.seccionPrincipalId) : null;
               if (scope) localStorage.setItem('scopeNivel', scope); else localStorage.removeItem('scopeNivel');
               if (seccionId) localStorage.setItem('seccionPrincipalId', seccionId); else localStorage.removeItem('seccionPrincipalId');
-              this.orgCtx.setContext({ orgId: orgId != null ? String(orgId) : null, scopeNivel: (scope as any), seccionPrincipalId: seccionId });
+              this.orgCtx.setContext({ orgId: adminId != null ? String(adminId) : null, scopeNivel: (scope as any), seccionPrincipalId: seccionId });
             } catch {}
 
             // Menú
@@ -125,12 +144,10 @@ export class AuthService {
           },
           error: (err) => {
             const status = err?.status;
-            // Propagar inmediatamente errores "lógicos" del login para que el componente maneje 428, 401, 400
             if (status === 428 || status === 401 || status === 400) {
               subscriber.error(err);
               return;
             }
-            // Reintentar sólo en fallas de red/404/etc.
             attemptNext(idx + 1);
           }
         });
@@ -203,8 +220,11 @@ export class AuthService {
     localStorage.removeItem('roles');
     try { localStorage.removeItem('currentOrgId'); } catch {}
     try { localStorage.removeItem('currentOrgName'); } catch {}
+    try { localStorage.removeItem('orgAdministraId'); } catch {}
+    try { localStorage.removeItem('orgCreadoraId'); } catch {}
     try { localStorage.removeItem('scopeNivel'); } catch {}
     try { localStorage.removeItem('seccionPrincipalId'); } catch {}
+    try { localStorage.removeItem('capabilities'); } catch {}
     this.orgCtx.clear();
     this.menu.clear();
   }

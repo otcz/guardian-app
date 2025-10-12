@@ -109,7 +109,8 @@ export class SeccionFormComponent implements OnInit, OnDestroy {
       next: (res) => {
         this.loading = false;
         this.notify.success('Sección creada', res.message || 'SECCIÓN CREADA CORRECTAMENTE.');
-        this.router.navigate(['/gestionar-organizacion'], { queryParams: { id: this.orgId } });
+        // Ir a listar secciones en lugar de gestionar organización
+        this.router.navigate(['/listar-secciones'], { queryParams: { id: this.orgId } });
       },
       error: (e) => {
         this.loading = false;
@@ -121,6 +122,7 @@ export class SeccionFormComponent implements OnInit, OnDestroy {
 
   cancel() {
     const id = this.orgId || localStorage.getItem('currentOrgId');
-    this.router.navigate(['/gestionar-organizacion'], { queryParams: id ? { id } : undefined });
+    // Volver a listar secciones (no abrir gestionar organización)
+    this.router.navigate(['/listar-secciones'], { queryParams: id ? { id } : undefined });
   }
 }

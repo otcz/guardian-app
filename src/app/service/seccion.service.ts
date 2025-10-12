@@ -3,6 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { environment } from '../config/environment';
+import type { UserEntity } from './users.service';
 
 export interface SeccionEntity {
   id: string;
@@ -261,6 +262,26 @@ export class SeccionService {
     const url = `${this.base}/orgs/${orgId}/secciones/${seccionId}/usuarios`;
     return this.http.get<UsuarioSeccionEntity[]>(url, { headers: this.accept }).pipe(
       map(arr => Array.isArray(arr) ? arr : []),
+      catchError(err => throwError(() => ({ status: err?.status, error: { message: err?.error?.message || err?.message } })))
+    );
+  }
+
+  /** Candidatos válidos para Administrador de Sección (scope SECCION). */
+  getAdminCandidates(orgId: string, seccionId: string) {
+    const url = `${this.base}/orgs/${orgId}/secciones/${seccionId}/administrador/candidatos`;
+    return this.http.get<any[]>(url, { headers: this.accept }).pipe(
+      map(arr => (Array.isArray(arr) ? arr : []).map(d => ({
+        id: String(d?.id ?? d?._id ?? ''),
+        username: String(d?.username ?? d?.userName ?? ''),
+        nombreCompleto: d?.nombreCompleto ?? d?.fullName ?? null,
+        email: d?.email ?? null,
+        activo: d?.activo != null ? !!d?.activo : true,
+        scopeNivel: (d?.scopeNivel ?? d?.nivel ?? 'SECCION') as any,
+        seccionPrincipalId: d?.seccionPrincipalId != null ? String(d?.seccionPrincipalId) : null,
+        orgId: d?.orgId != null ? String(d?.orgId) : (d?.organizacionId != null ? String(d?.organizacionId) : null),
+        fechaCreacion: d?.fechaCreacion ? String(d?.fechaCreacion) : null,
+        fechaActualizacion: d?.fechaActualizacion ? String(d?.fechaActualizacion) : null
+      } as UserEntity))),
       catchError(err => throwError(() => ({ status: err?.status, error: { message: err?.error?.message || err?.message } })))
     );
   }

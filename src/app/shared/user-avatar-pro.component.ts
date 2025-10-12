@@ -52,6 +52,29 @@ export class UserAvatarProComponent {
 
     const isAuth = this.auth.isAuthenticated();
 
+    // NUEVO: sincronizar señales con cambios del contexto global
+    this.ctx.orgId$.subscribe((id) => {
+      const newId = id ? String(id) : null;
+      if (this.orgId() !== newId) {
+        this.orgId.set(newId);
+        try { if (newId) localStorage.setItem('currentOrgId', newId); } catch {}
+      }
+    });
+    this.ctx.scope$.subscribe((sc) => {
+      const v = sc != null ? (String(sc).toUpperCase() as any) : null;
+      if (this.scopeNivel() !== v) {
+        this.scopeNivel.set(v);
+        try { if (v) localStorage.setItem('scopeNivel', v as string); else localStorage.removeItem('scopeNivel'); } catch {}
+      }
+    });
+    this.ctx.seccionId$.subscribe((sid) => {
+      const v = sid ? String(sid) : null;
+      if (this.seccionId() !== v) {
+        this.seccionId.set(v);
+        try { if (v) localStorage.setItem('seccionPrincipalId', v); else localStorage.removeItem('seccionPrincipalId'); } catch {}
+      }
+    });
+
     // Refrescar nombre de organización actual y persistirlo (solo si autenticado)
     effect((onCleanup) => {
       if (!isAuth) { this.orgName.set(null); return; }

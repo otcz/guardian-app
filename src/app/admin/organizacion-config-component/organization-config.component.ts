@@ -13,6 +13,7 @@ import {forkJoin, Observable} from 'rxjs';
 import {OrganizationService, GovernanceStrategy, Organization} from '../../service/organization.service';
 import {MessageService} from 'primeng/api';
 import { environment } from '../../config/environment';
+import { OrgContextService } from '../../service/org-context.service';
 
 @Component({
   selector: 'app-organization-config',
@@ -50,7 +51,8 @@ export class OrganizationConfigComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private orgSvc: OrganizationService,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private orgCtx: OrgContextService
   ) {
   }
 
@@ -62,6 +64,8 @@ export class OrganizationConfigComponent implements OnInit {
     } else {
       this.orgId = resolved;
       localStorage.setItem('currentOrgId', this.orgId);
+      // Sincronizar contexto global para que Avatar/UI reflejen la organización activa
+      this.orgCtx.set(this.orgId);
       this.loadAll();
       // Precargar listado en segundo plano
       this.loadOrganizations(false);
@@ -87,6 +91,8 @@ export class OrganizationConfigComponent implements OnInit {
     if (!newId) return;
     this.orgId = newId;
     localStorage.setItem('currentOrgId', this.orgId);
+    // Sincronizar contexto global
+    this.orgCtx.set(this.orgId);
     this.loadAll();
   }
 

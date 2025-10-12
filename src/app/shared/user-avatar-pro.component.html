@@ -18,10 +18,15 @@
         <div class="time">{{ sessionLeftDetailed() }}</div>
       </div>
 
-      <div style="display:flex; gap:.4rem; flex-wrap:wrap; margin:.4rem 0 .6rem;">
-        <p-tag [value]="'Org: ' + (orgName() || '—')" severity="contrast"></p-tag>
-        <p-tag *ngIf="seccionName()" [value]="'Sección: ' + seccionName()" severity="secondary"></p-tag>
-        <p-tag *ngIf="scopeNivel()" [value]="'Alcance: ' + scopeNivel()" severity="info"></p-tag>
+      <!-- Línea de mando: Alcance > Organización > (Sección) -->
+      <div class="chain">
+        <span class="scope" *ngIf="scopeNivel()">{{ scopeNivel() }}</span>
+        <span class="node org" [class.muted]="!orgName()">{{ orgName() || 'Sin organización' }}</span>
+        <span class="sep" *ngIf="scopeNivel() === 'SECCION'
+                                  && (seccionName() || seccionId())">›</span>
+        <span class="node sec" *ngIf="scopeNivel() === 'SECCION'">
+          {{ seccionName() || ('Sección ' + (seccionId() || '')) }}
+        </span>
       </div>
 
       <div class="orgs" *ngIf="displayedOrgs().length">
@@ -35,8 +40,7 @@
       </div>
 
       <div class="actions">
-        <button pButton type="button" class="p-button-text" icon="pi pi-cog" label="Gestionar" (click)="goManage(pop)"></button>
-        <button pButton type="button" class="p-button-text" icon="pi pi-list" label="Organizaciones" (click)="goList(pop)"></button>
+        <!-- Eliminados: Gestionar y Organizaciones -->
         <button pButton type="button" class="p-button-danger p-button-text" icon="pi pi-sign-out" label="Salir" (click)="logout()"></button>
       </div>
     </div>

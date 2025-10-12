@@ -229,8 +229,7 @@ export class UserAvatarProComponent {
     this.orgName.set(name);
     this.ctx.set(id);
     if (pop?.hide) pop.hide();
-    // Navegar al panel de gestión de la org seleccionada
-    this.router.navigate(['/gestionar-organizacion'], { queryParams: { id: o.id } });
+    // Antes: navegar a gestionar-organizacion. Eliminado para simplificar el menú.
   }
 
   goManage(pop: any) {

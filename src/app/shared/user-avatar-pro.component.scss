@@ -49,6 +49,13 @@
 .bar .bar-fill { position:absolute; left:0; top:0; bottom:0; height:100%; background: linear-gradient(90deg, var(--primary), color-mix(in srgb, var(--primary) 20%, var(--secondary))); border-radius: 999px; width: 0; }
 .session .time { font-size:.8rem; font-weight: 800; min-width: 70px; text-align:right; }
 
+/* Línea de mando (jerarquía) */
+.chain { display:flex; align-items:center; gap:.45rem; flex-wrap:wrap; margin:.2rem 0 .4rem; font-size:.86rem; }
+.chain .scope { padding:.08rem .4rem; border-radius: 999px; font-weight: 800; letter-spacing:.15px; background: color-mix(in srgb, var(--primary) 14%, var(--surface-alt)); color: var(--text); border:1px solid color-mix(in srgb, var(--primary) 35%, var(--border)); }
+.chain .node { font-weight: 700; }
+.chain .node.muted { opacity: .7; font-style: italic; font-weight: 600; }
+.chain .sep { opacity:.6; }
+
 /* Lista de organizaciones */
 .orgs { display:flex; flex-direction:column; gap:.35rem; }
 .org-item {

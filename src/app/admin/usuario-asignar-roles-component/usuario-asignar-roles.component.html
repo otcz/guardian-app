@@ -33,5 +33,32 @@
         <button pButton type="button" icon="pi pi-plus" class="p-button-sm p-button-rounded p-button-success btn-icon" (click)="assignRole()" [disabled]="!usuarioId || !rolSeleccionado || saving" pTooltip="Asignar rol" tooltipPosition="top"></button>
       </div>
     </div>
+
+    <!-- Lista de roles asignados -->
+    <div class="table-wrap" *ngIf="usuarioId">
+      <p-table [value]="rolesUsuario" [paginator]="false" [rows]="10" [responsiveLayout]="'scroll'" styleClass="p-datatable-sm">
+        <ng-template pTemplate="header">
+          <tr>
+            <th style="width:48px">#</th>
+            <th>Rol</th>
+            <th>Descripción</th>
+            <th style="width:80px; text-align:center;">Acciones</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-ru let-i="rowIndex">
+          <tr>
+            <td>{{ i + 1 }}</td>
+            <td>{{ getRoleName(ru) }}</td>
+            <td>{{ ru.rol?.descripcion || '—' }}</td>
+            <td style="text-align:center;">
+              <button pButton type="button" icon="pi pi-trash" class="p-button-rounded p-button-danger p-button-text" (click)="unassignRole(ru.id)" pTooltip="Quitar rol"></button>
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+          <tr><td colspan="4">Este usuario no tiene roles asignados.</td></tr>
+        </ng-template>
+      </p-table>
+    </div>
   </p-card>
 </div>

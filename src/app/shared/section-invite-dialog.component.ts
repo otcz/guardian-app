@@ -122,17 +122,13 @@ export class SectionInviteDialogComponent implements OnChanges {
     this.saving = true;
     this.invites.crear(this.orgId!, this.seccionId!, body).subscribe(
       (resp: any) => {
-        // DEBUG: mostrar respuesta cruda y data
-        try { console.log('[INVITE crear] raw response:', resp); } catch {}
         this.saving = false;
         const data = resp && resp.data ? resp.data : null;
-        try { console.log('[INVITE crear] data:', data); } catch {}
         // Extraer invitación real aunque venga doblemente anidada
         const inv = this.extractInvite(data) || this.extractInvite(resp) || null;
         if (!inv) {
           this.invite = null;
           this.shareUrl = '';
-          try { console.warn('[INVITE crear] no se pudo extraer invitación del payload'); } catch {}
           return;
         }
         this.invite = inv as InvitationDto;
@@ -142,12 +138,19 @@ export class SectionInviteDialogComponent implements OnChanges {
         const fromJoin = inv ? this.invites.buildShareUrl(inv.joinUrl) : '';
         const fromCode = inv?.codigo ? this.invites.buildFrontInviteUrlFromCode(inv.codigo) : '';
         this.shareUrl = (!isInvalid ? pref : '') || fromJoin || fromCode || '';
-        try { console.log('[INVITE crear] shareUrl:', this.shareUrl); } catch {}
+        // Si hay rol seleccionado, adjuntarlo en la URL como rolId
+        try {
+          if (this.shareUrl && this.rolContextualId) {
+            const base = (typeof window !== 'undefined' && window.location && window.location.origin) ? window.location.origin : '';
+            const u = this.shareUrl.startsWith('http') ? new URL(this.shareUrl) : new URL(this.shareUrl, base || 'http://localhost');
+            u.searchParams.set('rolId', this.rolContextualId);
+            this.shareUrl = u.toString();
+          }
+        } catch {}
       },
-      (e: any) => {
+      (_e: any) => {
         this.saving = false;
-        try { console.error('[INVITE crear] error:', e); } catch {}
-        const msg = e && e.error && e.error.message ? e.error.message : 'No se pudo crear la invitación';
+        const msg = 'No se pudo crear la invitación';
         this.notify.error('Error', msg);
       }
     );
@@ -178,9 +181,8 @@ export class SectionInviteDialogComponent implements OnChanges {
       a.click();
       document.body.removeChild(a);
       this.notify.info('Descargado', 'QR descargado.');
-    } catch (e) {
+    } catch (_e) {
       this.notify.error('Error', 'No se pudo generar el QR.');
-      try { console.error('[INVITE crear] QR error:', e); } catch {}
     } finally {
       this.generatingQr = false;
     }

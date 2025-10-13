@@ -10,6 +10,7 @@ import { AvatarModule } from 'primeng/avatar';
 import { ChipModule } from 'primeng/chip';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { OrgContextService } from '../../service/org-context.service';
 import { UsersService, UserEntity } from '../../service/users.service';
 import { RolesService, RoleEntity, UserRoleAssignment } from '../../service/roles.service';
@@ -19,7 +20,7 @@ import { ConfirmationService } from 'primeng/api';
 @Component({
   selector: 'app-usuario-asignar-roles',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, CardModule, DropdownModule, ButtonModule, TableModule, AvatarModule, ChipModule, TagModule, TooltipModule],
+  imports: [CommonModule, FormsModule, RouterModule, CardModule, DropdownModule, ButtonModule, TableModule, AvatarModule, ChipModule, TagModule, TooltipModule, ConfirmDialogModule],
   templateUrl: './usuario-asignar-roles.component.html',
   styleUrls: ['./usuario-asignar-roles.component.scss']
 })
@@ -27,6 +28,7 @@ export class UsuarioAsignarRolesComponent implements OnInit {
   orgId: string | null = null;
   usuarios: UserEntity[] = [];
   roles: RoleEntity[] = [];
+  roleNameById: Record<string, string> = {};
   rolesUsuario: UserRoleAssignment[] = [];
   usuarioId: string | null = null;
   rolSeleccionado: string | null = null;
@@ -40,7 +42,7 @@ export class UsuarioAsignarRolesComponent implements OnInit {
 
     // Cargar catálogos
     this.users.list(this.orgId).subscribe({ next: list => { this.usuarios = list; this.autoSelectFromQuery(); }, error: e => this.notify.error('Error', e?.error?.message || 'No se pudieron listar usuarios') });
-    this.rolesSrv.list(this.orgId).subscribe({ next: list => this.roles = list, error: e => this.notify.error('Error', e?.error?.message || 'No se pudieron listar roles') });
+    this.rolesSrv.list(this.orgId).subscribe({ next: list => { this.roles = list; this.roleNameById = Object.fromEntries((list || []).map(r => [String(r.id), String(r.nombre || '')])); }, error: e => this.notify.error('Error', e?.error?.message || 'No se pudieron listar roles') });
 
     // Reaccionar a cambios de query param
     this.route.queryParamMap.subscribe(qm => {
@@ -65,6 +67,11 @@ export class UsuarioAsignarRolesComponent implements OnInit {
     const parts = src.split(/\s+/).filter(Boolean);
     if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
     return src[0].toUpperCase();
+  }
+
+  getRoleName(ru: UserRoleAssignment | null | undefined): string {
+    if (!ru) return '';
+    return (ru.rol?.nombre || this.roleNameById[ru.rolId] || ru.rolId || '').toString();
   }
 
   loadUserRoles() {

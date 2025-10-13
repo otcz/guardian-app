@@ -40,6 +40,8 @@ export interface InvitationPreviewDto {
   seccionNombre?: string | null; // soporte directo al campo del backend solicitado
   frontJoinUrl?: string | null;
   inviteUrl?: string | null;
+  // Nuevo: incluir rol preconfigurado si viene en el preview
+  rolContextualId?: string | null;
 }
 
 export interface ApiResponse<T> { success: boolean; message?: string; data: T; }
@@ -58,7 +60,7 @@ export class InvitacionesService {
     // sin prefijo /api
     const noApi = `${environment.backendHost}${path}`;
     // Quitar dobles barras accidentales
-    const normalize = (u: string) => u.replace(/([^:]\/)\/+/g, '$1/');
+    const normalize = (u: string) => u.replace(/([^:]\/)\/+/, '$1/');
     return [rel, absApi, noApi].map(normalize);
   }
 
@@ -151,7 +153,7 @@ export class InvitacionesService {
     );
   }
 
-  unirse(codigo: string, body: { username: string; email: string; nombreCompleto?: string | null; createIfNotExists?: boolean }): Observable<ApiResponse<{ usuarioSeccionId: string; usuarioId: string; seccionId: string }>> {
+  unirse(codigo: string, body: { username: string; email: string; nombreCompleto?: string | null; createIfNotExists?: boolean; rolContextualId?: string }): Observable<ApiResponse<{ usuarioSeccionId: string; usuarioId: string; seccionId: string }>> {
     const path = `/invitaciones/${encodeURIComponent(codigo)}/unirse`;
     const urls = this.urlCandidates(path);
     return this.tryPost<any>(urls, body || {}, this.json).pipe(

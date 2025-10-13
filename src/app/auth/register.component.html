@@ -9,6 +9,12 @@
       <h2 style="margin:0 0 8px 0; color:var(--text)">Crear cuenta</h2>
       <p style="margin:0 0 16px 0; color:var(--muted)">Completa tus datos para registrarte.</p>
 
+      <!-- Aviso éxito -->
+      <div *ngIf="successMsg" class="snackbar snackbar-success" style="margin-bottom:12px;">
+        {{ successMsg }}
+        <span *ngIf="countdown > 0"> Redirigiendo en {{ countdown }}s…</span>
+      </div>
+
       <!-- Aviso de invitación y sección destino -->
       <div *ngIf="invitePreview as inv" style="background:#f0f9ff; border:1px solid #b6e0fe; color:#0b3754; border-radius:8px; padding:12px 14px; margin:0 0 16px 0;">
         <div style="font-weight:600; margin-bottom:4px;">Registro por invitación</div>
@@ -19,8 +25,6 @@
       </div>
 
       <form [formGroup]="form" (ngSubmit)="submit()" style="display:flex; flex-direction:column; gap:16px;">
-        <!-- Eliminado: Código de organización (opcional) -->
-
         <!-- Identificación: tipo + número en una fila -->
         <div style="display:grid; grid-template-columns: 220px 1fr; gap:12px; align-items:end;">
           <div class="form-field">
@@ -45,22 +49,26 @@
           </div>
         </div>
 
-        <!-- Usuario y contraseña -->
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+        <!-- Usuario (sin contraseña) -->
+        <div style="display:grid; grid-template-columns: 1fr; gap:12px;">
           <div class="form-field">
             <label for="username">Usuario</label>
             <input id="username" pInputText appUppercase type="text" formControlName="username" placeholder="USUARIO" />
           </div>
-          <div class="form-field" style="position:relative;">
-            <label for="password">Contraseña</label>
-            <input id="password" pInputText type="password" formControlName="password" placeholder="••••••••" />
+        </div>
+
+        <!-- Rol contextual (opcional - solo invitación) -->
+        <div *ngIf="inviteCode && rolesOpcionales?.length" style="display:grid; grid-template-columns: 1fr; gap:12px;">
+          <div class="form-field">
+            <label for="rol">Rol en la sección (opcional)</label>
+            <p-dropdown id="rol" [options]="rolesOpcionales" optionLabel="nombre" optionValue="id" [(ngModel)]="selectedRolId" name="selectedRolId" placeholder="Sin rol"></p-dropdown>
           </div>
         </div>
 
         <!-- Contacto -->
         <div style="display:grid; grid-template-columns: 1fr 280px; gap:12px;">
           <div class="form-field">
-            <label for="email">Email (opcional)</label>
+            <label for="email">Email {{ inviteCode ? '(requerido)' : '(opcional)' }}</label>
             <input id="email" pInputText appUppercase type="email" formControlName="email" placeholder="correo@dominio.com" />
           </div>
           <div class="form-field">
@@ -75,9 +83,10 @@
             <i class="pi pi-arrow-left"></i>
             <span>Volver</span>
           </a>
-          <button pButton type="submit" class="p-button p-button-primary" [disabled]="form.invalid || loading">
-            <span *ngIf="!loading">Crear cuenta</span>
+          <button pButton type="submit" class="p-button p-button-primary" [disabled]="submitDisabled">
+            <span *ngIf="!loading && countdown === 0">Crear cuenta</span>
             <span *ngIf="loading"><i class="pi pi-spin pi-spinner"></i></span>
+            <span *ngIf="!loading && countdown > 0">Redirigiendo en {{ countdown }}s…</span>
           </button>
         </div>
 

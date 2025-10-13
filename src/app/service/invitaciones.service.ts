@@ -35,8 +35,9 @@ export interface InvitationPreviewDto {
   expiraEn?: string | null;
   usosMaximos?: number | null;
   usosActuales: number;
-  seccion: { id: string; nombre: string };
-  organizacion: { id: string; nombre: string };
+  seccion?: { id: string; nombre?: string };
+  organizacion?: { id: string; nombre?: string };
+  seccionNombre?: string | null; // soporte directo al campo del backend solicitado
   frontJoinUrl?: string | null;
   inviteUrl?: string | null;
 }
@@ -142,55 +143,11 @@ export class InvitacionesService {
     );
   }
 
-  private ensurePreviewShape(d: any): InvitationPreviewDto {
-    const pick = (obj: any, ...keys: string[]) => {
-      for (const k of keys) { if (obj && obj[k] != null) return obj[k]; }
-      return undefined;
-    };
-    const toNombre = (o: any, fallbacks?: any) => {
-      return (
-        pick(o || {}, 'nombre', 'name', 'titulo', 'title', 'descripcion', 'displayName') ??
-        pick(fallbacks || {}, 'organizacionNombre', 'organizationName', 'orgNombre', 'seccionNombre', 'sectionName') ??
-        ''
-      );
-    };
-    const toId = (o: any, fallbacks?: any) => {
-      const v = pick(o || {}, 'id', '_id', 'uuid', 'codigo', 'code') ??
-        pick(fallbacks || {}, 'organizacionId', 'organizationId', 'orgId', 'seccionId', 'sectionId');
-      return v != null ? String(v) : '';
-    };
-
-    const orgObj = d?.organizacion ?? d?.organization ?? d?.org ?? {};
-    const secObj = d?.seccion ?? d?.section ?? d?.seccionEntity ?? {};
-
-    const organizacion = {
-      id: toId(orgObj, d),
-      nombre: String(toNombre(orgObj, d) || '')
-    };
-    const seccion = {
-      id: toId(secObj, d),
-      nombre: String(toNombre(secObj, d) || '')
-    };
-
-    return {
-      codigo: String(d?.codigo ?? d?.code ?? ''),
-      activo: d?.activo != null ? !!d?.activo : (d?.active != null ? !!d?.active : true),
-      expiraEn: d?.expiraEn ? String(d?.expiraEn) : (d?.expiresAt ? String(d?.expiresAt) : undefined),
-      usosMaximos: d?.usosMaximos ?? d?.maxUsos ?? d?.maxUses ?? null,
-      usosActuales: Number(d?.usosActuales ?? d?.used ?? 0),
-      seccion,
-      organizacion,
-      frontJoinUrl: d?.frontJoinUrl ?? d?.inviteUrl ?? undefined,
-      inviteUrl: d?.inviteUrl ?? d?.frontJoinUrl ?? undefined
-    } as InvitationPreviewDto;
-  }
-
   previewPorCodigo(codigo: string): Observable<ApiResponse<InvitationPreviewDto>> {
     const basePath = `/invitaciones/${encodeURIComponent(codigo)}`;
     const urls = this.urlCandidates(basePath);
     return this.tryGet<any>(urls, this.accept).pipe(
-      map((payload: any) => this.toApiResponse<any>(payload)),
-      map((resp) => ({ ...resp, data: this.ensurePreviewShape(resp?.data || {}) } as ApiResponse<InvitationPreviewDto>))
+      map((payload: any) => this.toApiResponse<InvitationPreviewDto>(payload))
     );
   }
 

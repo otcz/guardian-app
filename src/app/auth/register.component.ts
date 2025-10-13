@@ -32,6 +32,7 @@ export class RegisterComponent implements OnInit {
   // Invitación
   inviteCode: string | null = null;
   invitePreview: InvitationPreviewDto | null = null;
+  sectionDisplayName: string | null = null;
 
   constructor(private fb: FormBuilder, private auth: AuthService, private router: Router, private route: ActivatedRoute, private invites: InvitacionesService) {
     this.form = this.fb.group({
@@ -58,6 +59,9 @@ export class RegisterComponent implements OnInit {
       this.invites.previewPorCodigo(this.inviteCode).subscribe({
         next: (resp) => {
           this.invitePreview = resp?.data || null;
+          try { console.log('[REGISTER preview] data:', this.invitePreview); } catch {}
+          const inv: any = this.invitePreview || {};
+          this.sectionDisplayName = (inv.seccionNombre || (inv.seccion && inv.seccion.nombre) || null);
           this.loading = false;
         },
         error: (e) => {

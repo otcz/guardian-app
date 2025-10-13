@@ -14,9 +14,7 @@
         <div style="font-weight:600; margin-bottom:4px;">Registro por invitación</div>
         <div>
           Te estás registrando en:
-          <b>{{ inv.organizacion && inv.organizacion.nombre ? inv.organizacion.nombre : '—' }}</b>
-          /
-          <b>{{ inv.seccion && inv.seccion.nombre ? inv.seccion.nombre : '—' }}</b>
+          <b>{{ (inv.seccionNombre || (inv.seccion && inv.seccion.nombre) || '—') }}</b>
         </div>
       </div>
 

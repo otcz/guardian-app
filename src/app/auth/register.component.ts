@@ -34,6 +34,24 @@ export class RegisterComponent implements OnInit {
   invitePreview: InvitationPreviewDto | null = null;
   sectionDisplayName: string | null = null;
 
+  private extractSectionName(payload: any): string | null {
+    const looks = (o: any): string | null => {
+      if (!o || typeof o !== 'object') return null;
+      if (typeof o.seccionNombre === 'string' && o.seccionNombre.trim()) return o.seccionNombre.trim();
+      if (o.seccion && typeof o.seccion.nombre === 'string' && o.seccion.nombre.trim()) return o.seccion.nombre.trim();
+      return null;
+    };
+    let cur: any = payload;
+    let guard = 0;
+    while (cur && guard < 5) {
+      const hit = looks(cur);
+      if (hit) return hit;
+      cur = (cur && typeof cur === 'object' && 'data' in cur) ? (cur as any).data : null;
+      guard++;
+    }
+    return null;
+  }
+
   constructor(private fb: FormBuilder, private auth: AuthService, private router: Router, private route: ActivatedRoute, private invites: InvitacionesService) {
     this.form = this.fb.group({
       username: ['', [Validators.required, Validators.minLength(4), Validators.maxLength(128)]],
@@ -59,9 +77,10 @@ export class RegisterComponent implements OnInit {
       this.invites.previewPorCodigo(this.inviteCode).subscribe({
         next: (resp) => {
           this.invitePreview = resp?.data || null;
+          try { console.log('[REGISTER preview] raw:', resp); } catch {}
           try { console.log('[REGISTER preview] data:', this.invitePreview); } catch {}
-          const inv: any = this.invitePreview || {};
-          this.sectionDisplayName = (inv.seccionNombre || (inv.seccion && inv.seccion.nombre) || null);
+          const name = this.extractSectionName(resp);
+          this.sectionDisplayName = name || null;
           this.loading = false;
         },
         error: (e) => {

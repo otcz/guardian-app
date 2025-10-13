@@ -14,6 +14,7 @@ import { NotificationService } from '../service/notification.service';
 import { InvitacionesService, InvitationDto } from '../service/invitaciones.service';
 import { SeccionService, SeccionEntity } from '../service/seccion.service';
 import { RolesService, RoleEntity } from '../service/roles.service';
+import * as QRCode from 'qrcode';
 
 @Component({
   selector: 'app-section-invite-dialog',
@@ -46,6 +47,7 @@ export class SectionInviteDialogComponent implements OnChanges {
 
   // UI state
   saving = false;
+  generatingQr = false;
 
   ttlChips = [15, 30, 120, 1440];
 
@@ -93,6 +95,19 @@ export class SectionInviteDialogComponent implements OnChanges {
     return true;
   }
 
+  private extractInvite(payload: any): InvitationDto | null {
+    // Busca recursivamente un objeto que luzca como invitación
+    const looksLikeInvite = (o: any) => o && typeof o === 'object' && (('codigo' in o) || ('joinUrl' in o) || ('inviteUrl' in o) || ('frontJoinUrl' in o));
+    let cur: any = payload;
+    let guard = 0;
+    while (cur && guard < 4) {
+      if (looksLikeInvite(cur)) return cur as InvitationDto;
+      cur = (cur && typeof cur === 'object' && 'data' in cur) ? (cur as any).data : null;
+      guard++;
+    }
+    return null;
+  }
+
   create() {
     if (!this.seccionId) { this.notify.warn('Falta sección', 'Selecciona la Sección para emitir la invitación.'); return; }
     if (!this.orgId) { this.notify.warn('Falta organización', 'No se detectó organización activa.'); return; }
@@ -112,12 +127,20 @@ export class SectionInviteDialogComponent implements OnChanges {
         this.saving = false;
         const data = resp && resp.data ? resp.data : null;
         try { console.log('[INVITE crear] data:', data); } catch {}
-        this.invite = data as InvitationDto;
-        const rawPref = (this.invite as any)?.inviteUrl || (this.invite as any)?.frontJoinUrl || '';
+        // Extraer invitación real aunque venga doblemente anidada
+        const inv = this.extractInvite(data) || this.extractInvite(resp) || null;
+        if (!inv) {
+          this.invite = null;
+          this.shareUrl = '';
+          try { console.warn('[INVITE crear] no se pudo extraer invitación del payload'); } catch {}
+          return;
+        }
+        this.invite = inv as InvitationDto;
+        const rawPref = (inv as any)?.inviteUrl || (inv as any)?.frontJoinUrl || '';
         const pref = typeof rawPref === 'string' ? rawPref.trim() : '';
         const isInvalid = !pref || /(?:^|[\\/])(undefined|null)(?:$|[?#])/i.test(pref);
-        const fromJoin = this.invite ? this.invites.buildShareUrl(this.invite.joinUrl) : '';
-        const fromCode = this.invite?.codigo ? this.invites.buildFrontInviteUrlFromCode(this.invite.codigo) : '';
+        const fromJoin = inv ? this.invites.buildShareUrl(inv.joinUrl) : '';
+        const fromCode = inv?.codigo ? this.invites.buildFrontInviteUrlFromCode(inv.codigo) : '';
         this.shareUrl = (!isInvalid ? pref : '') || fromJoin || fromCode || '';
         try { console.log('[INVITE crear] shareUrl:', this.shareUrl); } catch {}
       },
@@ -139,5 +162,27 @@ export class SectionInviteDialogComponent implements OnChanges {
     const t = (this.shareUrl || '').toString();
     if (!t) return;
     try { navigator.clipboard.writeText(t); this.notify.info('Copiado', 'Enlace copiado.'); } catch {}
+  }
+
+  async downloadQr() {
+    const url = (this.shareUrl || '').trim();
+    if (!url) { this.notify.warn('Sin enlace', 'Genera primero la invitación.'); return; }
+    try {
+      this.generatingQr = true;
+      const dataUrl = await QRCode.toDataURL(url, { errorCorrectionLevel: 'M', margin: 2, scale: 6, color: { dark: '#000000', light: '#FFFFFF' } });
+      const a = document.createElement('a');
+      a.href = dataUrl;
+      const code = (this.invite?.codigo || 'invitacion');
+      a.download = `invitacion-${code}.png`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      this.notify.info('Descargado', 'QR descargado.');
+    } catch (e) {
+      this.notify.error('Error', 'No se pudo generar el QR.');
+      try { console.error('[INVITE crear] QR error:', e); } catch {}
+    } finally {
+      this.generatingQr = false;
+    }
   }
 }

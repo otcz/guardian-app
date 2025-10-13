@@ -35,7 +35,6 @@ export class RegisterComponent implements OnInit {
 
   constructor(private fb: FormBuilder, private auth: AuthService, private router: Router, private route: ActivatedRoute, private invites: InvitacionesService) {
     this.form = this.fb.group({
-      orgCode: [''],
       username: ['', [Validators.required, Validators.minLength(4), Validators.maxLength(128)]],
       password: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(128)]],
       nombres: ['', Validators.required],

@@ -9,12 +9,19 @@
       <h2 style="margin:0 0 8px 0; color:var(--text)">Crear cuenta</h2>
       <p style="margin:0 0 16px 0; color:var(--muted)">Completa tus datos para registrarte.</p>
 
-      <form [formGroup]="form" (ngSubmit)="submit()" style="display:flex; flex-direction:column; gap:16px;">
-        <!-- Organización (opcional) -->
-        <div class="form-field">
-          <label for="orgCode">Código de organización (opcional)</label>
-          <input id="orgCode" pInputText appUppercase type="text" formControlName="orgCode" placeholder="ORG-001" />
+      <!-- Aviso de invitación y sección destino -->
+      <div *ngIf="invitePreview as inv" style="background:#f0f9ff; border:1px solid #b6e0fe; color:#0b3754; border-radius:8px; padding:12px 14px; margin:0 0 16px 0;">
+        <div style="font-weight:600; margin-bottom:4px;">Registro por invitación</div>
+        <div>
+          Te estás registrando en:
+          <b>{{ inv.organizacion && inv.organizacion.nombre ? inv.organizacion.nombre : '—' }}</b>
+          /
+          <b>{{ inv.seccion && inv.seccion.nombre ? inv.seccion.nombre : '—' }}</b>
         </div>
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="submit()" style="display:flex; flex-direction:column; gap:16px;">
+        <!-- Eliminado: Código de organización (opcional) -->
 
         <!-- Identificación: tipo + número en una fila -->
         <div style="display:grid; grid-template-columns: 220px 1fr; gap:12px; align-items:end;">

@@ -36,6 +36,7 @@
     "primeflex": "^3.3.1",
     "primeicons": "^7.0.0",
     "primeng": "^18.0.2",
+    "qrcode": "^1.5.3",
     "rxjs": "~7.8.0",
     "tslib": "2.8.1",
     "zone.js": "~0.14.10"
@@ -45,6 +46,7 @@
     "@angular/cli": "18.2.21",
     "@angular/compiler-cli": "18.2.14",
     "@types/jasmine": "~4.3.0",
+    "@types/qrcode": "^1.5.5",
     "jasmine-core": "~4.6.0",
     "karma": "~6.4.0",
     "karma-chrome-launcher": "~3.2.0",

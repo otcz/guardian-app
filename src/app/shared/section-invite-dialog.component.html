@@ -50,7 +50,7 @@
         <label>Enlace de invitación</label>
         <div class="row">
           <input pInputText type="text" [value]="shareUrl || ''" readonly />
-          <button pButton type="button" icon="pi pi-copy" class="p-button p-button-text" (click)="copyLink()"></button>
+          <button pButton type="button" icon="pi pi-copy" class="p-button p-button-text" (click)="copyLink()" [disabled]="!shareUrl"></button>
         </div>
         <small class="hint">Copia y comparte el enlace; puedes generar un QR con una librería si lo deseas.</small>
       </div>

@@ -148,9 +148,21 @@ export class InvitacionesService {
     );
   }
 
-  buildShareUrl(joinUrl: string): string {
+  buildShareUrl(joinUrl?: string | null): string {
     const base = environment.backendHost || window.location.origin;
-    const path = (joinUrl || '').startsWith('/') ? joinUrl : `/${joinUrl}`;
+    if (joinUrl == null) return '';
+    const raw = String(joinUrl).trim();
+    if (!raw || raw.toLowerCase() === 'undefined' || raw.toLowerCase() === 'null' || /\/(undefined|null)$/i.test(raw)) return '';
+    const path = raw.startsWith('/') ? raw : `/${raw}`;
     return `${base}${path}`;
+  }
+
+  buildFrontInviteUrlFromCode(codigo?: string | null): string {
+    const code = (codigo || '').toString().trim();
+    if (!code || code.toLowerCase() === 'undefined' || code.toLowerCase() === 'null') return '';
+    const origin = (typeof window !== 'undefined' && window.location && window.location.origin) ? window.location.origin : (environment.backendHost || '');
+    if (!origin) return '';
+    const sep = '/register?invite=';
+    return `${origin}${sep}${encodeURIComponent(code)}`;
   }
 }

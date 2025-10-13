@@ -107,14 +107,23 @@ export class SectionInviteDialogComponent implements OnChanges {
     this.saving = true;
     this.invites.crear(this.orgId!, this.seccionId!, body).subscribe(
       (resp: any) => {
+        // DEBUG: mostrar respuesta cruda y data
+        try { console.log('[INVITE crear] raw response:', resp); } catch {}
         this.saving = false;
         const data = resp && resp.data ? resp.data : null;
+        try { console.log('[INVITE crear] data:', data); } catch {}
         this.invite = data as InvitationDto;
-        const preferred = (this.invite as any)?.inviteUrl || (this.invite as any)?.frontJoinUrl || null;
-        this.shareUrl = preferred || (this.invite ? this.invites.buildShareUrl(this.invite.joinUrl) : null);
+        const rawPref = (this.invite as any)?.inviteUrl || (this.invite as any)?.frontJoinUrl || '';
+        const pref = typeof rawPref === 'string' ? rawPref.trim() : '';
+        const isInvalid = !pref || /(?:^|[\\/])(undefined|null)(?:$|[?#])/i.test(pref);
+        const fromJoin = this.invite ? this.invites.buildShareUrl(this.invite.joinUrl) : '';
+        const fromCode = this.invite?.codigo ? this.invites.buildFrontInviteUrlFromCode(this.invite.codigo) : '';
+        this.shareUrl = (!isInvalid ? pref : '') || fromJoin || fromCode || '';
+        try { console.log('[INVITE crear] shareUrl:', this.shareUrl); } catch {}
       },
       (e: any) => {
         this.saving = false;
+        try { console.error('[INVITE crear] error:', e); } catch {}
         const msg = e && e.error && e.error.message ? e.error.message : 'No se pudo crear la invitación';
         this.notify.error('Error', msg);
       }

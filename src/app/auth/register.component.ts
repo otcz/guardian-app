@@ -40,6 +40,32 @@ export class RegisterComponent implements OnInit, OnDestroy {
   invitePreview: InvitationPreviewDto | null = null;
   sectionDisplayName: string | null = null;
 
+  // Estado de invitación derivado
+  get inviteIsInactive(): boolean {
+    const inv = this.invitePreview;
+    return !!(inv && inv.activo === false);
+  }
+  get inviteIsExpired(): boolean {
+    const inv = this.invitePreview;
+    if (!inv || !inv.expiraEn) return false;
+    const exp = new Date(inv.expiraEn).getTime();
+    return isFinite(exp) && Date.now() > exp;
+  }
+  get inviteUsageLimitReached(): boolean {
+    const inv = this.invitePreview;
+    if (!inv) return false;
+    const max = inv.usosMaximos ?? null;
+    const used = inv.usosActuales ?? 0;
+    return max !== null && max !== undefined && max >= 0 && used >= max;
+  }
+  get inviteBlockedReason(): string | null {
+    if (!this.inviteCode) return null;
+    if (this.inviteIsInactive) return 'La invitación está inactiva.';
+    if (this.inviteIsExpired) return 'La invitación expiró.';
+    if (this.inviteUsageLimitReached) return 'La invitación alcanzó su límite de uso.';
+    return null;
+  }
+
   // Roles opcionales (solo en invitación)
   rolesOpcionales: RoleEntity[] = [];
   selectedRolId: string | null = null;
@@ -95,6 +121,8 @@ export class RegisterComponent implements OnInit, OnDestroy {
   // Deshabilitar botón si username/email no válidos, cargando o en cuenta regresiva
   get submitDisabled(): boolean {
     if (this.loading || this.countdown > 0) return true;
+    // Si es por invitación y ésta no es válida, bloquear
+    if (this.inviteCode && this.inviteBlockedReason) return true;
     const usernameValid = !!this.form.get('username')?.valid;
     const emailCtrl = this.form.get('email');
     if (this.inviteCode) {
@@ -138,6 +166,11 @@ export class RegisterComponent implements OnInit, OnDestroy {
           if (orgId) {
             this.rolesSrv.list(String(orgId)).subscribe({ next: (list) => this.rolesOpcionales = list || [], error: () => this.rolesOpcionales = [] });
           }
+          // Si la invitación no es usable, mostrar mensaje amigable
+          const blocked = this.inviteBlockedReason;
+          if (blocked) {
+            this.errorMsg = blocked;
+          }
           this.loading = false;
         },
         error: (e: any) => {
@@ -175,11 +208,19 @@ export class RegisterComponent implements OnInit, OnDestroy {
     this.startRedirectCountdown();
   }
 
+  private isUuidLike(v: string | null | undefined): boolean {
+    if (!v) return false;
+    const s = String(v).trim();
+    // UUID v4/v1 formatos típicos (flexible en mayúsculas/minúsculas)
+    return /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/.test(s);
+  }
+
   submit() {
     this.errorMsg = null;
 
     // Flujo por invitación
     if (this.inviteCode) {
+      if (this.inviteBlockedReason) { this.errorMsg = this.inviteBlockedReason; return; }
       if (!this.form.get('username')?.valid) { this.errorMsg = 'Indica un usuario válido.'; return; }
       if (!this.form.get('email')?.valid || !this.form.get('email')?.value) { this.errorMsg = 'Email requerido y válido.'; return; }
       const nombreCompleto = `${(this.form.get('nombres')?.value || '').trim()} ${(this.form.get('apellidos')?.value || '').trim()}`.trim() || null;
@@ -189,13 +230,11 @@ export class RegisterComponent implements OnInit, OnDestroy {
         email: (this.form.get('email')?.value || '').toString().trim().toLowerCase(),
         nombreCompleto
       };
-      if (this.selectedRolId) {
+      if (this.selectedRolId && this.isUuidLike(this.selectedRolId)) {
         payload.rolContextualId = this.selectedRolId;
-        // Fallback por compatibilidad si el backend espera rolId
-        payload.rolId = this.selectedRolId;
       }
-      // Único log: qué se envía al backend cuando se crea usuario (vía invitación)
-      console.log('[REGISTER][REQUEST]', { action: 'invite-join', codigo: this.inviteCode, body: payload });
+      // Log no sensible (sin email ni datos privados)
+      console.debug('[REGISTER][invite-join]', { username: payload.username, hasRol: !!payload.rolContextualId, codeLen: this.inviteCode?.length });
       this.invites.unirse(this.inviteCode, payload).subscribe({
         next: () => { this.notifyAndRedirect('Usuario agregado correctamente. Te redirigiremos al login en 5 segundos.'); },
         error: (e: any) => { this.errorMsg = e?.error?.message || e?.message || 'No fue posible aceptar la invitación.'; this.loading = false; }

@@ -1,5 +1,11 @@
 .actions { display:flex; gap:.5rem; flex-wrap:wrap; }
 
+/* Header y barra de herramientas */
+.page-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
+.page-header h2 { margin: 0; }
+.page-header .tools { margin-left: auto; display: flex; align-items: center; gap: .5rem; flex-wrap: nowrap; }
+.search-input { width: clamp(200px, 32vw, 420px); }
+
 /* Botones de acciones: solo icono, tamaño consistente */
 :host ::ng-deep .btn-icon.p-button {
   width: 36px;
@@ -33,5 +39,7 @@
   :host ::ng-deep th.col-actions { width: 240px; }
 }
 @media (max-width: 768px) {
+  .page-header .tools { flex-wrap: wrap; }
+  .search-input { width: 100%; max-width: 100%; }
   :host ::ng-deep th.col-actions { width: 180px; }
 }

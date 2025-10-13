@@ -2,13 +2,11 @@
   <p-card class="card">
     <div class="page-header">
       <h2>Usuarios</h2>
-      <span class="spacer"></span>
-      <button pButton type="button" class="p-button p-button-text" label="Invitar a la Sección" icon="pi pi-send" (click)="openInvite()"></button>
-      <button pButton type="button" label="Crear usuario" icon="pi pi-plus" [routerLink]="['/gestion-de-usuarios/crear-usuario']"></button>
-    </div>
-
-    <div class="field">
-      <input pInputText type="text" placeholder="Buscar por username, nombre, email o alcance..." [(ngModel)]="filter" (ngModelChange)="applyFilter()" />
+      <div class="tools">
+        <input class="search-input" pInputText type="text" placeholder="Buscar por username, nombre, email o alcance..." [(ngModel)]="filter" (ngModelChange)="applyFilter()" />
+        <button pButton type="button" label="Crear usuario" icon="pi pi-plus" [routerLink]="['/gestion-de-usuarios/crear-usuario']"></button>
+        <button pButton type="button" class="p-button p-button-text" label="Invitar a la Sección" icon="pi pi-send" (click)="openInvite()"></button>
+      </div>
     </div>
 
     <p-table [value]="filtered"
@@ -43,6 +41,7 @@
             <div class="stack">
               <p-chip icon="pi pi-shield" [label]="u.scopeNivel || '-'" class="pill muted"></p-chip>
               <p-chip *ngIf="u.seccionPrincipalId" icon="pi pi-sitemap" [label]="'Sección: ' + sectionName(u)" class="pill"></p-chip>
+              <p-chip *ngIf="roleByUserId[u.id]" icon="pi pi-user" [label]="'Rol: ' + roleByUserId[u.id]" class="pill"></p-chip>
             </div>
           </td>
           <td>

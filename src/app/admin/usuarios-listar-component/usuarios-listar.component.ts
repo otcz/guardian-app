@@ -39,7 +39,17 @@ export class UsuariosListarComponent implements OnInit {
   first = 0; // índice del primer registro de la página actual
   private adjustTimer: any;
 
-  constructor(private orgCtx: OrgContextService, private users: UsersService, private notify: NotificationService, private router: Router, private confirm: ConfirmationService, private seccionSvc: SeccionService) {}
+  // Mapa de rol contextual por usuario (solo en scope SECCION)
+  roleByUserId: Record<string, string> = {};
+
+  constructor(
+    private orgCtx: OrgContextService,
+    private users: UsersService,
+    private notify: NotificationService,
+    private router: Router,
+    private confirm: ConfirmationService,
+    private seccionSvc: SeccionService
+  ) {}
 
   private calcRowsFromViewport(viewH: number): number {
     // Reserva aproximada para header, buscador, paddings y paginador
@@ -96,10 +106,28 @@ export class UsuariosListarComponent implements OnInit {
       return;
     }
     this.load();
-    // Cargar secciones para mostrar el nombre
+    // Cargar secciones para mostrar el nombre y luego roles contextuales si aplica
     this.seccionSvc.list(this.orgId).subscribe({
-      next: list => this.secciones = list || [],
-      error: () => this.secciones = []
+      next: list => { this.secciones = list || []; this.loadSectionRolesIfApplies(); },
+      error: () => { this.secciones = []; this.loadSectionRolesIfApplies(); }
+    });
+  }
+
+  private loadSectionRolesIfApplies() {
+    const scope = String(this.orgCtx.scope || '').toUpperCase();
+    const secId = this.orgCtx.seccion;
+    if (!this.orgId || scope !== 'SECCION' || !secId) { this.roleByUserId = {}; return; }
+    this.seccionSvc.getUsuariosPorSeccion(this.orgId, String(secId)).subscribe({
+      next: (arr) => {
+        const map: Record<string, string> = {};
+        (arr || []).forEach(us => {
+          const uid = String(us?.usuarioEntity?.id || '');
+          const rn = (us?.rolEntityContextual?.nombre || '').toString().trim();
+          if (uid && rn) map[uid] = rn;
+        });
+        this.roleByUserId = map;
+      },
+      error: () => { this.roleByUserId = {}; }
     });
   }
 
@@ -107,7 +135,7 @@ export class UsuariosListarComponent implements OnInit {
     if (!this.orgId) return;
     this.loading = true;
     this.users.list(this.orgId).subscribe({
-      next: list => { this.usuarios = list; this.applyFilter(); this.loading = false; this.deferAdjustToViewport(); },
+      next: list => { this.usuarios = list; this.applyFilter(); this.loading = false; this.deferAdjustToViewport(); this.loadSectionRolesIfApplies(); },
       error: e => { this.loading = false; this.notify.error('Error', e?.error?.message || 'No se pudieron listar usuarios'); }
     });
   }

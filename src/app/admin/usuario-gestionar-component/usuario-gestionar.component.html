@@ -17,6 +17,7 @@
       <div class="actions-toolbar">
         <button pButton type="button" icon="pi pi-arrow-left" class="p-button p-button-text" [routerLink]="['/gestion-de-usuarios/listar-usuarios']" pTooltip="Volver" tooltipPosition="top"></button>
         <span class="spacer"></span>
+        <button pButton type="button" icon="pi pi-send" label="Invitar a la Sección" class="p-button p-button-text" (click)="openInvite()"></button>
         <button pButton type="button" icon="pi pi-pencil" label="Editar" class="p-button p-button-outlined" (click)="toggleEdit()" [disabled]="editing"></button>
         <button pButton type="button" [label]="user.activo ? 'Desactivar' : 'Activar'" [icon]="user.activo ? 'pi pi-ban' : 'pi pi-check'" [class]="user.activo ? 'p-button p-button-outlined p-button-danger' : 'p-button p-button-outlined p-button-success'" (click)="toggleActive()"></button>
         <button pButton type="button" icon="pi pi-user-plus" label="Asignar roles" class="p-button p-button-text" [routerLink]="['/gestion-de-usuarios/asignar-roles']" [queryParams]="{ id: user.id }"></button>
@@ -90,11 +91,14 @@
           <button pButton type="button" [label]="user.activo ? 'Desactivar usuario' : 'Activar usuario'" [icon]="user.activo ? 'pi pi-ban' : 'pi pi-check'" [class]="user.activo ? 'p-button p-button-outlined p-button-danger' : 'p-button p-button-outlined p-button-success'" (click)="toggleActive()"></button>
           <button pButton type="button" icon="pi pi-user-plus" label="Asignar roles" class="p-button p-button-text" [routerLink]="['/gestion-de-usuarios/asignar-roles']" [queryParams]="{ id: user.id }"></button>
           <button pButton type="button" icon="pi pi-sitemap" label="Asignar sección" class="p-button p-button-text" [routerLink]="['/gestion-de-usuarios/asignar-usuario-a-seccion']" [queryParams]="{ id: user.id }"></button>
+          <button pButton type="button" icon="pi pi-send" label="Invitar a la Sección" class="p-button p-button-text" (click)="openInvite()"></button>
         </div>
       </div>
     </div>
   </p-card>
 </div>
+
+<app-section-invite-dialog [(visible)]="showInvite" [orgId]="orgId" [seccionId]="seccionIdForInvite"></app-section-invite-dialog>
 
 <ng-template #loadingTpl>
   <p-card class="card user-card">

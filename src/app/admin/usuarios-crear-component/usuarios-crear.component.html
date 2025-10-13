@@ -17,6 +17,7 @@
       <div class="actions-toolbar">
         <button pButton type="button" icon="pi pi-arrow-left" class="p-button p-button-text" [routerLink]="['/gestion-de-usuarios/listar-usuarios']" pTooltip="Volver" tooltipPosition="top"></button>
         <span class="spacer"></span>
+        <button pButton type="button" icon="pi pi-send" class="p-button p-button-text" label="Invitar a la Sección" (click)="openInvite()"></button>
         <button pButton type="button" icon="pi pi-refresh" class="p-button p-button-text" label="Limpiar" (click)="reset()" [disabled]="saving"></button>
       </div>
     </div>
@@ -66,4 +67,6 @@
   </ng-template>
 
   <p-progressSpinner *ngIf="loading" styleClass="overlay-spinner"></p-progressSpinner>
+
+  <app-section-invite-dialog [(visible)]="showInvite" [orgId]="orgId" [seccionId]="seccionIdForInvite"></app-section-invite-dialog>
 </div>

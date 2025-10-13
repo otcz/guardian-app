@@ -20,11 +20,12 @@ import { ToolbarModule } from 'primeng/toolbar';
 import { SkeletonModule } from 'primeng/skeleton';
 import { ChipModule } from 'primeng/chip';
 import { RolesService, UserRoleAssignment } from '../../service/roles.service';
+import { SectionInviteDialogComponent } from '../../shared/section-invite-dialog.component';
 
 @Component({
   selector: 'app-usuario-gestionar',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, CardModule, InputTextModule, ButtonModule, ProgressSpinnerModule, UppercaseDirective, TagModule, DividerModule, TooltipModule, AvatarModule, ToolbarModule, SkeletonModule, ChipModule],
+  imports: [CommonModule, FormsModule, RouterModule, CardModule, InputTextModule, ButtonModule, ProgressSpinnerModule, UppercaseDirective, TagModule, DividerModule, TooltipModule, AvatarModule, ToolbarModule, SkeletonModule, ChipModule, SectionInviteDialogComponent],
   templateUrl: './usuario-gestionar.component.html',
   styleUrls: ['./usuario-gestionar.component.scss']
 })
@@ -39,6 +40,7 @@ export class UsuarioGestionarComponent implements OnInit {
   principalSeccionNombre: string | null = null;
   roles: UserRoleAssignment[] = [];
   rolesLoading = false;
+  showInvite = false;
 
   constructor(private route: ActivatedRoute, private router: Router, private orgCtx: OrgContextService, private users: UsersService, private notify: NotificationService, private secciones: SeccionService, private rolesSvc: RolesService) {}
 
@@ -145,4 +147,12 @@ export class UsuarioGestionarComponent implements OnInit {
     if (!e) return;
     window.location.href = `mailto:${e}`;
   }
+
+  get seccionIdForInvite(): string | null {
+    const scope = this.orgCtx.scope;
+    const sec = this.orgCtx.seccion;
+    return (String(scope || '').toUpperCase() === 'SECCION' && sec) ? String(sec) : null;
+  }
+
+  openInvite() { this.showInvite = true; }
 }

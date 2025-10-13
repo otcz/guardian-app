@@ -1,0 +1,64 @@
+<!-- filepath: c:\Users\OTCZ\WebstormProjects\guardian-app\src\app\shared\section-invite-dialog.component.html -->
+<p-dialog [(visible)]="visible" (visibleChange)="visibleChange.emit($event)" [modal]="true" [dismissableMask]="true" [draggable]="false" [resizable]="false" [style]="{ width: '560px' }" header="Invitar a la Sección">
+  <div class="content" *ngIf="!invite; else successTpl">
+    <div class="field" *ngIf="!seccionId">
+      <label>Sección</label>
+      <p-dropdown [options]="secciones" optionLabel="nombre" optionValue="id" [(ngModel)]="seccionId" placeholder="Selecciona la sección"></p-dropdown>
+    </div>
+
+    <div class="row">
+      <div class="field">
+        <label>TTL (minutos)</label>
+        <div class="chips">
+          <button pButton type="button" class="p-button p-button-sm p-button-text" *ngFor="let c of ttlChips" (click)="applyTtlChip(c)" [label]="c + ''"></button>
+        </div>
+        <input pInputText type="number" [(ngModel)]="ttlMinutes" placeholder="Ej. 30 (vacío = 30 por defecto)" />
+        <small class="hint">Si dejas vacío, aplica 30 minutos por defecto.</small>
+      </div>
+      <div class="field">
+        <label>Rol contextual (opcional)</label>
+        <p-dropdown [options]="filteredRoles" optionLabel="nombre" optionValue="id" [(ngModel)]="rolContextualId" placeholder="Sin rol contextual"></p-dropdown>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="field">
+        <label>Email destino (opcional)</label>
+        <input pInputText type="email" [(ngModel)]="emailDestino" placeholder="usuario@dominio.com" />
+      </div>
+      <div class="field">
+        <label>Notas (opcional)</label>
+        <input pInputText type="text" [(ngModel)]="notas" placeholder="Texto informativo" />
+      </div>
+    </div>
+
+    <div class="actions">
+      <span class="spacer"></span>
+      <button pButton type="button" label="Cancelar" class="p-button p-button-text" (click)="close()" [disabled]="saving"></button>
+      <button pButton type="button" label="Crear invitación" (click)="create()" [disabled]="saving || !canSubmit"></button>
+    </div>
+  </div>
+
+  <ng-template #successTpl>
+    <div class="success">
+      <p-tag value="Invitación creada" severity="success"></p-tag>
+      <div class="kv"><span>Expira</span><b>{{ invite?.expiraEn || '—' }}</b></div>
+      <div class="kv"><span>Usos</span><b>{{ invite?.usosActuales || 0 }} / {{ invite?.usosMaximos || '∞' }}</b></div>
+      <div class="kv"><span>Código</span><b>{{ invite?.codigo }}</b></div>
+
+      <div class="share">
+        <label>Enlace de invitación</label>
+        <div class="row">
+          <input pInputText type="text" [value]="shareUrl || ''" readonly />
+          <button pButton type="button" icon="pi pi-copy" class="p-button p-button-text" (click)="copyLink()"></button>
+        </div>
+        <small class="hint">Copia y comparte el enlace; puedes generar un QR con una librería si lo deseas.</small>
+      </div>
+
+      <div class="actions">
+        <span class="spacer"></span>
+        <button pButton type="button" label="Cerrar" (click)="close()"></button>
+      </div>
+    </div>
+  </ng-template>
+</p-dialog>

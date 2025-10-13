@@ -17,11 +17,12 @@ import { ChipModule } from 'primeng/chip';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
 import { AvatarModule } from 'primeng/avatar';
+import { SectionInviteDialogComponent } from '../../shared/section-invite-dialog.component';
 
 @Component({
   selector: 'app-usuarios-crear',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, CardModule, InputTextModule, DropdownModule, ButtonModule, ProgressSpinnerModule, UppercaseDirective, SkeletonModule, ChipModule, TagModule, TooltipModule, AvatarModule],
+  imports: [CommonModule, FormsModule, RouterModule, CardModule, InputTextModule, DropdownModule, ButtonModule, ProgressSpinnerModule, UppercaseDirective, SkeletonModule, ChipModule, TagModule, TooltipModule, AvatarModule, SectionInviteDialogComponent],
   templateUrl: './usuarios-crear.component.html',
   styleUrls: ['./usuarios-crear.component.scss']
 })
@@ -30,6 +31,7 @@ export class UsuariosCrearComponent implements OnInit {
   loading = false;
   saving = false;
   secciones: SeccionEntity[] = [];
+  showInvite = false;
 
   scopeOptions = [
     { label: 'Organización', value: 'ORGANIZACION' as ScopeNivel },
@@ -116,5 +118,11 @@ export class UsuariosCrearComponent implements OnInit {
         this.notify.error('Error', e?.error?.message || 'No se pudo crear el usuario');
       }
     });
+  }
+
+  openInvite() { this.showInvite = true; }
+
+  get seccionIdForInvite(): string | null {
+    return this.model.scopeNivel === 'SECCION' && this.model.seccionPrincipalId ? String(this.model.seccionPrincipalId) : null;
   }
 }

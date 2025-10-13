@@ -15,11 +15,12 @@ import { UsersService, UserEntity } from '../../service/users.service';
 import { NotificationService } from '../../service/notification.service';
 import { ConfirmationService } from 'primeng/api';
 import { SeccionService, SeccionEntity } from '../../service/seccion.service';
+import { SectionInviteDialogComponent } from '../../shared/section-invite-dialog.component';
 
 @Component({
   selector: 'app-usuarios-listar',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, CardModule, InputTextModule, ButtonModule, TableModule, TagModule, TooltipModule, AvatarModule, ChipModule],
+  imports: [CommonModule, FormsModule, RouterModule, CardModule, InputTextModule, ButtonModule, TableModule, TagModule, TooltipModule, AvatarModule, ChipModule, SectionInviteDialogComponent],
   templateUrl: './usuarios-listar.component.html',
   styleUrls: ['./usuarios-listar.component.scss']
 })
@@ -30,6 +31,7 @@ export class UsuariosListarComponent implements OnInit {
   filtered: UserEntity[] = [];
   filter = '';
   secciones: SeccionEntity[] = [];
+  showInvite = false;
 
   constructor(private orgCtx: OrgContextService, private users: UsersService, private notify: NotificationService, private router: Router, private confirm: ConfirmationService, private seccionSvc: SeccionService) {}
 
@@ -98,4 +100,12 @@ export class UsuariosListarComponent implements OnInit {
     const found = this.secciones.find(s => String(s.id) === String(u.seccionPrincipalId));
     return found?.nombre || String(u.seccionPrincipalId);
   }
+
+  get seccionIdForInvite(): string | null {
+    const scope = this.orgCtx.scope;
+    const sec = this.orgCtx.seccion;
+    return (String(scope || '').toUpperCase() === 'SECCION' && sec) ? String(sec) : null;
+  }
+
+  openInvite() { this.showInvite = true; }
 }

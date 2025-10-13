@@ -11,13 +11,21 @@
       <input pInputText type="text" placeholder="Buscar por username, nombre, email o alcance..." [(ngModel)]="filter" (ngModelChange)="applyFilter()" />
     </div>
 
-    <p-table [value]="filtered" [loading]="loading" [rows]="10" [paginator]="true" [responsiveLayout]="'scroll'">
+    <p-table [value]="filtered"
+             [loading]="loading"
+             [paginator]="true"
+             [rows]="pageSize"
+             [rowsPerPageOptions]="rowsOptions"
+             [(first)]="first"
+             [responsiveLayout]="'scroll'"
+             [showCurrentPageReport]="true"
+             currentPageReportTemplate="Mostrando {first}-{last} de {totalRecords}">
       <ng-template pTemplate="header">
         <tr>
           <th>Usuario</th>
           <th>Alcance/Sección</th>
           <th>Estado</th>
-          <th style="width:360px;">Acciones</th>
+          <th class="col-actions">Acciones</th>
         </tr>
       </ng-template>
       <ng-template pTemplate="body" let-u>

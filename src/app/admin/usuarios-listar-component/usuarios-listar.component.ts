@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
@@ -33,9 +33,62 @@ export class UsuariosListarComponent implements OnInit {
   secciones: SeccionEntity[] = [];
   showInvite = false;
 
+  // Paginación adaptable
+  pageSize = 10;
+  rowsOptions: number[] = [5, 8, 10, 12, 15, 20];
+  first = 0; // índice del primer registro de la página actual
+  private adjustTimer: any;
+
   constructor(private orgCtx: OrgContextService, private users: UsersService, private notify: NotificationService, private router: Router, private confirm: ConfirmationService, private seccionSvc: SeccionService) {}
 
+  private calcRowsFromViewport(viewH: number): number {
+    // Reserva aproximada para header, buscador, paddings y paginador
+    const reserved = 440; // px, margen extra para evitar scroll residual
+    const rowH = 82; // altura estimada de una fila (avatar + chips + separadores)
+    const usable = Math.max(240, viewH - reserved);
+    let rows = Math.floor(usable / rowH);
+    // Margen de seguridad: si queda muy justo, reducir una fila
+    if (rows > 0 && (usable - rows * rowH) < 40) rows -= 1;
+    return Math.min(25, Math.max(5, rows));
+  }
+
+  private refreshPageSizing() {
+    const h = typeof window !== 'undefined' ? window.innerHeight : 800;
+    const next = this.calcRowsFromViewport(h);
+    this.pageSize = next;
+    // Opciones sugeridas incluyendo la calculada
+    const base = [5, 8, 10, 12, 15, 20, next].filter(n => n >= 5 && n <= 25);
+    this.rowsOptions = Array.from(new Set(base)).sort((a, b) => a - b);
+    this.deferAdjustToViewport();
+  }
+
+  private deferAdjustToViewport() {
+    if (this.adjustTimer) { try { clearTimeout(this.adjustTimer); } catch {} this.adjustTimer = null; }
+    this.adjustTimer = setTimeout(() => this.adjustRowsToFitViewport(), 0);
+  }
+
+  private adjustRowsToFitViewport() {
+    // Reduce filas si aún hay desbordamiento vertical, con límite para evitar ciclos
+    let guard = 0;
+    const minRows = 5;
+    while (guard < 4) {
+      const doc = document?.documentElement as HTMLElement | null;
+      const winH = typeof window !== 'undefined' ? window.innerHeight : 800;
+      const scrollH = doc ? doc.scrollHeight : winH;
+      const overflow = scrollH > winH + 1; // tolerancia
+      if (overflow && this.pageSize > minRows) {
+        this.pageSize -= 1;
+        guard++;
+        continue;
+      }
+      break;
+    }
+  }
+
+  @HostListener('window:resize') onResize() { this.refreshPageSizing(); }
+
   ngOnInit(): void {
+    this.refreshPageSizing();
     this.orgId = this.orgCtx.value;
     if (!this.orgId) {
       this.notify.warn('Atención', 'Seleccione una organización');
@@ -54,15 +107,17 @@ export class UsuariosListarComponent implements OnInit {
     if (!this.orgId) return;
     this.loading = true;
     this.users.list(this.orgId).subscribe({
-      next: list => { this.usuarios = list; this.applyFilter(); this.loading = false; },
+      next: list => { this.usuarios = list; this.applyFilter(); this.loading = false; this.deferAdjustToViewport(); },
       error: e => { this.loading = false; this.notify.error('Error', e?.error?.message || 'No se pudieron listar usuarios'); }
     });
   }
 
   applyFilter() {
     const f = (this.filter || '').trim().toLowerCase();
-    if (!f) { this.filtered = [...this.usuarios]; return; }
+    if (!f) { this.filtered = [...this.usuarios]; this.first = 0; this.deferAdjustToViewport(); return; }
     this.filtered = this.usuarios.filter(u => [u.username, u.nombreCompleto, u.email, u.scopeNivel].some(v => (v || '').toString().toLowerCase().includes(f)));
+    this.first = 0; // reset a primera página tras filtrar
+    this.deferAdjustToViewport();
   }
 
   toggle(u: UserEntity) {

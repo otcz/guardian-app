@@ -26,3 +26,12 @@
 
 /* Tabla: ancho y espaciado cómodo */
 :host ::ng-deep .p-table .p-datatable-wrapper table td { vertical-align: middle; }
+
+/* Columna Acciones responsiva: ancho preferido y reducción progresiva */
+:host ::ng-deep th.col-actions { width: 320px; }
+@media (max-width: 1200px) {
+  :host ::ng-deep th.col-actions { width: 240px; }
+}
+@media (max-width: 768px) {
+  :host ::ng-deep th.col-actions { width: 180px; }
+}

@@ -102,7 +102,17 @@ export class InvitacionesService {
 
   private toApiResponse<T = any>(payload: any): ApiResponse<T> {
     if (payload == null) return { success: true, data: undefined as any } as ApiResponse<T>;
-    if (typeof payload === 'object' && 'success' in payload && 'data' in payload) return payload as ApiResponse<T>;
+    // Caso envelope estándar
+    if (typeof payload === 'object' && 'success' in payload && 'data' in payload) {
+      const p: any = payload as any;
+      const inner: any = p.data;
+      // Desanidar envelope doble: { success, data: { data, message } }
+      if (inner && typeof inner === 'object' && 'data' in inner && !Array.isArray(inner) && inner.data !== undefined) {
+        return { success: !!p.success, message: (p.message ?? inner.message) as any, data: inner.data as T } as ApiResponse<T>;
+      }
+      return payload as ApiResponse<T>;
+    }
+    // Caso payload sin envelope
     return { success: true, data: payload as T } as ApiResponse<T>;
   }
 

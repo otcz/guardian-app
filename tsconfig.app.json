@@ -12,6 +12,7 @@
     "src/app/dashboard/dashboard.component.ts",
     "src/app/admin/organizacion-strategy-change-page/**",
     "src/app/service/org-admin.service.ts",
-    "src/app/shared/user-avatar.component.ts"
+    "src/app/shared/user-avatar.component.ts",
+    "src/app/service/menu-access.guard.ts"
   ]
 }

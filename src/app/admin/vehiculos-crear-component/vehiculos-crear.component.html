@@ -1,0 +1,49 @@
+<p-card header="Crear vehículo" styleClass="mb-3">
+  <div class="form-grid">
+    <div class="form-row">
+      <label for="placa">Placa</label>
+      <input id="placa" type="text" pInputText [(ngModel)]="model.placa" appUppercase placeholder="ABC123" [disabled]="saving" />
+    </div>
+
+    <div class="form-row">
+      <label for="marca">Marca</label>
+      <input id="marca" type="text" pInputText [(ngModel)]="model.marca" placeholder="Toyota" [disabled]="saving" />
+    </div>
+
+    <div class="form-row">
+      <label for="modelo">Modelo</label>
+      <input id="modelo" type="text" pInputText [(ngModel)]="model.modelo" placeholder="Corolla" [disabled]="saving" />
+    </div>
+
+    <div class="form-row">
+      <label for="linea">Línea</label>
+      <input id="linea" type="text" pInputText [(ngModel)]="model.linea" placeholder="SE" [disabled]="saving" />
+    </div>
+
+    <div class="form-row">
+      <label for="anio">Año</label>
+      <input id="anio" type="number" pInputText [(ngModel)]="model.anio" placeholder="2024" [disabled]="saving" />
+    </div>
+
+    <div class="form-row">
+      <label for="color">Color</label>
+      <input id="color" type="text" pInputText [(ngModel)]="model.color" placeholder="Blanco" [disabled]="saving" />
+    </div>
+
+    <div class="form-row">
+      <label for="seccion">Asignar a Sección (opcional)</label>
+      <p-dropdown id="seccion" [options]="secciones" optionLabel="nombre" optionValue="id"
+                  [(ngModel)]="model.seccionAsignadaId" [showClear]="true" placeholder="Seleccione"
+                  [disabled]="loading || saving"></p-dropdown>
+    </div>
+
+    <div class="actions">
+      <button pButton type="button" label="Cancelar" class="p-button-text" (click)="cancelar()" [disabled]="saving"></button>
+      <button pButton type="button" label="Crear" (click)="onSubmit()" [disabled]="saving"></button>
+    </div>
+  </div>
+
+  <div class="loading" *ngIf="loading">
+    <p-progressSpinner styleClass="block"></p-progressSpinner>
+  </div>
+</p-card>

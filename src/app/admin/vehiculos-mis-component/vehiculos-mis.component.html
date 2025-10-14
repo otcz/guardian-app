@@ -1,0 +1,29 @@
+<p-card header="Mis vehículos" styleClass="mb-3">
+  <div class="actions mb-2">
+    <button pButton label="Crear vehículo" icon="pi pi-plus" routerLink="/gestion-de-vehiculos/crear-vehiculo"></button>
+  </div>
+
+  <p-table [value]="items" [loading]="loading" dataKey="id" [rows]="10" [paginator]="true" [rowsPerPageOptions]="[10,20,50]">
+    <ng-template pTemplate="header">
+      <tr>
+        <th style="width: 16rem">Placa</th>
+        <th style="width: 12rem">Estado</th>
+        <th>Sección</th>
+        <th style="width: 18rem">Acciones</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-row>
+      <tr>
+        <td>{{ row.placa }}</td>
+        <td>
+          <p-tag [severity]="row.activo ? 'success' : 'warn'" [value]="row.activo ? 'ACTIVO' : 'INACTIVO'"></p-tag>
+        </td>
+        <td>{{ row.seccionAsignadaId || '—' }}</td>
+        <td class="actions">
+          <button pButton label="Gestionar" class="p-button-text" (click)="gestionar(row)"></button>
+          <button pButton label="Asignar sección" class="p-button-text" (click)="asignar(row)"></button>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</p-card>

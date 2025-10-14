@@ -36,6 +36,8 @@ export const environment = {
   },
   features: {
     // Si el backend expone GET /organizaciones/accesibles, habilitar en true
-    accessibleOrgsEndpoint: false
+    accessibleOrgsEndpoint: false,
+    // Cargar rol contextual en listado de Usuarios (contexto ORGANIZACION)
+    fetchSectionRolesInOrgList: false
   }
 };

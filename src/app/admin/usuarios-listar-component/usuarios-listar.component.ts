@@ -16,6 +16,9 @@ import { NotificationService } from '../../service/notification.service';
 import { ConfirmationService } from 'primeng/api';
 import { SeccionService, SeccionEntity } from '../../service/seccion.service';
 import { SectionInviteDialogComponent } from '../../shared/section-invite-dialog.component';
+import { forkJoin, of } from 'rxjs';
+import { catchError, finalize } from 'rxjs/operators';
+import { environment } from '../../config/environment';
 
 @Component({
   selector: 'app-usuarios-listar',
@@ -36,8 +39,15 @@ export class UsuariosListarComponent implements OnInit {
   // Paginación adaptable
   pageSize = 10;
   rowsOptions: number[] = [5, 8, 10, 12, 15, 20];
-  first = 0; // índice del primer registro de la página actual
+  private _first = 0; // índice del primer registro de la página actual
+  get first(): number { return this._first; }
+  set first(v: number) { this._first = v || 0; this.loadSectionRolesIfApplies(); }
   private adjustTimer: any;
+  private loadRolesTimer: any;
+  private fetchedSecIds = new Set<string>();
+  private roleCacheBySection = new Map<string, Record<string, string>>();
+  private failedSecIdsUntil: Map<string, number> = new Map(); // secId -> epoch ms hasta el que se evita reintento
+  private inFlightSecIds = new Set<string>();
 
   // Mapa de rol contextual por usuario (solo en scope SECCION)
   roleByUserId: Record<string, string> = {};
@@ -114,20 +124,113 @@ export class UsuariosListarComponent implements OnInit {
   }
 
   private loadSectionRolesIfApplies() {
+    // Debounce para evitar martilleo por cambios de paginador/filtro
+    if (this.loadRolesTimer) { try { clearTimeout(this.loadRolesTimer); } catch {} this.loadRolesTimer = null; }
+    this.loadRolesTimer = setTimeout(() => this._doLoadSectionRoles(), 200);
+  }
+
+  private _doLoadSectionRoles() {
     const scope = String(this.orgCtx.scope || '').toUpperCase();
     const secId = this.orgCtx.seccion;
-    if (!this.orgId || scope !== 'SECCION' || !secId) { this.roleByUserId = {}; return; }
-    this.seccionSvc.getUsuariosPorSeccion(this.orgId, String(secId)).subscribe({
-      next: (arr) => {
-        const map: Record<string, string> = {};
-        (arr || []).forEach(us => {
-          const uid = String(us?.usuarioEntity?.id || '');
-          const rn = (us?.rolEntityContextual?.nombre || '').toString().trim();
-          if (uid && rn) map[uid] = rn;
+    if (!this.orgId) { this.roleByUserId = {}; return; }
+
+    // Caso 1: contexto de sección -> una sola llamada
+    if (scope === 'SECCION' && secId) {
+      this.seccionSvc.getUsuariosPorSeccion(this.orgId, String(secId)).subscribe({
+        next: (arr) => {
+          const map: Record<string, string> = {};
+          (arr || []).forEach(us => {
+            const uid = String(us?.usuarioEntity?.id || '');
+            const rn = (us?.rolEntityContextual?.nombre || '').toString().trim();
+            if (uid && rn) map[uid] = rn;
+          });
+          this.roleByUserId = map;
+        },
+        error: () => { this.roleByUserId = {}; }
+      });
+      return;
+    }
+
+    // Feature toggle: evitar llamadas en contexto ORGANIZACION si está desactivado
+    if (!environment.features || (environment.features as any).fetchSectionRolesInOrgList === false) {
+      this.roleByUserId = {};
+      return;
+    }
+
+    // Caso 2: contexto de organización -> cargar roles por sección de la página visible
+    const baseArr = (this.filtered && this.filtered.length)
+      ? this.filtered.slice(this.first, this.first + this.pageSize)
+      : (this.usuarios || []);
+
+    const now = Date.now();
+    const TTL_ERROR_MS = 60_000; // 60s sin reintentar una sección que falla (500)
+
+    const secIdsAll = Array.from(new Set(baseArr
+      .map(u => u.seccionPrincipalId)
+      .filter((v): v is string => !!v)
+      .map(s => String(s))));
+
+    // Si no hay secciones visibles, borrar mapa y salir
+    if (secIdsAll.length === 0) { this.roleByUserId = {}; return; }
+
+    // Excluir secciones con error reciente
+    const eligible = secIdsAll.filter(id => {
+      const until = this.failedSecIdsUntil.get(id) || 0;
+      return now >= until;
+    });
+
+    // Agregar inmediatamente lo que ya esté en caché para mejorar UX
+    const preMap: Record<string, string> = {};
+    secIdsAll.forEach(id => {
+      const cached = this.roleCacheBySection.get(id);
+      if (cached) {
+        Object.keys(cached).forEach(uid => { preMap[uid] = cached[uid]; });
+      }
+    });
+    this.roleByUserId = preMap;
+
+    // Determinar cuáles faltan cargar realmente
+    const toFetch = eligible.filter(id => !this.fetchedSecIds.has(id) && !this.inFlightSecIds.has(id));
+    if (toFetch.length === 0) return; // nada nuevo por cargar
+
+    // Preparar llamadas tolerantes a errores (error -> lista vacía y marcar sección en fallo temporal)
+    const calls = toFetch.map(id => {
+      this.inFlightSecIds.add(id);
+      return this.seccionSvc.getUsuariosPorSeccion(this.orgId!, id).pipe(
+        catchError(() => {
+          this.failedSecIdsUntil.set(id, now + TTL_ERROR_MS);
+          return of([]);
+        }),
+        finalize(() => { this.inFlightSecIds.delete(id); })
+      );
+    });
+
+    forkJoin(calls).subscribe({
+      next: (results) => {
+        // results[i] corresponde a toFetch[i]
+        results.forEach((arr, idx) => {
+          const sec = toFetch[idx];
+          const map: Record<string, string> = {};
+          (arr || []).forEach(us => {
+            const uid = String(us?.usuarioEntity?.id || '');
+            const rn = (us?.rolEntityContextual?.nombre || '').toString().trim();
+            if (uid && rn) map[uid] = rn;
+          });
+          // Cachear y marcar como fetched si hubo datos (o incluso vacío para evitar refetch inmediato)
+          this.roleCacheBySection.set(sec, map);
+          this.fetchedSecIds.add(sec);
         });
-        this.roleByUserId = map;
+        // Reconstruir roleByUserId solo con secciones visibles
+        const agg: Record<string, string> = { ...preMap };
+        secIdsAll.forEach(id => {
+          const cached = this.roleCacheBySection.get(id);
+          if (cached) Object.keys(cached).forEach(uid => { agg[uid] = cached[uid]; });
+        });
+        this.roleByUserId = agg;
       },
-      error: () => { this.roleByUserId = {}; }
+      error: () => {
+        // En teoría no entra porque cada obs maneja su error
+      }
     });
   }
 

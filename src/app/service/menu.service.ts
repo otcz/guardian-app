@@ -263,6 +263,12 @@ export class MenuService {
         const looksListarOpciones = parentLooksMenuOpts && (nameNorm.includes('listar') || nameNorm.includes('listado')) && (nameNorm.includes('opcion') || nameNorm.includes('opciones'));
         const looksOverrideMenuLocal = parentLooksMenuOpts && (nameNorm.includes('override') || (nameNorm.includes('menu') && nameNorm.includes('local')));
 
+        // NUEVO: Gestión de vehículos
+        const looksAsignarVehiculoSeccion = nameNorm.includes('asignar') && nameNorm.includes('vehiculo') && nameNorm.includes('seccion');
+        const looksCrearVehiculo = nameNorm.includes('crear') && nameNorm.includes('vehiculo');
+        const looksGestionarVehiculo = nameNorm.includes('gestionar') && nameNorm.includes('vehiculo');
+        const looksListarVehiculos = (nameNorm.includes('listar') || nameNorm.includes('listado')) && (nameNorm.includes('vehiculo') || nameNorm.includes('vehiculos'));
+
         if (looksCrearEstrategia) path = '/crear-estrategia-de-gobernanza';
         if (looksCambiarEstrategia) path = '/cambiar-estrategia-de-gobernanza';
         if (looksGestionarOrg) path = '/gestionar-organizacion';
@@ -283,6 +289,12 @@ export class MenuService {
         if (looksGestionarOpcion) path = '/gestion-de-opciones-menu/gestionar-opcion';
         if (looksListarOpciones) path = '/gestion-de-opciones-menu/listar-opciones';
         if (looksOverrideMenuLocal) path = '/gestion-de-opciones-menu/override-menu-local';
+
+        // Asignaciones canónicas para gestión de vehículos
+        if (looksAsignarVehiculoSeccion) path = '/gestion-de-vehiculos/asignar-vehiculo-a-seccion';
+        if (looksCrearVehiculo) path = '/gestion-de-vehiculos/crear-vehiculo';
+        if (looksGestionarVehiculo) path = '/gestion-de-vehiculos/gestionar-vehiculo';
+        if (looksListarVehiculos) path = '/gestion-de-vehiculos/listar-vehiculos';
 
         // Adjuntar id organización cuando aplica (solo si no es literal)
         const needsOrgId = looksCambiarEstrategia || looksGestionarOrg || looksConfigParams || looksVerAuditoria || looksCrearSeccion || looksListarSeccion || looksCrearRol || looksGestionarRol || looksListarRol;

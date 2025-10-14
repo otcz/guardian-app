@@ -1,0 +1,28 @@
+<p-card header="Activar/Desactivar vehículos por sección" styleClass="mb-3">
+  <div class="actions mb-2">
+    <button pButton label="Mis vehículos" class="p-button-text" routerLink="/gestion-de-vehiculos/mis-vehiculos"></button>
+    <button pButton label="Crear vehículo" icon="pi pi-plus" routerLink="/gestion-de-vehiculos/crear-vehiculo"></button>
+  </div>
+
+  <p-table [value]="items" [loading]="loading" dataKey="id" [rows]="10" [paginator]="true" [rowsPerPageOptions]="[10,20,50]">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Placa</th>
+        <th>Estado</th>
+        <th>Acciones</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-row>
+      <tr>
+        <td>{{ row.placa }}</td>
+        <td>
+          <p-tag [severity]="row.activo ? 'success' : 'warn'" [value]="row.activo ? 'ACTIVO' : 'INACTIVO'"></p-tag>
+        </td>
+        <td>
+          <p-toggleButton [onLabel]="'Activo'" [offLabel]="'Inactivo'" [onIcon]="'pi pi-check'" [offIcon]="'pi pi-times'"
+                          [(ngModel)]="row.activo" (ngModelChange)="toggle(row, $event)" [disabled]="savingId === row.id"></p-toggleButton>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</p-card>

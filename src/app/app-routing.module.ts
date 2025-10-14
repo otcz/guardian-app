@@ -23,7 +23,6 @@ import { UsuarioAsignarSeccionComponent } from './admin/usuario-asignar-seccion-
 import { UsuarioAsignarRolesComponent } from './admin/usuario-asignar-roles-component/usuario-asignar-roles.component';
 import { OrgRequiredGuard } from './service/org-required.guard';
 import { SeccionAsignarAdminComponent } from './admin/seccion-asignar-admin-component/seccion-asignar-admin.component';
-import { MenuAccessGuard } from './service/menu-access.guard';
 import { AsignarOpcionesPorSeccionComponent } from './admin/opciones-menu/asignar-opciones-por-seccion/asignar-opciones-por-seccion.component';
 import { CrearOpcionComponent } from './admin/opciones-menu/crear-opcion/crear-opcion.component';
 import { GestionarOpcionComponent } from './admin/opciones-menu/gestionar-opcion/gestionar-opcion.component';
@@ -79,6 +78,16 @@ export const appRoutes: Routes = [
       { path: 'gestion-de-opciones-menu/gestionar-opcion', component: GestionarOpcionComponent },
       { path: 'gestion-de-opciones-menu/listar-opciones', component: ListarOpcionesComponent },
       { path: 'gestion-de-opciones-menu/override-menu-local', component: OverrideMenuLocalComponent },
+
+      // --- Gestión de vehículos ---
+      { path: 'gestion-de-vehiculos/mis-vehiculos', canActivate: [PermissionGuard], data: { code: 'VEHICLE_MY' }, loadComponent: () => import('./admin/vehiculos-mis-component/vehiculos-mis.component').then(m => m.VehiculosMisComponent) },
+      { path: 'gestion-de-vehiculos/activar-vehiculos', canActivate: [PermissionGuard], data: { code: 'VEHICLE_SECTION_ACTIVATE' }, loadComponent: () => import('./admin/vehiculos-activar-component/vehiculos-activar.component').then(m => m.VehiculosActivarComponent) },
+      { path: 'gestion-de-vehiculos/asignar-vehiculo-a-seccion', canActivate: [PermissionGuard], data: { code: 'SECTION_VEHICLE_ASSIGN' }, loadComponent: () => import('./admin/vehiculos-asignar-seccion-component/vehiculos-asignar-seccion.component').then(m => m.VehiculosAsignarSeccionComponent) },
+      { path: 'gestion-de-vehiculos/crear-vehiculo', canActivate: [PermissionGuard], data: { code: 'VEHICLE_CREATE' }, loadComponent: () => import('./admin/vehiculos-crear-component/vehiculos-crear.component').then(m => m.VehiculosCrearComponent) },
+      { path: 'gestion-de-vehiculos/gestionar-vehiculo', canActivate: [PermissionGuard], data: { code: 'VEHICLE_MANAGE' }, loadComponent: () => import('./admin/vehiculos-gestionar-component/vehiculos-gestionar.component').then(m => m.VehiculosGestionarComponent) },
+
+      // Redirects canónicos para gestión de vehículos
+      { path: 'gestion-de-vehiculos/listar-vehiculos', redirectTo: 'gestion-de-vehiculos/mis-vehiculos', pathMatch: 'full' },
 
       // --- Redirects from literal backend routes to canonical app routes ---
       // Gestión de Organización

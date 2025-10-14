@@ -1,0 +1,32 @@
+<p-card header="Asignar vehículo a sección" styleClass="mb-3">
+  <div *ngIf="loading" class="loading"><p-progressSpinner></p-progressSpinner></div>
+
+  <ng-container *ngIf="!loading && entity as v">
+    <div class="summary">
+      <div class="row">
+        <label>Vehículo</label>
+        <span>{{ v.placa }} <p-tag [severity]="v.activo ? 'success' : 'warn'" [value]="v.activo ? 'ACTIVO' : 'INACTIVO'"></p-tag></span>
+      </div>
+      <div class="row">
+        <label>Sección actual</label>
+        <span>{{ v.seccionAsignadaId || '—' }}</span>
+      </div>
+    </div>
+
+    <div class="form-grid">
+      <div class="form-row">
+        <label for="seccion">Nueva sección</label>
+        <p-dropdown id="seccion" [options]="secciones" optionLabel="nombre" optionValue="id"
+                    [(ngModel)]="selectedSeccionId" [showClear]="true" placeholder="Seleccione"
+                    [disabled]="saving"></p-dropdown>
+        <small>Deje vacío para remover la asignación.</small>
+      </div>
+
+      <div class="actions">
+        <button pButton type="button" class="p-button-text" label="Volver" (click)="volver()" [disabled]="saving"></button>
+        <button pButton type="button" class="p-button-text" label="Limpiar" (click)="limpiar()" [disabled]="saving"></button>
+        <button pButton type="button" label="Asignar" (click)="asignar()" [disabled]="saving"></button>
+      </div>
+    </div>
+  </ng-container>
+</p-card>

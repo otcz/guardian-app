@@ -1,0 +1,59 @@
+<p-card header="Gestionar vehículo" styleClass="mb-3">
+  <div *ngIf="loading" class="loading"><p-progressSpinner></p-progressSpinner></div>
+
+  <ng-container *ngIf="!loading && entity as v">
+    <div class="summary">
+      <div class="row">
+        <label>ID</label>
+        <span>{{ v.id }}</span>
+      </div>
+      <div class="row">
+        <label>Estado</label>
+        <p-tag [severity]="v.activo ? 'success' : 'warn'" [value]="v.activo ? 'ACTIVO' : 'INACTIVO'"></p-tag>
+        <button pButton type="button" class="p-button-text" [label]="v.activo ? 'Desactivar' : 'Activar'" (click)="toggleActivo()" [disabled]="saving"></button>
+      </div>
+      <div class="row">
+        <label>Sección asignada</label>
+        <span>{{ v.seccionAsignadaId || '—' }}</span>
+        <button pButton type="button" class="p-button-text" label="Cambiar" (click)="irAsignar()" [disabled]="saving"></button>
+      </div>
+    </div>
+
+    <div class="form-grid">
+      <div class="form-row">
+        <label for="placa">Placa</label>
+        <input id="placa" type="text" pInputText [(ngModel)]="model.placa" appUppercase [disabled]="saving" />
+      </div>
+
+      <div class="form-row">
+        <label for="marca">Marca</label>
+        <input id="marca" type="text" pInputText [(ngModel)]="model.marca" [disabled]="saving" />
+      </div>
+
+      <div class="form-row">
+        <label for="modelo">Modelo</label>
+        <input id="modelo" type="text" pInputText [(ngModel)]="model.modelo" [disabled]="saving" />
+      </div>
+
+      <div class="form-row">
+        <label for="linea">Línea</label>
+        <input id="linea" type="text" pInputText [(ngModel)]="model.linea" [disabled]="saving" />
+      </div>
+
+      <div class="form-row">
+        <label for="anio">Año</label>
+        <input id="anio" type="number" pInputText [(ngModel)]="model.anio" [disabled]="saving" />
+      </div>
+
+      <div class="form-row">
+        <label for="color">Color</label>
+        <input id="color" type="text" pInputText [(ngModel)]="model.color" [disabled]="saving" />
+      </div>
+
+      <div class="actions">
+        <button pButton type="button" class="p-button-text" label="Volver" (click)="volver()"></button>
+        <button pButton type="button" label="Guardar" (click)="guardar()" [disabled]="saving"></button>
+      </div>
+    </div>
+  </ng-container>
+</p-card>

@@ -112,7 +112,7 @@ export class MenuService {
       effective = safe.filter(r => !(isOrgMgmtMenu(r) || isOrgMgmtItem(r)));
     }
 
-    // Filtro incondicional: ocultar Gobernanza y Parámetros Locales
+    // Filtro incondicional: ocultar solo Parámetros Locales
     const norm2 = (txt: string | null | undefined) => (txt || '')
       .toString()
       .trim()
@@ -121,14 +121,14 @@ export class MenuService {
       .replace(/\p{Diacritic}/gu, '')
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-+|-+$/g, '');
-    const blockedMenus = new Set<string>(['gestion-de-estrategias-de-gobernanza', 'gestion-de-parametros-locales']);
+    const blockedMenus = new Set<string>(['gestion-de-parametros-locales']);
     effective = effective.filter(r => {
       const nm = norm2(r.nombre);
       const np = norm2(r.padreNombre || '');
-      const isGovOrLocalParamMenu = blockedMenus.has(nm) || nm.includes('estrateg') || nm.includes('gobernanz') || nm.includes('parametro-local') || nm.includes('parametros-locales');
-      const isGovOrLocalParamItem = blockedMenus.has(np) || nm.includes('estrateg') || nm.includes('gobernanz') || nm.includes('parametro-local') || nm.includes('parametros-locales');
-      if (r.tipo === 'MENU' && isGovOrLocalParamMenu) return false;
-      if (r.tipo === 'ITEM' && isGovOrLocalParamItem) return false;
+      const isLocalParamMenu = blockedMenus.has(nm) || nm.includes('parametro-local') || nm.includes('parametros-locales');
+      const isLocalParamItem = blockedMenus.has(np) || nm.includes('parametro-local') || nm.includes('parametros-locales');
+      if (r.tipo === 'MENU' && isLocalParamMenu) return false;
+      if (r.tipo === 'ITEM' && isLocalParamItem) return false;
       return true;
     });
 
@@ -265,8 +265,6 @@ export class MenuService {
         // Heurísticas de reasignación a rutas canónicas solo si NO se pidió literal
         const nameNorm = this.normalize(raw.nombre);
         const parentNorm = this.normalize(raw.padreNombre || '');
-        const looksCrearEstrategia = nameNorm.includes('crear') && nameNorm.includes('estrateg');
-        const looksCambiarEstrategia = nameNorm.includes('cambiar') && nameNorm.includes('estrateg');
         const looksGestionarOrg = nameNorm.includes('gestionar') && nameNorm.includes('organizacion');
         const looksCrearOrg = nameNorm.includes('crear') && nameNorm.includes('organizacion');
         const looksListarOrgs = (nameNorm.includes('listar') || nameNorm.includes('listado')) && nameNorm.includes('organizacion');
@@ -293,8 +291,6 @@ export class MenuService {
         const looksGestionarVehiculo = nameNorm.includes('gestionar') && nameNorm.includes('vehiculo');
         const looksListarVehiculos = (nameNorm.includes('listar') || nameNorm.includes('listado')) && (nameNorm.includes('vehiculo') || nameNorm.includes('vehiculos'));
 
-        if (looksCrearEstrategia) path = '/crear-estrategia-de-gobernanza';
-        if (looksCambiarEstrategia) path = '/cambiar-estrategia-de-gobernanza';
         if (looksGestionarOrg) path = '/gestionar-organizacion';
         if (looksCrearOrg) path = '/crear-organizacion';
         if (looksListarOrgs) path = '/listar-organizaciones';
@@ -321,7 +317,7 @@ export class MenuService {
         if (looksListarVehiculos) path = '/gestion-de-vehiculos/listar-vehiculos';
 
         // Adjuntar id organización cuando aplica (solo si no es literal)
-        const needsOrgId = looksCambiarEstrategia || looksGestionarOrg || looksConfigParams || looksVerAuditoria || looksCrearSeccion || looksListarSeccion || looksCrearRol || looksGestionarRol || looksListarRol;
+        const needsOrgId = looksGestionarOrg || looksConfigParams || looksVerAuditoria || looksCrearSeccion || looksListarSeccion || looksCrearRol || looksGestionarRol || looksListarRol;
         if (path && needsOrgId && !path.includes('?')) {
           try { const orgId = localStorage.getItem('currentOrgId'); if (orgId) path = `${path}?id=${encodeURIComponent(orgId)}`; } catch {}
         }
@@ -454,9 +450,6 @@ export class MenuService {
         let s = (p || '').split('?')[0];
         // Normalización de prefijos legacy
         s = s.replace(/^\/gestion-de-[^/]+\//, '/');
-        // Aliases comunes a rutas canónicas
-        if (s === '/crear-estrategia') s = '/crear-estrategia-de-gobernanza';
-        if (s === '/cambiar-estrategia') s = '/cambiar-estrategia-de-gobernanza';
         return s;
       };
       const rawPaths = new Set((rawItems.map(r => this.sanitizePathCommon(r.ruta)!).filter(Boolean) as string[]).map(canonPath));

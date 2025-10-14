@@ -13,12 +13,11 @@
   </div>
 
   <div class="grid">
-    <p-card class="card strategy-card">
-      <div class="card-header"><h3>Estrategia de Gobernanza</h3></div>
+    <p-card class="card">
+      <div class="card-header"><h3>Organización</h3></div>
 
-      <!-- NUEVO: selector de Organización dentro de la tarjeta -->
       <div class="field">
-        <label for="orgSelectCard">Organización</label>
+        <label for="orgSelectCard">Seleccionar organización</label>
         <p-dropdown id="orgSelectCard"
                     [options]="orgs"
                     optionLabel="nombre"
@@ -33,62 +32,15 @@
         </p-dropdown>
       </div>
 
-      <!-- Estrategia vigente (única) -->
-      <div class="field">
-        <label for="estrategiaVigente">Estrategia vigente</label>
-        <p-dropdown id="estrategiaVigente"
-                    [options]="catalogStrategies"
-                    optionLabel="nombre"
-                    optionValue="id"
-                    [(ngModel)]="selectedStrategyId"
-                    (onChange)="onStrategyChange()"
-                    [filter]="true"
-                    filterBy="nombre,descripcion"
-                    [showClear]="true"
-                    [appendTo]="'self'"
-                    filterPlaceholder="Buscar estrategia..."
-                    placeholder="Seleccione una estrategia">
-          <ng-template pTemplate="selectedItem" let-s>
-            <div class="opt-label" *ngIf="s as ss">
-              <span class="opt-title">{{ ss.nombre }}</span>
-              <span class="opt-sep" *ngIf="ss.descripcion"> - </span>
-              <span class="opt-desc" *ngIf="ss.descripcion">{{ ss.descripcion }}</span>
-            </div>
-          </ng-template>
-          <ng-template pTemplate="item" let-s>
-            <div class="opt-item">
-              <span class="opt-title">{{ s.nombre }}</span>
-              <span class="opt-sep" *ngIf="s.descripcion"> - </span>
-              <span class="opt-desc" *ngIf="s.descripcion">{{ s.descripcion }}</span>
-            </div>
-          </ng-template>
-        </p-dropdown>
-        <div class="actions">
-          <button pButton type="button" label="Guardar vigente" icon="pi pi-save" (click)="saveVigente()" [disabled]="!selectedStrategyId || savingVigente"></button>
-        </div>
+      <div *ngIf="org as o" class="org-summary">
+        <div class="kv"><span>ID</span><b>{{ o.id }}</b></div>
+        <div class="kv"><span>Nombre</span><b>{{ o.nombre }}</b></div>
+        <div class="kv"><span>Estado</span><b>{{ o.activa ? 'ACTIVA' : 'INACTIVA' }}</b></div>
+        <div class="kv" *ngIf="o.fecha_creacion"><span>Creación</span><b>{{ o.fecha_creacion | date:'yyyy-MM-dd HH:mm' }}</b></div>
+        <div class="kv" *ngIf="o.fecha_actualizacion"><span>Actualización</span><b>{{ o.fecha_actualizacion | date:'yyyy-MM-dd HH:mm' }}</b></div>
       </div>
 
-      <!-- Vista previa de la vigente -->
-      <div class="strategy-preview" *ngIf="selectedStrategy as s">
-        <div class="kv"><span>Nombre</span><b>{{ s.nombre }}<ng-container *ngIf="s.descripcion"> - {{ s.descripcion }}</ng-container></b></div>
-        <div class="kv" *ngIf="s.descripcion"><span>Descripción</span><b>{{ s.descripcion }}</b></div>
-        <div class="flags">
-          <div class="flag" *ngFor="let f of [
-            {k:'hereda_roles', l:'Hereda Roles'},
-            {k:'crea_roles_locales', l:'Crea Roles Locales'},
-            {k:'crea_parametros_locales', l:'Crea Parámetros Locales'},
-            {k:'autonomia_menu_local', l:'Autonomía Menú Local'},
-            {k:'crea_usuarios_en_seccion', l:'Crea Usuarios en Sección'},
-            {k:'gestiona_vehiculos_locales', l:'Gestiona Vehículos Locales'},
-            {k:'asigna_permisos_directos', l:'Asigna Permisos Directos'}
-          ]">
-            <i class="pi" [ngClass]="$any(s)[f.k] ? 'pi-check-circle good' : 'pi-times-circle bad'"></i>
-            <span class="flag-text">{{ f.l }}</span>
-          </div>
-        </div>
-        <div class="kv"><span>Alcance Ingresos</span><b>{{ s.alcance_ingresos }}</b></div>
-      </div>
-
+      <p-message *ngIf="error" severity="error" [text]="error"></p-message>
     </p-card>
   </div>
 </div>

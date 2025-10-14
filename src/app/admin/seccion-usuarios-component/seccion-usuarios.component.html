@@ -1,21 +1,17 @@
 <section class="seccion-usuarios">
   <header class="su-header">
     <h3>Usuarios</h3>
-    <div class="status" *ngIf="loadingStrategy || loadingUsuarios">
+    <div class="status" *ngIf="loadingUsuarios">
       <span class="spinner"></span>
       <span>Cargando...</span>
     </div>
   </header>
 
-  <div *ngIf="disabledByStrategy && !loadingStrategy" class="banner banner-warning" role="alert">
-    Acción no permitida por la estrategia de gobernanza
-  </div>
-
-  <div *ngIf="errorMsg && !disabledByStrategy" class="banner banner-error" role="alert">
+  <div *ngIf="errorMsg" class="banner banner-error" role="alert">
     {{ errorMsg }}
   </div>
 
-  <div *ngIf="!disabledByStrategy && !errorMsg">
+  <div *ngIf="!errorMsg">
     <div *ngIf="usuarios.length === 0 && !loadingUsuarios" class="empty-state">
       <p>No hay usuarios asignados a esta sección.</p>
     </div>
@@ -30,4 +26,3 @@
     </ul>
   </div>
 </section>
-

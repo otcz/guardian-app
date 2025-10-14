@@ -9,7 +9,6 @@ import { NotificationService } from './notification.service';
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const isAuthCall = /\/(auth)\/(login|register|password)/.test(req.url);
   const hasBypassQuery = /[?&]bypass=true(?![^#])/i.test(req.url);
-  const isApplyStrategy = /\/orgs\/.+\/estrategias\/.+\/aplicar(\b|\?)/.test(req.url);
 
   // Nunca adjuntar auth/ctx en endpoints de auth
   if (isAuthCall) {
@@ -27,9 +26,9 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     );
   }
 
-  // En llamadas con bypass (?bypass=true) o al endpoint de aplicar, asegurarse de NO enviar Authorization,
-  // pero no tocar ni bloquear headers personalizados X-* existentes (X-User, X-User-Roles, X-Api-Sysadmin-Key, etc.)
-  if (hasBypassQuery || isApplyStrategy) {
+  // En llamadas con bypass (?bypass=true) asegurar NO enviar Authorization,
+  // pero no tocar headers personalizados X-* existentes (X-User, X-User-Roles, X-Api-Sysadmin-Key, etc.)
+  if (hasBypassQuery) {
     if (req.headers.has('Authorization')) {
       req = req.clone({ headers: req.headers.delete('Authorization') });
     }

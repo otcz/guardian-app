@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { SeccionService, UsuarioSeccionEntity } from '../../service/seccion.service';
 import { OrganizationService } from '../../service/organization.service';
 
-export type EstrategiaNombre = 'CENTRALIZADA' | 'HIBRIDA' | 'FEDERADA' | 'CUSTOM' | '';
+
 
 @Component({
   standalone: true,
@@ -16,7 +16,7 @@ export class SeccionUsuariosComponent implements OnInit {
   @Input({ required: true }) orgId!: string;
   @Input({ required: true }) seccionId!: string;
 
-  estrategia: EstrategiaNombre = '';
+
   usuarios: UsuarioSeccionEntity[] = [];
   loadingStrategy = false;
   loadingUsuarios = false;
@@ -26,29 +26,9 @@ export class SeccionUsuariosComponent implements OnInit {
   constructor(private seccionService: SeccionService, private orgService: OrganizationService) {}
 
   ngOnInit(): void {
-    this.fetchEstrategia();
   }
 
-  private fetchEstrategia() {
-    this.loadingStrategy = true;
-    this.errorMsg = '';
-    this.orgService.getOrgStrategyName(this.orgId).subscribe({
-      next: (nombre: any) => {
-        const n = (nombre || '').toString().toUpperCase();
-        this.estrategia = (['CENTRALIZADA', 'HIBRIDA', 'FEDERADA', 'CUSTOM'].includes(n) ? n : 'CUSTOM') as EstrategiaNombre;
-        this.loadingStrategy = false;
-        if (this.estrategia === 'CENTRALIZADA') {
-          this.disabledByStrategy = true;
-        } else {
-          this.loadUsuarios();
-        }
-      },
-      error: (_err) => {
-        this.loadingStrategy = false;
-        this.errorMsg = 'Error al consultar la estrategia de gobernanza.';
-      }
-    });
-  }
+
 
   private loadUsuarios() {
     this.loadingUsuarios = true;

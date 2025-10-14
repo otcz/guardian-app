@@ -17,10 +17,7 @@
 
   <div *ngIf="!disabledByStrategy && !errorMsg">
     <div *ngIf="usuarios.length === 0 && !loadingUsuarios" class="empty-state">
-      <ng-container [ngSwitch]="estrategia">
-        <span *ngSwitchCase="'HIBRIDA'">No hay usuarios de alcance Sección asignados a esta sección.</span>
-        <span *ngSwitchDefault>No hay usuarios asignados a esta sección.</span>
-      </ng-container>
+      <p>No hay usuarios asignados a esta sección.</p>
     </div>
 
     <ul *ngIf="usuarios.length > 0" class="usuarios-list">

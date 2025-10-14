@@ -112,6 +112,26 @@ export class MenuService {
       effective = safe.filter(r => !(isOrgMgmtMenu(r) || isOrgMgmtItem(r)));
     }
 
+    // Filtro incondicional: ocultar Gobernanza y Parámetros Locales
+    const norm2 = (txt: string | null | undefined) => (txt || '')
+      .toString()
+      .trim()
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/\p{Diacritic}/gu, '')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+    const blockedMenus = new Set<string>(['gestion-de-estrategias-de-gobernanza', 'gestion-de-parametros-locales']);
+    effective = effective.filter(r => {
+      const nm = norm2(r.nombre);
+      const np = norm2(r.padreNombre || '');
+      const isGovOrLocalParamMenu = blockedMenus.has(nm) || nm.includes('estrateg') || nm.includes('gobernanz') || nm.includes('parametro-local') || nm.includes('parametros-locales');
+      const isGovOrLocalParamItem = blockedMenus.has(np) || nm.includes('estrateg') || nm.includes('gobernanz') || nm.includes('parametro-local') || nm.includes('parametros-locales');
+      if (r.tipo === 'MENU' && isGovOrLocalParamMenu) return false;
+      if (r.tipo === 'ITEM' && isGovOrLocalParamItem) return false;
+      return true;
+    });
+
     this.rawOptions = effective;
     localStorage.setItem(this.STORAGE_RAW, JSON.stringify(effective));
     this.rebuild();

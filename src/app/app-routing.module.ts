@@ -9,9 +9,7 @@ import { OrganizationFormComponent } from './admin/organizacion-form-component/o
 import { OrganizationParamsComponent } from './admin/organizacion-params-component/organization-params.component';
 import { OrganizationAuditComponent } from './admin/organizacion-autit-component/organization-audit.component';
 import { DashboardHomeComponent } from './dashboard/dashboard-home.component';
-import { CrearStrategyComponent } from './admin/crear-strategy-component/crear-strategy.component';
 import { OrganizationConfigComponent } from './admin/organizacion-config-component/organization-config.component';
-import { StrategyChangePageComponent } from './admin/organizacion-strategy-change-page/strategy-change-page.component';
 import { SeccionFormComponent } from './admin/seccion-form-component/seccion-form.component';
 import { SeccionListComponent } from './admin/seccion-list-component/seccion-list.component';
 import { RolesListComponent } from './admin/roles-list-component/roles-list.component';
@@ -55,8 +53,6 @@ export const appRoutes: Routes = [
       { path: 'configurar-parametros-globales', component: OrganizationParamsComponent, canActivate: [PermissionGuard], data: { code: 'PARAM_GLOBAL_MANAGE' } },
       { path: 'configurar-parametros-globales/:id', component: OrganizationParamsComponent, canActivate: [PermissionGuard], data: { code: 'PARAM_GLOBAL_MANAGE' } },
       { path: 'ver-auditoria-de-organizacion', component: OrganizationAuditComponent, canActivate: [PermissionGuard], data: { code: 'AUDIT_ORG_VIEW' } },
-      { path: 'crear-estrategia-de-gobernanza', component: CrearStrategyComponent, canActivate: [PermissionGuard], data: { code: 'STRATEGY_CREATE' } },
-      { path: 'cambiar-estrategia-de-gobernanza', component: StrategyChangePageComponent, canActivate: [PermissionGuard], data: { code: 'STRATEGY_CONFIGURE' } },
       { path: 'crear-seccion', component: SeccionFormComponent, canActivate: [PermissionGuard], data: { code: 'SECTION_CREATE' } },
       { path: 'listar-secciones', component: SeccionListComponent, canActivate: [PermissionGuard], data: { code: 'SECTION_REPORT_VIEW' } },
       { path: 'asignar-administrador-de-seccion', component: SeccionAsignarAdminComponent, canActivate: [PermissionGuard], data: { code: 'SECTION_ASSIGN_ADMIN' } },
@@ -94,7 +90,6 @@ export const appRoutes: Routes = [
       { path: 'gestion-de-organizacion/listar-organizaciones', redirectTo: 'listar-organizaciones', pathMatch: 'full' },
       { path: 'gestion-de-organizacion/crear-organizacion', redirectTo: 'crear-organizacion', pathMatch: 'full' },
       { path: 'gestion-de-organizacion/gestionar-organizacion', redirectTo: 'gestionar-organizacion', pathMatch: 'full' },
-      { path: 'gestion-de-organizacion/cambiar-estrategia-de-gobernanza', redirectTo: 'cambiar-estrategia-de-gobernanza', pathMatch: 'full' },
       { path: 'gestion-de-organizacion/configurar-parametros-globales', redirectTo: 'configurar-parametros-globales', pathMatch: 'full' },
       { path: 'gestion-de-organizacion/ver-auditoria-de-organizacion', redirectTo: 'ver-auditoria-de-organizacion', pathMatch: 'full' },
 
@@ -107,10 +102,6 @@ export const appRoutes: Routes = [
       { path: 'gestion-de-roles/crear-rol', redirectTo: 'crear-rol', pathMatch: 'full' },
       { path: 'gestion-de-roles/listar-roles', redirectTo: 'listar-roles', pathMatch: 'full' },
       { path: 'gestion-de-roles/gestionar-rol', redirectTo: 'gestionar-rol', pathMatch: 'full' },
-
-      // Gestión de Estrategias de Gobernanza
-      { path: 'gestion-de-estrategias-de-gobernanza/crear-estrategia', redirectTo: 'crear-estrategia-de-gobernanza', pathMatch: 'full' },
-      { path: 'gestion-de-estrategias-de-gobernanza/cambiar-estrategia', redirectTo: 'cambiar-estrategia-de-gobernanza', pathMatch: 'full' },
 
       // --- Prefix placeholders keep catching everything else ---
       { path: 'gestion-de-organizacion', component: PagePlaceholderComponent, canActivate: [PermissionGuard] },
@@ -125,14 +116,6 @@ export const appRoutes: Routes = [
       { path: 'gestion-de-vehiculos', children: [ { path: '**', component: PagePlaceholderComponent, canActivate: [PermissionGuard] } ] },
       { path: 'gestion-de-permisos', component: PagePlaceholderComponent, canActivate: [PermissionGuard] },
       { path: 'gestion-de-permisos', children: [ { path: '**', component: PagePlaceholderComponent, canActivate: [PermissionGuard] } ] },
-      { path: 'gestion-de-parametros-locales', component: PagePlaceholderComponent, canActivate: [PermissionGuard] },
-      { path: 'gestion-de-parametros-locales', children: [ { path: '**', component: PagePlaceholderComponent, canActivate: [PermissionGuard] } ] },
-      { path: 'gestion-de-estrategias-de-gobernanza', component: PagePlaceholderComponent, canActivate: [PermissionGuard] },
-      { path: 'gestion-de-estrategias-de-gobernanza', children: [ { path: '**', component: PagePlaceholderComponent, canActivate: [PermissionGuard] } ] },
-      { path: 'gestion-de-ingresos', component: PagePlaceholderComponent, canActivate: [PermissionGuard] },
-      { path: 'gestion-de-ingresos', children: [ { path: '**', component: PagePlaceholderComponent, canActivate: [PermissionGuard] } ] },
-      { path: 'reportes-y-metricas', component: PagePlaceholderComponent, canActivate: [PermissionGuard] },
-      { path: 'reportes-y-metricas', children: [ { path: '**', component: PagePlaceholderComponent, canActivate: [PermissionGuard] } ] },
       {
         path: 'admin',
         children: [
@@ -146,7 +129,6 @@ export const appRoutes: Routes = [
   { path: 'dashboard/listar-organizaciones', redirectTo: 'listar-organizaciones', pathMatch: 'full' },
   { path: 'dashboard/crear-organizacion', redirectTo: 'crear-organizacion', pathMatch: 'full' },
   { path: 'dashboard/gestionar-organizacion', redirectTo: 'gestionar-organizacion', pathMatch: 'full' },
-  { path: 'dashboard/cambiar-estrategia-de-gobernanza', redirectTo: 'cambiar-estrategia-de-gobernanza', pathMatch: 'full' },
   { path: 'dashboard/configurar-parametros-globales', redirectTo: 'configurar-parametros-globales', pathMatch: 'full' },
   { path: 'dashboard/ver-auditoria-de-organizacion', redirectTo: 'ver-auditoria-de-organizacion', pathMatch: 'full' },
   { path: 'dashboard/listar-secciones', redirectTo: 'listar-secciones', pathMatch: 'full' },

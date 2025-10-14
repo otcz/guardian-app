@@ -1124,3 +1124,21 @@ body .p-tag.p-tag-contrast .p-tag-icon { color: inherit !important; }
 .user-popover::after,
 .user-popover .p-popover-content::before,
 .user-popover .p-popover-content::after { display: none !important; content: none !important; border: 0 !important; box-shadow: none !important; }
+
+/* Fondo del cuerpo de tablas PrimeNG según tema */
+:root.theme-light {
+  .p-datatable .p-datatable-tbody > tr > td,
+  .p-table .p-datatable-tbody > tr > td {
+    background: var(--surface) !important;
+    color: #000 !important;
+    border-top-color: var(--border) !important;
+  }
+}
+:root.theme-dark, :root.theme-black {
+  .p-datatable .p-datatable-tbody > tr > td,
+  .p-table .p-datatable-tbody > tr > td {
+    background: var(--surface-alt) !important;
+    color: #ffffff !important;
+    border-top-color: var(--border) !important;
+  }
+}

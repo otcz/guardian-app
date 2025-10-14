@@ -86,33 +86,37 @@ export class MenuService {
   setFromLogin(raw: RawOption[] | null | undefined) {
     const safe = Array.isArray(raw) ? raw.filter(r => !!r && !!r.nombre) : [];
 
-    // Filtro: ocultar "Gestión de Organización" y sus ítems asociados
-    const norm = (txt: string | null | undefined) => (txt || '')
-      .toString()
-      .trim()
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/\p{Diacritic}/gu, '')
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-+|-+$/g, '');
-    const isOrgMgmtMenu = (r: RawOption) => r.tipo === 'MENU' && norm(r.nombre) === 'gestion-de-organizacion';
-    const ORG_ITEM_NAMES = new Set<string>([
-      'gestionar-organizacion',
-      'crear-organizacion',
-      'listar-organizaciones',
-      'ver-auditoria-de-organizacion',
-      'configurar-parametros-globales'
-    ]);
-    const isOrgMgmtItem = (r: RawOption) => r.tipo === 'ITEM' && (
-      norm(r.padreNombre || '') === 'gestion-de-organizacion' || ORG_ITEM_NAMES.has(norm(r.nombre))
-    );
-    const safeFiltered = safe.filter(r => !(isOrgMgmtMenu(r) || isOrgMgmtItem(r)));
+    // Filtro opcional: ocultar "Gestión de Organización" y sus ítems asociados (solo si la bandera lo indica)
+    const shouldHideOrg = !!((environment as any)?.security?.hideOrgManagement);
+    let effective = safe;
+    if (shouldHideOrg) {
+      const norm = (txt: string | null | undefined) => (txt || '')
+        .toString()
+        .trim()
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/\p{Diacritic}/gu, '')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+      const isOrgMgmtMenu = (r: RawOption) => r.tipo === 'MENU' && norm(r.nombre) === 'gestion-de-organizacion';
+      const ORG_ITEM_NAMES = new Set<string>([
+        'gestionar-organizacion',
+        'crear-organizacion',
+        'listar-organizaciones',
+        'ver-auditoria-de-organizacion',
+        'configurar-parametros-globales'
+      ]);
+      const isOrgMgmtItem = (r: RawOption) => r.tipo === 'ITEM' && (
+        norm(r.padreNombre || '') === 'gestion-de-organizacion' || ORG_ITEM_NAMES.has(norm(r.nombre))
+      );
+      effective = safe.filter(r => !(isOrgMgmtMenu(r) || isOrgMgmtItem(r)));
+    }
 
-    this.rawOptions = safeFiltered;
-    localStorage.setItem(this.STORAGE_RAW, JSON.stringify(safeFiltered));
+    this.rawOptions = effective;
+    localStorage.setItem(this.STORAGE_RAW, JSON.stringify(effective));
     this.rebuild();
     // Auditar discrepancias entre lo recibido y lo mostrado
-    this.auditAgainstRaw(safeFiltered);
+    this.auditAgainstRaw(effective);
   }
 
   clear() {

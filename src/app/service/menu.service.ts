@@ -117,7 +117,7 @@ export class MenuService {
       const name = this.normalize(r.nombre || '');
       const parent = this.normalize(r.padreNombre || '');
       const route = this.sanitizePathCommon(r.ruta) || '';
-      const hayGobernanza = name.includes('gobernanza') || parent.includes('gobernanza') || /(^|\/)gobernanza(\/|$)/.test(route) || name.includes('estrategia-de-gobernanza') || parent.includes('estrategia-de-gobernanza');
+      const hayGobernanza = name.includes('gobernanza') || parent.includes('gobernanza') || /(^|\/)gobernanza(\/|$)/.test(route);
       const hayParametrosLocales = (
         // Debe contener parametro(s) y local(es) en el nombre o padre
         ((name.includes('parametro') || name.includes('parametros')) && (name.includes('local') || name.includes('locales'))) ||
@@ -451,9 +451,6 @@ export class MenuService {
         let s = (p || '').split('?')[0];
         // Normalización de prefijos legacy
         s = s.replace(/^\/gestion-de-[^/]+\//, '/');
-        // Aliases comunes a rutas canónicas
-        if (s === '/crear-estrategia') s = '/crear-estrategia-de-gobernanza';
-        if (s === '/cambiar-estrategia') s = '/cambiar-estrategia-de-gobernanza';
         return s;
       };
       const rawPaths = new Set((rawItems.map(r => this.sanitizePathCommon(r.ruta)!).filter(Boolean) as string[]).map(canonPath));

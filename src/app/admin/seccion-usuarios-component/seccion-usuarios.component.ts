@@ -1,9 +1,6 @@
-import { Component, Input, OnInit, signal } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SeccionService, UsuarioSeccionEntity } from '../../service/seccion.service';
-import { OrganizationService } from '../../service/organization.service';
-
-
 
 @Component({
   standalone: true,
@@ -16,19 +13,15 @@ export class SeccionUsuariosComponent implements OnInit {
   @Input({ required: true }) orgId!: string;
   @Input({ required: true }) seccionId!: string;
 
-
   usuarios: UsuarioSeccionEntity[] = [];
-  loadingStrategy = false;
   loadingUsuarios = false;
   errorMsg = '';
-  disabledByStrategy = false;
 
-  constructor(private seccionService: SeccionService, private orgService: OrganizationService) {}
+  constructor(private seccionService: SeccionService) {}
 
   ngOnInit(): void {
+    this.loadUsuarios();
   }
-
-
 
   private loadUsuarios() {
     this.loadingUsuarios = true;
@@ -40,11 +33,7 @@ export class SeccionUsuariosComponent implements OnInit {
       },
       error: (err) => {
         const status = err?.status;
-        const msg = err?.error?.message || '';
-        if (status === 400 && /ESTRATEGIA DE GOBERNANZA/i.test(msg)) {
-          this.errorMsg = 'Acción no permitida por la estrategia de gobernanza';
-          this.disabledByStrategy = true;
-        } else if (status === 404) {
+        if (status === 404) {
           this.errorMsg = 'Sección no encontrada';
         } else if (status === 401 || status === 403) {
           this.errorMsg = 'No autorizado';

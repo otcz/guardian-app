@@ -208,19 +208,6 @@ export class OrganizationListComponent implements OnInit {
     this.router.navigate(['/gestionar-organizacion'], {queryParams: {id: org.id}});
   }
 
-  strategy(org: Organization) {
-    if (org.id) {
-      localStorage.setItem('currentOrgId', org.id);
-      this.orgCtx.set(org.id);
-    }
-    this.messages.add({ severity: 'success', summary: 'Organización seleccionada', detail: org.nombre, life: 2200 });
-    if (this.returnUrl) {
-      this.router.navigateByUrl(this.returnUrl);
-      return;
-    }
-    this.router.navigate(['/cambiar-estrategia-de-gobernanza'], { queryParams: { id: org.id } });
-  }
-
   // Nuevo: Ir a asignar Administrador de la Organización (solo SYSADMIN)
   assignAdmin(org: Organization) {
     if (!this.isSysadmin) { return; }

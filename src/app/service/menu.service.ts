@@ -290,6 +290,8 @@ export class MenuService {
         const looksGestionarVehiculo = nameNorm.includes('gestionar') && nameNorm.includes('vehiculo');
         const looksListarVehiculos = (nameNorm.includes('listar') || nameNorm.includes('listado')) && (nameNorm.includes('vehiculo') || nameNorm.includes('vehiculos'));
 
+        if (looksCrearEstrategia) path = '/crear-estrategia-de-gobernanza';
+        if (looksCambiarEstrategia) path = '/cambiar-estrategia-de-gobernanza';
         if (looksGestionarOrg) path = '/gestionar-organizacion';
         if (looksCrearOrg) path = '/crear-organizacion';
         if (looksListarOrgs) path = '/listar-organizaciones';

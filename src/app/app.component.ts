@@ -99,7 +99,6 @@ export class AppComponent {
       // Añadir dinámicamente id para rutas que lo requieren
       const needsId = new Set([
         '/gestionar-organizacion',
-        '/cambiar-estrategia-de-gobernanza',
         '/configurar-parametros-globales',
         '/ver-auditoria-de-organizacion',
         '/crear-seccion',

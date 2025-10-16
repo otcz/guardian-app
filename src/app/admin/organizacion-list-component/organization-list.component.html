@@ -58,7 +58,7 @@
               <ng-template #viewActiva>
                 <p-tag [severity]="row.activa ? 'success' : 'danger'" [value]="row.activa ? 'SÍ' : 'NO'"></p-tag>
               </ng-template>
-            </ng-template>
+            </ng-container>
           </td>
 
           <td>
@@ -78,7 +78,6 @@
 
             <ng-container *ngIf="!adding && editingId !== row.id">
               <button pButton type="button" icon="pi pi-pencil" class="p-button-rounded p-button-text" (click)="startEdit(row)" [disabled]="saving" pTooltip="EDITAR" tooltipPosition="top"></button>
-              <button pButton type="button" icon="pi pi-cog" class="p-button-rounded p-button-text" (click)="strategy(row)" [disabled]="saving" pTooltip="ESTRATEGIA" tooltipPosition="top"></button>
               <!-- Nuevo: Asignar Administrador de Organización -->
               <button *ngIf="isSysadmin" pButton type="button" icon="pi pi-shield" class="p-button-rounded p-button-text" (click)="assignAdmin(row)" [disabled]="saving" pTooltip="ASIGNAR ADMIN" tooltipPosition="top"></button>
             </ng-container>

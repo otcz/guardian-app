@@ -256,7 +256,7 @@ export class SeccionService {
 
   /**
    * Lista usuarios asignados a una sección. Respuesta: JSON array directo (no envuelto en ApiResponse).
-   * En estrategia CENTRALIZADA puede responder 400 con mensaje de estrategia; se propaga para manejo en UI.
+   * Puede responder 400 con mensaje de validación; se propaga para manejo en UI.
    */
   getUsuariosPorSeccion(orgId: string, seccionId: string) {
     const url = `${this.base}/orgs/${orgId}/secciones/${seccionId}/usuarios`;

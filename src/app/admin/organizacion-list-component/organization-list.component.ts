@@ -205,7 +205,9 @@ export class OrganizationListComponent implements OnInit {
       this.router.navigateByUrl(this.returnUrl);
       return;
     }
-    this.router.navigate(['/gestionar-organizacion'], {queryParams: {id: org.id}});
+    // Bloquear inmediatamente tras la primera selección y navegar
+    this.orgCtx.lock({ orgId: org.id ? String(org.id) : null, scopeNivel: this.orgCtx.scope, seccionPrincipalId: this.orgCtx.seccion });
+    this.router.navigate(['/gestionar-organizacion'], { queryParams: { id: org.id } });
   }
 
   // Nuevo: Ir a asignar Administrador de la Organización (solo SYSADMIN)

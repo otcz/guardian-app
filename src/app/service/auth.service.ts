@@ -114,27 +114,21 @@ export class AuthService {
 
             // Contexto multi-tenant (usar orgAdministraId como tenant efectivo)
             try {
-              const adminId = (resp.orgAdministraId != null) ? resp.orgAdministraId
+              const adminIdRaw = (resp.orgAdministraId != null) ? resp.orgAdministraId
                 : (resp.orgId ?? resp.organizacionId ?? resp.organizationId ?? resp.organization?.id ?? resp.organizacion?.id);
-              const creadoraId = (resp.orgCreadoraId != null) ? resp.orgCreadoraId : null;
+              const adminId: string | null = (adminIdRaw != null) ? String(adminIdRaw) : null;
               const orgName = (resp.orgName ?? resp.organization?.nombre ?? resp.organization?.name ?? resp.organizacion?.nombre ?? resp.organizacion?.name);
+              const scope: ScopeNivel | null = resp.scopeNivel != null ? (String(resp.scopeNivel).toUpperCase() as ScopeNivel) : null;
+              const seccionId: string | null = resp.seccionPrincipalId != null ? String(resp.seccionPrincipalId) : null;
 
-              if (creadoraId != null) localStorage.setItem('orgCreadoraId', String(creadoraId)); else localStorage.removeItem('orgCreadoraId');
-              if (adminId != null) {
-                localStorage.setItem('orgAdministraId', String(adminId));
-                // Compat: currentOrgId ahora siempre es la organización administrada
-                localStorage.setItem('currentOrgId', String(adminId));
-              } else {
-                // sin adminId, limpiar compat
-                try { localStorage.removeItem('orgAdministraId'); localStorage.removeItem('currentOrgId'); } catch {}
-              }
               if (orgName != null) localStorage.setItem('currentOrgName', String(orgName));
 
-              const scope = resp.scopeNivel != null ? String(resp.scopeNivel).toUpperCase() : null;
-              const seccionId = resp.seccionPrincipalId != null ? String(resp.seccionPrincipalId) : null;
-              if (scope) localStorage.setItem('scopeNivel', scope); else localStorage.removeItem('scopeNivel');
-              if (seccionId) localStorage.setItem('seccionPrincipalId', seccionId); else localStorage.removeItem('seccionPrincipalId');
-              this.orgCtx.setContext({ orgId: adminId != null ? String(adminId) : null, scopeNivel: (scope as any), seccionPrincipalId: seccionId });
+              // Bloquear si backend define la organización; de lo contrario setear parcialmente sin bloquear
+              if (adminId != null) {
+                this.orgCtx.lock({ orgId: adminId, scopeNivel: scope, seccionPrincipalId: seccionId });
+              } else {
+                this.orgCtx.setContext({ orgId: null, scopeNivel: scope, seccionPrincipalId: seccionId });
+              }
             } catch {}
 
             // Menú

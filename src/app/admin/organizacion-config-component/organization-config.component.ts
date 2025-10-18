@@ -40,15 +40,21 @@ export class OrganizationConfigComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    const locked = this.orgCtx.isLocked;
     const resolved = this.route.snapshot.queryParamMap.get('id') || localStorage.getItem('currentOrgId') || '';
     if (!resolved) {
       // Si no hay id, cargar listado y seleccionar por defecto
       this.loadOrganizations(true);
     } else {
       this.orgId = resolved;
-      localStorage.setItem('currentOrgId', this.orgId);
-      // Sincronizar contexto global
-      this.orgCtx.set(this.orgId);
+      const current = this.orgCtx.value;
+      if (locked && current && String(current) !== String(this.orgId)) {
+        // No permitir cambiar si está bloqueado; mantener el actual
+        this.orgId = current;
+      } else {
+        // Bloquear si aún no está bloqueado
+        if (!locked) this.orgCtx.lock({ orgId: this.orgId, scopeNivel: this.orgCtx.scope, seccionPrincipalId: this.orgCtx.seccion });
+      }
       this.loadOrg();
       // Precargar listado en segundo plano
       this.loadOrganizations(false);
@@ -72,10 +78,15 @@ export class OrganizationConfigComponent implements OnInit {
 
   onOrgChanged(newId: string) {
     if (!newId) return;
+    const locked = this.orgCtx.isLocked;
+    const current = this.orgCtx.value;
+    if (locked && current && String(current) !== String(newId)) {
+      // Contexto bloqueado: ignorar cambios
+      this.orgId = current;
+      return;
+    }
     this.orgId = newId;
-    localStorage.setItem('currentOrgId', this.orgId);
-    // Sincronizar contexto global
-    this.orgCtx.set(this.orgId);
+    if (!locked) this.orgCtx.lock({ orgId: this.orgId, scopeNivel: this.orgCtx.scope, seccionPrincipalId: this.orgCtx.seccion });
     this.loadOrg();
   }
 

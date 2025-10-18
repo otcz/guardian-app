@@ -24,6 +24,7 @@ export class UserAvatarProComponent {
   private ctx = inject(OrgContextService);
   private secSvc = inject(SeccionService);
 
+  // Estado base
   username = signal<string>('');
   roles = signal<string[]>([]);
   orgId = signal<string | null>(null);
@@ -32,12 +33,13 @@ export class UserAvatarProComponent {
   seccionId = signal<string | null>(null);
   seccionName = signal<string | null>(null);
   expiresAt = signal<number | null>(null);
+
+  // Datos auxiliares
   orgs = signal<Organization[]>([]);
   displayedOrgs = computed(() => {
     const list = this.orgs() || [];
     const scope = (this.scopeNivel() || '').toString().toUpperCase();
     const currentId = this.orgId();
-    // Si el alcance es ORGANIZACION o SECCION y hay orgId activo, restringir a esa organización
     if ((scope === 'ORGANIZACION' || scope === 'SECCION') && currentId) {
       return list.filter(o => String(o.id) === String(currentId));
     }
@@ -52,12 +54,12 @@ export class UserAvatarProComponent {
 
     const isAuth = this.auth.isAuthenticated();
 
-    // NUEVO: sincronizar señales con cambios del contexto global
+    // Sincronización con el contexto global
     this.ctx.orgId$.subscribe((id) => {
       const newId = id ? String(id) : null;
       if (this.orgId() !== newId) {
         this.orgId.set(newId);
-        try { if (newId) localStorage.setItem('currentOrgId', newId); } catch {}
+        try { if (newId) localStorage.setItem('currentOrgId', newId); else localStorage.removeItem('currentOrgId'); } catch {}
       }
     });
     this.ctx.scope$.subscribe((sc) => {
@@ -75,7 +77,7 @@ export class UserAvatarProComponent {
       }
     });
 
-    // Refrescar nombre de organización actual y persistirlo (solo si autenticado)
+    // Refrescar nombre de organización actual (solo si autenticado)
     effect((onCleanup) => {
       if (!isAuth) { this.orgName.set(null); return; }
       const id = this.orgId();
@@ -85,19 +87,17 @@ export class UserAvatarProComponent {
           next: (org: Organization) => {
             const name = org?.nombre || null;
             this.orgName.set(name);
-            try { if (name) localStorage.setItem('currentOrgName', name); } catch {}
+            try { if (name) localStorage.setItem('currentOrgName', name); else localStorage.removeItem('currentOrgName'); } catch {}
           },
           error: () => this.orgName.set(null)
         });
       } else {
         this.orgName.set(null);
       }
-      if (onCleanup && typeof onCleanup === 'function') {
-        onCleanup(() => { if (sub?.unsubscribe) sub.unsubscribe(); });
-      }
+      if (onCleanup) onCleanup(() => { if (sub?.unsubscribe) sub.unsubscribe(); });
     }, { allowSignalWrites: true });
 
-    // Cargar lista de organizaciones accesibles y auto-seleccionar si falta (solo si autenticado)
+    // Cargar lista de organizaciones y autoseleccionar si falta (si no está bloqueado)
     if (isAuth) {
       this.orgSvc.listAccessible().subscribe({
         next: (list) => {
@@ -105,9 +105,10 @@ export class UserAvatarProComponent {
           this.orgs.set(arr);
           const current = this.orgId();
           const exists = current ? arr.some(o => String(o.id) === String(current)) : false;
+          const locked = this.ctx.isLocked;
+          if (locked) return;
           if (!current || !exists) {
-            const active = arr.find(o => (o as any)?.activa);
-            const chosen = active || arr[0] || null;
+            const chosen = arr.find(o => (o as any)?.activa) || arr[0] || null;
             if (chosen?.id) {
               const id = String(chosen.id);
               const name = chosen.nombre || null;
@@ -115,13 +116,11 @@ export class UserAvatarProComponent {
               if (name) { try { localStorage.setItem('currentOrgName', name); } catch {} }
               this.orgId.set(id);
               this.orgName.set(name);
-              this.ctx.set(id);
+              // no bloquear aquí; el bloqueo ocurre en primera selección explícita o viene del login
             } else {
-              // Sin organizaciones
               try { localStorage.removeItem('currentOrgId'); localStorage.removeItem('currentOrgName'); } catch {}
               this.orgId.set(null);
               this.orgName.set(null);
-              this.ctx.set(null);
             }
           }
         },
@@ -142,14 +141,14 @@ export class UserAvatarProComponent {
           const found = (list || []).find(s => String(s.id) === String(secId));
           const n = found?.nombre || null;
           this.seccionName.set(n);
-          try { if (n) localStorage.setItem('currentSectionName', n); } catch {}
+          try { if (n) localStorage.setItem('currentSectionName', n); else localStorage.removeItem('currentSectionName'); } catch {}
         },
         error: () => this.seccionName.set(null)
       });
       if (onCleanup) onCleanup(() => { if (sub?.unsubscribe) sub.unsubscribe(); });
     }, { allowSignalWrites: true });
 
-    // Iniciar intervalo para refrescar cuenta regresiva y progreso
+    // Intervalo para progreso de sesión
     this.timer = setInterval(() => this.tick.set(Date.now()), 1000);
   }
 
@@ -162,7 +161,6 @@ export class UserAvatarProComponent {
     try { this.orgId.set(localStorage.getItem('currentOrgId')); } catch { this.orgId.set(null); }
     try { this.orgName.set(localStorage.getItem('currentOrgName')); } catch { this.orgName.set(null); }
     try { this.expiresAt.set(Number(localStorage.getItem('expiresAt') || '0') || null); } catch { this.expiresAt.set(null); }
-    // contexto
     try { this.scopeNivel.set((localStorage.getItem('scopeNivel') as any) || null); } catch { this.scopeNivel.set(null); }
     try { this.seccionId.set(localStorage.getItem('seccionPrincipalId')); } catch { this.seccionId.set(null); }
     try { this.seccionName.set(localStorage.getItem('currentSectionName')); } catch { this.seccionName.set(null); }
@@ -172,12 +170,12 @@ export class UserAvatarProComponent {
   initials = computed(() => {
     const n = (this.username() || '').trim();
     const parts = n.split(/\s+/).filter(Boolean);
-    const ini = parts.slice(0,2).map(p => p.charAt(0).toUpperCase()).join('');
+    const ini = parts.slice(0, 2).map(p => p.charAt(0).toUpperCase()).join('');
     return ini || 'U';
   });
   shortName = computed(() => {
     const n = (this.username() || '').trim();
-    return n.length > 22 ? n.slice(0,20) + '…' : n || 'Usuario';
+    return n.length > 22 ? n.slice(0, 20) + '…' : n || 'Usuario';
   });
   displayName = computed(() => this.username());
   emailHint = computed(() => {
@@ -187,16 +185,14 @@ export class UserAvatarProComponent {
   primaryRole = computed(() => (this.roles()[0] || '').toString());
   orgShort = computed(() => {
     const o = this.orgName();
-    return o ? (o.length > 26 ? o.slice(0,24) + '…' : o) : 'Sin organización';
+    return o ? (o.length > 26 ? o.slice(0, 24) + '…' : o) : 'Sin organización';
   });
 
   // Sesión: progreso
   private sessionBounds() {
-    // forzar dependencia reactiva en tick para recalcular cada segundo
     this.tick();
     const exp = this.expiresAt();
     if (!exp) return { totalMs: 0, leftMs: 0 };
-    // Intentar inferir total a partir de expiresAt y un TTL típico si no guardamos issuedAt
     const defaultTtlMs = 60 * 60 * 1000; // 1h por defecto
     const left = Math.max(0, exp - Date.now());
     const total = Math.max(defaultTtlMs, left);
@@ -223,25 +219,18 @@ export class UserAvatarProComponent {
     if (!o?.id) return;
     const id = String(o.id);
     const name = o.nombre || null;
+    const locked = this.ctx.isLocked;
+    const current = this.orgId();
+    if (locked && current && id !== String(current)) {
+      if (pop?.hide) pop.hide();
+      return;
+    }
     try { localStorage.setItem('currentOrgId', id); } catch {}
     if (name) { try { localStorage.setItem('currentOrgName', name); } catch {} }
     this.orgId.set(id);
     this.orgName.set(name);
-    this.ctx.set(id);
+    if (!locked) this.ctx.lock({ orgId: id, scopeNivel: this.scopeNivel() as any, seccionPrincipalId: this.seccionId() });
     if (pop?.hide) pop.hide();
-    // Antes: navegar a gestionar-organizacion. Eliminado para simplificar el menú.
-  }
-
-  goManage(pop: any) {
-    const id = this.orgId();
-    if (!id) { this.router.navigate(['/listar-organizaciones']); return; }
-    if (pop?.hide) pop.hide();
-    this.router.navigate(['/gestionar-organizacion'], { queryParams: { id } });
-  }
-
-  goList(pop: any) {
-    if (pop?.hide) pop.hide();
-    this.router.navigate(['/listar-organizaciones']);
   }
 
   logout() {

@@ -19,6 +19,9 @@ export const OrgRequiredGuard: CanActivateFn = (route: ActivatedRouteSnapshot, s
   const isOptionsMenuByUrl = currentUrl.startsWith('/gestion-de-opciones-menu');
   const allowNoContext = ['listar-organizaciones', 'login', 'register', ''].includes(path) || isOptionsMenuByUrl;
 
+  // Si la ruta es permitida sin contexto, no forzar validaciones para evitar bucles
+  if (allowNoContext) return true;
+
   const orgId = ctx.value || localStorage.getItem('currentOrgId');
   const scope = ctx.scope || (localStorage.getItem('scopeNivel') as any);
   const seccionId = ctx.seccion || localStorage.getItem('seccionPrincipalId');
@@ -27,7 +30,11 @@ export const OrgRequiredGuard: CanActivateFn = (route: ActivatedRouteSnapshot, s
     router.navigate(['/listar-organizaciones']);
     return false;
   }
-  if (String(scope).toUpperCase() === 'SECCION' && !seccionId) {
+
+  const scopeStr = String(scope).toUpperCase();
+  if (scopeStr === 'SECCION' && !seccionId) {
+    // Permitir navegar a listar-secciones para que el usuario seleccione una sección
+    if (path === 'listar-secciones') return true;
     router.navigate(['/listar-secciones']);
     return false;
   }

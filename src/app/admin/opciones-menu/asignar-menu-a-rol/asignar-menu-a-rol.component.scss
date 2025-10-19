@@ -1,0 +1,8 @@
+.container { padding: 1rem; }
+.card { display: block; }
+.header .title { margin: 0; font-weight: 800; }
+.form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; }
+.field label { display: block; font-weight: 700; margin-bottom: 4px; }
+.actions { display: flex; gap: .5rem; justify-content: flex-end; margin-top: .75rem; }
+.cell-narrow { width: 46px; }
+

@@ -21,21 +21,17 @@ import { UsuarioAsignarSeccionComponent } from './admin/usuario-asignar-seccion-
 import { UsuarioAsignarRolesComponent } from './admin/usuario-asignar-roles-component/usuario-asignar-roles.component';
 import { OrgRequiredGuard } from './service/org-required.guard';
 import { SeccionAsignarAdminComponent } from './admin/seccion-asignar-admin-component/seccion-asignar-admin.component';
-import { AsignarOpcionesPorSeccionComponent } from './admin/opciones-menu/asignar-opciones-por-seccion/asignar-opciones-por-seccion.component';
 import { CrearOpcionComponent } from './admin/opciones-menu/crear-opcion/crear-opcion.component';
 import { GestionarOpcionComponent } from './admin/opciones-menu/gestionar-opcion/gestionar-opcion.component';
-import { ListarOpcionesComponent } from './admin/opciones-menu/listar-opciones/listar-opciones.component';
-import { OverrideMenuLocalComponent } from './admin/opciones-menu/override-menu-local/override-menu-local.component';
+import { AsignarMenuARolComponent } from './admin/opciones-menu/asignar-menu-a-rol/asignar-menu-a-rol.component';
 import { NoAutorizadoComponent } from './shared/no-autorizado/no-autorizado.component';
 
 export const appRoutes: Routes = [
   // Rutas públicas para pruebas de gestión de opciones (sin guards)
-  { path: 'gestion-de-opciones-menu', redirectTo: 'gestion-de-opciones-menu/listar-opciones', pathMatch: 'full' },
-  { path: 'gestion-de-opciones-menu/asignar-opciones-por-seccion', component: AsignarOpcionesPorSeccionComponent },
+  { path: 'gestion-de-opciones-menu', redirectTo: 'gestion-de-opciones-menu/gestionar-opcion', pathMatch: 'full' },
   { path: 'gestion-de-opciones-menu/crear-opcion', component: CrearOpcionComponent },
   { path: 'gestion-de-opciones-menu/gestionar-opcion', component: GestionarOpcionComponent },
-  { path: 'gestion-de-opciones-menu/listar-opciones', component: ListarOpcionesComponent },
-  { path: 'gestion-de-opciones-menu/override-menu-local', component: OverrideMenuLocalComponent },
+  { path: 'gestion-de-opciones-menu/asignar-menu-a-rol', component: AsignarMenuARolComponent },
 
   // Ruta pública para mostrar mensaje de acceso restringido
   { path: 'no-autorizado', component: NoAutorizadoComponent },
@@ -68,12 +64,10 @@ export const appRoutes: Routes = [
       { path: 'gestion-de-usuarios/asignar-roles', component: UsuarioAsignarRolesComponent, canActivate: [PermissionGuard], data: { code: 'USER_ASSIGN_ROLES' } },
 
       // --- Gestión de opciones de menú ---
-      { path: 'gestion-de-opciones-menu', redirectTo: 'gestion-de-opciones-menu/listar-opciones', pathMatch: 'full' },
-      { path: 'gestion-de-opciones-menu/asignar-opciones-por-seccion', component: AsignarOpcionesPorSeccionComponent },
+      { path: 'gestion-de-opciones-menu', redirectTo: 'gestion-de-opciones-menu/gestionar-opcion', pathMatch: 'full' },
       { path: 'gestion-de-opciones-menu/crear-opcion', component: CrearOpcionComponent },
       { path: 'gestion-de-opciones-menu/gestionar-opcion', component: GestionarOpcionComponent },
-      { path: 'gestion-de-opciones-menu/listar-opciones', component: ListarOpcionesComponent },
-      { path: 'gestion-de-opciones-menu/override-menu-local', component: OverrideMenuLocalComponent },
+      { path: 'gestion-de-opciones-menu/asignar-menu-a-rol', component: AsignarMenuARolComponent },
 
       // --- Gestión de vehículos ---
       { path: 'gestion-de-vehiculos/mis-vehiculos', canActivate: [PermissionGuard], data: { code: 'VEHICLE_MY' }, loadComponent: () => import('./admin/vehiculos-mis-component/vehiculos-mis.component').then(m => m.VehiculosMisComponent) },
@@ -136,11 +130,8 @@ export const appRoutes: Routes = [
   { path: 'dashboard/crear-rol', redirectTo: 'crear-rol', pathMatch: 'full' },
   { path: 'dashboard/gestionar-rol', redirectTo: 'gestionar-rol', pathMatch: 'full' },
   // Legacy redirects para Gestión de Opciones de Menú
-  { path: 'dashboard/gestion-de-opciones-menu', redirectTo: 'gestion-de-opciones-menu/listar-opciones', pathMatch: 'full' },
-  { path: 'dashboard/gestion-de-opciones-menu/asignar-opciones-por-seccion', redirectTo: 'gestion-de-opciones-menu/asignar-opciones-por-seccion', pathMatch: 'full' },
+  { path: 'dashboard/gestion-de-opciones-menu', redirectTo: 'gestion-de-opciones-menu/gestionar-opcion', pathMatch: 'full' },
   { path: 'dashboard/gestion-de-opciones-menu/crear-opcion', redirectTo: 'gestion-de-opciones-menu/crear-opcion', pathMatch: 'full' },
   { path: 'dashboard/gestion-de-opciones-menu/gestionar-opcion', redirectTo: 'gestion-de-opciones-menu/gestionar-opcion', pathMatch: 'full' },
-  { path: 'dashboard/gestion-de-opciones-menu/listar-opciones', redirectTo: 'gestion-de-opciones-menu/listar-opciones', pathMatch: 'full' },
-  { path: 'dashboard/gestion-de-opciones-menu/override-menu-local', redirectTo: 'gestion-de-opciones-menu/override-menu-local', pathMatch: 'full' },
   { path: '**', redirectTo: '' }
 ];

@@ -841,7 +841,7 @@ body .p-toast .p-toast-message-info {
 }
 :root.theme-dark body .ng-star-inserted.p-select-overlay,
 :root.theme-dark body .ng-star-inserted.p-dropdown-panel,
-:root.theme-dark body .ng-star-inserted.p-multiselect-panel,
+:root.theme_dark body .ng-star-inserted.p-multiselect-panel,
 :root.theme-black body .ng-star-inserted.p-select-overlay,
 :root.theme-black body .ng-star-inserted.p-dropdown-panel,
 :root.theme-black body .ng-star-inserted.p-multiselect-panel {
@@ -1188,4 +1188,73 @@ body .p-tag.p-tag-contrast .p-tag-icon { color: inherit !important; }
     color: #ffffff !important;
     border-top-color: var(--border) !important;
   }
+}
+
+/* ===== PrimeNG Checkbox: fondo por tema sin afectar seleccionado ===== */
+:root.theme-light body .p-checkbox .p-checkbox-box:not(.p-highlight),
+:root.theme-light body .p-checkbox:not(.p-highlight) .p-checkbox-box {
+  background: #ffffff !important;
+  border: 1px solid var(--border) !important;
+}
+:root.theme-dark body .p-checkbox .p-checkbox-box:not(.p-highlight),
+:root.theme-black body .p-checkbox .p-checkbox-box:not(.p-highlight),
+:root.theme-dark body .p-checkbox:not(.p-highlight) .p-checkbox-box,
+:root.theme-black body .p-checkbox:not(.p-highlight) .p-checkbox-box {
+  background: var(--surface-alt) !important;
+  border: 1px solid color-mix(in srgb, var(--border) 60%, transparent) !important;
+}
+/* Hover/focus sutiles (opcional) */
+:root.theme-light body .p-checkbox:not(.p-disabled) .p-checkbox-box:not(.p-highlight):hover,
+:root.theme-light body .p-checkbox:not(.p-disabled) .p-checkbox-box:not(.p-highlight).p-focus,
+:root.theme-light body .p-checkbox:not(.p-disabled):not(.p-highlight) .p-checkbox-box:hover,
+:root.theme-light body .p-checkbox:not(.p-disabled):not(.p-highlight) .p-checkbox-box.p-focus {
+  box-shadow: inset 0 0 0 1.25px color-mix(in srgb, var(--primary) 18%, var(--border)) !important;
+}
+:root.theme-dark body .p-checkbox:not(.p-disabled) .p-checkbox-box:not(.p-highlight):hover,
+:root.theme-black body .p-checkbox:not(.p-disabled) .p-checkbox-box:not(.p-highlight):hover,
+:root.theme-dark body .p-checkbox:not(.p-disabled) .p-checkbox-box:not(.p-highlight).p-focus,
+:root.theme-black body .p-checkbox:not(.p-disabled) .p-checkbox-box:not(.p-highlight).p-focus,
+:root.theme-dark body .p-checkbox:not(.p-disabled):not(.p-highlight) .p-checkbox-box:hover,
+:root.theme-black body .p-checkbox:not(.p-disabled):not(.p-highlight) .p-checkbox-box:hover,
+:root.theme-dark body .p-checkbox:not(.p-disabled):not(.p-highlight) .p-checkbox-box.p-focus,
+:root.theme-black body .p-checkbox:not(.p-disabled):not(.p-highlight) .p-checkbox-box.p-focus {
+  box-shadow: inset 0 0 0 1.25px color-mix(in srgb, var(--primary) 26%, var(--border)) !important;
+}
+
+/* ===== PrimeNG Checkbox: estado seleccionado (checked) en verde según paleta ===== */
+:root.theme-light body .p-checkbox .p-checkbox-box.p-highlight,
+:root.theme-dark body .p-checkbox .p-checkbox-box.p-highlight,
+:root.theme-black body .p-checkbox .p-checkbox-box.p-highlight,
+:root.theme-light body .p-checkbox.p-highlight .p-checkbox-box,
+:root.theme-dark body .p-checkbox.p-highlight .p-checkbox-box,
+:root.theme-black body .p-checkbox.p-highlight .p-checkbox-box {
+  background: var(--success) !important;
+  border: 1px solid color-mix(in srgb, var(--success) 88%, var(--border)) !important;
+  box-shadow: none !important;
+}
+/* Hover y foco del checkbox seleccionado (evitar disabled) */
+:root.theme-light body .p-checkbox:not(.p-disabled) .p-checkbox-box.p-highlight:hover,
+:root.theme-dark body .p-checkbox:not(.p-disabled) .p-checkbox-box.p-highlight:hover,
+:root.theme-black body .p-checkbox:not(.p-disabled) .p-checkbox-box.p-highlight:hover,
+:root.theme-light body .p-checkbox:not(.p-disabled).p-highlight .p-checkbox-box:hover,
+:root.theme-dark body .p-checkbox:not(.p-disabled).p-highlight .p-checkbox-box:hover,
+:root.theme-black body .p-checkbox:not(.p-disabled).p-highlight .p-checkbox-box:hover {
+  background: color-mix(in srgb, var(--success) 85%, black) !important;
+}
+:root.theme-light body .p-checkbox:not(.p-disabled) .p-checkbox-box.p-highlight.p-focus,
+:root.theme-dark body .p-checkbox:not(.p-disabled) .p-checkbox-box.p-highlight.p-focus,
+:root.theme-black body .p-checkbox:not(.p-disabled) .p-checkbox-box.p-highlight.p-focus,
+:root.theme-light body .p-checkbox:not(.p-disabled).p-highlight .p-checkbox-box.p-focus,
+:root.theme-dark body .p-checkbox:not(.p-disabled).p-highlight .p-checkbox-box.p-focus,
+:root.theme-black body .p-checkbox:not(.p-disabled).p-highlight .p-checkbox-box.p-focus {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--success) 28%, transparent) !important;
+}
+/* Contraste del icono del check */
+:root.theme-light body .p-checkbox .p-checkbox-box.p-highlight .p-checkbox-icon,
+:root.theme-dark body .p-checkbox .p-checkbox-box.p-highlight .p-checkbox-icon,
+:root.theme-black body .p-checkbox .p-checkbox-box.p-highlight .p-checkbox-icon,
+:root.theme-light body .p-checkbox.p-highlight .p-checkbox-box .p-checkbox-icon,
+:root.theme-dark body .p-checkbox.p-highlight .p-checkbox-box .p-checkbox-icon,
+:root.theme-black body .p-checkbox.p-highlight .p-checkbox-box .p-checkbox-icon {
+  color: #ffffff !important;
 }

@@ -73,21 +73,23 @@
             </div>
           </td>
 
-          <td class="flex gap-xs ai-center justify-center">
-            <ng-container *ngIf="adding && row.id === ''">
-              <button pButton type="button" icon="pi pi-check" label="Guardar" class="p-button-success" (click)="saveAdd()" [disabled]="saving"></button>
-              <button pButton type="button" icon="pi pi-times" label="Cancelar" class="p-button-text" (click)="cancelAdd()" [disabled]="saving"></button>
-            </ng-container>
+          <td class="text-center">
+            <div class="flex gap-xs ai-center justify-center">
+              <ng-container *ngIf="adding && row.id === ''">
+                <button pButton type="button" icon="pi pi-check" label="Guardar" class="p-button-success" (click)="saveAdd()" [disabled]="saving"></button>
+                <button pButton type="button" icon="pi pi-times" label="Cancelar" class="p-button-text" (click)="cancelAdd()" [disabled]="saving"></button>
+              </ng-container>
 
-            <ng-container *ngIf="!adding && editingId === row.id">
-              <button pButton type="button" icon="pi pi-check" label="Guardar" class="p-button-success" (click)="saveEdit()" [disabled]="saving"></button>
-              <button pButton type="button" icon="pi pi-times" label="Cancelar" class="p-button-text" (click)="cancelEdit()" [disabled]="saving"></button>
-            </ng-container>
+              <ng-container *ngIf="!adding && editingId === row.id">
+                <button pButton type="button" icon="pi pi-check" label="Guardar" class="p-button-success" (click)="saveEdit()" [disabled]="saving"></button>
+                <button pButton type="button" icon="pi pi-times" label="Cancelar" class="p-button-text" (click)="cancelEdit()" [disabled]="saving"></button>
+              </ng-container>
 
-            <ng-container *ngIf="!adding && editingId !== row.id">
-              <button pButton type="button" icon="pi pi-pencil" class="p-button-rounded p-button-text" (click)="startEdit(row)" [disabled]="saving" pTooltip="EDITAR" tooltipPosition="top"></button>
-              <button pButton type="button" icon="pi pi-trash" class="p-button-rounded p-button-text p-button-danger" (click)="remove(row)" [disabled]="saving" pTooltip="ELIMINAR" tooltipPosition="top"></button>
-            </ng-container>
+              <ng-container *ngIf="!adding && editingId !== row.id">
+                <button pButton type="button" icon="pi pi-pencil" class="p-button-rounded p-button-text" (click)="startEdit(row)" [disabled]="saving" pTooltip="EDITAR" tooltipPosition="top"></button>
+                <button pButton type="button" icon="pi pi-trash" class="p-button-rounded p-button-text p-button-danger" (click)="remove(row)" [disabled]="saving" pTooltip="ELIMINAR" tooltipPosition="top"></button>
+              </ng-container>
+            </div>
           </td>
         </tr>
       </ng-template>
@@ -97,4 +99,3 @@
     </p-table>
   </div>
 </div>
-

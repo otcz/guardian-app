@@ -849,445 +849,116 @@ body .p-toast .p-toast-message-info {
   color: #fff !important;
 }
 
-/* ===== Tabla Roles Create Page: fondo blanco en modo claro ===== */
-:root.theme-light app-roles-create-page .p-datatable .p-datatable-wrapper table,
+/* ===== Crear Rol: .p-datatable-tbody blanco en claro y negro en oscuros ===== */
 :root.theme-light app-roles-create-page .p-datatable .p-datatable-tbody,
-:root.theme-light app-roles-create-page .p-datatable-tbody > tr > td {
+:root.theme-light app-roles-create-page .p-table .p-datatable-tbody {
   background: #ffffff !important;
-  color: #000000 !important;
 }
-
-/* ===== Roles Create Page: asegurar fondo correcto por tema (refuerzo final) ===== */
-:root.theme-light app-roles-create-page .p-datatable .p-datatable-wrapper table,
+:root.theme-light app-roles-create-page .p-datatable .p-datatable-tbody > tr,
+:root.theme-light app-roles-create-page .p-table .p-datatable-tbody > tr {
+  background: #ffffff !important;
+}
 :root.theme-light app-roles-create-page .p-datatable .p-datatable-tbody > tr > td,
-:root.theme-light app-roles-create-page .p-table .p-datatable-wrapper table,
 :root.theme-light app-roles-create-page .p-table .p-datatable-tbody > tr > td {
   background: #ffffff !important;
   color: #000000 !important;
-  border-top: 1px solid var(--border) !important;
-}
-:root.theme-dark app-roles-create-page .p-datatable .p-datatable-wrapper table,
-:root.theme-black app-roles-create-page .p-datatable .p-datatable-wrapper table,
-:root.theme-dark app-roles-create-page .p-datatable .p-datatable-tbody > tr > td,
-:root.theme-black app-roles-create-page .p-datatable .p-datatable-tbody > tr > td,
-:root.theme-dark app-roles-create-page .p-table .p-datatable-wrapper table,
-:root.theme-black app-roles-create-page .p-table .p-datatable-wrapper table,
-:root.theme-dark app-roles-create-page .p-table .p-datatable-tbody > tr > td,
-:root.theme-black app-roles-create-page .p-table .p-datatable-tbody > tr > td {
-  background: var(--surface-alt) !important;
-  color: #ffffff !important;
-  border-top: 1px solid var(--border) !important;
 }
 
-/* ===== Tablas en modo claro (global) ===== */
-:root.theme-light body .p-datatable .p-datatable-wrapper table,
-:root.theme-light body .p-table .p-datatable-wrapper table {
-  background: var(--surface) !important;
-  color: #000 !important;
-}
-:root.theme-light body .p-datatable-tbody > tr > td,
-:root.theme-light body .p-table .p-datatable-tbody > tr > td {
-  background: var(--surface) !important;
-  color: #000 !important;
-  border-top: 1px solid var(--border) !important;
-}
-:root.theme-light body .p-datatable-tbody > tr:nth-child(even) > td,
-:root.theme-light body .p-table .p-datatable-tbody > tr:nth-child(even) > td {
-  background: var(--surface) !important; /* sin bandas para look limpio */
-}
-:root.theme-light body .p-datatable .p-datatable-wrapper table tbody tr:hover > td,
-:root.theme-light body .p-table .p-datatable-wrapper table tbody tr:hover > td {
-  background: color-mix(in srgb, var(--primary) 8%, #ffffff) !important;
-}
-
-/* Tema claro: asegurar label negro para el control Sección Padre */
-:root.theme-light body .seccion-padre-control.p-dropdown .p-dropdown-label { color: #000 !important; }
-:root.theme-light body .seccion-padre-control.p-dropdown .p-dropdown-label.p-placeholder { color: #4b5563 !important; }
-
-/* Tema claro: refuerzo adicional para el texto del label (y su span interno) */
-:root.theme-light body .seccion-padre-control .p-dropdown-label,
-:root.theme-light body .seccion-padre-control .p-dropdown-label span { color: #000 !important; }
-
-/* ===== Popover (PrimeNG) en modo claro ===== */
-:root.theme-light body .p-popover {
-  background: transparent !important;
-  color: #111 !important;
-  border: none !important;
-  box-shadow: none !important;
-}
-:root.theme-light body .p-popover .p-popover-content {
-  background: transparent !important;
-  color: inherit !important;
-  font-size: 0.95rem;
-}
-:root.theme-light body .p-popover .p-popover-arrow {
-  /* sin colores de borde para evitar halo/blanco */
-  border-right-color: transparent !important;
-  border-left-color: transparent !important;
-}
-
-/* Overrides globales para PrimeNG Popover: sin marco y flecha arriba-izquierda */
-.p-popover {
-  background: transparent !important;
-  border: none !important;
-  padding: 0 !important;
-  box-shadow: none !important;
-}
-.p-popover .p-popover-content {
-  background: transparent !important;
-  border: none !important;
-  padding: 0 !important;
-  box-shadow: none !important;
-}
-.p-popover .p-popover-arrow {
-  top: 0 !important;
-  left: 12px !important;
-  right: auto !important;
-}
-.p-popover .p-popover-arrow::before,
-.p-popover .p-popover-arrow::after {
-  background: var(--surface) !important; /* mismo color del panel interno */
-  border: none !important;
-  box-shadow: none !important;
-}
-
-/* ===== ConfirmDialog global (usa tokens del tema) ===== */
-body .p-confirm-dialog.p-dialog {
-  background: var(--surface) !important;
-  color: var(--text) !important;
-  border: 1px solid var(--border) !important;
-}
-body .p-confirm-dialog .p-dialog-header,
-body .p-confirm-dialog .p-dialog-content,
-body .p-confirm-dialog .p-dialog-footer {
-  background: var(--surface) !important;
-  color: var(--text) !important;
-}
-body .p-confirm-dialog .p-dialog-header { border-bottom: 1px solid var(--border) !important; }
-body .p-confirm-dialog .p-dialog-footer { border-top: 1px solid var(--border) !important; }
-body .p-confirm-dialog .p-confirm-dialog-message,
-body .p-confirm-dialog .p-confirm-dialog-message * { color: var(--text) !important; }
-body .p-confirm-dialog .p-confirm-dialog-icon { color: var(--danger) !important; }
-
-/* ===== Correcciones de selectores mal escritos (tema oscuro/negro) ===== */
-:root.theme-dark body .ng-star-inserted.p-select-overlay,
-:root.theme-dark body .ng-star-inserted.p-dropdown-panel,
-:root.theme-dark body .ng-star-inserted.p-multiselect-panel,
-:root.theme-black body .ng-star-inserted.p-select-overlay,
-:root.theme-black body .ng-star-inserted.p-dropdown-panel,
-:root.theme-black body .ng-star-inserted.p-multiselect-panel {
-  background: color-mix(in srgb, var(--surface) 92%, #000) !important;
-  color: #fff !important;
-}
-
-/* ===== Tokens de PrimeNG para Dialog por tema ===== */
-:root.theme-light {
-  --p-dialog-background: #ffffff;
-  --p-dialog-header-background: #ffffff;
-  --p-dialog-content-background: #ffffff;
-  --p-dialog-text-color: #000000;
-}
-:root.theme-dark, :root.theme-black {
-  --p-dialog-background: var(--surface);
-  --p-dialog-header-background: var(--surface);
-  --p-dialog-content-background: var(--surface);
-  --p-dialog-text-color: var(--text);
-}
-
-/* ===== Refuerzo FINAL: .p-dialog en modo claro (máxima especificidad) ===== */
-:root.theme-light body .p-dialog,
-:root.theme-light body .p-confirm-dialog.p-dialog {
-  background-color: #ffffff !important;
-  color: #000000 !important;
-  border: 1px solid var(--border) !important;
-  box-shadow: 0 14px 32px rgba(0,0,0,0.12), 0 6px 18px rgba(79,140,255,0.12) !important;
-}
-:root.theme-light body .p_dialog .p-dialog-header,
-:root.theme-light body .p_dialog .p-dialog-content,
-:root.theme-light body .p_dialog .p-dialog-footer {
-  background-color: #ffffff !important;
-  color: #000000 !important;
-}
-:root.theme-light body .p_dialog .p-dialog-header { border-bottom: 1px solid var(--border) !important; }
-:root.theme-light body .p_dialog .p-dialog-footer { border-top: 1px solid var(--border) !important; }
-:root.theme-light body .p-confirm-dialog .p-confirm-dialog-message,
-:root.theme-light body .p-confirm-dialog .p-confirm-dialog-message * { color: #000000 !important; }
-
-/* ===== Refuerzo overlay/máscara ===== */
-:root.theme-light body .p-dialog-mask { background-color: rgba(0,0,0,.35) !important; }
-:root.theme-dark body .p-dialog-mask, :root.theme-black body .p-dialog-mask { background-color: rgba(0,0,0,.6) !important; }
-
-/* Alineación global de PrimeNG Card con el tema currente */
-body .p-card {
-  background: var(--surface) !important;
-  color: var(--text) !important;
-  border: none !important;
-}
-
-/* Etiqueta del control Select (PrimeNG 18) por tema */
-:root.theme-light body .p-select-label { color: #000000 !important; }
-:root.theme-light body .p-select-label.p-placeholder { color: #4b5563 !important; }
-:root.theme-dark body .p-select-label,
-:root.theme-black body .p-select-label { color: #ffffff !important; }
-:root.theme-dark body .p-select-label.p-placeholder,
-:root.theme-black body .p-select-label.p-placeholder { color: rgba(255,255,255,0.75) !important; }
-
-/* Chips: contraste por tema (requisito) */
-:root.theme-light body .p-chip,
-:root.theme-light body .pill .p-chip {
-  background: #ffffff !important;
-  color: #000000 !important;
-}
-:root.theme-dark body .p-chip,
-:root.theme-dark body .pill .p-chip,
-:root.theme-black body .p-chip,
-:root.theme-black body .pill .p-chip {
-  background: var(--surface-alt) !important;
-  color: #ffffff !important;
-}
-
-/* Cards con layout user-card: sin padding del host y sin desbordes */
-.card.user-card,
-.p-card.user-card {
-  padding: 0 !important;
-  overflow: hidden;
-}
-
-/* ===== PrimeNG Tag: variante de alto contraste por tema ===== */
-:root.theme-light body .p-tag.p-tag-contrast {
-  background: #ffffff !important; /* fondo claro en tema claro */
-  color: #000000 !important;      /* texto oscuro para contraste */
-  border: 1px solid var(--border) !important;
-}
-:root.theme-dark body .p-tag.p-tag-contrast,
-:root.theme-black body .p-tag.p-tag-contrast {
-  background: var(--surface-alt) !important; /* fondo oscuro en temas oscuros */
-  color: #ffffff !important;                 /* texto claro para contraste */
-  border: 1px solid color-mix(in srgb, var(--border) 70%, transparent) !important;
-}
-/* Ajuste opcional para tags redondeados/pequeños (mantener legibilidad) */
-body .p-tag.p-tag-contrast.p-tag-rounded { padding-inline: 0.5rem; }
-body .p-tag.p-tag-contrast .p-tag-icon { color: inherit !important; }
-
-/* Input buscador en sidebar: fondo perfectamente integrado con el color del sidebar en modo claro */
-:root.theme-light .sidebar input:not([type=checkbox]):not([type=radio]) {
-  background: #1a2530 !important; /* color sólido igual al fondo del sidebar */
-  color: #fff !important;
-  border: none !important;
-  border-radius: 10px !important;
-  padding: 10px 14px !important;
-  box-shadow: none !important;
-}
-:root.theme-light .sidebar input::placeholder {
-  color: #e0e6ed !important;
-  opacity: 0.85;
-}
-
-/* Refuerzo específico: Login en tema claro con inputs blancos y texto negro */
-:root.theme-light .login-page input:not([type="checkbox"]):not([type="radio"]),
-:root.theme-light .login-page .p-inputtext,
-:root.theme-light .login-page .p-password input,
-:root.theme-light .login-page textarea {
-  background: #ffffff !important;
-  background-color: #ffffff !important; /* cubrir overrides con background-color */
-  color: #000000 !important;
-  caret-color: #000000 !important;
-}
-:root.theme-light .login-page input::placeholder,
-:root.theme-light .login-page textarea::placeholder,
-:root.theme-light .login-page .p-inputtext::placeholder {
-  color: #4b5563 !important;
-}
-:root.theme-light .login-page label,
-:root.theme-light .login-page .form-field label,
-:root.theme-light .login-page .field label { color: #000000 !important; }
-
-/* Selectores súper específicos para .login-input en modo claro */
-:root.theme-light body .login-page input.login-input,
-:root.theme-light body .login-page .login-input.p-inputtext,
-:root.theme-light body.p-input-filled .login-page .login-input.p-inputtext,
-:root.theme-light body.p-input-filled .login-page .login-input.p-inputtext {
-  background: #ffffff !important;
-  background-color: #ffffff !important;
-  color: #000000 !important;
-  caret-color: #000000 !important;
-}
-:root.theme-light .login-page .p-inputtext:disabled,
-:root.theme-light .login-page .p-inputtext[readonly],
-:root.theme-light .login-page input.login-input:disabled,
-:root.theme-light .login-page input.login-input[readonly] {
-  background: #ffffff !important;
-  background-color: #ffffff !important;
-  color: #000000 !important;
-  opacity: 1 !important;
-}
-:root.theme-light .login-page .p-inputtext,
-:root.theme-light .login-page .p-inputtext:hover,
-:root.theme-light .login-page .p-inputtext:focus,
-:root.theme-light .login-page input.login-input,
-:root.theme-light .login-page input.login-input:hover,
-:root.theme-light .login-page input.login-input:focus {
-  background: #ffffff !important;
-  background-color: #ffffff !important;
-  color: #000000 !important;
-}
-
-/* Login: inputs en temas oscuros con fondo oscuro y texto blanco */
-:root.theme-dark app-login .login-input,
-:root.theme-black app-login .login-input,
-:root.theme-dark body .p-dialog .login-input,
-:root.theme-black body .p-dialog .login-input {
-  background: var(--surface) !important;
-  color: #ffffff !important;
-  caret-color: #ffffff !important;
-}
-:root.theme-dark app-login .login-input:hover,
-:root.theme-black app-login .login-input:hover,
-:root.theme-dark body .p-dialog .login-input:hover,
-:root.theme-black body .p-dialog .login-input:hover {
-  background: color-mix(in srgb, var(--surface) 92%, #000) !important;
-}
-:root.theme-dark app-login .login-input:focus,
-:root.theme-black app-login .login-input:focus,
-:root.theme-dark body .p-dialog .login-input:focus,
-:root.theme-black body .p-dialog .login-input:focus {
-  box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary) 20%, transparent), inset 0 0 0 1.5px color-mix(in srgb, var(--primary) 50%, var(--border)) !important;
-}
-
-/* Placeholders en login (oscuros) ya están cubiertos por reglas globales, pero reforzamos */
-:root.theme-dark app-login .login-input::placeholder,
-:root.theme-black app-login .login-input::placeholder,
-:root.theme-dark body .p-dialog .login-input::placeholder,
-:root.theme-black body .p-dialog .login-input::placeholder {
-  color: rgba(255,255,255,0.75) !important;
-}
-
-/* Popover del usuario (user-popover): ocultar flecha nativa para evitar triángulo blanco */
-.user-popover .p-popover-arrow,
-.user-popover .p-popover-arrow::before,
-.user-popover .p-popover-arrow::after { display: none !important; }
-/* Refuerzo: ocultar cualquier pseudo-elemento de flecha para el popover del avatar */
-.user-popover::before,
-.user-popover::after,
-.user-popover .p-popover-content::before,
-.user-popover .p-popover-content::after { display: none !important; content: none !important; border: 0 !important; box-shadow: none !important; }
-
-/* Fondo del cuerpo de tablas PrimeNG según tema */
-:root.theme-light {
-  .p-datatable .p-datatable-tbody > tr > td,
-  .p-table .p-datatable-tbody > tr > td {
-    background: var(--surface) !important;
-    color: #000 !important;
-    border-top-color: var(--border) !important;
-  }
-}
-:root.theme-dark, :root.theme-black {
-  .p-datatable .p-datatable-tbody > tr > td,
-  .p-table .p-datatable-tbody > tr > td {
-    background: var(--surface-alt) !important;
-    color: #ffffff !important;
-    border-top-color: var(--border) !important;
-  }
-}
-
-/* ===== PrimeNG Checkbox: fondo por tema sin afectar seleccionado ===== */
-:root.theme-light body .p-checkbox .p-checkbox-box:not(.p-highlight),
-:root.theme-light body .p-checkbox:not(.p-highlight) .p-checkbox-box {
-  background: #ffffff !important;
-  background-color: #ffffff !important;
-  border: 1px solid var(--border) !important;
-}
-:root.theme-dark body .p-checkbox .p-checkbox-box:not(.p-highlight),
-:root.theme-black body .p-checkbox .p-checkbox-box:not(.p-highlight),
-:root.theme-dark body .p-checkbox:not(.p-highlight) .p-checkbox-box,
-:root.theme-black body .p-checkbox:not(.p-highlight) .p-checkbox-box {
-  background: var(--surface-alt) !important;
-  background-color: var(--surface-alt) !important;
-  border: 1px solid color-mix(in srgb, var(--border) 60%, transparent) !important;
-}
-/* Hover/focus sutiles (opcional) */
-:root.theme-light body .p-checkbox:not(.p-disabled) .p-checkbox-box:not(.p-highlight):hover,
-:root.theme-light body .p-checkbox:not(.p-disabled) .p-checkbox-box:not(.p-highlight).p-focus,
-:root.theme-light body .p-checkbox:not(.p-disabled):not(.p-highlight) .p-checkbox-box:hover,
-:root.theme-light body .p-checkbox:not(.p-disabled):not(.p-highlight) .p-checkbox-box.p-focus {
-  box-shadow: inset 0 0 0 1.25px color-mix(in srgb, var(--primary) 18%, var(--border)) !important;
-}
-:root.theme-dark body .p-checkbox:not(.p-disabled) .p-checkbox-box:not(.p-highlight):hover,
-:root.theme-black body .p-checkbox:not(.p-disabled) .p-checkbox-box:not(.p-highlight):hover,
-:root.theme-dark body .p-checkbox:not(.p-disabled) .p-checkbox-box:not(.p-highlight).p-focus,
-:root.theme-black body .p-checkbox:not(.p-disabled) .p-checkbox-box:not(.p-highlight).p-focus,
-:root.theme-dark body .p-checkbox:not(.p-disabled):not(.p-highlight) .p-checkbox-box:hover,
-:root.theme-black body .p-checkbox:not(.p-disabled):not(.p-highlight) .p-checkbox-box:hover,
-:root.theme-dark body .p-checkbox:not(.p-disabled):not(.p-highlight) .p-checkbox-box.p-focus,
-:root.theme-black body .p-checkbox:not(.p-disabled):not(.p-highlight) .p-checkbox-box.p-focus {
-  box-shadow: inset 0 0 0 1.25px color-mix(in srgb, var(--primary) 26%, var(--border)) !important;
-}
-
-/* ===== PrimeNG Checkbox: estado seleccionado (checked) en verde según paleta ===== */
-:root.theme-light body .p-checkbox .p-checkbox-box.p-highlight,
-:root.theme-dark body .p-checkbox .p-checkbox-box.p-highlight,
-:root.theme-black body .p-checkbox .p-checkbox-box.p-highlight,
-:root.theme-light body .p-checkbox.p-highlight .p-checkbox-box,
-:root.theme-dark body .p-checkbox.p-highlight .p-checkbox-box,
-:root.theme-black body .p-checkbox.p-highlight .p-checkbox-box {
-  background: var(--success) !important;
-  background-color: var(--success) !important;
-  border: 1px solid color-mix(in srgb, var(--success) 88%, var(--border)) !important;
-  box-shadow: none !important;
-}
-/* Hover y foco del checkbox seleccionado (evitar disabled) */
-:root.theme-light body .p-checkbox:not(.p-disabled) .p-checkbox-box.p-highlight:hover,
-:root.theme-dark body .p-checkbox:not(.p-disabled) .p-checkbox-box.p-highlight:hover,
-:root.theme-black body .p-checkbox:not(.p-disabled) .p-checkbox-box.p-highlight:hover,
-:root.theme-light body .p-checkbox:not(.p-disabled).p-highlight .p-checkbox-box:hover,
-:root.theme-dark body .p-checkbox:not(.p-disabled).p-highlight .p-checkbox-box:hover,
-:root.theme-black body .p-checkbox:not(.p-disabled).p-highlight .p-checkbox-box:hover {
-  background: color-mix(in srgb, var(--success) 85%, black) !important;
-  background-color: color-mix(in srgb, var(--success) 85%, black) !important;
-}
-:root.theme-light body .p-checkbox:not(.p-disabled) .p-checkbox-box.p-highlight.p-focus,
-:root.theme-dark body .p-checkbox:not(.p-disabled) .p-checkbox-box.p-highlight.p-focus,
-:root.theme-black body .p-checkbox:not(.p-disabled) .p-checkbox-box.p-highlight.p-focus {
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--success) 28%, transparent) !important;
-}
-/* Contraste del icono del check */
-:root.theme-light body .p-checkbox .p-checkbox-box.p-highlight .p-checkbox-icon,
-:root.theme-dark body .p-checkbox .p-checkbox-box.p-highlight .p-checkbox-icon,
-:root.theme-black body .p-checkbox .p-checkbox-box.p-highlight .p-checkbox-icon,
-:root.theme-light body .p-checkbox.p-highlight .p-checkbox-box .p-checkbox-icon,
-:root.theme-dark body .p-checkbox.p-highlight .p-checkbox-box .p-checkbox-icon,
-:root.theme-black body .p-checkbox.p-highlight .p-checkbox-box .p-checkbox-icon {
-  color: #ffffff !important;
-}
-
-/* Variante basada en el input:checked para asegurar el verde al chequear */
-:root.theme-light body .p-checkbox .p-checkbox-input:checked + .p-checkbox-box,
-:root.theme-dark body .p-checkbox .p-checkbox-input:checked + .p-checkbox-box,
-:root.theme-black body .p-checkbox .p-checkbox-input:checked + .p-checkbox-box {
-  background: var(--success) !important;
-  background-color: var(--success) !important;
-  border-color: color-mix(in srgb, var(--success) 88%, var(--border)) !important;
-}
-:root.theme-light body .p-checkbox .p-checkbox-input:checked + .p-checkbox-box .p-checkbox-icon,
-:root.theme-dark body .p-checkbox .p-checkbox-input:checked + .p-checkbox-box .p-checkbox-icon,
-:root.theme-black body .p-checkbox .p-checkbox-input:checked + .p-checkbox-box .p-checkbox-icon {
-  color: #ffffff !important;
-}
-
-/* === Resalte sutil para checkbox en tema claro sobre fondo blanco === */
-:root.theme-light body .p-checkbox .p-checkbox-box:not(.p-highlight) {
-  /* Sombra muy ligera para separar del fondo blanco del componente */
-  box-shadow: 0 1px 2px rgba(0,0,0,0.06);
-}
-
-/* === Fondo del tbody de PrimeNG DataTable por tema === */
-:root.theme-light body .p-datatable .p-datatable-tbody,
-:root.theme-light body .p-table .p-datatable-tbody {
-  background: #ffffff !important;
-}
-:root.theme-dark body .p-datatable .p-datatable-tbody,
-:root.theme-black body .p-datatable .p-datatable-tbody,
-:root.theme-dark body .p-table .p-datatable-tbody,
-:root.theme-black body .p-table .p-datatable-tbody {
+:root.theme-dark app-roles-create-page .p-datatable .p-datatable-tbody,
+:root.theme-black app-roles-create-page .p-datatable .p-datatable-tbody,
+:root.theme-dark app-roles-create-page .p-table .p-datatable-tbody,
+:root.theme-black app-roles-create-page .p-table .p-datatable-tbody {
   background: #000000 !important;
 }
+:root.theme-dark app-roles-create-page .p-datatable .p-datatable-tbody > tr,
+:root.theme-black app-roles-create-page .p-datatable .p-datatable-tbody > tr,
+:root.theme-dark app-roles-create-page .p-table .p-datatable-tbody > tr,
+:root.theme-black app-roles-create-page .p-table .p-datatable-tbody > tr {
+  background: #000000 !important;
+}
+:root.theme-dark app-roles-create-page .p-datatable .p-datatable-tbody > tr > td,
+:root.theme-black app-roles-create-page .p-datatable .p-datatable-tbody > tr > td,
+:root.theme-dark app-roles-create-page .p-table .p-datatable-tbody > tr > td,
+:root.theme-black app-roles-create-page .p-table .p-datatable-tbody > tr > td {
+  background: #000000 !important;
+  color: #ffffff !important;
+}
+
+/* Robustez extra con html.theme-* */
+html.theme-light app-roles-create-page .p-datatable .p-datatable-wrapper table > tbody.p-datatable-tbody,
+html.theme-light app-roles-create-page .p-table .p-datatable-wrapper table > tbody.p-datatable-tbody { background: #ffffff !important; }
+html.theme-light app-roles-create-page .p-datatable .p-datatable-wrapper table > tbody.p-datatable-tbody > tr,
+html.theme-light app-roles-create-page .p-table .p-datatable-wrapper table > tbody.p-datatable-tbody > tr { background: #ffffff !important; }
+html.theme-light app-roles-create-page .p-datatable .p-datatable-wrapper table > tbody.p-datatable-tbody > tr > td,
+html.theme-light app-roles-create-page .p-table .p-datatable-wrapper table > tbody.p-datatable-tbody > tr > td { background: #ffffff !important; color: #000000 !important; }
+
+html.theme-dark app-roles-create-page .p-datatable .p-datatable-wrapper table > tbody.p-datatable-tbody,
+html.theme-black app-roles-create-page .p-datatable .p-datatable-wrapper table > tbody.p-datatable-tbody,
+html.theme-dark app-roles-create-page .p-table .p-datatable-wrapper table > tbody.p-datatable-tbody,
+html.theme-black app-roles-create-page .p-table .p-datatable-wrapper table > tbody.p-datatable-tbody { background: #000000 !important; }
+html.theme-dark app-roles-create-page .p-datatable .p-datatable-wrapper table > tbody.p-datatable-tbody > tr,
+html.theme-black app-roles-create-page .p-datatable .p-datatable-wrapper table > tbody.p-datatable-tbody > tr,
+html.theme-dark app-roles-create-page .p-table .p-datatable-wrapper table > tbody.p-datatable-tbody > tr,
+html.theme-black app-roles-create-page .p-table .p-datatable-wrapper table > tbody.p-datatable-tbody > tr { background: #000000 !important; }
+html.theme-dark app-roles-create-page .p-datatable .p-datatable-wrapper table > tbody.p-datatable-tbody > tr > td,
+html.theme-black app-roles-create-page .p-datatable .p-datatable-wrapper table > tbody.p-datatable-tbody > tr > td,
+html.theme-dark app-roles-create-page .p-table .p-datatable-wrapper table > tbody.p-datatable-tbody > tr > td,
+html.theme-black app-roles-create-page .p-table .p-datatable-wrapper table > tbody.p-datatable-tbody > tr > td { background: #000000 !important; color: #ffffff !important; }
+
+/* ===== OVERRIDES FINALES Y CANÓNICOS: Roles Create Page (tbody blanco/negro) ===== */
+/* Tema claro */
+:root.theme-light app-roles-create-page .p-datatable .p-datatable-wrapper table > tbody.p-datatable-tbody,
+:root.theme-light app-roles-create-page .p-table .p-datatable-wrapper table > tbody.p-datatable-tbody {
+  background: #ffffff !important;
+}
+:root.theme-light app-roles-create-page .p-datatable .p-datatable-wrapper table > tbody.p-datatable-tbody > tr,
+:root.theme-light app-roles-create-page .p-table .p-datatable-wrapper table > tbody.p-datatable-tbody > tr {
+  background: #ffffff !important;
+}
+:root.theme-light app-roles-create-page .p-datatable .p-datatable-wrapper table > tbody.p-datatable-tbody > tr > td,
+:root.theme-light app-roles-create-page .p-table .p-datatable-wrapper table > tbody.p-datatable-tbody > tr > td {
+  background: #ffffff !important;
+  color: #000000 !important;
+}
+
+/* Temas oscuro y negro */
+:root.theme-dark app-roles-create-page .p-datatable .p-datatable-wrapper table > tbody.p-datatable-tbody,
+:root.theme-black app-roles-create-page .p-datatable .p-datatable-wrapper table > tbody.p-datatable-tbody,
+:root.theme-dark app-roles-create-page .p-table .p-datatable-wrapper table > tbody.p-datatable-tbody,
+:root.theme-black app-roles-create-page .p-table .p-datatable-wrapper table > tbody.p-datatable-tbody {
+  background: #000000 !important;
+}
+:root.theme-dark app-roles-create-page .p-datatable .p-datatable-wrapper table > tbody.p-datatable-tbody > tr,
+:root.theme-black app-roles-create-page .p-datatable .p-datatable-wrapper table > tbody.p-datatable-tbody > tr,
+:root.theme-dark app-roles-create-page .p-table .p-datatable-wrapper table > tbody.p-datatable-tbody > tr,
+:root.theme-black app-roles-create-page .p-table .p-datatable-wrapper table > tbody.p-datatable-tbody > tr {
+  background: #000000 !important;
+}
+:root.theme-dark app-roles-create-page .p-datatable .p-datatable-wrapper table > tbody.p-datatable-tbody > tr > td,
+:root.theme-black app-roles-create-page .p-datatable .p-datatable-wrapper table > tbody.p-datatable-tbody > tr > td,
+:root.theme-dark app-roles-create-page .p-table .p-datatable-wrapper table > tbody.p-datatable-tbody > tr > td,
+:root.theme-black app-roles-create-page .p-table .p-datatable-wrapper table > tbody.p-datatable-tbody > tr > td {
+  background: #000000 !important;
+  color: #ffffff !important;
+}
+
+/* Robustez extra con html.theme-* */
+html.theme-light app-roles-create-page .p-datatable .p-datatable-wrapper table > tbody.p-datatable-tbody,
+html.theme-light app-roles-create-page .p-table .p-datatable-wrapper table > tbody.p-datatable-tbody { background: #ffffff !important; }
+html.theme-light app-roles-create-page .p-datatable .p-datatable-wrapper table > tbody.p-datatable-tbody > tr,
+html.theme-light app-roles-create-page .p-table .p-datatable-wrapper table > tbody.p-datatable-tbody > tr { background: #ffffff !important; }
+html.theme-light app-roles-create-page .p-datatable .p-datatable-wrapper table > tbody.p-datatable-tbody > tr > td,
+html.theme-light app-roles-create-page .p-table .p-datatable-wrapper table > tbody.p-datatable-tbody > tr > td { background: #ffffff !important; color: #000000 !important; }
+
+html.theme-dark app-roles-create-page .p-datatable .p-datatable-wrapper table > tbody.p-datatable-tbody,
+html.theme-black app-roles-create-page .p-datatable .p-datatable-wrapper table > tbody.p-datatable-tbody,
+html.theme-dark app-roles-create-page .p-table .p-datatable-wrapper table > tbody.p-datatable-tbody,
+html.theme-black app-roles-create-page .p-table .p-datatable-wrapper table > tbody.p-datatable-tbody { background: #000000 !important; }
+html.theme-dark app-roles-create-page .p-datatable .p-datatable-wrapper table > tbody.p-datatable-tbody > tr,
+html.theme-black app-roles-create-page .p-datatable .p-datatable-wrapper table > tbody.p-datatable-tbody > tr,
+html.theme-dark app-roles-create-page .p-table .p-datatable-wrapper table > tbody.p-datatable-tbody > tr,
+html.theme-black app-roles-create-page .p-table .p-datatable-wrapper table > tbody.p-datatable-tbody > tr { background: #000000 !important; }
+html.theme-dark app-roles-create-page .p-datatable .p-datatable-wrapper table > tbody.p-datatable-tbody > tr > td,
+html.theme-black app-roles-create-page .p-datatable .p-datatable-wrapper table > tbody.p-datatable-tbody > tr > td,
+html.theme-dark app-roles-create-page .p-table .p-datatable-wrapper table > tbody.p-datatable-tbody > tr > td,
+html.theme-black app-roles-create-page .p-table .p-datatable-wrapper table > tbody.p-datatable-tbody > tr > td { background: #000000 !important; color: #ffffff !important; }

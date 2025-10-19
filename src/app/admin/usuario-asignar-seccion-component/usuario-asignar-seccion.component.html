@@ -16,7 +16,7 @@
       <div class="actions-toolbar">
         <button pButton type="button" icon="pi pi-arrow-left" class="p-button p-button-text" [routerLink]="['/gestion-de-usuarios/listar-usuarios']" pTooltip="Volver"></button>
         <span class="spacer"></span>
-        <button pButton type="button" icon="pi pi-send" class="p-button p-button-text" label="Invitar a la Sección" (click)="openInvite()"></button>
+        <!-- Botón 'Invitar a la Sección' eliminado -->
       </div>
     </div>
 
@@ -46,5 +46,5 @@
     </div>
   </p-card>
 
-  <app-section-invite-dialog [(visible)]="showInvite" [orgId]="orgIdForInvite" [seccionId]="seccionIdForInvite"></app-section-invite-dialog>
+  <!-- Diálogo de invitación eliminado de esta pantalla -->
 </div>

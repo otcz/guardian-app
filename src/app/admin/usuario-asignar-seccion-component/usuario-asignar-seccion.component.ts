@@ -16,12 +16,11 @@ import { NotificationService } from '../../service/notification.service';
 import { ConfirmationService } from 'primeng/api';
 import { OrganizationService, Organization } from '../../service/organization.service';
 import { AuthService } from '../../service/auth.service';
-import { SectionInviteDialogComponent } from '../../shared/section-invite-dialog.component';
 
 @Component({
   selector: 'app-usuario-asignar-seccion',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, CardModule, DropdownModule, ButtonModule, AvatarModule, ChipModule, TagModule, TooltipModule, SectionInviteDialogComponent],
+  imports: [CommonModule, FormsModule, RouterModule, CardModule, DropdownModule, ButtonModule, AvatarModule, ChipModule, TagModule, TooltipModule],
   templateUrl: './usuario-asignar-seccion.component.html',
   styleUrls: ['./usuario-asignar-seccion.component.scss']
 })
@@ -32,7 +31,6 @@ export class UsuarioAsignarSeccionComponent implements OnInit {
   usuarioId: string | null = null;
   seccionId: string | null = null;
   saving = false;
-  showInvite = false;
 
   // Organizaciones disponibles para asignar administrador (destino)
   orgs: Organization[] = [];
@@ -89,10 +87,6 @@ export class UsuarioAsignarSeccionComponent implements OnInit {
     if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
     return src[0].toUpperCase();
   }
-  get seccionIdForInvite(): string | null { return this.seccionId ? String(this.seccionId) : null; }
-  get orgIdForInvite(): string | null { return this.orgId ? String(this.orgId) : null; }
-
-  openInvite() { this.showInvite = true; }
 
   load() {
     if (!this.orgId) return;

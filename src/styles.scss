@@ -536,6 +536,31 @@ a:hover { text-decoration: underline; }
   border-bottom: 1px solid var(--border) !important;
 }
 
+/* ---------- PrimeNG DataTable: cuerpo por tema (claro/oscuro) ---------- */
+:root.theme-light {
+  .p-datatable .p-datatable-tbody > tr > td,
+  .p-table .p-datatable-tbody > tr > td {
+    background: var(--surface) !important;
+    color: #000 !important;
+    border-top: 1px solid var(--border) !important;
+  }
+}
+:root.theme-dark, :root.theme-black {
+  .p-datatable .p-datatable-tbody > tr > td,
+  .p-table .p-datatable-tbody > tr > td {
+    background: var(--surface-alt) !important;
+    color: #ffffff !important;
+    border-top: 1px solid var(--border) !important;
+  }
+}
+/* Ajuste de hover coherente (ya existe regla global de hover; reforzamos contraste leve) */
+:root.theme-dark .p-datatable .p-datatable-tbody > tr:hover > td,
+:root.theme-black .p-datatable .p-datatable-tbody > tr:hover > td,
+:root.theme-dark .p-table .p-datatable-tbody > tr:hover > td,
+:root.theme-black .p-table .p-datatable-tbody > tr:hover > td {
+  background: color-mix(in srgb, var(--primary) 10%, var(--surface-alt)) !important;
+}
+
 /* ===== Tablas en modo oscuro / negro (unificar look) ===== */
 :root.theme-dark app-dashboard .recent-activity .p-datatable-wrapper table,
 :root.theme-black app-dashboard .recent-activity .p-datatable-wrapper table,
@@ -818,8 +843,8 @@ body .p-toast .p-toast-message-info {
 :root.theme-dark body .ng-star-inserted.p-dropdown-panel,
 :root.theme-dark body .ng-star-inserted.p-multiselect-panel,
 :root.theme-black body .ng-star-inserted.p-select-overlay,
-:root.theme_black body .ng-star-inserted.p-dropdown-panel,
-:root.theme_black body .ng-star-inserted.p-multiselect-panel {
+:root.theme-black body .ng-star-inserted.p-dropdown-panel,
+:root.theme-black body .ng-star-inserted.p-multiselect-panel {
   background: color-mix(in srgb, var(--surface) 92%, #000) !important;
   color: #fff !important;
 }
@@ -830,6 +855,28 @@ body .p-toast .p-toast-message-info {
 :root.theme-light app-roles-create-page .p-datatable-tbody > tr > td {
   background: #ffffff !important;
   color: #000000 !important;
+}
+
+/* ===== Roles Create Page: asegurar fondo correcto por tema (refuerzo final) ===== */
+:root.theme-light app-roles-create-page .p-datatable .p-datatable-wrapper table,
+:root.theme-light app-roles-create-page .p-datatable .p-datatable-tbody > tr > td,
+:root.theme-light app-roles-create-page .p-table .p-datatable-wrapper table,
+:root.theme-light app-roles-create-page .p-table .p-datatable-tbody > tr > td {
+  background: #ffffff !important;
+  color: #000000 !important;
+  border-top: 1px solid var(--border) !important;
+}
+:root.theme-dark app-roles-create-page .p-datatable .p-datatable-wrapper table,
+:root.theme-black app-roles-create-page .p-datatable .p-datatable-wrapper table,
+:root.theme-dark app-roles-create-page .p-datatable .p-datatable-tbody > tr > td,
+:root.theme-black app-roles-create-page .p-datatable .p-datatable-tbody > tr > td,
+:root.theme-dark app-roles-create-page .p-table .p-datatable-wrapper table,
+:root.theme-black app-roles-create-page .p-table .p-datatable-wrapper table,
+:root.theme-dark app-roles-create-page .p-table .p-datatable-tbody > tr > td,
+:root.theme-black app-roles-create-page .p-table .p-datatable-tbody > tr > td {
+  background: var(--surface-alt) !important;
+  color: #ffffff !important;
+  border-top: 1px solid var(--border) !important;
 }
 
 /* ===== Tablas en modo claro (global) ===== */

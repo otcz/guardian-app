@@ -1194,6 +1194,7 @@ body .p-tag.p-tag-contrast .p-tag-icon { color: inherit !important; }
 :root.theme-light body .p-checkbox .p-checkbox-box:not(.p-highlight),
 :root.theme-light body .p-checkbox:not(.p-highlight) .p-checkbox-box {
   background: #ffffff !important;
+  background-color: #ffffff !important;
   border: 1px solid var(--border) !important;
 }
 :root.theme-dark body .p-checkbox .p-checkbox-box:not(.p-highlight),
@@ -1201,6 +1202,7 @@ body .p-tag.p-tag-contrast .p-tag-icon { color: inherit !important; }
 :root.theme-dark body .p-checkbox:not(.p-highlight) .p-checkbox-box,
 :root.theme-black body .p-checkbox:not(.p-highlight) .p-checkbox-box {
   background: var(--surface-alt) !important;
+  background-color: var(--surface-alt) !important;
   border: 1px solid color-mix(in srgb, var(--border) 60%, transparent) !important;
 }
 /* Hover/focus sutiles (opcional) */
@@ -1229,6 +1231,7 @@ body .p-tag.p-tag-contrast .p-tag-icon { color: inherit !important; }
 :root.theme-dark body .p-checkbox.p-highlight .p-checkbox-box,
 :root.theme-black body .p-checkbox.p-highlight .p-checkbox-box {
   background: var(--success) !important;
+  background-color: var(--success) !important;
   border: 1px solid color-mix(in srgb, var(--success) 88%, var(--border)) !important;
   box-shadow: none !important;
 }
@@ -1240,13 +1243,11 @@ body .p-tag.p-tag-contrast .p-tag-icon { color: inherit !important; }
 :root.theme-dark body .p-checkbox:not(.p-disabled).p-highlight .p-checkbox-box:hover,
 :root.theme-black body .p-checkbox:not(.p-disabled).p-highlight .p-checkbox-box:hover {
   background: color-mix(in srgb, var(--success) 85%, black) !important;
+  background-color: color-mix(in srgb, var(--success) 85%, black) !important;
 }
 :root.theme-light body .p-checkbox:not(.p-disabled) .p-checkbox-box.p-highlight.p-focus,
 :root.theme-dark body .p-checkbox:not(.p-disabled) .p-checkbox-box.p-highlight.p-focus,
-:root.theme-black body .p-checkbox:not(.p-disabled) .p-checkbox-box.p-highlight.p-focus,
-:root.theme-light body .p-checkbox:not(.p-disabled).p-highlight .p-checkbox-box.p-focus,
-:root.theme-dark body .p-checkbox:not(.p-disabled).p-highlight .p-checkbox-box.p-focus,
-:root.theme-black body .p-checkbox:not(.p-disabled).p-highlight .p-checkbox-box.p-focus {
+:root.theme-black body .p-checkbox:not(.p-disabled) .p-checkbox-box.p-highlight.p-focus {
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--success) 28%, transparent) !important;
 }
 /* Contraste del icono del check */
@@ -1257,4 +1258,36 @@ body .p-tag.p-tag-contrast .p-tag-icon { color: inherit !important; }
 :root.theme-dark body .p-checkbox.p-highlight .p-checkbox-box .p-checkbox-icon,
 :root.theme-black body .p-checkbox.p-highlight .p-checkbox-box .p-checkbox-icon {
   color: #ffffff !important;
+}
+
+/* Variante basada en el input:checked para asegurar el verde al chequear */
+:root.theme-light body .p-checkbox .p-checkbox-input:checked + .p-checkbox-box,
+:root.theme-dark body .p-checkbox .p-checkbox-input:checked + .p-checkbox-box,
+:root.theme-black body .p-checkbox .p-checkbox-input:checked + .p-checkbox-box {
+  background: var(--success) !important;
+  background-color: var(--success) !important;
+  border-color: color-mix(in srgb, var(--success) 88%, var(--border)) !important;
+}
+:root.theme-light body .p-checkbox .p-checkbox-input:checked + .p-checkbox-box .p-checkbox-icon,
+:root.theme-dark body .p-checkbox .p-checkbox-input:checked + .p-checkbox-box .p-checkbox-icon,
+:root.theme-black body .p-checkbox .p-checkbox-input:checked + .p-checkbox-box .p-checkbox-icon {
+  color: #ffffff !important;
+}
+
+/* === Resalte sutil para checkbox en tema claro sobre fondo blanco === */
+:root.theme-light body .p-checkbox .p-checkbox-box:not(.p-highlight) {
+  /* Sombra muy ligera para separar del fondo blanco del componente */
+  box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+}
+
+/* === Fondo del tbody de PrimeNG DataTable por tema === */
+:root.theme-light body .p-datatable .p-datatable-tbody,
+:root.theme-light body .p-table .p-datatable-tbody {
+  background: #ffffff !important;
+}
+:root.theme-dark body .p-datatable .p-datatable-tbody,
+:root.theme-black body .p-datatable .p-datatable-tbody,
+:root.theme-dark body .p-table .p-datatable-tbody,
+:root.theme-black body .p-table .p-datatable-tbody {
+  background: #000000 !important;
 }

@@ -40,8 +40,7 @@ export class RolesService {
   private json = new HttpHeaders({'Content-Type': 'application/json', Accept: 'application/json'});
   private accept = new HttpHeaders({Accept: 'application/json'});
 
-  constructor(private http: HttpClient) {
-  }
+  constructor(private http: HttpClient) {}
 
   private unwrap<T = any>(resp: any): T {
     return (resp && typeof resp === 'object' && 'data' in resp) ? (resp as any).data as T : (resp as T);
@@ -49,10 +48,12 @@ export class RolesService {
 
   private ensureRole(d: any): RoleEntity {
     return {
-      id: String(d?.id ?? d?._id ?? ''),
-      nombre: String(d?.nombre ?? d?.name ?? ''),
+      // aceptar id, _id o rolId
+      id: String(d?.id ?? d?._id ?? d?.rolId ?? ''),
+      // aceptar nombre, name o rolNombre
+      nombre: String(d?.nombre ?? d?.name ?? d?.rolNombre ?? ''),
       descripcion: d?.descripcion ?? null,
-      estado: (d?.estado ?? d?.active === false ? 'INACTIVO' : 'ACTIVO') as any
+      estado: (d?.estado ?? (d?.active === false ? 'INACTIVO' : 'ACTIVO')) as any
     } as RoleEntity;
   }
 

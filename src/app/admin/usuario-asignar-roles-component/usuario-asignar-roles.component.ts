@@ -42,7 +42,7 @@ export class UsuarioAsignarRolesComponent implements OnInit {
 
     // Cargar catálogos
     this.users.list(this.orgId).subscribe({ next: list => { this.usuarios = list; this.autoSelectFromQuery(); }, error: e => this.notify.error('Error', e?.error?.message || 'No se pudieron listar usuarios') });
-    this.rolesSrv.list(this.orgId).subscribe({ next: list => { this.roles = list; this.roleNameById = Object.fromEntries((list || []).map(r => [String(r.id), String(r.nombre || '')])); }, error: e => this.notify.error('Error', e?.error?.message || 'No se pudieron listar roles') });
+    this.rolesSrv.list(this.orgId).subscribe({ next: list => { this.roles = list; this.roleNameById = Object.fromEntries((list || []).map(r => [String(r.id), String(r.nombre || '')])); this.hydrateRoleAssignments(); }, error: e => this.notify.error('Error', e?.error?.message || 'No se pudieron listar roles') });
 
     // Reaccionar a cambios de query param
     this.route.queryParamMap.subscribe(qm => {
@@ -72,6 +72,20 @@ export class UsuarioAsignarRolesComponent implements OnInit {
   getRoleName(ru: UserRoleAssignment | null | undefined): string {
     if (!ru) return '';
     return (ru.rol?.nombre || this.roleNameById[ru.rolId] || ru.rolId || '').toString();
+  }
+
+  /** Hidrata las asignaciones con la entidad RoleEntity según rolId para asegurar que haya nombre disponible */
+  private hydrateRoleAssignments(): void {
+    if (!this.rolesUsuario || this.rolesUsuario.length === 0) return;
+    if (!this.roles || this.roles.length === 0) return;
+    const byId = new Map(this.roles.map(r => [String(r.id), r] as const));
+    this.rolesUsuario = this.rolesUsuario.map(ru => {
+      if (!ru.rol) {
+        const r = byId.get(String(ru.rolId));
+        if (r) return { ...ru, rol: r };
+      }
+      return ru;
+    });
   }
 
   loadUserRoles() {

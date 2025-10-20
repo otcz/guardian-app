@@ -10,20 +10,9 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const isAuthCall = /\/(auth)\/(login|register|password)/.test(req.url);
   const hasBypassQuery = /[?&]bypass=true(?![^#])/i.test(req.url);
 
-  // Nunca adjuntar auth/ctx en endpoints de auth
+  // Nunca adjuntar auth/ctx en endpoints de auth, y no redirigir en sus errores
   if (isAuthCall) {
-    return next(req).pipe(
-      catchError((err) => {
-        const status = err?.status;
-        if (status === 401) {
-          const router = inject(Router);
-          const auth = inject(AuthService);
-          auth.logout();
-          router.navigate(['/login']);
-        }
-        return throwError(() => err);
-      })
-    );
+    return next(req); // Dejar que el componente maneje cualquier error (401/400) y muestre el message del backend
   }
 
   // En llamadas con bypass (?bypass=true) asegurar NO enviar Authorization,

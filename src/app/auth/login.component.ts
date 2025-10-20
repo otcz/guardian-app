@@ -181,10 +181,12 @@ export class LoginComponent {
           return;
         }
 
-        if (e?.status === 0) this.errorMsg = 'No fue posible conectar con el servidor.';
-        else if (e?.status === 404) this.errorMsg = 'Endpoint no encontrado /auth/login (ver proxy).';
-        else if (e?.status === 401) this.errorMsg = 'Credenciales incorrectas.';
-        else this.errorMsg = e?.error?.message || 'Error de autenticación.';
+        const backendMsg = e?.error?.message || e?.message || null;
+        if (e?.status === 0) this.errorMsg = backendMsg || 'No fue posible conectar con el servidor.';
+        else if (e?.status === 404) this.errorMsg = backendMsg || 'Endpoint no encontrado /auth/login (ver proxy).';
+        else if (e?.status === 401) this.errorMsg = backendMsg || 'Credenciales incorrectas.';
+        else if (e?.status === 400) this.errorMsg = backendMsg || 'Solicitud inválida.';
+        else this.errorMsg = backendMsg || 'Error de autenticación.';
         this.loading = false;
       }
     });

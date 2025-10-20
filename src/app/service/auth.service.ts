@@ -86,6 +86,21 @@ export class AuthService {
     return roles.some(r => set.has(String(r || '').toUpperCase()));
   }
 
+  /** Extrae un mensaje legible de un error HTTP, tolerando payloads texto/JSON */
+  private extractErrorMessage(err: any): string {
+    try {
+      const raw = err?.error;
+      if (raw == null) return err?.message || '';
+      if (typeof raw === 'string') {
+        const text = raw.trim();
+        if (!text) return err?.message || '';
+        try { const obj = JSON.parse(text); return obj?.message || text; } catch { return text; }
+      }
+      if (typeof raw === 'object') return raw?.message || err?.message || '';
+      return String(raw);
+    } catch { return err?.message || ''; }
+  }
+
   /** Login basado en formato real devuelto por backend (sin envoltorio) */
   login(data: { username: string; password: string; orgCode?: string }): Observable<BackendLoginResponse> {
     const primaryUrl = this.authAbsolute('/login');
@@ -97,11 +112,11 @@ export class AuthService {
       const tryQueue: string[] = [proxyAuthUrl, apiAuthUrl, absoluteApiAuthUrl];
       if (environment.preferAuthDedicated) tryQueue.push(primaryUrl);
       const attemptNext = (idx: number) => {
-        if (idx >= tryQueue.length) { subscriber.error({ status: 0, message: 'No fue posible contactar el servicio de autenticación.' }); return; }
+        if (idx >= tryQueue.length) { subscriber.error({ status: 0, error: { message: 'No fue posible contactar el servicio de autenticación.' } }); return; }
         const url = tryQueue[idx];
         this.http.post<BackendLoginResponse>(url, data).subscribe({
           next: resp => {
-            if (!resp?.token) { subscriber.error({ status: 400, message: 'Respuesta sin token' }); return; }
+            if (!resp?.token) { subscriber.error({ status: 400, error: { message: 'Respuesta sin token' } }); return; }
             // Persistir sesión mínima
             localStorage.setItem('token', resp.token);
             localStorage.setItem('username', resp.username || data.username);
@@ -138,8 +153,9 @@ export class AuthService {
           },
           error: (err) => {
             const status = err?.status;
+            const msg = this.extractErrorMessage(err);
             if (status === 428 || status === 401 || status === 400) {
-              subscriber.error(err);
+              subscriber.error({ status, error: { message: msg, code: err?.error?.code } });
               return;
             }
             attemptNext(idx + 1);

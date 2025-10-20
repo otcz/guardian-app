@@ -83,11 +83,14 @@ export class RolesService {
     const path = `/orgs/${orgId}/roles`;
     const url = `${this.base}${path}`;
     const urlFallback = `${environment.backendHost}${this.base}${path}`;
-    const mapResp = (resp: ApiResponse<any>) => {
-      if (!resp || resp.success === false) {
-        throw {error: {message: resp?.message || 'No se pudieron obtener los roles'}, status: 400};
+    const mapResp = (resp: ApiResponse<any> | any) => {
+      // Aceptar { success, data }, o array directo, o data.items
+      if (resp && typeof resp === 'object' && 'success' in resp && (resp as ApiResponse<any>).success === false) {
+        throw { error: { message: (resp as ApiResponse<any>)?.message || 'No se pudieron obtener los roles' }, status: 400 };
       }
-      const arr = Array.isArray(resp.data) ? resp.data : [];
+      const r = (resp && typeof resp === 'object' && 'success' in resp) ? (resp as ApiResponse<any>) : ({ success: true, data: resp } as ApiResponse<any>);
+      const data: any = r.data as any;
+      const arr = Array.isArray(data) ? data : (Array.isArray(data?.items) ? data.items : (Array.isArray(resp) ? resp : []));
       return arr.map((d: any) => this.ensureRole(d));
     };
     return this.http.get(url, {headers: this.accept, responseType: 'text' as 'json'}).pipe(

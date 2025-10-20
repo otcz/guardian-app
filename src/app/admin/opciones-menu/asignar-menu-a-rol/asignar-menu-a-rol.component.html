@@ -5,16 +5,27 @@
       <div class="form-grid">
         <div class="field">
           <label>Rol</label>
-          <p-dropdown [options]="roles" optionLabel="nombre" optionValue="id" [(ngModel)]="rolId" name="rolId" placeholder="Seleccione rol" [filter]="true" [showClear]="true"></p-dropdown>
+          <p-dropdown [options]="roles" optionLabel="nombre" optionValue="id" [(ngModel)]="rolId" name="rolId" placeholder="Seleccione rol" [filter]="true" [showClear]="true" (onChange)="onRolChange()"></p-dropdown>
         </div>
         <div class="field">
           <label>Buscar opción</label>
           <input pInputText type="text" [(ngModel)]="query" (ngModelChange)="applyFilter()" placeholder="Filtrar por nombre o ruta" />
         </div>
-
+        <div class="field" style="align-self: end;">
+          <button pButton type="button" class="p-button-outlined" label="Sembrar catálogo" icon="pi pi-download" (click)="seedNow()" [disabled]="!orgId || saving"></button>
+        </div>
       </div>
 
-      <p-table [value]="filteredOptions" [paginator]="true" [rows]="10" dataKey="path" selectionMode="multiple" [(selection)]="selectedOptions">
+      <div class="meta-row fs-xs text-muted" *ngIf="orgId && rolId">
+        <span>Total: {{ allOptions.length }}</span>
+        <span class="mx-2">Filtradas: {{ filteredOptions.length }}</span>
+        <span class="mx-2">Asignadas: {{ totalAssigned }}</span>
+        <span class="mx-2">Seleccionadas: {{ totalSelected }}</span>
+      </div>
+
+      <p *ngIf="errorMsg" class="p-error mb-sm fs-sm">{{ errorMsg }}</p>
+
+      <p-table [value]="filteredOptions" [paginator]="true" [rows]="10" dataKey="id" selectionMode="multiple" [(selection)]="selectedRows" (selectionChange)="onSelectionChange($event)">
         <ng-template pTemplate="header">
           <tr>
             <th class="cell-narrow"><p-tableHeaderCheckbox></p-tableHeaderCheckbox></th>
@@ -25,15 +36,19 @@
         <ng-template pTemplate="body" let-opt>
           <tr [pSelectableRow]="opt">
             <td><p-tableCheckbox [value]="opt"></p-tableCheckbox></td>
-            <td>{{ opt.label }}</td>
-            <td>{{ opt.path }}</td>
+            <td>{{ opt.nombre }}</td>
+            <td>{{ opt.ruta || '-' }}</td>
           </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+          <tr><td colspan="3" class="text-center fs-sm text-muted">Sin datos</td></tr>
         </ng-template>
       </p-table>
     </div>
     <div class="actions">
-      <button pButton type="button" label="Guardar" icon="pi pi-save" (click)="save()" [disabled]="!rolId || saving"></button>
-      <button pButton type="button" class="p-button-text" label="Cancelar" icon="pi pi-times" (click)="reset()"></button>
+      <button pButton type="button" label="Guardar" icon="pi pi-save" (click)="save()" [disabled]="!rolId || saving || !hasChanges"></button>
+      <button pButton type="button" class="p-button-text" label="Revertir cambios" icon="pi pi-refresh" (click)="revert()" [disabled]="!hasChanges"></button>
+      <button pButton type="button" class="p-button-text" label="Cancelar" icon="pi pi-times" (click)="resetData()"></button>
     </div>
   </p-card>
 </div>

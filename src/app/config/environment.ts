@@ -40,6 +40,9 @@ export const environment = {
     // Si el backend expone GET /organizaciones/accesibles, habilitar en true
     accessibleOrgsEndpoint: false,
     // Cargar rol contextual en listado de Usuarios (contexto ORGANIZACION)
-    fetchSectionRolesInOrgList: false
+    fetchSectionRolesInOrgList: false,
+    // Auto-sembrar catálogo de opciones de la organización cuando esté vacío
+    // Desactívelo si tu backend requiere body específico en POST /orgs/{orgId}/opciones
+    seedOrgOptionsOnEmpty: false
   }
 };

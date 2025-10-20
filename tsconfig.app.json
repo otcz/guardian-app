@@ -13,6 +13,9 @@
     "src/app/admin/organizacion-strategy-change-page/**",
     "src/app/service/org-admin.service.ts",
     "src/app/shared/user-avatar.component.ts",
-    "src/app/service/menu-access.guard.ts"
+    "src/app/service/menu-access.guard.ts",
+    "src/app/admin/opciones-menu/asignar-opciones-por-seccion/asignar-opciones-por-seccion.component.ts",
+    "src/app/admin/opciones-menu/listar-opciones/listar-opciones.component.ts",
+    "src/app/admin/opciones-menu/override-menu-local/override-menu-local.component.ts"
   ]
 }

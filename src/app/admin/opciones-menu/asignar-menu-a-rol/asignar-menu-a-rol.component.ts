@@ -8,11 +8,11 @@ import { DropdownModule } from 'primeng/dropdown';
 import { InputTextModule } from 'primeng/inputtext';
 import { TableModule } from 'primeng/table';
 import { CheckboxModule } from 'primeng/checkbox';
-import { MenuService, MenuNode } from '../../../service/menu.service';
 import { RolesService, RoleEntity } from '../../../service/roles.service';
 import { NotificationService } from '../../../service/notification.service';
-
-interface SimpleOption { label: string; path: string; }
+import { OpcionesService, OpcionEntity } from '../../../service/opciones.service';
+import { lastValueFrom } from 'rxjs';
+import { OrgContextService } from '../../../service/org-context.service';
 
 @Component({
   selector: 'app-asignar-menu-a-rol',
@@ -24,76 +24,199 @@ interface SimpleOption { label: string; path: string; }
 export class AsignarMenuARolComponent implements OnInit {
   roles: RoleEntity[] = [];
   rolId: string | null = null;
-  options: SimpleOption[] = [];
-  filteredOptions: SimpleOption[] = [];
-  selectedOptions: SimpleOption[] = [];
+  orgId: string | null = null;
+
+  allOptions: OpcionEntity[] = [];
+  filteredOptions: OpcionEntity[] = [];
+
+  // Selección y asignaciones
+  assignedIds = new Set<string>(); // estado del backend
+  selectedIds = new Set<string>(); // estado de UI
+  selectedRows: OpcionEntity[] = []; // binding para p-table
+
   query = '';
   loading = false;
   saving = false;
+  errorMsg: string | null = null;
 
-  constructor(private menu: MenuService, private rolesSvc: RolesService, private notify: NotificationService) {}
+  constructor(
+    private rolesSvc: RolesService,
+    private opcionesSvc: OpcionesService,
+    private notify: NotificationService,
+    private orgCtx: OrgContextService
+  ) {}
 
   ngOnInit(): void {
-    // Cargar roles de la organización actual
-    const orgId = localStorage.getItem('currentOrgId');
-    if (orgId) {
-      this.loading = true;
-      this.rolesSvc.list(orgId).subscribe({
-        next: (list) => { this.roles = list || []; this.loading = false; },
-        error: () => { this.roles = []; this.loading = false; }
-      });
+    // Obtener orgId desde el contexto (fallback a localStorage)
+    this.orgId = this.orgCtx.value || localStorage.getItem('currentOrgId');
+
+    if (!this.orgId) {
+      // Sin organización activa no se puede continuar; dejamos la UI vacía
+      this.resetData();
+      return;
     }
-    // Cargar opciones del menú (solo items hoja con path)
-    const flat = (this.menu as any).flatItems$?.value as MenuNode[] | undefined;
-    const list = Array.isArray(flat) ? flat : [];
-    this.options = list.map(n => ({ label: n.label, path: n.path || '' })).filter(o => !!o.path);
-    this.filteredOptions = this.options.slice();
+
+    this.loading = true;
+    this.rolesSvc.list(this.orgId).subscribe({
+      next: (list) => {
+        this.roles = list || [];
+        this.loading = false;
+        // Autocarga: si ya hay rol seleccionado y existe en la lista, o si sólo hay uno
+        if (this.rolId && this.roles.some(r => String(r.id) === String(this.rolId))) {
+          this.onRolChange();
+        } else if (!this.rolId && this.roles.length === 1) {
+          this.rolId = String(this.roles[0].id);
+          this.onRolChange();
+        } else {
+          // No hay selección aún; limpiar panel
+          this.resetData();
+        }
+      },
+      error: (e) => {
+        this.loading = false;
+        this.errorMsg = e?.error?.message || e?.message || 'No se pudieron obtener los roles';
+        this.resetData();
+      }
+    });
   }
 
-  private toPathSet(arr: SimpleOption[]): Set<string> { return new Set(arr.map(o => String(o.path))); }
+  // Cargar universo y asignaciones del rol seleccionado
+  async onRolChange() {
+    if (!this.orgId || !this.rolId) { this.resetData(); return; }
+    this.loading = true; this.errorMsg = null;
+    try {
+      // 1) Cargar catálogo (y sembrar si está habilitado)
+      const all = await lastValueFrom(this.opcionesSvc.ensureOrgOptions(this.orgId));
+      this.allOptions = Array.isArray(all) ? all : [];
+
+      // 2) Intentar cargar asignaciones del rol; si falla, degradar a vacío y continuar
+      try {
+        const assigned = await lastValueFrom(this.opcionesSvc.listRoleOptions(this.orgId, this.rolId));
+        this.assignedIds = new Set((assigned || []).map(o => String(o.id)));
+      } catch (e: any) {
+        this.assignedIds = new Set<string>();
+        const msg = e?.error?.message || e?.message || 'No se pudieron obtener las opciones asignadas al rol.';
+        this.notify.warn('Asignaciones no disponibles', msg + ' Se mostrará el catálogo sin asignaciones.');
+      }
+
+      // 3) Preseleccionar igual a lo (posiblemente) asignado
+      this.selectedIds = new Set(this.assignedIds);
+      this.syncSelectedRows();
+      this.applyFilter();
+    } catch (e: any) {
+      this.errorMsg = e?.error?.message || e?.message || 'No se pudieron cargar las opciones de la organización';
+      this.allOptions = []; this.filteredOptions = []; this.assignedIds.clear(); this.selectedIds.clear(); this.selectedRows = [];
+    } finally {
+      this.loading = false;
+    }
+  }
+
+  resetData() {
+    this.allOptions = []; this.filteredOptions = []; this.assignedIds.clear(); this.selectedIds.clear(); this.selectedRows = [];
+    this.query = '';
+  }
 
   applyFilter() {
     const q = (this.query || '').trim().toLowerCase();
-    if (!q) { this.filteredOptions = this.options.slice(); } else {
-      this.filteredOptions = this.options.filter(o => o.label.toLowerCase().includes(q) || o.path.toLowerCase().includes(q));
+    if (!q) { this.filteredOptions = [...this.allOptions]; }
+    else {
+      this.filteredOptions = this.allOptions.filter(o => (o.nombre || '').toLowerCase().includes(q) || (o.ruta || '').toLowerCase().includes(q));
     }
-    // No tocar selección aquí; solo actualizar el checkbox visual de "seleccionar todo filtradas" mediante getter
   }
 
-  // Devuelve true si todas las opciones filtradas están seleccionadas actualmente
+  // p-table -> mantener selectedRows y selectedIds en sync
+  onSelectionChange(rows: OpcionEntity[]) {
+    this.selectedRows = rows || [];
+    this.selectedIds = new Set(this.selectedRows.map(r => String(r.id)));
+  }
+
+  // Helpers selección masiva según filtro
   allFilteredSelected(): boolean {
     if (!this.filteredOptions.length) return false;
-    const selectedPaths = this.toPathSet(this.selectedOptions);
-    return this.filteredOptions.every(o => selectedPaths.has(String(o.path)));
+    const selected = this.selectedIds;
+    return this.filteredOptions.every(o => selected.has(String(o.id)));
   }
 
-  // Selecciona/deselecciona todas las opciones actualmente filtradas, preservando las selecciones fuera del filtro
   onToggleSelectAllFiltered(checked: boolean) {
-    const filteredByPath = this.toPathSet(this.filteredOptions);
     if (checked) {
-      // Unión: selectedOptions ∪ filteredOptions
-      const byPath = new Map(this.selectedOptions.map(o => [String(o.path), o] as const));
-      for (const o of this.filteredOptions) byPath.set(String(o.path), o);
-      this.selectedOptions = Array.from(byPath.values());
+      for (const o of this.filteredOptions) this.selectedIds.add(String(o.id));
     } else {
-      // Quitar solo las del filtro: selectedOptions − filteredOptions
-      this.selectedOptions = this.selectedOptions.filter(o => !filteredByPath.has(String(o.path)));
+      for (const o of this.filteredOptions) this.selectedIds.delete(String(o.id));
+    }
+    this.syncSelectedRows();
+  }
+
+  private syncSelectedRows() {
+    if (!this.allOptions?.length) { this.selectedRows = []; return; }
+    const sel = this.selectedIds;
+    this.selectedRows = this.allOptions.filter(o => sel.has(String(o.id)));
+  }
+
+  get totalSelected(): number { return this.selectedIds.size; }
+  get totalAssigned(): number { return this.assignedIds.size; }
+  get hasChanges(): boolean {
+    if (this.assignedIds.size !== this.selectedIds.size) return true;
+    for (const id of this.selectedIds) if (!this.assignedIds.has(id)) return true;
+    return false;
+  }
+
+  revert() {
+    this.selectedIds = new Set(this.assignedIds);
+    this.syncSelectedRows();
+  }
+
+  async save() {
+    if (!this.orgId || !this.rolId) { this.notify.warn('Atención', 'Seleccione un rol'); return; }
+    const adds: string[] = []; const removes: string[] = [];
+    // Calcular delta
+    for (const id of this.selectedIds) if (!this.assignedIds.has(id)) adds.push(id);
+    for (const id of this.assignedIds) if (!this.selectedIds.has(id)) removes.push(id);
+    if (adds.length === 0 && removes.length === 0) { this.notify.info('Sin cambios', 'No hay nada para guardar'); return; }
+
+    this.saving = true; let ok = 0; const fails: string[] = [];
+    try {
+      // Ejecutar removes primero para evitar límites de asignación, luego adds
+      for (const id of removes) {
+        try { await lastValueFrom(this.opcionesSvc.unassignOptionFromRole(this.orgId, this.rolId, id)); ok++; }
+        catch (e: any) { fails.push(e?.error?.message || e?.message || `Error al quitar ${id}`); }
+      }
+      for (const id of adds) {
+        try { await lastValueFrom(this.opcionesSvc.assignOptionToRole(this.orgId, this.rolId, id)); ok++; }
+        catch (e: any) { fails.push(e?.error?.message || e?.message || `Error al asignar ${id}`); }
+      }
+      // Refrescar estado desde backend si hubo cambios exitosos
+      if (ok > 0) {
+        try {
+          const assigned = await lastValueFrom(this.opcionesSvc.listRoleOptions(this.orgId, this.rolId));
+          this.assignedIds = new Set((assigned || []).map(o => String(o.id)));
+        } catch {}
+        // Mantener la selección igual a lo que el usuario dejó (selectedIds ya representa intención)
+      }
+      if (fails.length) {
+        this.notify.warn('Parcial', `${ok} cambios aplicados. ${fails.length} con error.`);
+        // Mostrar primer mensaje exacto del backend
+        this.notify.error('Detalle', fails[0]);
+      } else {
+        this.notify.success('Listo', `${ok} cambios aplicados`);
+      }
+    } finally {
+      this.saving = false;
+      this.syncSelectedRows();
     }
   }
 
-  reset() {
-    this.query = '';
-    this.applyFilter();
-    this.selectedOptions = [];
-  }
-
-  save() {
-    if (!this.rolId) { this.notify.warn('Atención', 'Seleccione un rol'); return; }
-    this.saving = true;
-    // Simulación: en ausencia de endpoint específico, solo notificar
-    setTimeout(() => {
+  async seedNow() {
+    if (!this.orgId) { this.notify.warn('Atención', 'No hay organización activa'); return; }
+    try {
+      this.saving = true;
+      await lastValueFrom(this.opcionesSvc.seedOrgOptions(this.orgId));
+      this.notify.success('Catálogo creado', 'Se creó el catálogo de opciones de la organización');
+      await this.onRolChange();
+    } catch (e: any) {
+      const msg = e?.error?.message || e?.message || 'No se pudo sembrar el catálogo de opciones';
+      this.notify.error('Error', msg);
+    } finally {
       this.saving = false;
-      this.notify.success('Opciones asignadas', `Se asignaron ${this.selectedOptions.length} opciones al rol seleccionado`);
-    }, 600);
+    }
   }
 }

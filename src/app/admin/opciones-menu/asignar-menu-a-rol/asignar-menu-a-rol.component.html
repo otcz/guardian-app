@@ -11,12 +11,13 @@
           <label>Buscar opción</label>
           <input pInputText type="text" [(ngModel)]="query" (ngModelChange)="applyFilter()" placeholder="Filtrar por nombre o ruta" />
         </div>
+
       </div>
 
       <p-table [value]="filteredOptions" [paginator]="true" [rows]="10" dataKey="path" selectionMode="multiple" [(selection)]="selectedOptions">
         <ng-template pTemplate="header">
           <tr>
-            <th class="cell-narrow"></th>
+            <th class="cell-narrow"><p-tableHeaderCheckbox></p-tableHeaderCheckbox></th>
             <th>Opción</th>
             <th>Ruta</th>
           </tr>
@@ -36,4 +37,3 @@
     </div>
   </p-card>
 </div>
-

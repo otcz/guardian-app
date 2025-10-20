@@ -50,10 +50,35 @@ export class AsignarMenuARolComponent implements OnInit {
     this.filteredOptions = this.options.slice();
   }
 
+  private toPathSet(arr: SimpleOption[]): Set<string> { return new Set(arr.map(o => String(o.path))); }
+
   applyFilter() {
     const q = (this.query || '').trim().toLowerCase();
-    if (!q) { this.filteredOptions = this.options.slice(); return; }
-    this.filteredOptions = this.options.filter(o => o.label.toLowerCase().includes(q) || o.path.toLowerCase().includes(q));
+    if (!q) { this.filteredOptions = this.options.slice(); } else {
+      this.filteredOptions = this.options.filter(o => o.label.toLowerCase().includes(q) || o.path.toLowerCase().includes(q));
+    }
+    // No tocar selección aquí; solo actualizar el checkbox visual de "seleccionar todo filtradas" mediante getter
+  }
+
+  // Devuelve true si todas las opciones filtradas están seleccionadas actualmente
+  allFilteredSelected(): boolean {
+    if (!this.filteredOptions.length) return false;
+    const selectedPaths = this.toPathSet(this.selectedOptions);
+    return this.filteredOptions.every(o => selectedPaths.has(String(o.path)));
+  }
+
+  // Selecciona/deselecciona todas las opciones actualmente filtradas, preservando las selecciones fuera del filtro
+  onToggleSelectAllFiltered(checked: boolean) {
+    const filteredByPath = this.toPathSet(this.filteredOptions);
+    if (checked) {
+      // Unión: selectedOptions ∪ filteredOptions
+      const byPath = new Map(this.selectedOptions.map(o => [String(o.path), o] as const));
+      for (const o of this.filteredOptions) byPath.set(String(o.path), o);
+      this.selectedOptions = Array.from(byPath.values());
+    } else {
+      // Quitar solo las del filtro: selectedOptions − filteredOptions
+      this.selectedOptions = this.selectedOptions.filter(o => !filteredByPath.has(String(o.path)));
+    }
   }
 
   reset() {
@@ -72,4 +97,3 @@ export class AsignarMenuARolComponent implements OnInit {
     }, 600);
   }
 }
-

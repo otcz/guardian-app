@@ -154,11 +154,18 @@ export class AuthService {
           error: (err) => {
             const status = err?.status;
             const msg = this.extractErrorMessage(err);
-            if (status === 428 || status === 401 || status === 400) {
-              subscriber.error({ status, error: { message: msg, code: err?.error?.code } });
+            // Si el backend envió un mensaje interpretable, propagarlo tal cual y no intentar otros endpoints
+            if (msg && msg.trim().length > 0) {
+              subscriber.error({ status: status ?? 0, error: { message: msg, code: err?.error?.code } });
               return;
             }
-            attemptNext(idx + 1);
+            // Si no hay mensaje claro, intentar fallback solo en errores de red/infra conocidos
+            if (status === 0 || status === 404 || status === 502 || status === 503) {
+              attemptNext(idx + 1);
+              return;
+            }
+            // Caso restante: propagar genérico con status actual
+            subscriber.error({ status: status ?? 0, error: { message: 'Error de autenticación.' } });
           }
         });
       };

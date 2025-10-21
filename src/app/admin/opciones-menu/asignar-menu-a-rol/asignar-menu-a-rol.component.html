@@ -11,8 +11,8 @@
           <label>Buscar opción</label>
           <input pInputText type="text" [(ngModel)]="query" (ngModelChange)="applyFilter()" placeholder="Filtrar por nombre o ruta" />
         </div>
-        <div class="field" style="align-self: end;">
-          <button pButton type="button" class="p-button-outlined" label="Sembrar catálogo" icon="pi pi-download" (click)="seedNow()" [disabled]="!orgId || saving"></button>
+        <div class="field" style="align-self: end; display:flex; gap:.5rem;">
+          <button pButton type="button" class="p-button-outlined p-button-sm" label="Sembrar catálogo" icon="pi pi-download" (click)="seedNow()" [disabled]="!orgId || saving"></button>
         </div>
       </div>
 
@@ -25,25 +25,52 @@
 
       <p *ngIf="errorMsg" class="p-error mb-sm fs-sm">{{ errorMsg }}</p>
 
-      <p-table [value]="filteredOptions" [paginator]="true" [rows]="10" dataKey="id" selectionMode="multiple" [(selection)]="selectedRows" (selectionChange)="onSelectionChange($event)">
-        <ng-template pTemplate="header">
-          <tr>
-            <th class="cell-narrow"><p-tableHeaderCheckbox></p-tableHeaderCheckbox></th>
-            <th>Opción</th>
-            <th>Ruta</th>
-          </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-opt>
-          <tr [pSelectableRow]="opt">
-            <td><p-tableCheckbox [value]="opt"></p-tableCheckbox></td>
-            <td>{{ opt.nombre }}</td>
-            <td>{{ opt.ruta || '-' }}</td>
-          </tr>
-        </ng-template>
-        <ng-template pTemplate="emptymessage">
-          <tr><td colspan="3" class="text-center fs-sm text-muted">Sin datos</td></tr>
-        </ng-template>
-      </p-table>
+      <!-- Toolbar para selección global del filtro -->
+      <div class="list-toolbar" *ngIf="filteredOptions.length">
+        <div class="left">
+          <p-checkbox [binary]="true" [ngModel]="allFilteredSelected()" (ngModelChange)="onToggleSelectAllFiltered($event)"></p-checkbox>
+          <span class="label">Seleccionar todo lo filtrado</span>
+        </div>
+        <div class="right text-muted">{{ filteredOptions.length }} opciones visibles</div>
+      </div>
+
+      <!-- Vista jerárquica MENÚ -> opciones -->
+      <div class="menu-groups" *ngIf="grouped.length; else emptyState">
+        <div class="menu-group" *ngFor="let g of grouped">
+          <div class="menu-header">
+            <div class="menu-title">{{ g.parent?.nombre || 'Menú' }}</div>
+            <div class="menu-actions">
+              <p-checkbox [binary]="true" [ngModel]="isGroupFullySelected(g)" (ngModelChange)="toggleGroup(g, $event)"></p-checkbox>
+              <span class="count">{{ groupSelectedCount(g) }}/{{ groupVisibleCount(g) }} seleccionadas</span>
+            </div>
+          </div>
+          <ul class="menu-items">
+            <!-- padre como item si está visible -->
+            <li class="menu-item" *ngIf="isParentVisible(g)">
+              <div class="item-row">
+                <p-checkbox [binary]="true" [ngModel]="selectedIds.has(g.parent!.id)" (ngModelChange)="toggleOne(g.parent!.id, $event)"></p-checkbox>
+                <div class="meta">
+                  <div class="name">{{ g.parent!.nombre }}</div>
+                  <div class="ruta" *ngIf="g.parent!.ruta">{{ g.parent!.ruta }}</div>
+                </div>
+              </div>
+            </li>
+            <!-- hijos visibles -->
+            <li class="menu-item" *ngFor="let it of g.items">
+              <div class="item-row">
+                <p-checkbox [binary]="true" [ngModel]="selectedIds.has(it.id)" (ngModelChange)="toggleOne(it.id, $event)"></p-checkbox>
+                <div class="meta">
+                  <div class="name">{{ it.nombre }}</div>
+                  <div class="ruta" *ngIf="it.ruta">{{ it.ruta }}</div>
+                </div>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <ng-template #emptyState>
+        <div class="empty text-muted">Sin datos</div>
+      </ng-template>
     </div>
     <div class="actions">
       <button pButton type="button" label="Guardar" icon="pi pi-save" (click)="save()" [disabled]="!rolId || saving || !hasChanges"></button>

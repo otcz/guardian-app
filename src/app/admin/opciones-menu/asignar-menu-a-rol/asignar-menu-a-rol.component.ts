@@ -6,7 +6,6 @@ import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { DropdownModule } from 'primeng/dropdown';
 import { InputTextModule } from 'primeng/inputtext';
-import { TableModule } from 'primeng/table';
 import { CheckboxModule } from 'primeng/checkbox';
 import { RolesService, RoleEntity } from '../../../service/roles.service';
 import { NotificationService } from '../../../service/notification.service';
@@ -17,7 +16,7 @@ import { OrgContextService } from '../../../service/org-context.service';
 @Component({
   selector: 'app-asignar-menu-a-rol',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, CardModule, ButtonModule, DropdownModule, InputTextModule, TableModule, CheckboxModule],
+  imports: [CommonModule, FormsModule, RouterModule, CardModule, ButtonModule, DropdownModule, InputTextModule, CheckboxModule],
   templateUrl: './asignar-menu-a-rol.component.html',
   styleUrls: ['./asignar-menu-a-rol.component.scss']
 })
@@ -32,12 +31,16 @@ export class AsignarMenuARolComponent implements OnInit {
   // Selección y asignaciones
   assignedIds = new Set<string>(); // estado del backend
   selectedIds = new Set<string>(); // estado de UI
-  selectedRows: OpcionEntity[] = []; // binding para p-table
+  selectedRows: OpcionEntity[] = []; // binding para p-table (mantenido para compatibilidad interna)
 
   query = '';
   loading = false;
   saving = false;
   errorMsg: string | null = null;
+
+  // Nueva: cache de IDs filtrados y grupos por menú
+  private filteredIdSet = new Set<string>();
+  grouped: Array<{ parentId: string; parent: OpcionEntity | null; items: OpcionEntity[] }> = [];
 
   constructor(
     private rolesSvc: RolesService,
@@ -102,10 +105,11 @@ export class AsignarMenuARolComponent implements OnInit {
       // 3) Preseleccionar igual a lo (posiblemente) asignado
       this.selectedIds = new Set(this.assignedIds);
       this.syncSelectedRows();
-      this.applyFilter();
+      this.applyFilter(); // también reconstruye grupos
     } catch (e: any) {
       this.errorMsg = e?.error?.message || e?.message || 'No se pudieron cargar las opciones de la organización';
       this.allOptions = []; this.filteredOptions = []; this.assignedIds.clear(); this.selectedIds.clear(); this.selectedRows = [];
+      this.filteredIdSet.clear(); this.grouped = [];
     } finally {
       this.loading = false;
     }
@@ -114,6 +118,7 @@ export class AsignarMenuARolComponent implements OnInit {
   resetData() {
     this.allOptions = []; this.filteredOptions = []; this.assignedIds.clear(); this.selectedIds.clear(); this.selectedRows = [];
     this.query = '';
+    this.filteredIdSet.clear(); this.grouped = [];
   }
 
   applyFilter() {
@@ -122,12 +127,9 @@ export class AsignarMenuARolComponent implements OnInit {
     else {
       this.filteredOptions = this.allOptions.filter(o => (o.nombre || '').toLowerCase().includes(q) || (o.ruta || '').toLowerCase().includes(q));
     }
-  }
-
-  // p-table -> mantener selectedRows y selectedIds en sync
-  onSelectionChange(rows: OpcionEntity[]) {
-    this.selectedRows = rows || [];
-    this.selectedIds = new Set(this.selectedRows.map(r => String(r.id)));
+    // Cachear IDs visibles y construir grupos jerárquicos
+    this.filteredIdSet = new Set(this.filteredOptions.map(o => String(o.id)));
+    this.buildGroups();
   }
 
   // Helpers selección masiva según filtro
@@ -150,6 +152,82 @@ export class AsignarMenuARolComponent implements OnInit {
     if (!this.allOptions?.length) { this.selectedRows = []; return; }
     const sel = this.selectedIds;
     this.selectedRows = this.allOptions.filter(o => sel.has(String(o.id)));
+  }
+
+  // --- Construcción de grupos jerárquicos (MENÚ -> opciones) ---
+  private buildGroups() {
+    const byId = new Map<string, OpcionEntity>();
+    for (const o of this.allOptions) byId.set(String(o.id), o);
+
+    const groups = new Map<string, { parentId: string; parent: OpcionEntity | null; items: OpcionEntity[] }>();
+
+    // Determinar conjuntos de grupo basados en lo visible (filtrado)
+    for (const opt of this.filteredOptions) {
+      const pid = (opt.padreId ? String(opt.padreId) : String(opt.id));
+      if (!groups.has(pid)) {
+        groups.set(pid, { parentId: pid, parent: byId.get(pid) || null, items: [] });
+      }
+    }
+
+    // Poblar items visibles por grupo (hijos visibles)
+    for (const opt of this.filteredOptions) {
+      if (opt.padreId) {
+        const pid = String(opt.padreId);
+        const g = groups.get(pid);
+        if (g) g.items.push(opt);
+      } else {
+        // Top-level que coincide con filtro: no lo añadimos como item, se representa en el header
+        // pero si además tiene hijos visibles, estos se mostrarán abajo
+      }
+    }
+
+    // Ordenar por nombre
+    const sorted = Array.from(groups.values()).sort((a, b) => (a.parent?.nombre || '').localeCompare(b.parent?.nombre || ''));
+    for (const g of sorted) g.items.sort((a, b) => (a.nombre || '').localeCompare(b.nombre || ''));
+
+    this.grouped = sorted;
+  }
+
+  // IDs visibles (en el filtro actual) que pertenecen al grupo (incluye padre si está visible)
+  private groupVisibleIds(g: { parentId: string; parent: OpcionEntity | null; items: OpcionEntity[] }): string[] {
+    const ids: string[] = [];
+    if (g.parent && this.filteredIdSet.has(String(g.parent.id))) ids.push(String(g.parent.id));
+    for (const it of g.items) ids.push(String(it.id));
+    return ids;
+  }
+
+  isParentVisible(g: { parentId: string; parent: OpcionEntity | null; items: OpcionEntity[] }): boolean {
+    return !!(g.parent && this.filteredIdSet.has(String(g.parent.id)));
+  }
+
+  isGroupFullySelected(g: { parentId: string; parent: OpcionEntity | null; items: OpcionEntity[] }): boolean {
+    const ids = this.groupVisibleIds(g);
+    if (!ids.length) return false;
+    for (const id of ids) if (!this.selectedIds.has(id)) return false;
+    return true;
+  }
+
+  groupSelectedCount(g: { parentId: string; parent: OpcionEntity | null; items: OpcionEntity[] }): number {
+    let c = 0; const ids = this.groupVisibleIds(g);
+    for (const id of ids) if (this.selectedIds.has(id)) c++;
+    return c;
+  }
+
+  groupVisibleCount(g: { parentId: string; parent: OpcionEntity | null; items: OpcionEntity[] }): number {
+    return this.groupVisibleIds(g).length;
+  }
+
+  toggleGroup(g: { parentId: string; parent: OpcionEntity | null; items: OpcionEntity[] }, checked: boolean) {
+    const ids = this.groupVisibleIds(g);
+    if (checked) { for (const id of ids) this.selectedIds.add(id); }
+    else { for (const id of ids) this.selectedIds.delete(id); }
+    this.syncSelectedRows();
+  }
+
+  toggleOne(id: string, checked: boolean) {
+    if (checked) this.selectedIds.add(String(id));
+    else this.selectedIds.delete(String(id));
+    this.syncSelectedRows();
   }
 
   get totalSelected(): number { return this.selectedIds.size; }

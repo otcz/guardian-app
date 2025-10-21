@@ -154,9 +154,21 @@ export class AuthService {
           error: (err) => {
             const status = err?.status;
             const msg = this.extractErrorMessage(err);
-            // Si el backend envió un mensaje interpretable, propagarlo tal cual y no intentar otros endpoints
+            // Si el backend envió un mensaje interpretable, propagar el payload completo (preservando setupToken, username, etc.)
             if (msg && msg.trim().length > 0) {
-              subscriber.error({ status: status ?? 0, error: { message: msg, code: err?.error?.code } });
+              const raw = err?.error;
+              let errorPayload: any = { message: msg };
+              try {
+                if (raw && typeof raw === 'object') {
+                  errorPayload = { ...raw, message: raw.message || msg };
+                } else if (typeof raw === 'string') {
+                  const maybeObj = JSON.parse(raw);
+                  if (maybeObj && typeof maybeObj === 'object') {
+                    errorPayload = { ...maybeObj, message: maybeObj.message || msg };
+                  }
+                }
+              } catch { /* ignore parse errors, keep default payload */ }
+              subscriber.error({ status: status ?? 0, error: errorPayload });
               return;
             }
             // Si no hay mensaje claro, intentar fallback solo en errores de red/infra conocidos

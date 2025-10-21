@@ -195,7 +195,14 @@ export class LoginComponent {
   // Envío de primera contraseña
   submitFirstPassword() {
     this.firstPwdMsg = null;
-    if (this.firstPwdForm.invalid || !this.setupToken) {
+    // Validar token primero
+    if (!this.setupToken) {
+      this.firstPwdMsg = 'Token inválido o expirado. Vuelve a iniciar sesión para generar uno nuevo.';
+      return;
+    }
+    // Validar formulario
+    if (this.firstPwdForm.invalid) {
+      this.firstPwdForm.markAllAsTouched();
       this.firstPwdMsg = 'Revisa los campos.';
       return;
     }

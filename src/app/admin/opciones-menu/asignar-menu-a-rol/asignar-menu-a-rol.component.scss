@@ -6,6 +6,26 @@
 .actions { display: flex; gap: .5rem; justify-content: flex-end; margin-top: .75rem; }
 .cell-narrow { width: 46px; }
 
+/* Estructura de cuerpo con área scrolleable */
+.body { display: flex; flex-direction: column; gap: 12px; }
+.scroll-area {
+  overflow: auto;
+  /* No crecer indefinidamente: altura máxima responsiva */
+  max-height: clamp(320px, 60vh, 720px);
+  padding-right: 6px; /* evitar ocultar contenido bajo scrollbar */
+  border-radius: 10px;
+  background: transparent;
+}
+
+/* Scrollbar estilizado (opcional) */
+.scroll-area::-webkit-scrollbar { width: 10px; height: 10px; }
+.scroll-area::-webkit-scrollbar-track { background: color-mix(in srgb, var(--surface) 80%, transparent); border-radius: 10px; }
+.scroll-area::-webkit-scrollbar-thumb { background: color-mix(in srgb, var(--primary) 30%, var(--border)); border-radius: 10px; }
+.scroll-area::-webkit-scrollbar-thumb:hover { background: color-mix(in srgb, var(--primary) 45%, var(--border)); }
+
+/* Para Firefox */
+.scroll-area { scrollbar-color: color-mix(in srgb, var(--primary) 30%, var(--border)) color-mix(in srgb, var(--surface) 80%, transparent); scrollbar-width: thin; }
+
 /* Toolbar de selección global */
 .list-toolbar {
   margin: 10px 0 14px;
@@ -69,4 +89,10 @@
   .menu-group { box-shadow: 0 6px 18px rgba(0,0,0,0.32); }
   .menu-header { background: color-mix(in srgb, var(--surface) 75%, black); }
   .menu-items { background: var(--surface-alt); }
+  .scroll-area::-webkit-scrollbar-track { background: color-mix(in srgb, var(--surface-alt) 80%, transparent); }
+}
+
+/* Responsivo: reducir alto máx en pantallas muy pequeñas */
+@media (max-height: 680px) {
+  .scroll-area { max-height: clamp(240px, 50vh, 560px); }
 }

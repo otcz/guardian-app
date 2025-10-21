@@ -34,43 +34,45 @@
         <div class="right text-muted">{{ filteredOptions.length }} opciones visibles</div>
       </div>
 
-      <!-- Vista jerárquica MENÚ -> opciones -->
-      <div class="menu-groups" *ngIf="grouped.length; else emptyState">
-        <div class="menu-group" *ngFor="let g of grouped">
-          <div class="menu-header">
-            <div class="menu-title">{{ g.parent?.nombre || 'Menú' }}</div>
-            <div class="menu-actions">
-              <p-checkbox [binary]="true" [ngModel]="isGroupFullySelected(g)" (ngModelChange)="toggleGroup(g, $event)"></p-checkbox>
-              <span class="count">{{ groupSelectedCount(g) }}/{{ groupVisibleCount(g) }} seleccionadas</span>
+      <div class="scroll-area">
+        <!-- Vista jerárquica MENÚ -> opciones -->
+        <div class="menu-groups" *ngIf="grouped.length; else emptyState">
+          <div class="menu-group" *ngFor="let g of grouped">
+            <div class="menu-header">
+              <div class="menu-title">{{ g.parent?.nombre || 'Menú' }}</div>
+              <div class="menu-actions">
+                <p-checkbox [binary]="true" [ngModel]="isGroupFullySelected(g)" (ngModelChange)="toggleGroup(g, $event)"></p-checkbox>
+                <span class="count">{{ groupSelectedCount(g) }}/{{ groupVisibleCount(g) }} seleccionadas</span>
+              </div>
             </div>
+            <ul class="menu-items">
+              <!-- padre como item si está visible -->
+              <li class="menu-item" *ngIf="isParentVisible(g)">
+                <div class="item-row">
+                  <p-checkbox [binary]="true" [ngModel]="selectedIds.has(g.parent!.id)" (ngModelChange)="toggleOne(g.parent!.id, $event)"></p-checkbox>
+                  <div class="meta">
+                    <div class="name">{{ g.parent!.nombre }}</div>
+                    <div class="ruta" *ngIf="g.parent!.ruta">{{ g.parent!.ruta }}</div>
+                  </div>
+                </div>
+              </li>
+              <!-- hijos visibles -->
+              <li class="menu-item" *ngFor="let it of g.items">
+                <div class="item-row">
+                  <p-checkbox [binary]="true" [ngModel]="selectedIds.has(it.id)" (ngModelChange)="toggleOne(it.id, $event)"></p-checkbox>
+                  <div class="meta">
+                    <div class="name">{{ it.nombre }}</div>
+                    <div class="ruta" *ngIf="it.ruta">{{ it.ruta }}</div>
+                  </div>
+                </div>
+              </li>
+            </ul>
           </div>
-          <ul class="menu-items">
-            <!-- padre como item si está visible -->
-            <li class="menu-item" *ngIf="isParentVisible(g)">
-              <div class="item-row">
-                <p-checkbox [binary]="true" [ngModel]="selectedIds.has(g.parent!.id)" (ngModelChange)="toggleOne(g.parent!.id, $event)"></p-checkbox>
-                <div class="meta">
-                  <div class="name">{{ g.parent!.nombre }}</div>
-                  <div class="ruta" *ngIf="g.parent!.ruta">{{ g.parent!.ruta }}</div>
-                </div>
-              </div>
-            </li>
-            <!-- hijos visibles -->
-            <li class="menu-item" *ngFor="let it of g.items">
-              <div class="item-row">
-                <p-checkbox [binary]="true" [ngModel]="selectedIds.has(it.id)" (ngModelChange)="toggleOne(it.id, $event)"></p-checkbox>
-                <div class="meta">
-                  <div class="name">{{ it.nombre }}</div>
-                  <div class="ruta" *ngIf="it.ruta">{{ it.ruta }}</div>
-                </div>
-              </div>
-            </li>
-          </ul>
         </div>
+        <ng-template #emptyState>
+          <div class="empty text-muted">Sin datos</div>
+        </ng-template>
       </div>
-      <ng-template #emptyState>
-        <div class="empty text-muted">Sin datos</div>
-      </ng-template>
     </div>
     <div class="actions">
       <button pButton type="button" label="Guardar" icon="pi pi-save" (click)="save()" [disabled]="!rolId || saving || !hasChanges"></button>

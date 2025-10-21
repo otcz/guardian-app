@@ -156,32 +156,85 @@ export class AsignarMenuARolComponent implements OnInit {
 
   // --- Construcción de grupos jerárquicos (MENÚ -> opciones) ---
   private buildGroups() {
-    const byId = new Map<string, OpcionEntity>();
-    for (const o of this.allOptions) byId.set(String(o.id), o);
+    const isMenu = (o: OpcionEntity) => (o?.codigo || '').toUpperCase().startsWith('MENU_');
+    const isItem = (o: OpcionEntity) => (o?.codigo || '').toUpperCase().startsWith('ITEM_');
 
+    const normalizePath = (p?: string | null): string => {
+      if (!p) return '';
+      let s = String(p).trim();
+      if (!s.startsWith('/')) s = '/' + s;
+      // quitar slash final excepto raíz
+      if (s.length > 1 && s.endsWith('/')) s = s.slice(0, -1);
+      return s.toLowerCase();
+    };
+
+    // Menús: tomarlos del universo completo (para que existan aunque sólo haya items visibles)
+    const allMenus = this.allOptions.filter(isMenu);
+    const menusById = new Map(allMenus.map(m => [String(m.id), m] as const));
+    const menusByPath = new Map(allMenus.map(m => [normalizePath(m.ruta), m] as const));
+
+    // Visibilidad según filtro
+    const filteredMenus = this.filteredOptions.filter(isMenu);
+    const filteredItems = this.filteredOptions.filter(isItem);
+
+    // Crear grupos base por menús visibles o menús que reciban ítems
     const groups = new Map<string, { parentId: string; parent: OpcionEntity | null; items: OpcionEntity[] }>();
 
-    // Determinar conjuntos de grupo basados en lo visible (filtrado)
-    for (const opt of this.filteredOptions) {
-      const pid = (opt.padreId ? String(opt.padreId) : String(opt.id));
-      if (!groups.has(pid)) {
-        groups.set(pid, { parentId: pid, parent: byId.get(pid) || null, items: [] });
-      }
+    // Inicial: menús que pasan el filtro
+    for (const m of filteredMenus) {
+      const id = String(m.id);
+      if (!groups.has(id)) groups.set(id, { parentId: id, parent: m, items: [] });
     }
 
-    // Poblar items visibles por grupo (hijos visibles)
-    for (const opt of this.filteredOptions) {
-      if (opt.padreId) {
-        const pid = String(opt.padreId);
-        const g = groups.get(pid);
-        if (g) g.items.push(opt);
+    // Helper: encontrar mejor menú por ruta o keywords
+    const findBestMenuForItem = (it: OpcionEntity): OpcionEntity | null => {
+      const itPath = normalizePath(it.ruta);
+      let best: OpcionEntity | null = null;
+      let bestLen = -1;
+      if (itPath) {
+        for (const [mpath, menu] of menusByPath) {
+          if (!mpath) continue;
+          if (itPath === mpath || itPath.startsWith(mpath + '/')) {
+            if (mpath.length > bestLen) { best = menu; bestLen = mpath.length; }
+          }
+        }
+        if (best) return best;
+      }
+      // Fallback por keywords si no hay ruta o no match
+      const toTokens = (s: string) => s.toUpperCase().replace(/^ITEM_/, '').replace(/^MENU_/, '')
+        .replaceAll('DE ', ' ').replaceAll(' DEL ', ' ').replaceAll(' Y ', ' ').replaceAll('_', ' ').split(/\s+/).filter(Boolean)
+        .filter(t => !['CREAR','LISTAR','ASIGNAR','VER','GESTIONAR','CONFIGURAR','DESACTIVAR','FILTRAR','REGISTRAR','PERMISO','GLOBAL','MENU','OPCION','OPCIONES','INVITACION','INVITACIONES'].includes(t));
+      const itemTokens = new Set(toTokens(it.codigo || it.nombre || ''));
+      let maxOverlap = 0; let bestMenu: OpcionEntity | null = null;
+      for (const m of allMenus) {
+        const menuTokens = new Set(toTokens(m.codigo || m.nombre || ''));
+        let overlap = 0; for (const t of itemTokens) if (menuTokens.has(t)) overlap++;
+        if (overlap > maxOverlap) { maxOverlap = overlap; bestMenu = m; }
+      }
+      return bestMenu;
+    };
+
+    // Asignar ítems filtrados a menús
+    const standaloneItems: OpcionEntity[] = [];
+    for (const it of filteredItems) {
+      const menu = findBestMenuForItem(it);
+      if (menu) {
+        const gid = String(menu.id);
+        if (!groups.has(gid)) groups.set(gid, { parentId: gid, parent: menusById.get(gid) || menu, items: [] });
+        groups.get(gid)!.items.push(it);
       } else {
-        // Top-level que coincide con filtro: no lo añadimos como item, se representa en el header
-        // pero si además tiene hijos visibles, estos se mostrarán abajo
+        // Sin menú detectable: quedará como grupo autónomo
+        standaloneItems.push(it);
       }
     }
 
-    // Ordenar por nombre
+    // Agregar grupos autónomos por ítems sin menú (parent = el propio item)
+    for (const it of standaloneItems) {
+      const id = String(it.id);
+      if (!groups.has(id)) groups.set(id, { parentId: id, parent: it, items: [] });
+    }
+
+    // Ordenar grupos e ítems por nombre
     const sorted = Array.from(groups.values()).sort((a, b) => (a.parent?.nombre || '').localeCompare(b.parent?.nombre || ''));
     for (const g of sorted) g.items.sort((a, b) => (a.nombre || '').localeCompare(b.nombre || ''));
 

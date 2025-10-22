@@ -18,6 +18,16 @@ export interface ApiResponse<T> {
   data?: T;
 }
 
+// Nueva interfaz para la asignación usuario-opción (según el contrato backend)
+export interface OpcionUsuarioDTO {
+  id: string; // id de la asignación (opcionUsuarioId)
+  usuarioId?: string | null;
+  opcionId?: string | null;
+  seccionId?: string | null;
+  habilitada?: boolean;
+  opcion?: any; // detalle de la opción (puede mapearse a OpcionEntity)
+}
+
 @Injectable({ providedIn: 'root' })
 export class OpcionesService {
   private base = environment.apiBase;
@@ -223,6 +233,118 @@ export class OpcionesService {
           catchError((e2) => throwError(() => ({ error: { message: e2?.error?.message || e2?.message || 'No se pudo sembrar el catálogo de opciones' }, status: e2?.status })))
         );
       })
+    );
+  }
+
+  // --- NUEVOS MÉTODOS PARA ASIGNACIONES A USUARIO ---
+  /**
+   * Listar asignaciones (con detalle de la opción) para un usuario
+   */
+  listUserAssignments(orgId: string, usuarioId: string): Observable<OpcionUsuarioDTO[]> {
+    const path = `/orgs/${orgId}/opciones-usuario/usuario/${usuarioId}`;
+    const url = `${this.base}${path}`;
+    const urlFallback = `${environment.backendHost}${this.base}${path}`;
+    const mapResp = (resp: ApiResponse<any> | any) => {
+      const r = (resp && typeof resp === 'object' && 'success' in resp) ? resp as ApiResponse<any> : ({ success: true, data: resp } as ApiResponse<any>);
+      if (r && (r as any).success === false) throw { error: { message: r?.message || 'No se pudieron listar las asignaciones del usuario' }, status: 400 };
+      const data: any = (r as any).data;
+      const arr = Array.isArray(data) ? data : (Array.isArray(data?.items) ? data.items : (Array.isArray(resp) ? resp : []));
+      return arr.map((d: any) => ({
+        id: String(d?.id ?? d?._id ?? ''),
+        usuarioId: d?.usuarioId ?? null,
+        opcionId: d?.opcionId ?? null,
+        seccionId: d?.seccionId ?? null,
+        habilitada: d?.habilitada != null ? !!d?.habilitada : true,
+        opcion: d?.opcion ?? d?.opcionDetalle ?? null
+      } as OpcionUsuarioDTO));
+    };
+
+    return this.http.get<any>(url, { headers: this.accept, responseType: 'text' as 'json' }).pipe(
+      map((payload: any) => this.toApiResponse(payload)),
+      map(mapResp),
+      catchError((e1) => {
+        const status = e1?.status;
+        if (status === 0 || status === 200 || status === 204 || status === 404 || status === 500 || status === 502 || status === 503) {
+          return this.http.get<any>(urlFallback, { headers: this.accept, responseType: 'text' as 'json' }).pipe(
+            map((payload: any) => this.toApiResponse(payload)),
+            map(mapResp),
+            catchError((e2) => throwError(() => ({ error: { message: e2?.error?.message || e2?.message || 'No se pudieron listar las asignaciones del usuario' }, status: e2?.status })))
+          );
+        }
+        return throwError(() => ({ error: { message: e1?.error?.message || e1?.message || 'No se pudieron listar las asignaciones del usuario' }, status }));
+      })
+    );
+  }
+
+  /**
+   * Listar asignaciones de opciones por organización (DTO minimal)
+   */
+  listOrgUserAssignments(orgId: string): Observable<OpcionUsuarioDTO[]> {
+    const path = `/orgs/${orgId}/opciones-usuario`;
+    const url = `${this.base}${path}`;
+    const urlFallback = `${environment.backendHost}${this.base}${path}`;
+    const mapResp = (resp: ApiResponse<any> | any) => {
+      const r = (resp && typeof resp === 'object' && 'success' in resp) ? resp as ApiResponse<any> : ({ success: true, data: resp } as ApiResponse<any>);
+      if (r && (r as any).success === false) throw { error: { message: r?.message || 'No se pudieron listar las asignaciones de la organización' }, status: 400 };
+      const data: any = (r as any).data;
+      const arr = Array.isArray(data) ? data : (Array.isArray(data?.items) ? data.items : (Array.isArray(resp) ? resp : []));
+      return arr.map((d: any) => ({
+        id: String(d?.id ?? d?._id ?? ''),
+        usuarioId: d?.usuarioId ?? null,
+        opcionId: d?.opcionId ?? null,
+        seccionId: d?.seccionId ?? null,
+        habilitada: d?.habilitada != null ? !!d?.habilitada : true
+      } as OpcionUsuarioDTO));
+    };
+
+    return this.http.get<any>(url, { headers: this.accept, responseType: 'text' as 'json' }).pipe(
+      map((payload: any) => this.toApiResponse(payload)),
+      map(mapResp),
+      catchError((e1) => {
+        const status = e1?.status;
+        if (status === 0 || status === 200 || status === 204 || status === 404 || status === 500 || status === 502 || status === 503) {
+          return this.http.get<any>(urlFallback, { headers: this.accept, responseType: 'text' as 'json' }).pipe(
+            map((payload: any) => this.toApiResponse(payload)),
+            map(mapResp),
+            catchError((e2) => throwError(() => ({ error: { message: e2?.error?.message || e2?.message || 'No se pudieron listar las asignaciones de la organización' }, status: e2?.status })))
+          );
+        }
+        return throwError(() => ({ error: { message: e1?.error?.message || e1?.message || 'No se pudieron listar las asignaciones de la organización' }, status }));
+      })
+    );
+  }
+
+  /**
+   * Asignar una opción a un usuario (POST body)
+   */
+  assignOptionToUser(orgId: string, usuarioId: string, opcionId: string, seccionId: string | null = null, habilitada: boolean = true): Observable<void> {
+    const url = `${this.base}/orgs/${orgId}/opciones-usuario`;
+    const body = { opcionId, usuarioId, seccionId, habilitada };
+    return this.http.post(url, body, { headers: this.json, observe: 'response' }).pipe(
+      map(() => void 0),
+      catchError((e) => throwError(() => ({ error: { message: e?.error?.message || e?.message || 'No se pudo asignar la opción al usuario' }, status: e?.status })))
+    );
+  }
+
+  /**
+   * Cambiar estado de una asignación usuario-opción (PATCH)
+   */
+  changeUserAssignmentState(orgId: string, opcionUsuarioId: string, value: boolean): Observable<void> {
+    const url = `${this.base}/orgs/${orgId}/opciones-usuario/${opcionUsuarioId}/estado`;
+    return this.http.patch(url, null, { headers: this.accept, params: { value } as any, observe: 'response' }).pipe(
+      map(() => void 0),
+      catchError((e) => throwError(() => ({ error: { message: e?.error?.message || e?.message || 'No se pudo cambiar el estado de la asignación' }, status: e?.status })))
+    );
+  }
+
+  /**
+   * Eliminar una asignación por su id (DELETE)
+   */
+  deleteUserAssignment(orgId: string, opcionUsuarioId: string): Observable<void> {
+    const url = `${this.base}/orgs/${orgId}/opciones-usuario/${opcionUsuarioId}`;
+    return this.http.delete(url, { headers: this.accept, observe: 'response' }).pipe(
+      map(() => void 0),
+      catchError((e) => throwError(() => ({ error: { message: e?.error?.message || e?.message || 'No se pudo eliminar la asignación' }, status: e?.status })))
     );
   }
 }

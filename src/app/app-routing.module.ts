@@ -25,6 +25,7 @@ import { CrearOpcionComponent } from './admin/opciones-menu/crear-opcion/crear-o
 import { GestionarOpcionComponent } from './admin/opciones-menu/gestionar-opcion/gestionar-opcion.component';
 import { AsignarMenuARolComponent } from './admin/opciones-menu/asignar-menu-a-rol/asignar-menu-a-rol.component';
 import { NoAutorizadoComponent } from './shared/no-autorizado/no-autorizado.component';
+import { AsignarMenuAUsuarioComponent } from './admin/opciones-menu/asignar-menu-a-usuario/asignar-menu-a-usuario.component';
 
 export const appRoutes: Routes = [
   // Rutas públicas para pruebas de gestión de opciones (sin guards)
@@ -32,6 +33,7 @@ export const appRoutes: Routes = [
   { path: 'gestion-de-opciones-menu/crear-opcion', component: CrearOpcionComponent },
   { path: 'gestion-de-opciones-menu/gestionar-opcion', component: GestionarOpcionComponent },
   { path: 'gestion-de-opciones-menu/asignar-menu-a-rol', component: AsignarMenuARolComponent },
+  { path: 'gestion-de-opciones-menu/asignar-menu-a-usuario', component: AsignarMenuAUsuarioComponent },
 
   // Ruta pública para mostrar mensaje de acceso restringido
   { path: 'no-autorizado', component: NoAutorizadoComponent },
@@ -46,6 +48,7 @@ export const appRoutes: Routes = [
       { path: 'listar-organizaciones', component: OrganizationListComponent },
       { path: 'crear-organizacion', component: OrganizationFormComponent, canActivate: [PermissionGuard], data: { code: 'ORG_CREATE' } },
       { path: 'gestionar-organizacion', component: OrganizationConfigComponent, canActivate: [PermissionGuard], data: { code: 'ORG_MANAGE' } },
+      { path: 'gestion-de-opciones-menu/asignar-menu-a-usuario', component: AsignarMenuAUsuarioComponent },
       { path: 'configurar-parametros-globales', component: OrganizationParamsComponent, canActivate: [PermissionGuard], data: { code: 'PARAM_GLOBAL_MANAGE' } },
       { path: 'configurar-parametros-globales/:id', component: OrganizationParamsComponent, canActivate: [PermissionGuard], data: { code: 'PARAM_GLOBAL_MANAGE' } },
       { path: 'ver-auditoria-de-organizacion', component: OrganizationAuditComponent, canActivate: [PermissionGuard], data: { code: 'AUDIT_ORG_VIEW' } },
@@ -68,6 +71,7 @@ export const appRoutes: Routes = [
       { path: 'gestion-de-opciones-menu/crear-opcion', component: CrearOpcionComponent },
       { path: 'gestion-de-opciones-menu/gestionar-opcion', component: GestionarOpcionComponent },
       { path: 'gestion-de-opciones-menu/asignar-menu-a-rol', component: AsignarMenuARolComponent },
+      { path: 'gestion-de-opciones-menu/asignar-menu-a-usuario', component: AsignarMenuAUsuarioComponent },
 
       // --- Gestión de vehículos ---
       { path: 'gestion-de-vehiculos/mis-vehiculos', canActivate: [PermissionGuard], data: { code: 'VEHICLE_MY' }, loadComponent: () => import('./admin/vehiculos-mis-component/vehiculos-mis.component').then(m => m.VehiculosMisComponent) },

@@ -1,0 +1,79 @@
+<div class="container">
+  <p-card class="card">
+    <div class="header"><h2 class="title">Asignar menú a un usuario</h2></div>
+    <div class="body">
+      <div class="form-grid">
+        <div class="field">
+          <label>Usuario</label>
+          <p-dropdown [options]="users" optionLabel="nombreCompleto" optionValue="id" [(ngModel)]="usuarioId" name="usuarioId" placeholder="Seleccione usuario" [filter]="true" [showClear]="true" (onChange)="onUsuarioChange()"></p-dropdown>
+        </div>
+        <div class="field">
+          <label>Buscar opción</label>
+          <input pInputText type="text" [(ngModel)]="query" (ngModelChange)="applyFilter()" placeholder="Filtrar por nombre o ruta" />
+        </div>
+        <div class="field" style="align-self: end; display:flex; gap:.5rem;">
+          <button pButton type="button" class="p-button-outlined p-button-sm" label="Sembrar catálogo" icon="pi pi-download" (click)="seedNow()" [disabled]="!orgId || saving"></button>
+        </div>
+      </div>
+
+      <div class="meta-row fs-xs text-muted" *ngIf="orgId && usuarioId">
+        <span>Total: {{ allOptions.length }}</span>
+        <span class="mx-2">Filtradas: {{ filteredOptions.length }}</span>
+        <span class="mx-2">Asignadas: {{ totalAssigned }}</span>
+        <span class="mx-2">Seleccionadas: {{ totalSelected }}</span>
+      </div>
+
+      <p *ngIf="errorMsg" class="p-error mb-sm fs-sm">{{ errorMsg }}</p>
+
+      <div class="list-toolbar" *ngIf="filteredOptions.length">
+        <div class="left">
+          <p-checkbox [binary]="true" [ngModel]="allFilteredSelected()" (ngModelChange)="onToggleSelectAllFiltered($event)"></p-checkbox>
+          <span class="label">Seleccionar todo lo filtrado</span>
+        </div>
+        <div class="right text-muted">{{ filteredOptions.length }} opciones visibles</div>
+      </div>
+
+      <div class="scroll-area">
+        <div class="menu-groups" *ngIf="grouped.length; else emptyState">
+          <div class="menu-group" *ngFor="let g of grouped">
+            <div class="menu-header">
+              <div class="menu-title">{{ g.parent?.nombre || 'Menú' }}</div>
+              <div class="menu-actions">
+                <p-checkbox [binary]="true" [ngModel]="isGroupFullySelected(g)" (ngModelChange)="toggleGroup(g, $event)"></p-checkbox>
+                <span class="count">{{ groupSelectedCount(g) }}/{{ groupVisibleCount(g) }} seleccionadas</span>
+              </div>
+            </div>
+            <ul class="menu-items">
+              <li class="menu-item" *ngIf="isParentVisible(g)">
+                <div class="item-row">
+                  <p-checkbox [binary]="true" [ngModel]="selectedIds.has(g.parent!.id)" (ngModelChange)="toggleOne(g.parent!.id, $event)"></p-checkbox>
+                  <div class="meta">
+                    <div class="name">{{ g.parent!.nombre }}</div>
+                    <div class="ruta" *ngIf="g.parent!.ruta">{{ g.parent!.ruta }}</div>
+                  </div>
+                </div>
+              </li>
+              <li class="menu-item" *ngFor="let it of g.items">
+                <div class="item-row">
+                  <p-checkbox [binary]="true" [ngModel]="selectedIds.has(it.id)" (ngModelChange)="toggleOne(it.id, $event)"></p-checkbox>
+                  <div class="meta">
+                    <div class="name">{{ it.nombre }}</div>
+                    <div class="ruta" *ngIf="it.ruta">{{ it.ruta }}</div>
+                  </div>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <ng-template #emptyState>
+          <div class="empty text-muted">Sin datos</div>
+        </ng-template>
+      </div>
+    </div>
+    <div class="actions">
+      <button pButton type="button" label="Guardar" icon="pi pi-save" (click)="save()" [disabled]="!usuarioId || saving || !hasChanges"></button>
+      <button pButton type="button" class="p-button-text" label="Revertir cambios" icon="pi pi-refresh" (click)="revert()" [disabled]="!hasChanges"></button>
+      <button pButton type="button" class="p-button-text" label="Cancelar" icon="pi pi-times" (click)="resetData()"></button>
+    </div>
+  </p-card>
+</div>

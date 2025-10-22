@@ -32,6 +32,8 @@ export interface UserRoleAssignment {
   usuarioId: string;
   rolId: string;
   rol?: RoleEntity;
+  // nombre del rol ligado a la asignación, cuando backend lo expone directamente
+  rolNombre?: string;
 }
 
 @Injectable({providedIn: 'root'})
@@ -235,12 +237,43 @@ export class RolesService {
           id: String(d?.id ?? d?._id ?? ''),
           usuarioId: String(d?.usuarioId ?? usuarioId),
           rolId: String(d?.rolId ?? rolId),
-          rol: d?.rol ? this.ensureRole(d?.rol) : undefined
+          rol: d?.rol ? this.ensureRole(d?.rol) : undefined,
+          rolNombre: String(d?.rolNombre ?? d?.rol?.nombre ?? '')
         };
         return {assignment, message: resp.message};
       }),
       catchError((err) => throwError(() => ({
         error: {message: err?.error?.message || err?.message || 'No se pudo asignar el rol'},
+        status: err?.status
+      })))
+    );
+  }
+
+  /**
+   * Asignar rol por nombre (recomendado). Para SYSADMIN, puede enviar orgId.
+   */
+  assignRoleToUserByName(usuarioId: string, rolNombre: string, orgId?: string): Observable<{ assignment: UserRoleAssignment; message?: string }> {
+    const url = `${this.base}/usuarios/${usuarioId}/roles`;
+    const body: any = { rolNombre };
+    if (orgId) body.orgId = orgId;
+    return this.http.post<ApiResponse<any>>(url, body, { headers: this.json }).pipe(
+      map((resp) => {
+        if (!resp || resp.success === false) throw {
+          error: { message: resp?.message || 'No se pudo asignar el rol' },
+          status: 400
+        };
+        const d = this.unwrap<any>(resp);
+        const assignment: UserRoleAssignment = {
+          id: String(d?.id ?? d?._id ?? ''),
+          usuarioId: String(d?.usuarioId ?? usuarioId),
+          rolId: String(d?.rolId ?? d?.rol?.id ?? ''),
+          rol: d?.rol ? this.ensureRole(d?.rol) : undefined,
+          rolNombre: String(d?.rolNombre ?? rolNombre ?? d?.rol?.nombre ?? '')
+        };
+        return { assignment, message: resp.message };
+      }),
+      catchError((err) => throwError(() => ({
+        error: { message: err?.error?.message || err?.message || 'No se pudo asignar el rol' },
         status: err?.status
       })))
     );
@@ -262,7 +295,8 @@ export class RolesService {
         id: String(d?.id ?? d?._id ?? ''),
         usuarioId: String(d?.usuarioId ?? ''),
         rolId: String(d?.rolId ?? d?.rol?.id ?? ''),
-        rol: d?.rol ? this.ensureRole(d?.rol) : undefined
+        rol: d?.rol ? this.ensureRole(d?.rol) : undefined,
+        rolNombre: String(d?.rolNombre ?? d?.rol?.nombre ?? '')
       } as UserRoleAssignment));
     };
     return this.http.get<any>(url, { headers: this.accept, responseType: 'text' as 'json' }).pipe(

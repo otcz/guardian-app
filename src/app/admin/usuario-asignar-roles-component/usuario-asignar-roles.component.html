@@ -21,7 +21,7 @@
     <div class="form-grid">
       <div class="field">
         <label>Usuario</label>
-        <p-dropdown [options]="usuarios" optionLabel="username" optionValue="id" [(ngModel)]="usuarioId" name="usuarioId" placeholder="Seleccione usuario" (onChange)="loadUserRoles()"></p-dropdown>
+        <p-dropdown [options]="usuarios" optionLabel="username" optionValue="id" [(ngModel)]="usuarioId" name="usuarioId" placeholder="Seleccione usuario" (onChange)="onUserChange()"></p-dropdown>
       </div>
 
       <div class="field">

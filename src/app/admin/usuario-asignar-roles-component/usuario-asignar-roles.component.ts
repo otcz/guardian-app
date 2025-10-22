@@ -40,20 +40,41 @@ export class UsuarioAsignarRolesComponent implements OnInit {
     this.orgId = this.orgCtx.value;
     if (!this.orgId) { this.notify.warn('Atención', 'Seleccione una organización'); this.router.navigate(['/listar-organizaciones']); return; }
 
-    // Cargar catálogos
+    // Cargar catálogos básicos
     this.users.list(this.orgId).subscribe({ next: list => { this.usuarios = list; this.autoSelectFromQuery(); }, error: e => this.notify.error('Error', e?.error?.message || 'No se pudieron listar usuarios') });
-    this.rolesSrv.list(this.orgId).subscribe({ next: list => { this.roles = list; this.roleNameById = Object.fromEntries((list || []).map(r => [String(r.id), String(r.nombre || '')])); this.hydrateRoleAssignments(); }, error: e => this.notify.error('Error', e?.error?.message || 'No se pudieron listar roles') });
+    // Precarga roles por org del contexto como fallback inicial
+    this.loadRolesForOrg(this.orgId);
 
     // Reaccionar a cambios de query param
     this.route.queryParamMap.subscribe(qm => {
       const id = qm.get('id');
-      if (id) { this.usuarioId = id; this.loadUserRoles(); }
+      if (id) { this.usuarioId = id; this.onUserChange(); }
+    });
+  }
+
+  // Cargar roles de una organización específica
+  private loadRolesForOrg(orgId: string | null | undefined) {
+    if (!orgId) { this.roles = []; this.roleNameById = {}; return; }
+    this.rolesSrv.list(orgId).subscribe({
+      next: list => {
+        this.roles = list || [];
+        this.roleNameById = Object.fromEntries((this.roles || []).map(r => [String(r.id), String(r.nombre || '')]));
+        this.hydrateRoleAssignments();
+      },
+      error: e => this.notify.error('Error', e?.error?.message || 'No se pudieron listar roles')
     });
   }
 
   private autoSelectFromQuery() {
     const id = this.route.snapshot.queryParamMap.get('id');
-    if (id) { this.usuarioId = id; this.loadUserRoles(); }
+    if (id) { this.usuarioId = id; this.onUserChange(); }
+  }
+
+  // Cuando cambia el usuario seleccionado, cargar sus roles y roles de su organización
+  onUserChange() {
+    this.loadUserRoles();
+    const orgFromUser = this.selectedUser?.orgId || this.orgId;
+    this.loadRolesForOrg(orgFromUser || null);
   }
 
   get selectedUser(): UserEntity | null {
@@ -71,7 +92,7 @@ export class UsuarioAsignarRolesComponent implements OnInit {
 
   getRoleName(ru: UserRoleAssignment | null | undefined): string {
     if (!ru) return '';
-    return (ru.rol?.nombre || this.roleNameById[ru.rolId] || ru.rolId || '').toString();
+    return (ru.rolNombre || ru.rol?.nombre || this.roleNameById[ru.rolId] || ru.rolId || '').toString();
   }
 
   /** Hidrata las asignaciones con la entidad RoleEntity según rolId para asegurar que haya nombre disponible */
@@ -96,9 +117,38 @@ export class UsuarioAsignarRolesComponent implements OnInit {
   assignRole() {
     if (!this.usuarioId || !this.rolSeleccionado) return;
     this.saving = true;
-    this.rolesSrv.assignRoleToUser(this.usuarioId, this.rolSeleccionado).subscribe({
-      next: res => { this.saving = false; this.notify.success('Éxito', res.message || 'Rol asignado'); this.loadUserRoles(); },
-      error: e => { this.saving = false; this.notify.error('Error', e?.error?.message || 'No se pudo asignar el rol'); }
+    // Preferir asignación por rolId (UUID del rol de la organización)
+    const role = this.roles.find(r => String(r.id) === String(this.rolSeleccionado));
+    this.users.asignarRol(this.usuarioId, { rolId: this.rolSeleccionado }).subscribe({
+      next: _dto => {
+        this.saving = false;
+        this.notify.success('Éxito', 'Rol asignado');
+        this.loadUserRoles();
+      },
+      error: e => {
+        const msg = e?.error?.message || (typeof e?.error === 'string' ? e.error : 'No se pudo asignar el rol');
+        const is400 = e?.status === 400;
+        const needsOrg = /organización|organizacion|org/i.test(String(msg || ''));
+        const orgFromUser = this.selectedUser?.orgId || this.orgId;
+        // Fallback: si es 400 por organización y tenemos nombre y orgId, reintentar por rolNombre+orgId del usuario
+        if (is400 && needsOrg && role?.nombre && orgFromUser) {
+          this.users.asignarRol(this.usuarioId!, { rolNombre: role.nombre, orgId: orgFromUser }).subscribe({
+            next: _dto2 => {
+              this.saving = false;
+              this.notify.success('Éxito', 'Rol asignado');
+              this.loadUserRoles();
+            },
+            error: e2 => {
+              this.saving = false;
+              const msg2 = e2?.error?.message || (typeof e2?.error === 'string' ? e2.error : 'No se pudo asignar el rol');
+              this.notify.error('Error', msg2);
+            }
+          });
+          return;
+        }
+        this.saving = false;
+        this.notify.error('Error', msg);
+      }
     });
   }
 

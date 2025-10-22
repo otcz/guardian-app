@@ -38,6 +38,10 @@ export interface UpdateUserRequest {
   seccionPrincipalId?: string | null;
 }
 
+// Contrato de asignación de rol a usuario
+export interface AssignRoleRequest { rolId?: string; rolNombre?: string; orgId?: string; }
+export interface RolUsuarioDto { id: string; usuarioId: string | null; rolId: string | null; rolNombre: string | null; }
+
 @Injectable({ providedIn: 'root' })
 export class UsersService {
   private base = environment.apiBase;
@@ -145,6 +149,30 @@ export class UsersService {
         return { user, message: (resp as any)?.message };
       }),
       catchError((err) => throwError(() => ({ error: { message: err?.error?.message || err?.message || 'No se pudo quitar la sección principal' }, status: err?.status })))
+    );
+  }
+
+  // Asignar rol a usuario (por rolId o rolNombre+orgId)
+  asignarRol(usuarioId: string, payload: AssignRoleRequest): Observable<RolUsuarioDto> {
+    if (!payload || (!payload.rolId && !payload.rolNombre)) {
+      throw new Error('Debe especificar rolId o rolNombre');
+    }
+    const url = `${this.base}/usuarios/${usuarioId}/roles`;
+    return this.http.post<any>(url, payload, { headers: this.json }).pipe(
+      map((resp) => {
+        // Aceptar respuesta directa o envuelta en { success, data }
+        const d = this.unwrap<any>(resp) ?? resp;
+        return {
+          id: String(d?.id ?? d?._id ?? ''),
+          usuarioId: d?.usuarioId != null ? String(d?.usuarioId) : null,
+          rolId: d?.rolId != null ? String(d?.rolId) : null,
+          rolNombre: d?.rolNombre != null ? String(d?.rolNombre) : null
+        } as RolUsuarioDto;
+      }),
+      catchError((err) => throwError(() => ({
+        error: { message: err?.error?.message ?? (typeof err?.error === 'string' ? err.error : (err?.message || 'No se pudo asignar el rol')) },
+        status: err?.status
+      })))
     );
   }
 

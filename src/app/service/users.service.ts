@@ -7,7 +7,7 @@ import { environment } from '../config/environment';
 
 export interface ApiResponse<T> { success?: boolean; message?: string; data?: T; }
 
-export type ScopeNivel = 'ORGANIZACION' | 'SECCION';
+export type ScopeNivel = 'ORGANIZACION' | 'SECCION' | string;
 
 export interface UserEntity {
   id: string;
@@ -42,11 +42,22 @@ export interface UpdateUserRequest {
 export interface AssignRoleRequest { rolId?: string; rolNombre?: string; orgId?: string; }
 export interface RolUsuarioDto { id: string; usuarioId: string | null; rolId: string | null; rolNombre: string | null; }
 
+// Metadata de usuarios (scopeNivel) provista por backend
+export interface UsuariosMeta {
+  defaultScopeNivel: ScopeNivel | '';
+  allowedScopeNiveles: ScopeNivel[];
+  requiresSeccionPrincipalWhen: ScopeNivel[];
+}
+
 @Injectable({ providedIn: 'root' })
 export class UsersService {
   private base = environment.apiBase;
   private json = new HttpHeaders({ 'Content-Type': 'application/json', Accept: 'application/json' });
   private accept = new HttpHeaders({ Accept: 'application/json' });
+
+  // Caché en memoria por organización (TTL 5 min)
+  private usuariosMetaCache = new Map<string, { meta: UsuariosMeta; ts: number }>();
+  private META_TTL_MS = 5 * 60 * 1000;
 
   constructor(private http: HttpClient) {}
 
@@ -101,6 +112,33 @@ export class UsersService {
         return { user, message: (resp as any)?.message };
       }),
       catchError((err) => throwError(() => ({ error: { message: err?.error?.message || err?.message || 'No se pudo crear el usuario' }, status: err?.status })))
+    );
+  }
+
+  // Obtener metadata de usuarios por organización con caché y fallback seguro
+  getUsuarioMeta(orgId: string, forceRefresh = false): Observable<UsuariosMeta> {
+    const key = String(orgId);
+    const now = Date.now();
+    const cached = this.usuariosMetaCache.get(key);
+    if (!forceRefresh && cached && (now - cached.ts) < this.META_TTL_MS) {
+      return new Observable<UsuariosMeta>((sub) => { sub.next(cached.meta); sub.complete(); });
+    }
+
+    const url = `${this.base}/orgs/${orgId}/usuarios/meta`;
+
+    return this.http.get<any>(url, { headers: this.accept, responseType: 'text' as 'json' }).pipe(
+      map((payload: any) => this.toApiResponse(payload)),
+      map((resp) => {
+        // Devolver exactamente lo que viene en data, sin normalizar ni defaults
+        const d = (resp && typeof resp === 'object' && 'data' in resp) ? (resp as any).data : resp;
+        const meta: UsuariosMeta = {
+          defaultScopeNivel: (d?.defaultScopeNivel ?? '') as any,
+          allowedScopeNiveles: Array.isArray(d?.allowedScopeNiveles) ? (d.allowedScopeNiveles as any[]) : [],
+          requiresSeccionPrincipalWhen: Array.isArray(d?.requiresSeccionPrincipalWhen) ? (d.requiresSeccionPrincipalWhen as any[]) : []
+        };
+        this.usuariosMetaCache.set(key, { meta, ts: Date.now() });
+        return meta;
+      })
     );
   }
 

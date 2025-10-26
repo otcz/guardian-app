@@ -10,7 +10,7 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { UppercaseDirective } from '../../shared/formatting.directives';
 import { OrgContextService } from '../../service/org-context.service';
 import { SeccionService, SeccionEntity } from '../../service/seccion.service';
-import { UsersService, CreateUserRequest, ScopeNivel } from '../../service/users.service';
+import { UsersService, CreateUserRequest, ScopeNivel, UsuariosMeta } from '../../service/users.service';
 import { NotificationService } from '../../service/notification.service';
 import { SkeletonModule } from 'primeng/skeleton';
 import { ChipModule } from 'primeng/chip';
@@ -33,16 +33,24 @@ export class UsuariosCrearComponent implements OnInit {
   secciones: SeccionEntity[] = [];
   showInvite = false;
 
-  scopeOptions = [
-    { label: 'Organización', value: 'ORGANIZACION' as ScopeNivel },
-    { label: 'Sección', value: 'SECCION' as ScopeNivel }
-  ];
+  // Metadata de scope desde backend
+  usuariosMeta: UsuariosMeta | null = null;
+
+  // Opciones del select de scope, derivadas de allowedScopeNiveles
+  scopeOptions: { label: string; value: ScopeNivel }[] = [];
+
+  // Mapa simple i18n de labels
+  private scopeLabels: Record<string, string> = {
+    ORGANIZACION: 'Organización',
+    SECCION: 'Sección'
+  };
 
   model: CreateUserRequest = {
     username: '',
     nombreCompleto: '',
     email: '',
-    scopeNivel: 'ORGANIZACION',
+    // no default para scopeNivel
+    scopeNivel: undefined as any,
     seccionPrincipalId: null
   };
 
@@ -61,12 +69,43 @@ export class UsuariosCrearComponent implements OnInit {
       this.router.navigate(['/listar-organizaciones']);
       return;
     }
+
+    // Cargar metadata de usuarios (scope) y derivar opciones/default
+    this.users.getUsuarioMeta(this.orgId).subscribe({
+      next: (meta) => {
+        this.usuariosMeta = meta;
+        // Opciones tal como vienen del backend
+        this.scopeOptions = (meta.allowedScopeNiveles || []).map((v) => ({ label: String(v), value: v }));
+        // No aplicar default en el modelo
+        this.onScopeChange();
+      },
+      error: () => {
+        // Sin fallback visual; mantener opciones como están y continuar
+        this.onScopeChange();
+      }
+    });
+
     this.loadSecciones();
   }
 
+  private capitalize(v: string): string { return v ? (v[0].toUpperCase() + v.slice(1).toLowerCase()) : v; }
+
   get scopeLabel(): string {
-    return this.model.scopeNivel === 'SECCION' ? 'Alcance: SECCIÓN' : 'Alcance: ORGANIZACIÓN';
+    // Mostrar exactamente el valor que viene del backend, sin prefijo ni i18n
+    return String(this.model.scopeNivel || '');
+  }
+
+  // Valor informativo para p-tag: nombre de sección (si hay), o id de sección, o scope del contexto
+  get infoTag(): string {
+    const secId = this.orgCtx.seccion || null;
+    if (secId) {
+      const found = this.secciones.find(s => String(s.id) === String(secId));
+      if (found?.nombre) return String(found.nombre);
+      return String(secId);
     }
+    const scope = this.orgCtx.scope;
+    return scope ? String(scope) : '';
+  }
 
   get initial(): string {
     const src = (this.model.nombreCompleto || this.model.username || '').trim();
@@ -74,6 +113,20 @@ export class UsuariosCrearComponent implements OnInit {
     const parts = src.split(/\s+/).filter(Boolean);
     if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
     return src[0].toUpperCase();
+  }
+
+  // ¿Este scope requiere sección principal?
+  get isSeccionPrincipalRequerida(): boolean {
+    const cur = String(this.model.scopeNivel || '').toUpperCase();
+    const requires = this.usuariosMeta?.requiresSeccionPrincipalWhen ?? [];
+    return requires.map((x) => String(x).toUpperCase()).includes(cur);
+  }
+
+  onScopeChange() {
+    // Si el alcance no requiere sección, limpiar y deshabilitar
+    if (!this.isSeccionPrincipalRequerida) {
+      this.model.seccionPrincipalId = null;
+    }
   }
 
   loadSecciones() {
@@ -86,12 +139,12 @@ export class UsuariosCrearComponent implements OnInit {
   }
 
   reset() {
-    this.model = { username: '', nombreCompleto: '', email: '', scopeNivel: 'ORGANIZACION', seccionPrincipalId: null };
+    this.model = { username: '', nombreCompleto: '', email: '', scopeNivel: undefined as any, seccionPrincipalId: null };
   }
 
   validate(): string | null {
     if (!this.model.username || this.model.username.trim().length < 3) return 'Username es requerido (mín. 3)';
-    if (this.model.scopeNivel === 'SECCION' && !this.model.seccionPrincipalId) return 'Debe seleccionar la sección principal';
+    if (this.isSeccionPrincipalRequerida && !this.model.seccionPrincipalId) return 'Debe seleccionar la sección principal';
     return null;
   }
 
@@ -105,7 +158,7 @@ export class UsuariosCrearComponent implements OnInit {
       nombreCompleto: (this.model.nombreCompleto || '').trim() || undefined,
       email: (this.model.email || '').trim() || undefined,
       scopeNivel: this.model.scopeNivel,
-      seccionPrincipalId: this.model.scopeNivel === 'SECCION' ? (this.model.seccionPrincipalId || null) : null
+      seccionPrincipalId: this.isSeccionPrincipalRequerida ? (this.model.seccionPrincipalId || null) : null
     };
     this.users.create(this.orgId, body).subscribe({
       next: (res) => {
@@ -123,6 +176,6 @@ export class UsuariosCrearComponent implements OnInit {
   openInvite() { this.showInvite = true; }
 
   get seccionIdForInvite(): string | null {
-    return this.model.scopeNivel === 'SECCION' && this.model.seccionPrincipalId ? String(this.model.seccionPrincipalId) : null;
+    return this.isSeccionPrincipalRequerida && this.model.seccionPrincipalId ? String(this.model.seccionPrincipalId) : null;
   }
 }

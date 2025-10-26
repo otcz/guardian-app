@@ -5,13 +5,13 @@
       <div class="user-meta">
         <div class="title-row">
           <h2 class="title">Crear usuario</h2>
-          <p-tag [value]="scopeLabel" severity="info"></p-tag>
+          <p-tag [value]="infoTag" styleClass="p-tag-info"></p-tag>
         </div>
         <div class="chip-row">
           <p-chip icon="pi pi-id-card" [label]="model.username || 'USUARIO'" class="pill"></p-chip>
           <p-chip *ngIf="model.nombreCompleto" icon="pi pi-user" [label]="model.nombreCompleto" class="pill"></p-chip>
           <p-chip *ngIf="model.email" icon="pi pi-envelope" [label]="model.email" class="pill"></p-chip>
-          <p-chip *ngIf="model.scopeNivel === 'SECCION' && model.seccionPrincipalId" icon="pi pi-sitemap" [label]="'Sección: ' + model.seccionPrincipalId" class="pill muted"></p-chip>
+          <p-chip *ngIf="isSeccionPrincipalRequerida && model.seccionPrincipalId" icon="pi pi-sitemap" [label]="'Sección: ' + model.seccionPrincipalId" class="pill muted"></p-chip>
         </div>
       </div>
       <div class="actions-toolbar">
@@ -41,20 +41,20 @@
 
         <div class="field">
           <label>Alcance</label>
-          <p-dropdown [options]="scopeOptions" optionLabel="label" optionValue="value" [(ngModel)]="model.scopeNivel" name="scopeNivel"></p-dropdown>
+          <p-dropdown [options]="scopeOptions" optionLabel="label" optionValue="value" [(ngModel)]="model.scopeNivel" name="scopeNivel" (onChange)="onScopeChange()"></p-dropdown>
         </div>
 
-        <div class="field" *ngIf="model.scopeNivel === 'SECCION'">
+        <div class="field" *ngIf="isSeccionPrincipalRequerida">
           <label>Sección principal</label>
           <ng-container *ngIf="!loading; else sectionsLoading">
             <p-dropdown [options]="secciones" optionLabel="nombre" optionValue="id" [(ngModel)]="model.seccionPrincipalId" name="seccionPrincipalId" placeholder="Seleccione sección"></p-dropdown>
           </ng-container>
-          <small class="hint">Requerido si el alcance es SECCIÓN.</small>
+          <small class="hint">Requerido si el alcance lo exige.</small>
         </div>
       </div>
 
       <div class="actions footer-actions">
-        <button pButton type="submit" label="Crear" [disabled]="saving"></button>
+        <button pButton type="submit" label="Crear" [disabled]="saving || (isSeccionPrincipalRequerida && !model.seccionPrincipalId)"></button>
         <button pButton type="button" class="p-button p-button-text" label="Cancelar" [routerLink]="['/gestion-de-usuarios/listar-usuarios']" [disabled]="saving"></button>
       </div>
     </form>

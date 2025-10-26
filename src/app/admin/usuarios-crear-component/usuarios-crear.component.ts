@@ -178,4 +178,11 @@ export class UsuariosCrearComponent implements OnInit {
   get seccionIdForInvite(): string | null {
     return this.isSeccionPrincipalRequerida && this.model.seccionPrincipalId ? String(this.model.seccionPrincipalId) : null;
   }
+
+  get seccionPrincipalNombre(): string | null {
+    const id = this.model?.seccionPrincipalId;
+    if (!id) return null;
+    const found = this.secciones.find(s => String(s.id) === String(id));
+    return found?.nombre ?? null;
+  }
 }

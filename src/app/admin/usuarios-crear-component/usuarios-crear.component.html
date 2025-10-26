@@ -11,7 +11,7 @@
           <p-chip icon="pi pi-id-card" [label]="model.username || 'USUARIO'" class="pill"></p-chip>
           <p-chip *ngIf="model.nombreCompleto" icon="pi pi-user" [label]="model.nombreCompleto" class="pill"></p-chip>
           <p-chip *ngIf="model.email" icon="pi pi-envelope" [label]="model.email" class="pill"></p-chip>
-          <p-chip *ngIf="isSeccionPrincipalRequerida && model.seccionPrincipalId" icon="pi pi-sitemap" [label]="'Sección: ' + model.seccionPrincipalId" class="pill muted"></p-chip>
+          <p-chip *ngIf="isSeccionPrincipalRequerida && model.seccionPrincipalId" icon="pi pi-sitemap" [label]="'Sección: ' + (seccionPrincipalNombre || model.seccionPrincipalId)" class="pill muted"></p-chip>
         </div>
       </div>
       <div class="actions-toolbar">

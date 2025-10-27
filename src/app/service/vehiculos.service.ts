@@ -6,47 +6,48 @@ import { environment } from '../config/environment';
 
 export interface ApiResponse<T> { success?: boolean; message?: string; data?: T; }
 
-export interface VehicleEntity {
+// DTOs actualizados
+export interface VehiculoDto {
   id: string;
   placa: string;
+  marca?: string | null;
+  modelo?: string | null;
+  linea?: string | null;
+  anio?: number | null;
+  color?: string | null;
   activo: boolean;
-  seccionAsignadaId?: string | null;
+  bloqueado?: boolean | null;
+  seccionId?: string | null; // id de sección (preferido)
+  seccionAsignadaId?: string | null; // compatibilidad con vistas legacy
   orgId?: string | null;
-  propietarioUsuarioId?: string | null; // opcional si backend lo provee
   fechaCreacion?: string | null;
   fechaActualizacion?: string | null;
-  // Campos adicionales
-  marca?: string | null;
-  modelo?: string | null;
-  linea?: string | null;
-  anio?: number | null;
-  color?: string | null;
-  // Estado de bloqueo (solo lectura en UI)
-  bloqueado?: boolean | null;
+  propietarioUsuarioId?: string | null;
 }
+export type VehicleEntity = VehiculoDto; // alias para compatibilidad
 
-export interface CreateVehicleRequest {
+export interface VehiculoCreateReq {
   placa: string;
-  // Campos adicionales (opcionales)
   marca?: string | null;
   modelo?: string | null;
   linea?: string | null;
   anio?: number | null;
   color?: string | null;
-  // Nuevo: relación con usuarios al crear (opcional)
-  usuarioIds?: string[];
+  usuarioIds?: string[]; // nuevo opcional
 }
+export type CreateVehicleRequest = VehiculoCreateReq; // alias compatibilidad
 
 export interface UpdateVehicleRequest {
   placa?: string;
-  seccionAsignadaId?: string | null;
-  // Campos adicionales (opcionales)
+  seccionAsignadaId?: string | null; // se gestiona por endpoint dedicado, pero lo mantenemos aquí para compatibilidad de llamadas previas
   marca?: string | null;
   modelo?: string | null;
   linea?: string | null;
   anio?: number | null;
   color?: string | null;
 }
+
+export interface VehiculoCapabilities { canUpdateBloqueado: boolean; message?: string; }
 
 @Injectable({ providedIn: 'root' })
 export class VehiculosService {
@@ -60,7 +61,7 @@ export class VehiculosService {
     return (payload && typeof payload === 'object' && 'data' in payload) ? (payload as any).data as T : (payload as T);
   }
 
-  // Eliminar claves con null/undefined/cadena vacía/NaN
+  // Eliminar claves null/undefined/''/NaN
   private sanitizeBody<T extends Record<string, any>>(obj: T): Partial<T> {
     const out: any = {};
     if (!obj) return out;
@@ -90,32 +91,28 @@ export class VehiculosService {
     return { success: true, data: payload } as ApiResponse<any>;
   }
 
-  private ensureVehicle(d: any): VehicleEntity {
+  private ensureVehicle(d: any): VehiculoDto {
+    const seccion = (d?.seccionId ?? d?.seccionAsignadaId ?? d?.idSeccionAsignada ?? d?.seccionEntityAsignada?.id ?? null);
     return {
       id: String(d?.id ?? d?._id ?? ''),
       placa: String(d?.placa ?? d?.plate ?? ''),
       activo: d?.activo != null ? !!d?.activo : (d?.active != null ? !!d?.active : false),
-      // Soportar distintas formas de sección desde backend
-      seccionAsignadaId: d?.seccionId != null ? String(d?.seccionId)
-        : (d?.seccionAsignadaId != null ? String(d?.seccionAsignadaId)
-        : (d?.idSeccionAsignada != null ? String(d?.idSeccionAsignada)
-        : (d?.seccionEntityAsignada?.id != null ? String(d?.seccionEntityAsignada?.id) : null))),
+      seccionId: seccion != null ? String(seccion) : null,
+      seccionAsignadaId: seccion != null ? String(seccion) : null,
       orgId: d?.orgId != null ? String(d?.orgId) : (d?.organizacionId != null ? String(d?.organizacionId) : null),
       propietarioUsuarioId: d?.usuarioId != null ? String(d?.usuarioId) : (d?.propietarioUsuarioId != null ? String(d?.propietarioUsuarioId) : null),
       fechaCreacion: d?.fechaCreacion ? String(d?.fechaCreacion) : null,
       fechaActualizacion: d?.fechaActualizacion ? String(d?.fechaActualizacion) : null,
-      // Campos adicionales
       marca: d?.marca != null ? String(d?.marca) : null,
       modelo: d?.modelo != null ? String(d?.modelo) : null,
       linea: d?.linea != null ? String(d?.linea) : null,
       anio: d?.anio != null ? Number(d?.anio) : null,
       color: d?.color != null ? String(d?.color) : null,
-      // Estado de bloqueo
       bloqueado: (d?.bloqueado != null ? !!d?.bloqueado : (d?.locked != null ? !!d?.locked : null))
-    } as VehicleEntity;
+    } as VehiculoDto;
   }
 
-  list(orgId: string, params?: { seccionId?: string | null; soloInactivos?: boolean; soloMios?: boolean }): Observable<VehicleEntity[]> {
+  list(orgId: string, params?: { seccionId?: string | null; soloInactivos?: boolean; soloMios?: boolean }): Observable<VehiculoDto[]> {
     const path = `/orgs/${orgId}/vehiculos`;
     const url = `${this.base}${path}`;
     const urlFallback = `${environment.backendHost}${this.base}${path}`;
@@ -142,8 +139,8 @@ export class VehiculosService {
     );
   }
 
-  // Nuevo: igual a list pero entrega también el message del backend para feedback en UI
-  listWithMessage(orgId: string, params?: { seccionId?: string | null; soloInactivos?: boolean; soloMios?: boolean }): Observable<{ items: VehicleEntity[]; message?: string }> {
+  // Igual a list pero entrega también el message del backend
+  listWithMessage(orgId: string, params?: { seccionId?: string | null; soloInactivos?: boolean; soloMios?: boolean }): Observable<{ items: VehiculoDto[]; message?: string }> {
     const path = `/orgs/${orgId}/vehiculos`;
     const url = `${this.base}${path}`;
     const urlFallback = `${environment.backendHost}${this.base}${path}`;
@@ -157,7 +154,7 @@ export class VehiculosService {
       const data = resp?.data as any;
       const arr = Array.isArray(data) ? data : (Array.isArray((data as any)?.items) ? (data as any).items : (Array.isArray((resp as any)) ? (resp as any) : []));
       const items = arr.map((d: any) => this.ensureVehicle(d));
-      return { items, message: (resp as any)?.message } as { items: VehicleEntity[]; message?: string };
+      return { items, message: (resp as any)?.message } as { items: VehiculoDto[]; message?: string };
     };
 
     return this.http.get<any>(url, { headers: this.accept, params: httpParams, responseType: 'text' as 'json' }).pipe(
@@ -171,7 +168,7 @@ export class VehiculosService {
     );
   }
 
-  get(orgId: string, vehiculoId: string): Observable<VehicleEntity> {
+  get(orgId: string, vehiculoId: string): Observable<VehiculoDto> {
     const url = `${this.base}/orgs/${orgId}/vehiculos/${vehiculoId}`;
     return this.http.get<any>(url, { headers: this.accept, responseType: 'text' as 'json' }).pipe(
       map((payload: any) => this.toApiResponse(payload)),
@@ -182,7 +179,20 @@ export class VehiculosService {
     );
   }
 
-  create(orgId: string, body: CreateVehicleRequest): Observable<{ vehicle: VehicleEntity; message?: string }> {
+  // Capabilities del vehículo (para controlar el switch bloqueado)
+  getCapabilities(orgId: string, vehiculoId: string): Observable<VehiculoCapabilities> {
+    const url = `${this.base}/orgs/${orgId}/vehiculos/${vehiculoId}/capabilities`;
+    return this.http.get<any>(url, { headers: this.accept, responseType: 'text' as 'json' }).pipe(
+      map((payload: any) => this.toApiResponse(payload)),
+      map((resp) => {
+        if (resp && resp.success === false) throw { error: { message: resp?.message || 'No se pudieron consultar capacidades' }, status: 400 };
+        const d = this.unwrap<any>(resp) as any;
+        return { canUpdateBloqueado: !!d?.canUpdateBloqueado, message: (resp as any)?.message } as VehiculoCapabilities;
+      })
+    );
+  }
+
+  create(orgId: string, body: VehiculoCreateReq): Observable<{ vehicle: VehiculoDto; message?: string }> {
     const url = `${this.base}/orgs/${orgId}/vehiculos`;
     const payload = this.sanitizeBody(body);
     return this.http.post<any>(url, payload, { headers: this.json, responseType: 'text' as 'json' }).pipe(
@@ -196,9 +206,11 @@ export class VehiculosService {
     );
   }
 
-  update(orgId: string, vehiculoId: string, body: UpdateVehicleRequest): Observable<{ vehicle: VehicleEntity; message?: string }> {
+  update(orgId: string, vehiculoId: string, body: UpdateVehicleRequest): Observable<{ vehicle: VehiculoDto; message?: string }> {
     const url = `${this.base}/orgs/${orgId}/vehiculos/${vehiculoId}`;
-    const payload = this.sanitizeBody(body);
+    const payload = this.sanitizeBody(body) as any;
+    // No enviar bloqueado en el PATCH general
+    if ('bloqueado' in payload) delete payload.bloqueado;
     return this.http.patch<any>(url, payload, { headers: this.json, responseType: 'text' as 'json' }).pipe(
       map((payload: any) => this.toApiResponse(payload)),
       map((resp) => {
@@ -210,7 +222,21 @@ export class VehiculosService {
     );
   }
 
-  setActive(orgId: string, vehiculoId: string, value: boolean): Observable<{ vehicle: VehicleEntity | undefined; message?: string }> {
+  // Endpoint dedicado para cambiar el estado de bloqueo
+  setBloqueado(orgId: string, vehiculoId: string, value: boolean): Observable<{ vehicle?: VehiculoDto; message?: string }> {
+    const url = `${this.base}/orgs/${orgId}/vehiculos/${vehiculoId}/bloqueado`;
+    return this.http.patch<any>(url, null, { headers: this.accept, params: { value } as any, responseType: 'text' as 'json' }).pipe(
+      map((payload: any) => this.toApiResponse(payload)),
+      map((resp) => {
+        const d = this.unwrap<any>(resp);
+        const v = d ? this.ensureVehicle(d) : undefined;
+        return { vehicle: v, message: (resp as any)?.message };
+      }),
+      catchError((err) => throwError(() => ({ error: { message: (err?.error?.message ?? (typeof err?.error === 'string' ? err.error : null) ?? err?.message ?? 'No se pudo cambiar el bloqueo del vehículo') }, status: err?.status })))
+    );
+  }
+
+  setActive(orgId: string, vehiculoId: string, value: boolean): Observable<{ vehicle: VehiculoDto | undefined; message?: string }> {
     const url = `${this.base}/orgs/${orgId}/vehiculos/${vehiculoId}/estado`;
     return this.http.patch<any>(url, null, { headers: this.accept, params: { value } as any, responseType: 'text' as 'json' }).pipe(
       map((payload: any) => this.toApiResponse(payload)),
@@ -223,7 +249,7 @@ export class VehiculosService {
     );
   }
 
-  assignSection(orgId: string, vehiculoId: string, seccionId: string | null): Observable<{ vehicle: VehicleEntity; message?: string }> {
+  assignSection(orgId: string, vehiculoId: string, seccionId: string | null): Observable<{ vehicle: VehiculoDto; message?: string }> {
     const url = `${this.base}/orgs/${orgId}/vehiculos/${vehiculoId}/seccion`;
     const params: any = {};
     if (seccionId != null) params.seccionId = seccionId;

@@ -12,6 +12,17 @@
         <p-tag [severity]="v.activo ? 'success' : 'warn'" [value]="v.activo ? 'ACTIVO' : 'INACTIVO'"></p-tag>
         <button pButton type="button" class="p-button-text" [label]="v.activo ? 'Desactivar' : 'Activar'" (click)="toggleActivo()" [disabled]="saving"></button>
       </div>
+      <div class="row" *ngIf="showBloqueado">
+        <label>Bloqueado</label>
+        <p-inputSwitch
+          [(ngModel)]="bloqueadoUI"
+          (ngModelChange)="toggleBloqueado($event)"
+          [disabled]="blockedSaving"
+          [ngModelOptions]="{standalone: true}"
+          [pTooltip]="capabilitiesMsg || 'Puede cambiar el bloqueo'"
+          [tooltipDisabled]="false"
+          tooltipPosition="top"></p-inputSwitch>
+      </div>
       <div class="row">
         <label>Sección</label>
         <span>{{ seccionNombre || '—' }}</span>

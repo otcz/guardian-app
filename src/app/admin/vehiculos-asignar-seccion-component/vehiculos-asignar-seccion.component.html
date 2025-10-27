@@ -5,12 +5,19 @@
   <ng-container *ngIf="!loading && selectionMode">
     <div class="form-grid">
       <div class="form-row">
+        <label for="filtroSeccion">Sección</label>
+        <p-dropdown id="filtroSeccion" [options]="secciones" optionLabel="nombre" optionValue="id"
+                    [(ngModel)]="selectedSeccionFiltroId" (ngModelChange)="onFiltrosChange()"
+                    [showClear]="true" placeholder="Seleccione sección"></p-dropdown>
+      </div>
+      <div class="form-row">
         <label for="filtroPlaca">Buscar por placa o sección</label>
         <input id="filtroPlaca" type="text" pInputText [(ngModel)]="filterPlaca" placeholder="Placa o sección" />
       </div>
 
       <p-table [value]="vehicles | slice:0" [paginator]="true" [rows]="10" [rowsPerPageOptions]="[10,20,50]"
-               [tableStyle]="{ 'min-width': '50rem' }">
+               [tableStyle]="{ 'min-width': '50rem' }" [showCurrentPageReport]="true"
+               [currentPageReportTemplate]="pageReportTemplate">
         <ng-template pTemplate="header">
           <tr>
             <th>Placa</th>
@@ -30,6 +37,13 @@
             <td>{{ getSeccionNombre(row.seccionAsignadaId) }}</td>
             <td>
               <button pButton type="button" label="Seleccionar" (click)="seleccionar(row)"></button>
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="4">
+              {{ selectedSeccionFiltroId ? 'No hay vehículos en esta sección con los filtros actuales' : 'Seleccione una sección para ver vehículos' }}
             </td>
           </tr>
         </ng-template>

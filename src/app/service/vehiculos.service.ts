@@ -112,7 +112,7 @@ export class VehiculosService {
     } as VehiculoDto;
   }
 
-  list(orgId: string, params?: { seccionId?: string | null; soloInactivos?: boolean; soloMios?: boolean }): Observable<VehiculoDto[]> {
+  list(orgId: string, params?: { seccionId?: string | null; soloInactivos?: boolean; soloMios?: boolean; subtree?: boolean }): Observable<VehiculoDto[]> {
     const path = `/orgs/${orgId}/vehiculos`;
     const url = `${this.base}${path}`;
     const urlFallback = `${environment.backendHost}${this.base}${path}`;
@@ -120,6 +120,7 @@ export class VehiculosService {
     if (params?.seccionId) httpParams.seccionId = params.seccionId;
     if (params?.soloInactivos != null) httpParams.soloInactivos = params.soloInactivos;
     if (params?.soloMios != null) httpParams.soloMios = params.soloMios;
+    if (params?.subtree != null) httpParams.subtree = params.subtree;
 
     const mapResp = (resp: ApiResponse<any>) => {
       if (resp && resp.success === false) throw { error: { message: resp?.message || 'No se pudieron listar vehículos' }, status: 400 };

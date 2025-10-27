@@ -11,6 +11,7 @@
           <p-chip icon="pi pi-id-card" [label]="selectedUser.username || '-'" class="pill"></p-chip>
           <p-chip *ngIf="selectedUser.nombreCompleto" icon="pi pi-user" [label]="selectedUser.nombreCompleto || ''" class="pill"></p-chip>
           <p-chip *ngIf="selectedUser.email" icon="pi pi-envelope" [label]="selectedUser.email || ''" class="pill"></p-chip>
+          <p-chip icon="pi pi-sitemap" [label]="'Sección: ' + getSeccionNombre(selectedUser.seccionPrincipalId)" class="pill"></p-chip>
         </div>
       </div>
       <div class="actions-toolbar">
@@ -29,7 +30,12 @@
 
       <div class="field">
         <label>Usuario</label>
-        <p-dropdown [options]="usuarios" optionLabel="username" optionValue="id" [(ngModel)]="usuarioId" name="usuarioId" placeholder="Seleccione usuario"></p-dropdown>
+        <p-dropdown [options]="usuarios" optionLabel="username" optionValue="id" [(ngModel)]="usuarioId" (ngModelChange)="onUserChange($event)" name="usuarioId" placeholder="Seleccione usuario"></p-dropdown>
+      </div>
+
+      <div class="field" *ngIf="selectedUser">
+        <label>Sección actual</label>
+        <div>{{ getSeccionNombre(selectedUser.seccionPrincipalId) }}</div>
       </div>
 
       <div class="field">

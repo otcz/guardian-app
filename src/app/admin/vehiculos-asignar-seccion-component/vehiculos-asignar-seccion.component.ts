@@ -9,6 +9,8 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { TagModule } from 'primeng/tag';
 import { TableModule } from 'primeng/table';
 import { InputTextModule } from 'primeng/inputtext';
+import { InputSwitchModule } from 'primeng/inputswitch';
+import { CheckboxModule } from 'primeng/checkbox';
 import { OrgContextService } from '../../service/org-context.service';
 import { SeccionService, SeccionEntity } from '../../service/seccion.service';
 import { VehiculosService, VehicleEntity } from '../../service/vehiculos.service';
@@ -17,7 +19,7 @@ import { NotificationService } from '../../service/notification.service';
 @Component({
   selector: 'app-vehiculos-asignar-seccion',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, CardModule, DropdownModule, ButtonModule, ProgressSpinnerModule, TagModule, TableModule, InputTextModule],
+  imports: [CommonModule, FormsModule, RouterModule, CardModule, DropdownModule, ButtonModule, ProgressSpinnerModule, TagModule, TableModule, InputTextModule, InputSwitchModule, CheckboxModule],
   templateUrl: './vehiculos-asignar-seccion.component.html',
   styleUrls: ['./vehiculos-asignar-seccion.component.scss']
 })
@@ -36,6 +38,11 @@ export class VehiculosAsignarSeccionComponent implements OnInit {
   secciones: SeccionEntity[] = [];
   entity: VehicleEntity | null = null;
   selectedSeccionId: string | null = null;
+  // Filtros de listado
+  selectedSeccionFiltroId: string | null = null;
+  includeSubtree = false;
+  soloMios = true; // siempre listar solo mis vehículos
+  pageReportTemplate = 'Mostrando {first} a {last} de {totalRecords} vehículos';
   // Índice para resolver nombre por id
   private seccionIndex: Record<string, string> = {};
 
@@ -89,12 +96,19 @@ export class VehiculosAsignarSeccionComponent implements OnInit {
 
   private loadVehicles() {
     if (!this.orgId) return;
+    if (!this.selectedSeccionFiltroId) { this.vehicles = []; return; }
     this.loading = true;
-    this.vehiculos.list(this.orgId).subscribe({
+    this.vehiculos.list(this.orgId, { seccionId: this.selectedSeccionFiltroId, subtree: this.includeSubtree, soloMios: this.soloMios }).subscribe({
       next: (arr) => { this.vehicles = arr; this.loading = false; },
-      error: (e) => { this.loading = false; this.notify.error('Error', e?.error?.message || 'No se pudieron cargar vehículos'); }
+      error: (e) => {
+        this.loading = false;
+        if (e?.status === 403) { this.vehicles = []; this.notify.warn('No autorizado', e?.error?.message || 'No autorizado para ver vehículos de esta sección'); }
+        else this.notify.error('Error', e?.error?.message || 'No se pudieron cargar vehículos');
+      }
     });
   }
+
+  onFiltrosChange() { this.loadVehicles(); }
 
   private loadEntity() {
     if (!this.orgId || !this.vehiculoId) return;

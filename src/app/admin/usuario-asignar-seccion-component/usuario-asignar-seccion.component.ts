@@ -31,6 +31,8 @@ export class UsuarioAsignarSeccionComponent implements OnInit {
   usuarioId: string | null = null;
   seccionId: string | null = null;
   saving = false;
+  // Índice id -> nombre de sección para mostrar nombres en UI
+  private seccionIndex: Record<string, string> = {};
 
   // Organizaciones disponibles para asignar administrador (destino)
   orgs: Organization[] = [];
@@ -90,10 +92,23 @@ export class UsuarioAsignarSeccionComponent implements OnInit {
 
   load() {
     if (!this.orgId) return;
-    this.users.list(this.orgId).subscribe({ next: list => { this.usuarios = list; }, error: e => this.notify.error('Error', e?.error?.message || 'No se pudieron listar usuarios') });
-    this.seccionesSrv.list(this.orgId).subscribe({ next: list => this.secciones = list, error: e => this.notify.error('Error', e?.error?.message || 'No se pudieron listar secciones') });
+    this.users.list(this.orgId).subscribe({ next: list => {
+      this.usuarios = list;
+      // Si ya hay un usuario seleccionado (por query param), preseleccionar su sección actual
+      if (this.usuarioId) {
+        const u = this.usuarios.find(us => String(us.id) === String(this.usuarioId));
+        this.seccionId = u?.seccionPrincipalId ?? null;
+      }
+    }, error: e => this.notify.error('Error', e?.error?.message || 'No se pudieron listar usuarios') });
+    this.seccionesSrv.list(this.orgId).subscribe({ next: list => { this.secciones = list; this.seccionIndex = Object.fromEntries((list || []).map(s => [s.id, s.nombre || s.id])); }, error: e => this.notify.error('Error', e?.error?.message || 'No se pudieron listar secciones') });
     // cargar organizaciones para selección de admin destino
     this.orgService.list().subscribe({ next: list => this.orgs = list, error: e => this.notify.error('Error', e?.error?.message || 'No se pudieron listar organizaciones') });
+  }
+
+  // Helper para obtener el nombre de la sección por id
+  getSeccionNombre(id?: string | null): string {
+    if (!id) return '—';
+    return this.seccionIndex[id] || id;
   }
 
   assign() {
@@ -104,6 +119,13 @@ export class UsuarioAsignarSeccionComponent implements OnInit {
       error: e => { this.saving = false; this.notify.error('Error', e?.error?.message || 'No se pudo asignar la sección'); }
     });
   }
+  onUserChange(id: string) {
+    this.usuarioId = id;
+    // Preseleccionar la sección actual del usuario (si existe)
+    const user = this.selectedUser;
+    this.seccionId = user?.seccionPrincipalId ?? null;
+  }
+
 
   // Asignar como Administrador de la Organización seleccionada (requiere SYSADMIN)
   assignAsOrgAdmin() {

@@ -7,6 +7,8 @@ import { DropdownModule } from 'primeng/dropdown';
 import { ButtonModule } from 'primeng/button';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { TagModule } from 'primeng/tag';
+import { TableModule } from 'primeng/table';
+import { InputTextModule } from 'primeng/inputtext';
 import { OrgContextService } from '../../service/org-context.service';
 import { SeccionService, SeccionEntity } from '../../service/seccion.service';
 import { VehiculosService, VehicleEntity } from '../../service/vehiculos.service';
@@ -15,7 +17,7 @@ import { NotificationService } from '../../service/notification.service';
 @Component({
   selector: 'app-vehiculos-asignar-seccion',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, CardModule, DropdownModule, ButtonModule, ProgressSpinnerModule, TagModule],
+  imports: [CommonModule, FormsModule, RouterModule, CardModule, DropdownModule, ButtonModule, ProgressSpinnerModule, TagModule, TableModule, InputTextModule],
   templateUrl: './vehiculos-asignar-seccion.component.html',
   styleUrls: ['./vehiculos-asignar-seccion.component.scss']
 })
@@ -26,9 +28,16 @@ export class VehiculosAsignarSeccionComponent implements OnInit {
   saving = false;
   forbidden = false;
 
+  // Modo selección
+  selectionMode = false;
+  vehicles: VehicleEntity[] = [];
+  filterPlaca = '';
+
   secciones: SeccionEntity[] = [];
   entity: VehicleEntity | null = null;
   selectedSeccionId: string | null = null;
+  // Índice para resolver nombre por id
+  private seccionIndex: Record<string, string> = {};
 
   constructor(
     private route: ActivatedRoute,
@@ -47,29 +56,57 @@ export class VehiculosAsignarSeccionComponent implements OnInit {
       return;
     }
     this.vehiculoId = String(this.route.snapshot.queryParamMap.get('id') || '');
+    // Cargar secciones para usar en ambos modos
+    this.loadSecciones();
+
     if (!this.vehiculoId) {
-      this.notify.warn('Atención', 'Falta el parámetro id del vehículo');
-      this.router.navigate(['/gestion-de-vehiculos/mis-vehiculos']);
+      // Sin id → modo selección
+      this.selectionMode = true;
+      this.loadVehicles();
       return;
     }
-    this.load();
+    // Con id → flujo existente
+    this.loadEntity();
   }
 
-  load() {
+  private loadSecciones() {
+    if (!this.orgId) return;
+    this.seccionesService.list(this.orgId).subscribe({
+      next: (secs) => {
+        this.secciones = secs;
+        // Construir índice id -> nombre para mostrar nombres en UI
+        this.seccionIndex = Object.fromEntries((secs || []).map(s => [s.id, s.nombre || s.id]));
+      },
+      error: (e) => { this.notify.warn('Secciones', e?.error?.message || 'No se pudieron cargar secciones'); }
+    });
+  }
+
+  // Helper para mostrar nombre de sección
+  getSeccionNombre(id: string | null | undefined): string {
+    if (!id) return '—';
+    return this.seccionIndex[id] || id;
+  }
+
+  private loadVehicles() {
+    if (!this.orgId) return;
+    this.loading = true;
+    this.vehiculos.list(this.orgId).subscribe({
+      next: (arr) => { this.vehicles = arr; this.loading = false; },
+      error: (e) => { this.loading = false; this.notify.error('Error', e?.error?.message || 'No se pudieron cargar vehículos'); }
+    });
+  }
+
+  private loadEntity() {
     if (!this.orgId || !this.vehiculoId) return;
     this.loading = true;
-    this.seccionesService.list(this.orgId).subscribe({
-      next: (secs) => { console.log('[VehiculosAsignarSeccionComponent] GET /secciones respuesta:', secs); this.secciones = secs; },
-      error: (e) => { console.error('[VehiculosAsignarSeccionComponent] GET /secciones error:', e?.status, e?.error || e); this.notify.error('Error', e?.error?.message || 'No se pudieron cargar secciones'); }
-    });
     this.vehiculos.get(this.orgId, this.vehiculoId).subscribe({
-      next: (v) => { console.log('[VehiculosAsignarSeccionComponent] GET /vehiculos/{id} respuesta:', v); this.entity = v; this.selectedSeccionId = v.seccionAsignadaId || null; this.loading = false; this.forbidden = false; },
+      next: (v) => { this.entity = v; this.selectedSeccionId = v.seccionAsignadaId || null; this.loading = false; this.forbidden = false; },
       error: (e) => {
-        console.error('[VehiculosAsignarSeccionComponent] GET /vehiculos/{id} error:', e?.status, e?.error || e);
         this.loading = false;
         if (e?.status === 404) {
           this.notify.warn('Aviso', 'El vehículo no existe');
-          this.router.navigate(['/gestion-de-vehiculos/mis-vehiculos']);
+          // En modo id inválido, regresar al selector
+          this.selectionMode = true; this.vehiculoId = null; this.loadVehicles();
         } else if (e?.status === 403) {
           this.forbidden = true;
           this.notify.warn('Sin permisos', e?.error?.message || 'No tiene permisos para ver este vehículo');
@@ -80,14 +117,20 @@ export class VehiculosAsignarSeccionComponent implements OnInit {
     });
   }
 
+  seleccionar(v: VehicleEntity) {
+    this.entity = v;
+    this.vehiculoId = v.id;
+    this.selectedSeccionId = v.seccionAsignadaId || null;
+    this.selectionMode = false;
+  }
+
   asignar() {
     if (this.forbidden) { this.notify.warn('Sin permisos', 'No puede reasignar sección'); return; }
-    if (!this.orgId || !this.vehiculoId) return;
+    if (!this.orgId || !this.vehiculoId) { this.notify.warn('Aviso', 'Seleccione un vehículo primero'); return; }
     this.saving = true;
     this.vehiculos.assignSection(this.orgId, this.vehiculoId, this.selectedSeccionId || null).subscribe({
-      next: (res) => { console.log('[VehiculosAsignarSeccionComponent] PATCH /vehiculos/{id}/seccion respuesta:', res); this.saving = false; this.entity = res.vehicle; this.notify.success('Éxito', res.message || 'Sección asignada'); this.volver(); },
+      next: (res) => { this.saving = false; this.entity = res.vehicle; this.notify.success('Éxito', res.message || 'Sección asignada'); this.volver(); },
       error: (e) => {
-        console.error('[VehiculosAsignarSeccionComponent] PATCH /vehiculos/{id}/seccion error:', e?.status, e?.error || e);
         this.saving = false;
         if (e?.status === 404) {
           this.notify.warn('Aviso', e?.error?.message || 'No encontrado');
@@ -102,9 +145,14 @@ export class VehiculosAsignarSeccionComponent implements OnInit {
     });
   }
 
-  limpiar() {
-    this.selectedSeccionId = null;
-  }
+  limpiar() { this.selectedSeccionId = null; }
 
-  volver() { this.router.navigate(['/gestion-de-vehiculos/gestionar-vehiculo'], { queryParams: { id: this.vehiculoId } }); }
+  volver() {
+    // Si venimos desde selección, volver al selector; si no, volver a gestionar el vehículo
+    if (this.route.snapshot.queryParamMap.get('from') === 'gestionar' || !this.selectionMode && this.route.snapshot.queryParamMap.has('id')) {
+      this.router.navigate(['/gestion-de-vehiculos/gestionar-vehiculo'], { queryParams: { id: this.vehiculoId } });
+    } else {
+      this.selectionMode = true; this.entity = null; this.vehiculoId = null; this.loadVehicles();
+    }
+  }
 }

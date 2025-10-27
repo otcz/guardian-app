@@ -1,7 +1,40 @@
 <p-card header="Asignar vehículo a sección" styleClass="mb-3">
   <div *ngIf="loading" class="loading"><p-progressSpinner></p-progressSpinner></div>
 
-  <ng-container *ngIf="!loading && entity as v">
+  <!-- Modo selección: no hay id, mostrar listado para elegir vehículo -->
+  <ng-container *ngIf="!loading && selectionMode">
+    <div class="form-grid">
+      <div class="form-row">
+        <label for="filtroPlaca">Buscar por placa</label>
+        <input id="filtroPlaca" type="text" pInputText [(ngModel)]="filterPlaca" placeholder="ABC123" />
+      </div>
+
+      <p-table [value]="vehicles | slice:0" [paginator]="true" [rows]="10" [rowsPerPageOptions]="[10,20,50]"
+               [tableStyle]="{ 'min-width': '50rem' }">
+        <ng-template pTemplate="header">
+          <tr>
+            <th>Placa</th>
+            <th>Estado</th>
+            <th>Sección</th>
+            <th style="width: 1%"></th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-row>
+          <tr *ngIf="!filterPlaca || (row.placa || '').toUpperCase().includes(filterPlaca.toUpperCase().trim())">
+            <td>{{ row.placa }}</td>
+            <td><p-tag [severity]="row.activo ? 'success' : 'warn'" [value]="row.activo ? 'ACTIVO' : 'INACTIVO'"></p-tag></td>
+            <td>{{ getSeccionNombre(row.seccionAsignadaId) }}</td>
+            <td>
+              <button pButton type="button" label="Seleccionar" (click)="seleccionar(row)"></button>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </ng-container>
+
+  <!-- Modo asignación directa: hay entidad seleccionada -->
+  <ng-container *ngIf="!loading && !selectionMode && entity as v">
     <div class="summary">
       <div class="row">
         <label>Vehículo</label>
@@ -9,7 +42,7 @@
       </div>
       <div class="row">
         <label>Sección actual</label>
-        <span>{{ v.seccionAsignadaId || '—' }}</span>
+        <span>{{ getSeccionNombre(v.seccionAsignadaId) }}</span>
       </div>
     </div>
 

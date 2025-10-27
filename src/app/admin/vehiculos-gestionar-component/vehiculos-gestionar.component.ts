@@ -214,7 +214,7 @@ export class VehiculosGestionarComponent implements OnInit {
   irAsignar() {
     if (this.forbidden) { this.notify.warn('Sin permisos', 'No puede reasignar sección'); return; }
     if (!this.entity) return;
-    this.router.navigate(['/gestion-de-vehiculos/asignar-vehiculo-a-seccion'], { queryParams: { id: this.entity.id } });
+    this.router.navigate(['/gestion-de-vehiculos/asignar-vehiculo-a-seccion'], { queryParams: { id: this.entity.id, from: 'gestionar' } });
   }
 
   volver() { this.router.navigate(['/gestion-de-vehiculos/mis-vehiculos']); }

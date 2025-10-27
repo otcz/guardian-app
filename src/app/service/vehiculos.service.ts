@@ -21,6 +21,8 @@ export interface VehicleEntity {
   linea?: string | null;
   anio?: number | null;
   color?: string | null;
+  // Estado de bloqueo (solo lectura en UI)
+  bloqueado?: boolean | null;
 }
 
 export interface CreateVehicleRequest {
@@ -106,7 +108,9 @@ export class VehiculosService {
       modelo: d?.modelo != null ? String(d?.modelo) : null,
       linea: d?.linea != null ? String(d?.linea) : null,
       anio: d?.anio != null ? Number(d?.anio) : null,
-      color: d?.color != null ? String(d?.color) : null
+      color: d?.color != null ? String(d?.color) : null,
+      // Estado de bloqueo
+      bloqueado: (d?.bloqueado != null ? !!d?.bloqueado : (d?.locked != null ? !!d?.locked : null))
     } as VehicleEntity;
   }
 

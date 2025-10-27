@@ -7,20 +7,34 @@
   <p-table [value]="items" [loading]="loading" dataKey="id" [rows]="10" [paginator]="true" [rowsPerPageOptions]="[10,20,50]">
     <ng-template pTemplate="header">
       <tr>
-        <th>Placa</th>
-        <th>Estado</th>
-        <th>Acciones</th>
+        <th style="width: 12rem">Placa</th>
+        <th style="width: 12rem">Estado</th>
+        <th>Sección</th>
+        <th style="width: 10rem">Bloqueado</th>
+        <th style="width: 10rem">Acciones</th>
       </tr>
     </ng-template>
     <ng-template pTemplate="body" let-row>
       <tr>
         <td>{{ row.placa }}</td>
         <td>
-          <p-tag [severity]="row.activo ? 'success' : 'warn'" [value]="row.activo ? 'ACTIVO' : 'INACTIVO'"></p-tag>
+          <div class="estado">
+            <p-inputSwitch [(ngModel)]="row.activo"
+                           (onChange)="toggle(row, $event.checked)"
+                           [disabled]="savingId === row.id"
+                           [ngModelOptions]="{standalone: true}"></p-inputSwitch>
+          </div>
         </td>
+        <td>{{ seccionNombre(row.seccionAsignadaId) }}</td>
         <td>
-          <p-toggleButton [onLabel]="'Activo'" [offLabel]="'Inactivo'" [onIcon]="'pi pi-check'" [offIcon]="'pi pi-times'"
-                          [(ngModel)]="row.activo" (ngModelChange)="toggle(row, $event)" [disabled]="savingId === row.id"></p-toggleButton>
+          <p-tag [severity]="row.bloqueado ? 'danger' : 'success'"
+                 [value]="row.bloqueado ? 'BLOQUEADO' : 'LIBRE'"></p-tag>
+        </td>
+        <td class="actions">
+          <button pButton type="button" class="p-button-text" icon="pi pi-pencil" (click)="gestionar(row)"
+                  pTooltip="Gestionar" tooltipPosition="top" aria-label="Gestionar"></button>
+          <button pButton type="button" class="p-button-text" icon="pi pi-sitemap" (click)="asignar(row)"
+                  pTooltip="Asignar sección" tooltipPosition="top" aria-label="Asignar sección"></button>
         </td>
       </tr>
     </ng-template>

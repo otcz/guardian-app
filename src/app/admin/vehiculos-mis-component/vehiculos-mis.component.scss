@@ -1,3 +1,5 @@
 .actions { display: flex; gap: .5rem; align-items: center; }
 :host ::ng-deep .p-table { font-size: 14px; }
 
+/* Nota: no anular bordes en td.actions para conservar la línea continua del tbody */
+

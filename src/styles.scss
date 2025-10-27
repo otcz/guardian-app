@@ -1353,16 +1353,47 @@ body .p-tag.p-tag-contrast .p-tag-icon { color: inherit !important; }
   }
 }
 
-/* ===== Refuerzo FINAL: cuerpo de tabla (.p-datatable-tbody) por tema ===== */
+/* ===== Override FINAL y altamente específico para cuerpo de tablas (corrige fondo negro en light) ===== */
+:root.theme-light body .p-datatable,
+:root.theme-light body .p-datatable .p-datatable-wrapper,
+:root.theme-light body .p-datatable .p-datatable-wrapper table,
+:root.theme-light body .p-datatable .p-datatable-wrapper table > tbody,
 :root.theme-light body .p-datatable .p-datatable-tbody,
-:root.theme-light body .p-table .p-datatable-tbody {
+:root.theme-light body .p-datatable .p-datatable-tbody > tr,
+:root.theme-light body .p-datatable .p-datatable-tbody > tr > td {
   background: #ffffff !important;
+  background-color: #ffffff !important;
   color: #000000 !important;
 }
+
+:root.theme-dark body .p-datatable,
+:root.theme-black body .p-datatable,
+:root.theme-dark body .p-datatable .p-datatable-wrapper,
+:root.theme-black body .p-datatable .p-datatable-wrapper,
+:root.theme-dark body .p-datatable .p-datatable-wrapper table,
+:root.theme-black body .p-datatable .p-datatable-wrapper table,
+:root.theme-dark body .p-datatable .p-datatable-wrapper table > tbody,
+:root.theme-black body .p-datatable .p-datatable-wrapper table > tbody,
 :root.theme-dark body .p-datatable .p-datatable-tbody,
 :root.theme-black body .p-datatable .p-datatable-tbody,
-:root.theme-dark body .p-table .p-datatable-tbody,
-:root.theme-black body .p-table .p-datatable-tbody {
+:root.theme-dark body .p-datatable .p-datatable-tbody > tr,
+:root.theme-black body .p-datatable .p-datatable-tbody > tr,
+:root.theme-dark body .p-datatable .p-datatable-tbody > tr > td,
+:root.theme-black body .p-datatable .p-datatable-tbody > tr > td {
   background: var(--surface-alt) !important;
+  background-color: var(--surface-alt) !important;
   color: #ffffff !important;
 }
+
+/* Paginator dentro de DataTable: sin borde superior para evitar doble línea bajo la tabla */
+:root.theme-light body .p-datatable .p-paginator,
+:root.theme-light body .p-table .p-paginator {
+  border-top: none !important;
+}
+:root.theme-dark body .p-datatable .p-paginator,
+:root.theme-black body .p-datatable .p-paginator,
+:root.theme-dark body .p-table .p-paginator,
+:root.theme-black body .p-table .p-paginator {
+  border-top: none !important;
+}
+

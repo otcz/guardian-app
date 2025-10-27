@@ -4,8 +4,8 @@
   <ng-container *ngIf="!loading && entity as v">
     <div class="summary">
       <div class="row">
-        <label>ID</label>
-        <span>{{ v.id }}</span>
+        <label>Placa</label>
+        <span><b>{{ v.placa }}</b></span>
       </div>
       <div class="row">
         <label>Estado</label>
@@ -13,9 +13,20 @@
         <button pButton type="button" class="p-button-text" [label]="v.activo ? 'Desactivar' : 'Activar'" (click)="toggleActivo()" [disabled]="saving"></button>
       </div>
       <div class="row">
-        <label>Sección asignada</label>
-        <span>{{ v.seccionAsignadaId || '—' }}</span>
+        <label>Sección</label>
+        <span>{{ seccionNombre || '—' }}</span>
         <button pButton type="button" class="p-button-text" label="Cambiar" (click)="irAsignar()" [disabled]="saving"></button>
+      </div>
+      <div class="row wrap">
+        <label>Ficha</label>
+        <div class="chips">
+          <p-tag *ngIf="v.marca" value="Marca: {{ v.marca }}" styleClass="p-tag-contrast"></p-tag>
+          <p-tag *ngIf="v.modelo" value="Modelo: {{ v.modelo }}" styleClass="p-tag-contrast"></p-tag>
+          <p-tag *ngIf="v.linea" value="Línea: {{ v.linea }}" styleClass="p-tag-contrast"></p-tag>
+          <p-tag *ngIf="v.anio" value="Año: {{ v.anio }}" styleClass="p-tag-contrast"></p-tag>
+          <p-tag *ngIf="v.color" value="Color: {{ v.color }}" styleClass="p-tag-contrast"></p-tag>
+          <span *ngIf="!v.marca && !v.modelo && !v.linea && !v.anio && !v.color" class="muted">Sin datos adicionales</span>
+        </div>
       </div>
     </div>
 

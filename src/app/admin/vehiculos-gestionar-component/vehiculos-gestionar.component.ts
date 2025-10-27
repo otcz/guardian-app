@@ -11,6 +11,7 @@ import { UppercaseDirective } from '../../shared/formatting.directives';
 import { OrgContextService } from '../../service/org-context.service';
 import { VehiculosService, VehicleEntity } from '../../service/vehiculos.service';
 import { NotificationService } from '../../service/notification.service';
+import { SeccionService } from '../../service/seccion.service';
 
 @Component({
   selector: 'app-vehiculos-gestionar',
@@ -26,6 +27,7 @@ export class VehiculosGestionarComponent implements OnInit {
   saving = false;
   entity: VehicleEntity | null = null;
   forbidden = false;
+  seccionNombre: string | null = null;
 
   model = { placa: '', marca: '', modelo: '', linea: '', anio: null as number | null, color: '' };
 
@@ -34,7 +36,8 @@ export class VehiculosGestionarComponent implements OnInit {
     private orgCtx: OrgContextService,
     private vehiculos: VehiculosService,
     private notify: NotificationService,
-    private router: Router
+    private router: Router,
+    private secciones: SeccionService
   ) {}
 
   ngOnInit(): void {
@@ -53,6 +56,17 @@ export class VehiculosGestionarComponent implements OnInit {
     this.load();
   }
 
+  private cargarSeccionNombre(seccionId: string | null | undefined) {
+    if (!this.orgId || !seccionId) { this.seccionNombre = null; return; }
+    this.secciones.list(this.orgId).subscribe({
+      next: (arr) => {
+        const sec = arr.find(s => s.id === seccionId);
+        this.seccionNombre = sec?.nombre ?? seccionId;
+      },
+      error: () => { this.seccionNombre = seccionId; }
+    });
+  }
+
   load() {
     if (!this.orgId || !this.vehiculoId) return;
     this.loading = true;
@@ -66,6 +80,7 @@ export class VehiculosGestionarComponent implements OnInit {
         this.model.linea = v.linea || '';
         this.model.anio = v.anio ?? null;
         this.model.color = v.color || '';
+        this.cargarSeccionNombre(v.seccionAsignadaId);
         this.loading = false;
         this.forbidden = false;
       },

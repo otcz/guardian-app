@@ -6,22 +6,34 @@
   <p-table [value]="items" [loading]="loading" dataKey="id" [rows]="10" [paginator]="true" [rowsPerPageOptions]="[10,20,50]">
     <ng-template pTemplate="header">
       <tr>
-        <th style="width: 16rem">Placa</th>
+        <th style="width: 14rem">Placa</th>
         <th style="width: 12rem">Estado</th>
         <th>Sección</th>
-        <th style="width: 18rem">Acciones</th>
+        <th style="width: 10rem">Bloqueado</th>
+        <th style="width: 10rem">Acciones</th>
       </tr>
     </ng-template>
     <ng-template pTemplate="body" let-row>
       <tr>
         <td>{{ row.placa }}</td>
         <td>
-          <p-tag [severity]="row.activo ? 'success' : 'warn'" [value]="row.activo ? 'ACTIVO' : 'INACTIVO'"></p-tag>
+          <p-inputSwitch [(ngModel)]="row.activo"
+                         (onChange)="toggle(row, $event.checked)"
+                         [disabled]="savingId === row.id"
+                         [ngModelOptions]="{standalone: true}"></p-inputSwitch>
         </td>
-        <td>{{ row.seccionAsignadaId || '—' }}</td>
-        <td class="actions">
-          <button pButton label="Gestionar" icon="pi pi-pencil" class="p-button-text" (click)="gestionar(row)"></button>
-          <button pButton label="Asignar sección" icon="pi pi-sitemap" class="p-button-text" (click)="asignar(row)"></button>
+        <td>{{ seccionNombre(row.seccionAsignadaId) }}</td>
+        <td>
+          <p-tag [severity]="row.bloqueado ? 'danger' : 'success'"
+                 [value]="row.bloqueado ? 'BLOQUEADO' : 'LIBRE'"></p-tag>
+        </td>
+        <td>
+          <div class="actions">
+            <button pButton type="button" class="p-button-text" icon="pi pi-pencil" (click)="gestionar(row)"
+                    pTooltip="Gestionar" tooltipPosition="top" aria-label="Gestionar"></button>
+            <button pButton type="button" class="p-button-text" icon="pi pi-sitemap" (click)="asignar(row)"
+                    pTooltip="Asignar sección" tooltipPosition="top" aria-label="Asignar sección"></button>
+          </div>
         </td>
       </tr>
     </ng-template>

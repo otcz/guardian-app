@@ -17,7 +17,7 @@
         <p-inputSwitch
           [(ngModel)]="bloqueadoUI"
           (ngModelChange)="toggleBloqueado($event)"
-          [disabled]="blockedSaving"
+          [disabled]="blockedSaving || !canUpdateBloqueado"
           [ngModelOptions]="{standalone: true}"
           [pTooltip]="capabilitiesMsg || 'Puede cambiar el bloqueo'"
           [tooltipDisabled]="false"

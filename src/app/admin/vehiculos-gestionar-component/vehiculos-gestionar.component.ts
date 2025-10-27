@@ -14,7 +14,6 @@ import { NotificationService } from '../../service/notification.service';
 import { SeccionService } from '../../service/seccion.service';
 import { InputSwitchModule } from 'primeng/inputswitch';
 import { TooltipModule } from 'primeng/tooltip';
-import { AuthService } from '../../service/auth.service';
 
 @Component({
   selector: 'app-vehiculos-gestionar',
@@ -36,7 +35,7 @@ export class VehiculosGestionarComponent implements OnInit {
   bloqueadoUI = false;
   canUpdateBloqueado = false;
   blockedSaving = false;
-  showBloqueado = false; // visible solo para SYSADMIN/ORGADMIN/ADMIN
+  showBloqueado = true; // visible; el backend decide si se puede editar vía capabilities
   capabilitiesMsg: string | null = null;
 
   model = { placa: '', marca: '', modelo: '', linea: '', anio: null as number | null, color: '' };
@@ -48,13 +47,12 @@ export class VehiculosGestionarComponent implements OnInit {
     private notify: NotificationService,
     private router: Router,
     private secciones: SeccionService,
-    private auth: AuthService
   ) {}
 
   ngOnInit(): void {
     this.orgId = this.orgCtx.value;
-    // Calcular visibilidad del switch por roles permitidos
-    this.showBloqueado = this.auth.hasAnyRole('SYSADMIN', 'ORGADMIN', 'ADMIN');
+    // Visibilidad del switch controlada por backend (capabilities)
+    this.showBloqueado = true;
     if (!this.orgId) {
       this.notify.warn('Atención', 'Seleccione una organización');
       this.router.navigate(['/listar-organizaciones']);
@@ -82,7 +80,6 @@ export class VehiculosGestionarComponent implements OnInit {
 
   private loadCapabilities() {
     if (!this.orgId || !this.vehiculoId) return;
-    if (!this.showBloqueado) { this.canUpdateBloqueado = false; this.capabilitiesMsg = null; return; }
     this.vehiculos.getCapabilities(this.orgId, this.vehiculoId).subscribe({
       next: (caps: VehiculoCapabilities) => {
         this.canUpdateBloqueado = !!caps?.canUpdateBloqueado;
@@ -183,6 +180,7 @@ export class VehiculosGestionarComponent implements OnInit {
 
   toggleBloqueado(newValue: boolean) {
     if (this.forbidden) { this.notify.warn('Sin permisos', 'No puede cambiar el bloqueo'); this.bloqueadoUI = !!this.entity?.bloqueado; return; }
+    if (!this.canUpdateBloqueado) { this.notify.warn('Sin permisos', this.capabilitiesMsg || 'No autorizado para cambiar el bloqueo'); this.bloqueadoUI = !!this.entity?.bloqueado; return; }
     if (!this.orgId || !this.vehiculoId) { this.bloqueadoUI = !!this.entity?.bloqueado; return; }
 
     const prev = !!this.entity?.bloqueado;
@@ -192,11 +190,12 @@ export class VehiculosGestionarComponent implements OnInit {
       next: (res) => {
         this.blockedSaving = false;
         if (res.vehicle) this.entity = res.vehicle;
-        // Confirmar con estado del servidor
+        // Confirmar con estado del servidor o usar el target en su defecto
         this.bloqueadoUI = !!(this.entity?.bloqueado ?? newValue);
         if (res?.message) this.notify.success('Listo', res.message);
       },
       error: (e) => {
+        console.error('[VehiculosGestionarComponent] PATCH /vehiculos/{id}/bloqueado error:', e?.status, e?.error || e);
         this.blockedSaving = false;
         // Revertir toggle
         this.bloqueadoUI = prev;
@@ -212,9 +211,8 @@ export class VehiculosGestionarComponent implements OnInit {
   }
 
   irAsignar() {
-    if (this.forbidden) { this.notify.warn('Sin permisos', 'No puede reasignar sección'); return; }
-    if (!this.entity) return;
-    this.router.navigate(['/gestion-de-vehiculos/asignar-vehiculo-a-seccion'], { queryParams: { id: this.entity.id, from: 'gestionar' } });
+    if (!this.vehiculoId) return;
+    this.router.navigate(['/gestion-de-vehiculos/asignar-vehiculo-a-seccion'], { queryParams: { id: this.vehiculoId, from: 'gestionar' } });
   }
 
   volver() { this.router.navigate(['/gestion-de-vehiculos/mis-vehiculos']); }

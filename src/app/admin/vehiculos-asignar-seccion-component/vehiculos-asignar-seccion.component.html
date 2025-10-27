@@ -5,8 +5,8 @@
   <ng-container *ngIf="!loading && selectionMode">
     <div class="form-grid">
       <div class="form-row">
-        <label for="filtroPlaca">Buscar por placa</label>
-        <input id="filtroPlaca" type="text" pInputText [(ngModel)]="filterPlaca" placeholder="ABC123" />
+        <label for="filtroPlaca">Buscar por placa o sección</label>
+        <input id="filtroPlaca" type="text" pInputText [(ngModel)]="filterPlaca" placeholder="Placa o sección" />
       </div>
 
       <p-table [value]="vehicles | slice:0" [paginator]="true" [rows]="10" [rowsPerPageOptions]="[10,20,50]"
@@ -20,7 +20,11 @@
           </tr>
         </ng-template>
         <ng-template pTemplate="body" let-row>
-          <tr *ngIf="!filterPlaca || (row.placa || '').toUpperCase().includes(filterPlaca.toUpperCase().trim())">
+          <tr *ngIf="
+              !filterPlaca ||
+              (row.placa || '').toUpperCase().includes(filterPlaca.toUpperCase().trim()) ||
+              getSeccionNombre(row.seccionAsignadaId).toUpperCase().includes(filterPlaca.toUpperCase().trim())
+            ">
             <td>{{ row.placa }}</td>
             <td><p-tag [severity]="row.activo ? 'success' : 'warn'" [value]="row.activo ? 'ACTIVO' : 'INACTIVO'"></p-tag></td>
             <td>{{ getSeccionNombre(row.seccionAsignadaId) }}</td>

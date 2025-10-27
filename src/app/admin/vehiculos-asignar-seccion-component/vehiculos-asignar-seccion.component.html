@@ -5,14 +5,13 @@
   <ng-container *ngIf="!loading && selectionMode">
     <div class="form-grid">
       <div class="form-row">
-        <label for="filtroSeccion">Sección</label>
-        <p-dropdown id="filtroSeccion" [options]="secciones" optionLabel="nombre" optionValue="id"
-                    [(ngModel)]="selectedSeccionFiltroId" (ngModelChange)="onFiltrosChange()"
-                    [showClear]="true" placeholder="Seleccione sección"></p-dropdown>
+        <small>
+          {{ selectedSeccionFiltroId ? 'Se listan tus vehículos de tu sección actual.' : 'No se pudo determinar tu sección actual; configura tu sección o contacta al administrador.' }}
+        </small>
       </div>
       <div class="form-row">
-        <label for="filtroPlaca">Buscar por placa o sección</label>
-        <input id="filtroPlaca" type="text" pInputText [(ngModel)]="filterPlaca" placeholder="Placa o sección" />
+        <label for="filtroPlaca">Buscar por placa</label>
+        <input id="filtroPlaca" type="text" pInputText [(ngModel)]="filterPlaca" placeholder="Placa" />
       </div>
 
       <p-table [value]="vehicles | slice:0" [paginator]="true" [rows]="10" [rowsPerPageOptions]="[10,20,50]"
@@ -29,8 +28,7 @@
         <ng-template pTemplate="body" let-row>
           <tr *ngIf="
               !filterPlaca ||
-              (row.placa || '').toUpperCase().includes(filterPlaca.toUpperCase().trim()) ||
-              getSeccionNombre(row.seccionAsignadaId).toUpperCase().includes(filterPlaca.toUpperCase().trim())
+              (row.placa || '').toUpperCase().includes(filterPlaca.toUpperCase().trim())
             ">
             <td>{{ row.placa }}</td>
             <td><p-tag [severity]="row.activo ? 'success' : 'warn'" [value]="row.activo ? 'ACTIVO' : 'INACTIVO'"></p-tag></td>
@@ -43,7 +41,7 @@
         <ng-template pTemplate="emptymessage">
           <tr>
             <td colspan="4">
-              {{ selectedSeccionFiltroId ? 'No hay vehículos en esta sección con los filtros actuales' : 'Seleccione una sección para ver vehículos' }}
+              {{ selectedSeccionFiltroId ? 'No hay vehículos en tu sección con los filtros actuales' : 'No se pudo determinar tu sección actual' }}
             </td>
           </tr>
         </ng-template>

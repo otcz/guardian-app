@@ -69,6 +69,8 @@ export class VehiculosAsignarSeccionComponent implements OnInit {
     if (!this.vehiculoId) {
       // Sin id → modo selección
       this.selectionMode = true;
+      // Fijar por defecto la sección actual del usuario
+      this.selectedSeccionFiltroId = this.orgCtx.seccion || null;
       this.loadVehicles();
       return;
     }
@@ -119,8 +121,8 @@ export class VehiculosAsignarSeccionComponent implements OnInit {
         this.loading = false;
         if (e?.status === 404) {
           this.notify.warn('Aviso', 'El vehículo no existe');
-          // En modo id inválido, regresar al selector
-          this.selectionMode = true; this.vehiculoId = null; this.loadVehicles();
+          // En modo id inválido, regresar al selector con la sección actual
+          this.selectionMode = true; this.vehiculoId = null; this.selectedSeccionFiltroId = this.orgCtx.seccion || null; this.loadVehicles();
         } else if (e?.status === 403) {
           this.forbidden = true;
           this.notify.warn('Sin permisos', e?.error?.message || 'No tiene permisos para ver este vehículo');

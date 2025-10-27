@@ -42,9 +42,14 @@ export class VehiculosMisComponent implements OnInit {
   load() {
     if (!this.orgId) return;
     this.loading = true;
-    this.vehiculos.list(this.orgId, { soloMios: true }).subscribe({
-      next: (list) => { this.items = list; this.loading = false; },
-      error: (e) => { this.loading = false; this.notify.error('Error', e?.error?.message || 'No se pudieron cargar vehículos'); }
+    this.vehiculos.listWithMessage(this.orgId, { soloMios: true }).subscribe({
+      next: (res) => {
+        console.log('[VehiculosMisComponent] GET /vehiculos?soloMios=true respuesta:', res);
+        this.items = res.items;
+        this.loading = false;
+        if (res?.message) this.notify.info('Info', res.message);
+      },
+      error: (e) => { console.error('[VehiculosMisComponent] GET /vehiculos error:', e?.status, e?.error || e); this.loading = false; this.notify.error('Error', e?.error?.message || 'No se pudieron cargar vehículos'); }
     });
   }
 
@@ -56,4 +61,3 @@ export class VehiculosMisComponent implements OnInit {
     this.router.navigate(['/gestion-de-vehiculos/asignar-vehiculo-a-seccion'], { queryParams: { id: v.id } });
   }
 }
-

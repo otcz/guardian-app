@@ -47,8 +47,8 @@ export class VehiculosActivarComponent implements OnInit {
   load() {
     if (!this.orgId) return;
     this.loading = true;
-    this.vehiculos.list(this.orgId, { seccionId: this.seccionId || undefined }).subscribe({
-      next: (list) => { this.items = list; this.loading = false; },
+    this.vehiculos.listWithMessage(this.orgId, { seccionId: this.seccionId || undefined }).subscribe({
+      next: (res) => { this.items = res.items; this.loading = false; if (res?.message) this.notify.info('Info', res.message); },
       error: (e) => { this.loading = false; this.notify.error('Error', e?.error?.message || 'No se pudieron cargar vehículos'); }
     });
   }
@@ -65,6 +65,7 @@ export class VehiculosActivarComponent implements OnInit {
           const idx = this.items.findIndex(i => i.id === res.vehicle!.id);
           if (idx >= 0) this.items[idx] = res.vehicle!;
         }
+        if (res?.message) this.notify.success('Listo', res.message);
       },
       error: (e) => {
         this.savingId = null;

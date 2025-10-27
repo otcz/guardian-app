@@ -1291,3 +1291,78 @@ body .p-tag.p-tag-contrast .p-tag-icon { color: inherit !important; }
 :root.theme-black body .p-table .p-datatable-tbody {
   background: #000000 !important;
 }
+
+/* Ajustes de PrimeNG Select (.p-select) por tema */
+:root.theme-light {
+  .p-select,
+  .p-select .p-select-label,
+  .p-select .p-select-trigger {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+  .p-select-overlay,
+  .p-select-panel {
+    background: #ffffff !important;
+    color: #000000 !important;
+    box-shadow: 0 12px 28px rgba(0,0,0,0.18), 0 6px 12px rgba(79,140,255,0.10);
+    border: none !important;
+  }
+  .p-select-overlay .p-select-option,
+  .p-select-panel .p-select-option {
+    color: #000000 !important;
+  }
+}
+:root.theme-dark, :root.theme-black {
+  .p-select {
+    background: var(--surface) !important;
+    color: #ffffff !important;
+    border: none !important;
+  }
+  .p-select .p-select-label,
+  .p-select .p-select-trigger { color: #ffffff !important; }
+  .p-select-overlay,
+  .p-select-panel {
+    background: var(--surface-alt) !important;
+    color: #ffffff !important;
+    box-shadow: 0 12px 28px rgba(0,0,0,0.35), 0 6px 12px rgba(0,0,0,0.25);
+    border: none !important;
+  }
+  .p-select-overlay .p-select-option,
+  .p-select-panel .p-select-option { color: #ffffff !important; }
+}
+
+/* Ajustes de tablas: cuerpo (.p-datatable-tbody) por tema */
+:root.theme-light {
+  .p-datatable .p-datatable-wrapper table,
+  .p-table .p-datatable-wrapper table { background: var(--surface) !important; }
+  .p-datatable .p-datatable-tbody > tr > td,
+  .p-table .p-datatable-tbody > tr > td {
+    background: var(--surface) !important;
+    color: #000000 !important;
+    border-top: 1px solid var(--border) !important;
+  }
+}
+:root.theme-dark, :root.theme-black {
+  .p-datatable .p-datatable-wrapper table,
+  .p-table .p-datatable-wrapper table { background: var(--surface-alt) !important; }
+  .p-datatable .p-datatable-tbody > tr > td,
+  .p-table .p-datatable-tbody > tr > td {
+    background: var(--surface-alt) !important;
+    color: #ffffff !important;
+    border-top: 1px solid var(--border) !important;
+  }
+}
+
+/* ===== Refuerzo FINAL: cuerpo de tabla (.p-datatable-tbody) por tema ===== */
+:root.theme-light body .p-datatable .p-datatable-tbody,
+:root.theme-light body .p-table .p-datatable-tbody {
+  background: #ffffff !important;
+  color: #000000 !important;
+}
+:root.theme-dark body .p-datatable .p-datatable-tbody,
+:root.theme-black body .p-datatable .p-datatable-tbody,
+:root.theme-dark body .p-table .p-datatable-tbody,
+:root.theme-black body .p-table .p-datatable-tbody {
+  background: var(--surface-alt) !important;
+  color: #ffffff !important;
+}

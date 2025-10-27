@@ -74,25 +74,38 @@ export class VehiculosCrearComponent implements OnInit {
 
     this.saving = true;
     const placa = this.model.placa.trim().toUpperCase();
-    const body: any = {
-      placa,
-      seccionAsignadaId: this.model.seccionAsignadaId || null
-    };
-    if ((this.model.marca || '').trim()) body.marca = String(this.model.marca).trim();
-    if ((this.model.modelo || '').trim()) body.modelo = String(this.model.modelo).trim();
-    if ((this.model.linea || '').trim()) body.linea = String(this.model.linea).trim();
-    if (this.model.anio != null) body.anio = Number(this.model.anio);
-    if ((this.model.color || '').trim()) body.color = String(this.model.color).trim();
+    const body: any = { placa };
+
+    // Incluir opcionales solo si tienen valor
+    const marca = (this.model.marca || '').trim();
+    const modelo = (this.model.modelo || '').trim();
+    const linea = (this.model.linea || '').trim();
+    const color = (this.model.color || '').trim();
+    const anio = this.model.anio != null ? Number(this.model.anio) : undefined;
+    if (marca) body.marca = marca;
+    if (modelo) body.modelo = modelo;
+    if (linea) body.linea = linea;
+    if (!isNaN(anio as any) && anio != null) body.anio = anio;
+    if (color) body.color = color;
+    if (this.model.seccionAsignadaId) body.seccionAsignadaId = this.model.seccionAsignadaId;
+
+    console.log('[VehiculosCrearComponent] POST body:', body);
 
     this.vehiculos.create(this.orgId, body).subscribe({
       next: (res) => {
+        console.log('[VehiculosCrearComponent] POST /vehiculos respuesta:', res);
         this.saving = false;
         this.notify.success('Éxito', res?.message || 'Vehículo creado correctamente');
         this.router.navigate(['/gestion-de-vehiculos/gestionar-vehiculo'], { queryParams: { id: res.vehicle.id } });
       },
       error: (e) => {
+        console.error('[VehiculosCrearComponent] POST /vehiculos error:', e?.status, e?.error || e);
         this.saving = false;
-        this.notify.error('Error', e?.error?.message || 'No se pudo crear el vehículo');
+        if (e?.status === 409) {
+          this.notify.warn('Validación', 'Placa duplicada');
+        } else {
+          this.notify.error('Error', e?.error?.message || e?.message || 'No se pudo crear el vehículo');
+        }
       }
     });
   }

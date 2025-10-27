@@ -25,6 +25,7 @@ export class VehiculosGestionarComponent implements OnInit {
   loading = false;
   saving = false;
   entity: VehicleEntity | null = null;
+  forbidden = false;
 
   model = { placa: '', marca: '', modelo: '', linea: '', anio: null as number | null, color: '' };
 
@@ -57,6 +58,7 @@ export class VehiculosGestionarComponent implements OnInit {
     this.loading = true;
     this.vehiculos.get(this.orgId, this.vehiculoId).subscribe({
       next: (v) => {
+        console.log('[VehiculosGestionarComponent] GET /vehiculos/{id} respuesta:', v);
         this.entity = v;
         this.model.placa = v.placa || '';
         this.model.marca = v.marca || '';
@@ -65,8 +67,21 @@ export class VehiculosGestionarComponent implements OnInit {
         this.model.anio = v.anio ?? null;
         this.model.color = v.color || '';
         this.loading = false;
+        this.forbidden = false;
       },
-      error: (e) => { this.loading = false; this.notify.error('Error', e?.error?.message || 'No se pudo cargar el vehículo'); }
+      error: (e) => {
+        console.error('[VehiculosGestionarComponent] GET /vehiculos/{id} error:', e?.status, e?.error || e);
+        this.loading = false;
+        if (e?.status === 404) {
+          this.notify.warn('Aviso', 'El vehículo no existe');
+          this.router.navigate(['/gestion-de-vehiculos/mis-vehiculos']);
+        } else if (e?.status === 403) {
+          this.forbidden = true;
+          this.notify.warn('Sin permisos', e?.error?.message || 'No tiene permisos para ver este vehículo');
+        } else {
+          this.notify.error('Error', e?.error?.message || 'No se pudo cargar el vehículo');
+        }
+      }
     });
   }
 
@@ -83,34 +98,44 @@ export class VehiculosGestionarComponent implements OnInit {
   }
 
   guardar() {
+    if (this.forbidden) { this.notify.warn('Sin permisos', 'No puede editar este vehículo'); return; }
     const err = this.validate();
     if (err) { this.notify.warn('Validación', err); return; }
     if (!this.orgId || !this.vehiculoId) return;
     this.saving = true;
     const body: any = { placa: this.model.placa.trim().toUpperCase() };
-    if ((this.model.marca || '').trim()) body.marca = this.model.marca!.trim(); else body.marca = null;
-    if ((this.model.modelo || '').trim()) body.modelo = this.model.modelo!.trim(); else body.modelo = null;
-    if ((this.model.linea || '').trim()) body.linea = this.model.linea!.trim(); else body.linea = null;
-    if (this.model.anio != null) body.anio = Number(this.model.anio); else body.anio = null;
-    if ((this.model.color || '').trim()) body.color = this.model.color!.trim(); else body.color = null;
+    const marca = (this.model.marca || '').trim();
+    const modelo = (this.model.modelo || '').trim();
+    const linea = (this.model.linea || '').trim();
+    const color = (this.model.color || '').trim();
+    const anio = this.model.anio != null ? Number(this.model.anio) : undefined;
+    if (marca) body.marca = marca;
+    if (modelo) body.modelo = modelo;
+    if (linea) body.linea = linea;
+    if (!isNaN(anio as any) && anio != null) body.anio = anio;
+    if (color) body.color = color;
+
+    console.log('[VehiculosGestionarComponent] PATCH body:', body);
 
     this.vehiculos.update(this.orgId, this.vehiculoId, body).subscribe({
-      next: (res) => { this.saving = false; this.entity = res.vehicle; this.notify.success('Éxito', res.message || 'Vehículo actualizado'); },
-      error: (e) => { this.saving = false; this.notify.error('Error', e?.error?.message || 'No se pudo actualizar el vehículo'); }
+      next: (res) => { console.log('[VehiculosGestionarComponent] PATCH /vehiculos/{id} respuesta:', res); this.saving = false; this.entity = res.vehicle; this.notify.success('Éxito', res.message || 'Vehículo actualizado'); },
+      error: (e) => { console.error('[VehiculosGestionarComponent] PATCH /vehiculos/{id} error:', e?.status, e?.error || e); this.saving = false; this.notify.error('Error', e?.error?.message || (typeof e?.error === 'string' ? e.error : 'No se pudo actualizar el vehículo')); }
     });
   }
 
   toggleActivo() {
+    if (this.forbidden) { this.notify.warn('Sin permisos', 'No puede cambiar el estado'); return; }
     if (!this.orgId || !this.vehiculoId || !this.entity) return;
     const target = !this.entity.activo;
     this.saving = true;
     this.vehiculos.setActive(this.orgId, this.vehiculoId, target).subscribe({
-      next: (res) => { this.saving = false; if (res.vehicle) this.entity = res.vehicle; else this.entity = { ...(this.entity as any), activo: target }; },
-      error: (e) => { this.saving = false; this.notify.error('Error', e?.error?.message || 'No se pudo cambiar el estado'); }
+      next: (res) => { console.log('[VehiculosGestionarComponent] PATCH /vehiculos/{id}/estado respuesta:', res); this.saving = false; if (res.vehicle) this.entity = res.vehicle; else this.entity = { ...(this.entity as any), activo: target }; if (res?.message) this.notify.success('Listo', res.message); },
+      error: (e) => { console.error('[VehiculosGestionarComponent] PATCH /vehiculos/{id}/estado error:', e?.status, e?.error || e); this.saving = false; this.notify.error('Error', e?.error?.message || (typeof e?.error === 'string' ? e.error : 'No se pudo cambiar el estado')); }
     });
   }
 
   irAsignar() {
+    if (this.forbidden) { this.notify.warn('Sin permisos', 'No puede reasignar sección'); return; }
     if (!this.entity) return;
     this.router.navigate(['/gestion-de-vehiculos/asignar-vehiculo-a-seccion'], { queryParams: { id: this.entity.id } });
   }

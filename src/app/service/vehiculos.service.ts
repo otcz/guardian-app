@@ -57,6 +57,20 @@ export class VehiculosService {
     return (payload && typeof payload === 'object' && 'data' in payload) ? (payload as any).data as T : (payload as T);
   }
 
+  // Eliminar claves con null/undefined/cadena vacía/NaN
+  private sanitizeBody<T extends Record<string, any>>(obj: T): Partial<T> {
+    const out: any = {};
+    if (!obj) return out;
+    Object.keys(obj).forEach((k) => {
+      const v = (obj as any)[k];
+      if (v === null || v === undefined) return;
+      if (typeof v === 'string' && v.trim() === '') return;
+      if (typeof v === 'number' && Number.isNaN(v)) return;
+      out[k] = v;
+    });
+    return out as Partial<T>;
+  }
+
   private toApiResponse(payload: any): ApiResponse<any> {
     if (payload == null) return { success: true, data: undefined };
     if (typeof payload === 'string') {
@@ -78,7 +92,11 @@ export class VehiculosService {
       id: String(d?.id ?? d?._id ?? ''),
       placa: String(d?.placa ?? d?.plate ?? ''),
       activo: d?.activo != null ? !!d?.activo : (d?.active != null ? !!d?.active : false),
-      seccionAsignadaId: d?.seccionAsignadaId != null ? String(d?.seccionAsignadaId) : (d?.idSeccionAsignada != null ? String(d?.idSeccionAsignada) : null),
+      // Soportar distintas formas de sección desde backend
+      seccionAsignadaId: d?.seccionId != null ? String(d?.seccionId)
+        : (d?.seccionAsignadaId != null ? String(d?.seccionAsignadaId)
+        : (d?.idSeccionAsignada != null ? String(d?.idSeccionAsignada)
+        : (d?.seccionEntityAsignada?.id != null ? String(d?.seccionEntityAsignada?.id) : null))),
       orgId: d?.orgId != null ? String(d?.orgId) : (d?.organizacionId != null ? String(d?.organizacionId) : null),
       propietarioUsuarioId: d?.usuarioId != null ? String(d?.usuarioId) : (d?.propietarioUsuarioId != null ? String(d?.propietarioUsuarioId) : null),
       fechaCreacion: d?.fechaCreacion ? String(d?.fechaCreacion) : null,
@@ -119,6 +137,35 @@ export class VehiculosService {
     );
   }
 
+  // Nuevo: igual a list pero entrega también el message del backend para feedback en UI
+  listWithMessage(orgId: string, params?: { seccionId?: string | null; soloInactivos?: boolean; soloMios?: boolean }): Observable<{ items: VehicleEntity[]; message?: string }> {
+    const path = `/orgs/${orgId}/vehiculos`;
+    const url = `${this.base}${path}`;
+    const urlFallback = `${environment.backendHost}${this.base}${path}`;
+    const httpParams: any = {};
+    if (params?.seccionId) httpParams.seccionId = params.seccionId;
+    if (params?.soloInactivos != null) httpParams.soloInactivos = params.soloInactivos;
+    if (params?.soloMios != null) httpParams.soloMios = params.soloMios;
+
+    const mapResp = (resp: ApiResponse<any>) => {
+      if (resp && resp.success === false) throw { error: { message: resp?.message || 'No se pudieron listar vehículos' }, status: 400 };
+      const data = resp?.data as any;
+      const arr = Array.isArray(data) ? data : (Array.isArray((data as any)?.items) ? (data as any).items : (Array.isArray((resp as any)) ? (resp as any) : []));
+      const items = arr.map((d: any) => this.ensureVehicle(d));
+      return { items, message: (resp as any)?.message } as { items: VehicleEntity[]; message?: string };
+    };
+
+    return this.http.get<any>(url, { headers: this.accept, params: httpParams, responseType: 'text' as 'json' }).pipe(
+      map((payload: any) => this.toApiResponse(payload)),
+      map(mapResp),
+      catchError((_e1) => this.http.get<any>(urlFallback, { headers: this.accept, params: httpParams, responseType: 'text' as 'json' }).pipe(
+        map((payload: any) => this.toApiResponse(payload)),
+        map(mapResp),
+        catchError((e2) => throwError(() => ({ error: { message: e2?.error?.message || e2?.message || 'No se pudieron listar vehículos' }, status: e2?.status })))
+      ))
+    );
+  }
+
   get(orgId: string, vehiculoId: string): Observable<VehicleEntity> {
     const url = `${this.base}/orgs/${orgId}/vehiculos/${vehiculoId}`;
     return this.http.get<any>(url, { headers: this.accept, responseType: 'text' as 'json' }).pipe(
@@ -132,53 +179,57 @@ export class VehiculosService {
 
   create(orgId: string, body: CreateVehicleRequest): Observable<{ vehicle: VehicleEntity; message?: string }> {
     const url = `${this.base}/orgs/${orgId}/vehiculos`;
-    return this.http.post<ApiResponse<any>>(url, body, { headers: this.json }).pipe(
+    const payload = this.sanitizeBody(body);
+    return this.http.post<any>(url, payload, { headers: this.json, responseType: 'text' as 'json' }).pipe(
+      map((payload: any) => this.toApiResponse(payload)),
       map((resp) => {
         const d = this.unwrap<any>(resp);
         const v = this.ensureVehicle(d);
-        // Si backend no fija 'activo', por regla de negocio lo tratamos como false al crear
-        v.activo = false;
         return { vehicle: v, message: (resp as any)?.message };
       }),
-      catchError((err) => throwError(() => ({ error: { message: err?.error?.message || err?.message || 'No se pudo crear el vehículo' }, status: err?.status })))
+      catchError((err) => throwError(() => ({ error: { message: (err?.error?.message ?? (typeof err?.error === 'string' ? err.error : null) ?? err?.message ?? 'No se pudo crear el vehículo') }, status: err?.status })))
     );
   }
 
   update(orgId: string, vehiculoId: string, body: UpdateVehicleRequest): Observable<{ vehicle: VehicleEntity; message?: string }> {
     const url = `${this.base}/orgs/${orgId}/vehiculos/${vehiculoId}`;
-    return this.http.patch<ApiResponse<any>>(url, body, { headers: this.json }).pipe(
+    const payload = this.sanitizeBody(body);
+    return this.http.patch<any>(url, payload, { headers: this.json, responseType: 'text' as 'json' }).pipe(
+      map((payload: any) => this.toApiResponse(payload)),
       map((resp) => {
         const d = this.unwrap<any>(resp);
         const v = this.ensureVehicle(d);
         return { vehicle: v, message: (resp as any)?.message };
       }),
-      catchError((err) => throwError(() => ({ error: { message: err?.error?.message || err?.message || 'No se pudo actualizar el vehículo' }, status: err?.status })))
+      catchError((err) => throwError(() => ({ error: { message: (err?.error?.message ?? (typeof err?.error === 'string' ? err.error : null) ?? err?.message ?? 'No se pudo actualizar el vehículo') }, status: err?.status })))
     );
   }
 
   setActive(orgId: string, vehiculoId: string, value: boolean): Observable<{ vehicle: VehicleEntity | undefined; message?: string }> {
-    const url = `${this.base}/orgs/${orgId}/vehiculos/${vehiculoId}/activo`;
-    return this.http.patch<ApiResponse<any>>(url, null, { headers: this.accept, params: { value } as any }).pipe(
+    const url = `${this.base}/orgs/${orgId}/vehiculos/${vehiculoId}/estado`;
+    return this.http.patch<any>(url, null, { headers: this.accept, params: { value } as any, responseType: 'text' as 'json' }).pipe(
+      map((payload: any) => this.toApiResponse(payload)),
       map((resp) => {
         const d = this.unwrap<any>(resp);
         const v = d ? this.ensureVehicle(d) : undefined;
         return { vehicle: v, message: (resp as any)?.message };
       }),
-      catchError((err) => throwError(() => ({ error: { message: err?.error?.message || err?.message || 'No se pudo cambiar el estado del vehículo' }, status: err?.status })))
+      catchError((err) => throwError(() => ({ error: { message: (err?.error?.message ?? (typeof err?.error === 'string' ? err.error : null) ?? err?.message ?? 'No se pudo cambiar el estado del vehículo') }, status: err?.status })))
     );
   }
 
   assignSection(orgId: string, vehiculoId: string, seccionId: string | null): Observable<{ vehicle: VehicleEntity; message?: string }> {
-    const url = `${this.base}/orgs/${orgId}/vehiculos/${vehiculoId}/seccion-asignada`;
+    const url = `${this.base}/orgs/${orgId}/vehiculos/${vehiculoId}/seccion`;
     const params: any = {};
     if (seccionId != null) params.seccionId = seccionId;
-    return this.http.patch<ApiResponse<any>>(url, null, { headers: this.accept, params }).pipe(
+    return this.http.patch<any>(url, null, { headers: this.accept, params, responseType: 'text' as 'json' }).pipe(
+      map((payload: any) => this.toApiResponse(payload)),
       map((resp) => {
         const d = this.unwrap<any>(resp);
         const v = this.ensureVehicle(d);
         return { vehicle: v, message: (resp as any)?.message };
       }),
-      catchError((err) => throwError(() => ({ error: { message: err?.error?.message || err?.message || 'No se pudo asignar la sección del vehículo' }, status: err?.status })))
+      catchError((err) => throwError(() => ({ error: { message: (err?.error?.message ?? (typeof err?.error === 'string' ? err.error : null) ?? err?.message ?? 'No se pudo asignar la sección del vehículo') }, status: err?.status })))
     );
   }
 }

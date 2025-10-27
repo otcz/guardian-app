@@ -30,6 +30,19 @@
       <input id="color" type="text" pInputText [(ngModel)]="model.color" placeholder="Blanco" [disabled]="saving" />
     </div>
 
+    <div class="form-row" *ngIf="isAdmin">
+      <label for="usuarios">Usuarios (1..N)</label>
+      <p-multiSelect id="usuarios"
+                     [options]="usuarios"
+                     optionLabel="username"
+                     optionValue="id"
+                     [(ngModel)]="model.usuarioIds"
+                     defaultLabel="Seleccione usuarios"
+                     [filter]="true"
+                     [disabled]="saving">
+      </p-multiSelect>
+    </div>
+
     <div class="form-row">
       <label for="seccion">Asignar a Sección (opcional)</label>
       <p-dropdown id="seccion" [options]="secciones" optionLabel="nombre" optionValue="id"

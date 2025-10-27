@@ -27,13 +27,14 @@ export interface VehicleEntity {
 
 export interface CreateVehicleRequest {
   placa: string;
-  seccionAsignadaId?: string | null;
   // Campos adicionales (opcionales)
   marca?: string | null;
   modelo?: string | null;
   linea?: string | null;
   anio?: number | null;
   color?: string | null;
+  // Nuevo: relación con usuarios al crear (opcional)
+  usuarioIds?: string[];
 }
 
 export interface UpdateVehicleRequest {

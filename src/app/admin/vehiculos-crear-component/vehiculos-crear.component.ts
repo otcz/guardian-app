@@ -12,11 +12,14 @@ import { OrgContextService } from '../../service/org-context.service';
 import { SeccionEntity, SeccionService } from '../../service/seccion.service';
 import { NotificationService } from '../../service/notification.service';
 import { VehiculosService } from '../../service/vehiculos.service';
+import { MultiSelectModule } from 'primeng/multiselect';
+import { UsersService, UserEntity } from '../../service/users.service';
+import { AuthService } from '../../service/auth.service';
 
 @Component({
   selector: 'app-vehiculos-crear',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, CardModule, InputTextModule, DropdownModule, ButtonModule, ProgressSpinnerModule, UppercaseDirective],
+  imports: [CommonModule, FormsModule, RouterModule, CardModule, InputTextModule, DropdownModule, ButtonModule, ProgressSpinnerModule, UppercaseDirective, MultiSelectModule],
   templateUrl: './vehiculos-crear.component.html',
   styleUrls: ['./vehiculos-crear.component.scss']
 })
@@ -26,24 +29,31 @@ export class VehiculosCrearComponent implements OnInit {
   saving = false;
 
   secciones: SeccionEntity[] = [];
-  model: { placa: string; seccionAsignadaId: string | null; marca?: string | null; modelo?: string | null; linea?: string | null; anio?: number | null; color?: string | null } = { placa: '', seccionAsignadaId: null, marca: null, modelo: null, linea: null, anio: null, color: null };
+  usuarios: UserEntity[] = [];
+  isAdmin = false;
+  model: { placa: string; seccionAsignadaId: string | null; marca?: string | null; modelo?: string | null; linea?: string | null; anio?: number | null; color?: string | null; usuarioIds?: string[] } = { placa: '', seccionAsignadaId: null, marca: null, modelo: null, linea: null, anio: null, color: null, usuarioIds: [] };
 
   constructor(
     private orgCtx: OrgContextService,
     private seccionService: SeccionService,
     private vehiculos: VehiculosService,
     private notify: NotificationService,
-    private router: Router
+    private router: Router,
+    private users: UsersService,
+    private auth: AuthService
   ) {}
 
   ngOnInit(): void {
     this.orgId = this.orgCtx.value;
+    // Determinar si el usuario posee rol de admin (tolerante a variantes de nombre)
+    this.isAdmin = this.auth.hasAnyRole('SYSADMIN', 'ORGADMIN', 'ORG_ADMIN', 'ADMIN_ORG');
     if (!this.orgId) {
       this.notify.warn('Atención', 'Seleccione una organización');
       this.router.navigate(['/listar-organizaciones']);
       return;
     }
     this.loadSecciones();
+    if (this.isAdmin) this.loadUsuarios();
   }
 
   loadSecciones() {
@@ -55,6 +65,14 @@ export class VehiculosCrearComponent implements OnInit {
     });
   }
 
+  private loadUsuarios() {
+    if (!this.orgId) return;
+    this.users.list(this.orgId).subscribe({
+      next: (arr) => { this.usuarios = arr; },
+      error: (e) => { this.notify.warn('Usuarios', e?.error?.message || 'No se pudieron cargar usuarios'); }
+    });
+  }
+
   validate(): string | null {
     const placa = (this.model.placa || '').trim();
     if (!placa) return 'La placa es requerida';
@@ -63,6 +81,10 @@ export class VehiculosCrearComponent implements OnInit {
       const year = Number(this.model.anio);
       const now = new Date().getFullYear();
       if (isNaN(year) || year < 1900 || year > now + 1) return `El año debe estar entre 1900 y ${now + 1}`;
+    }
+    if (this.isAdmin) {
+      const ids = this.model.usuarioIds || [];
+      if (!ids.length) return 'Debe seleccionar al menos un usuario';
     }
     return null;
   }
@@ -87,7 +109,9 @@ export class VehiculosCrearComponent implements OnInit {
     if (linea) body.linea = linea;
     if (!isNaN(anio as any) && anio != null) body.anio = anio;
     if (color) body.color = color;
-    if (this.model.seccionAsignadaId) body.seccionAsignadaId = this.model.seccionAsignadaId;
+    // Nuevo: usuarioIds (solo admins pueden enviar 1..N usuarios)
+    if (this.isAdmin && this.model.usuarioIds && this.model.usuarioIds.length) body.usuarioIds = this.model.usuarioIds;
+    // Nota: ya no enviar seccionAsignadaId en create; el backend la determina automáticamente
 
     console.log('[VehiculosCrearComponent] POST body:', body);
 

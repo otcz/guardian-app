@@ -1,50 +1,97 @@
-<section class="kpi-grid">
-  <div class="card kpi">
-    <div style="display:flex; align-items:center; gap:12px;">
-      <i class="pi pi-users" style="font-size:1.5rem; color:var(--primary)"></i>
-      <div>
-        <div style="font-size:1.8rem; font-weight:800;">128</div>
-        <div style="color:var(--muted)">Usuarios</div>
-      </div>
+<p-card styleClass="mb-3">
+  <ng-template pTemplate="header">
+    <div style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
+      <div style="font-weight:600;">Inicio</div>
+      <small style="opacity:.8" *ngIf="data?.message as m">{{ m }}</small>
     </div>
-  </div>
-  <div class="card kpi">
-    <div style="display:flex; align-items:center; gap:12px;">
-      <i class="pi pi-car" style="font-size:1.5rem; color:var(--primary)"></i>
-      <div>
-        <div style="font-size:1.8rem; font-weight:800;">342</div>
-        <div style="color:var(--muted)">Vehículos</div>
-      </div>
-    </div>
-  </div>
-  <div class="card kpi">
-    <div style="display:flex; align-items:center; gap:12px;">
-      <i class="pi pi-chart-line" style="font-size:1.5rem; color:var(--primary)"></i>
-      <div>
-        <div style="font-size:1.8rem; font-weight:800;">96%</div>
-        <div style="color:var(--muted)">Disponibilidad</div>
-      </div>
-    </div>
-  </div>
-</section>
+  </ng-template>
 
-<section class="card" style="margin-top:16px; padding:16px;">
-  <h3 style="margin:0 0 12px 0;">Actividad reciente</h3>
-  <p-table styleClass="recent-activity" [value]="activities" [tableStyle]="{ 'min-width': '480px' }">
+  <div *ngIf="loading" class="loading"><p-progressSpinner></p-progressSpinner></div>
+
+  <div *ngIf="!loading" class="grid" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:16px;">
+    <!-- Bloque QR + Usuario -->
+    <div class="card" style="padding:12px;">
+      <div style="display:flex; gap:12px; align-items:center;">
+        <div style="width:210px; height:210px; display:flex; align-items:center; justify-content:center; border-radius:8px; background: var(--surface-100);">
+          <img *ngIf="qrDataUrl; else noqr" [src]="qrDataUrl" alt="QR del usuario" width="200" height="200" />
+          <ng-template #noqr>
+            <div style="font-size:.9rem; opacity:.7; text-align:center; padding:8px;">QR no disponible</div>
+          </ng-template>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:8px;">
+          <div style="font-weight:600; font-size:1.1rem;">{{ usuarioNombre || 'Usuario' }}</div>
+          <div style="opacity:.8;">Documento: <b>{{ usuarioDoc || '—' }}</b></div>
+          <div *ngIf="data?.usuario?.id as uid" style="opacity:.8;">ID: <code>{{ uid }}</code></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bloque actividad -->
+    <div class="card" style="padding:12px;">
+      <div style="font-weight:600; margin-bottom:8px;">Registro de actividad</div>
+      <div style="display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:12px;">
+        <div class="kpi">
+          <div style="font-size:.85rem; opacity:.8;">Ingresos usuario</div>
+          <div style="font-size:1.6rem; font-weight:700;">{{ data?.actividad?.ingresosUsuario ?? 0 }}</div>
+        </div>
+        <div class="kpi">
+          <div style="font-size:.85rem; opacity:.8;">Salidas usuario</div>
+          <div style="font-size:1.6rem; font-weight:700;">{{ data?.actividad?.salidasUsuario ?? 0 }}</div>
+        </div>
+        <div class="kpi">
+          <div style="font-size:.85rem; opacity:.8;">Ingresos vehículo</div>
+          <div style="font-size:1.6rem; font-weight:700;">{{ data?.actividad?.ingresosVehiculo ?? 0 }}</div>
+        </div>
+        <div class="kpi">
+          <div style="font-size:.85rem; opacity:.8;">Salidas vehículo</div>
+          <div style="font-size:1.6rem; font-weight:700;">{{ data?.actividad?.salidasVehiculo ?? 0 }}</div>
+        </div>
+        <div class="kpi" style="grid-column: span 2;">
+          <div style="font-size:.85rem; opacity:.8;">Invitados</div>
+          <div style="font-size:1.6rem; font-weight:700;">{{ data?.actividad?.invitados ?? 0 }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</p-card>
+
+<!-- Vehículos asociados -->
+<p-card>
+  <ng-template pTemplate="header">
+    <div style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
+      <div style="font-weight:600;">Vehículos asociados</div>
+      <small style="opacity:.8" *ngIf="(data?.vehiculos?.length || 0) as c">{{ c }} items</small>
+    </div>
+  </ng-template>
+
+  <p-table [value]="data?.vehiculos || []" [tableStyle]="{ 'min-width': '560px' }" [paginator]="true" [rows]="10" [rowsPerPageOptions]="[10,20,50]"
+           [showCurrentPageReport]="true" currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} vehículos">
     <ng-template pTemplate="header">
       <tr>
-        <th>Fecha</th>
-        <th>Evento</th>
-        <th>Detalle</th>
+        <th>Placa</th>
+        <th>Marca</th>
+        <th>Modelo</th>
+        <th>Estado</th>
+        <th>Bloqueo</th>
       </tr>
     </ng-template>
     <ng-template pTemplate="body" let-row>
       <tr>
-        <td>{{ row.fecha }}</td>
-        <td>{{ row.evento }}</td>
-        <td>{{ row.detalle }}</td>
+        <td>{{ row.placa }}</td>
+        <td>{{ row.marca || '—' }}</td>
+        <td>{{ row.modelo || '—' }}</td>
+        <td>
+          <p-tag [value]="row.activo ? 'ACTIVO' : 'INACTIVO'" [severity]="row.activo ? 'success' : 'warn'"></p-tag>
+        </td>
+        <td>
+          <p-tag [value]="row.bloqueado ? 'BLOQUEADO' : 'LIBRE'" [severity]="row.bloqueado ? 'danger' : 'success'"></p-tag>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="5">No hay vehículos asociados.</td>
       </tr>
     </ng-template>
   </p-table>
-</section>
-
+</p-card>

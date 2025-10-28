@@ -23,6 +23,8 @@ export interface VehiculoDto {
   fechaCreacion?: string | null;
   fechaActualizacion?: string | null;
   propietarioUsuarioId?: string | null;
+  // Nombre de sección provisto por backend (si está disponible)
+  seccionNombre?: string | null;
 }
 export type VehicleEntity = VehiculoDto; // alias para compatibilidad
 
@@ -99,6 +101,8 @@ export class VehiculosService {
       activo: d?.activo != null ? !!d?.activo : (d?.active != null ? !!d?.active : false),
       seccionId: seccion != null ? String(seccion) : null,
       seccionAsignadaId: seccion != null ? String(seccion) : null,
+      // Nombre de sección si el backend lo provee
+      seccionNombre: (d?.seccionNombre != null ? String(d?.seccionNombre) : (d?.seccion?.nombre != null ? String(d?.seccion?.nombre) : (d?.seccionEntityAsignada?.nombre != null ? String(d?.seccionEntityAsignada?.nombre) : null))),
       orgId: d?.orgId != null ? String(d?.orgId) : (d?.organizacionId != null ? String(d?.organizacionId) : null),
       propietarioUsuarioId: d?.usuarioId != null ? String(d?.usuarioId) : (d?.propietarioUsuarioId != null ? String(d?.propietarioUsuarioId) : null),
       fechaCreacion: d?.fechaCreacion ? String(d?.fechaCreacion) : null,

@@ -9,10 +9,6 @@
           {{ selectedSeccionFiltroId ? 'Se listan tus vehículos de tu sección actual.' : 'No se pudo determinar tu sección actual; configura tu sección o contacta al administrador.' }}
         </small>
       </div>
-      <div class="form-row">
-        <label for="filtroPlaca">Buscar por placa</label>
-        <input id="filtroPlaca" type="text" pInputText [(ngModel)]="filterPlaca" placeholder="Placa" />
-      </div>
 
       <p-table [value]="vehicles | slice:0" [paginator]="true" [rows]="10" [rowsPerPageOptions]="[10,20,50]"
                [tableStyle]="{ 'min-width': '50rem' }" [showCurrentPageReport]="true"
@@ -26,13 +22,10 @@
           </tr>
         </ng-template>
         <ng-template pTemplate="body" let-row>
-          <tr *ngIf="
-              !filterPlaca ||
-              (row.placa || '').toUpperCase().includes(filterPlaca.toUpperCase().trim())
-            ">
+          <tr>
             <td>{{ row.placa }}</td>
             <td><p-tag [severity]="row.activo ? 'success' : 'warn'" [value]="row.activo ? 'ACTIVO' : 'INACTIVO'"></p-tag></td>
-            <td>{{ getSeccionNombre(row.seccionAsignadaId) }}</td>
+            <td>{{ row.seccionNombre || '—' }}</td>
             <td>
               <button pButton type="button" label="Seleccionar" (click)="seleccionar(row)"></button>
             </td>
@@ -58,7 +51,7 @@
       </div>
       <div class="row">
         <label>Sección actual</label>
-        <span>{{ getSeccionNombre(v.seccionAsignadaId) }}</span>
+        <span>{{ v.seccionNombre || '—' }}</span>
       </div>
     </div>
 

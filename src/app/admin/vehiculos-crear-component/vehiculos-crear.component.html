@@ -72,14 +72,17 @@
             <div><b>Placa:</b> {{ v.placa }}</div>
             <div><b>Activo:</b> <span [ngClass]="{ 'text-success': v.activo, 'text-muted': !v.activo }">{{ v.activo ? 'Sí' : 'No' }}</span></div>
             <div><b>Marca/Modelo:</b> {{ v.marca || '-' }} / {{ v.modelo || '-' }}</div>
-            <div><b>Sección:</b> {{ v.seccionNombre || v.seccionAsignadaId || v.seccionId || '-' }}</div>
+            <div><b>Sección:</b> {{ seccionNombreVehiculo(v) }}</div>
           </div>
         </div>
 
         <div class="form-row" *ngIf="isAdmin">
           <div class="row-label-actions">
             <label>Asociar usuarios a este vehículo</label>
-            <button pButton type="button" class="p-button-text p-button-sm" icon="pi pi-user-plus" label="Agregarme a mí" (click)="addMeToExistingUsers()" [disabled]="asignando"></button>
+            <div style="display:flex; gap:.5rem; align-items:center">
+              <button pButton type="button" class="p-button-text p-button-sm" icon="pi pi-user-plus" label="Agregarme a mí" (click)="addMeToExistingUsers()" [disabled]="asignando"></button>
+              <button pButton type="button" class="p-button-sm" icon="pi pi-user" label="Asignarme a este vehículo" (click)="asignarmeAExistente()" [disabled]="asignando"></button>
+            </div>
           </div>
           <p-multiSelect [options]="usuarios"
                          optionLabel="username"

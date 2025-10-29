@@ -243,6 +243,28 @@ export class VehiculosCrearComponent implements OnInit {
     }
   }
 
+  // Acción rápida: Asignarme directo al vehículo encontrado
+  asignarmeAExistente() {
+    if (!this.isAdmin) { this.notify.warn('Sin permisos', 'Solo administradores pueden asociar usuarios a un vehículo existente'); return; }
+    if (!this.currentUserId) { this.notify.warn('Usuario', 'No se pudo identificar el usuario actual'); return; }
+    const v = this.existenteVehiculo();
+    if (!v) { this.notify.warn('Asociar', 'Primero busca un vehículo existente'); return; }
+    if (!this.usuariosParaExistente.includes(this.currentUserId)) {
+      this.usuariosParaExistente.push(this.currentUserId);
+    }
+    this.asociarAExistente();
+  }
+
+  // Mostrar nombre de sección (sin UUID)
+  seccionNombreVehiculo(v: VehicleEntity): string {
+    const nombreDirecto = (v as any)?.seccionNombre as string | undefined;
+    if (nombreDirecto) return nombreDirecto;
+    const id = (v as any)?.seccionAsignadaId || (v as any)?.seccionId || null;
+    if (!id) return '-';
+    const sec = this.secciones.find(s => s.id === id);
+    return sec?.nombre || '-';
+  }
+
   private existenteVehiculo(): VehicleEntity | null {
     return (this.existente.status === 'found' && this.existente.vehiculo) ? this.existente.vehiculo : null;
   }

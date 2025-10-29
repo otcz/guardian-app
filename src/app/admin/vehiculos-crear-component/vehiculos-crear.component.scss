@@ -27,3 +27,51 @@
 /* Ajustes de componentes */
 p-multiSelect, .p-multiselect { width: 100%; }
 .mt-2 { margin-top: .5rem; }
+
+/* Botón CTA de asignación (gradiente, dinámico y acorde a la paleta) */
+.asignar-cta {
+  background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+  color: #fff;
+  border: 0;
+  border-radius: 10px; /* consistente con .p-button */
+  box-shadow: 0 8px 20px color-mix(in srgb, var(--primary) 24%, transparent);
+  transform: translateY(0);
+  transition: transform .15s ease, box-shadow .2s ease, background .3s ease, filter .2s ease;
+  position: relative;
+  overflow: hidden;
+}
+.asignar-cta:hover {
+  transform: translateY(-1px);
+  background: linear-gradient(90deg, var(--secondary) 0%, var(--primary) 100%);
+  box-shadow: 0 12px 28px color-mix(in srgb, var(--primary) 30%, transparent);
+}
+.asignar-cta:active { transform: translateY(0); }
+.asignar-cta:disabled,
+.p-button.p-disabled.asignar-cta { filter: grayscale(15%); box-shadow: none; }
+/* brillo diagonal sutil */
+.asignar-cta::after {
+  content: '';
+  position: absolute;
+  top: 0; left: -140%;
+  width: 120%; height: 100%;
+  background: linear-gradient(120deg, transparent 0%, color-mix(in srgb, #ffffff 72%, transparent) 16%, transparent 32%);
+  opacity: .35;
+  transform: skewX(-20deg);
+  transition: left .6s ease;
+}
+.asignar-cta:hover::after { left: 140%; }
+
+/* Botón inline pequeño para acción rápida "Asignar" en la línea de sección */
+.asignar-inline.p-button-sm {
+  background: color-mix(in srgb, var(--primary) 14%, transparent);
+  color: var(--primary-600);
+  border: 1px solid color-mix(in srgb, var(--primary) 36%, transparent);
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--primary) 16%, transparent);
+  transition: box-shadow .15s ease, background .2s ease, transform .15s ease;
+}
+.asignar-inline.p-button-sm:hover {
+  background: color-mix(in srgb, var(--primary) 20%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 18%, transparent) inset, 0 4px 12px color-mix(in srgb, var(--primary) 22%, transparent);
+  transform: translateY(-1px);
+}
+.asignar-inline.p-button-sm:active { transform: translateY(0); }

@@ -195,7 +195,6 @@ export class VehiculosCrearComponent implements OnInit {
 
   asociarAExistente() {
     if (!this.orgId) return;
-    if (!this.isAdmin) { this.notify.warn('Sin permisos', 'Solo un administrador puede asociar usuarios a un vehículo existente'); return; }
     const v = this.existenteVehiculo();
     if (!v) { this.notify.warn('Asociar', 'Primero busque y seleccione un vehículo existente'); return; }
     const usuarios = this.usuariosParaExistente || [];
@@ -206,7 +205,6 @@ export class VehiculosCrearComponent implements OnInit {
       next: (res) => {
         this.asignando = false;
         this.notify.success('Listo', res.message || 'Usuarios asociados al vehículo');
-        // Navegar a gestionar el vehículo
         this.router.navigate(['/gestion-de-vehiculos/gestionar-vehiculo'], { queryParams: { id: v.id } });
       },
       error: (e) => {
@@ -234,7 +232,6 @@ export class VehiculosCrearComponent implements OnInit {
   }
 
   addMeToExistingUsers() {
-    if (!this.isAdmin) { this.notify.warn('Sin permisos', 'Solo administradores pueden asociar usuarios a un vehículo existente'); return; }
     if (!this.currentUserId) { this.notify.warn('Usuario', 'No se pudo identificar el usuario actual'); return; }
     if (!this.existenteVehiculo()) { this.notify.warn('Asociar', 'Primero busca un vehículo existente'); return; }
     if (!this.usuariosParaExistente.includes(this.currentUserId)) {
@@ -245,7 +242,6 @@ export class VehiculosCrearComponent implements OnInit {
 
   // Acción rápida: Asignarme directo al vehículo encontrado
   asignarmeAExistente() {
-    if (!this.isAdmin) { this.notify.warn('Sin permisos', 'Solo administradores pueden asociar usuarios a un vehículo existente'); return; }
     if (!this.currentUserId) { this.notify.warn('Usuario', 'No se pudo identificar el usuario actual'); return; }
     const v = this.existenteVehiculo();
     if (!v) { this.notify.warn('Asociar', 'Primero busca un vehículo existente'); return; }

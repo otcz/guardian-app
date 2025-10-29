@@ -72,7 +72,7 @@
             <div><b>Placa:</b> {{ v.placa }}</div>
             <div><b>Activo:</b> <span [ngClass]="{ 'text-success': v.activo, 'text-muted': !v.activo }">{{ v.activo ? 'Sí' : 'No' }}</span></div>
             <div><b>Marca/Modelo:</b> {{ v.marca || '-' }} / {{ v.modelo || '-' }}</div>
-            <div><b>Sección:</b> {{ seccionNombreVehiculo(v) }}</div>
+            <div><b>Sección:</b> {{ seccionNombreVehiculo(v) }} <button pButton type="button" class="p-button-text p-button-sm" label="Asignar" (click)="asignarmeAExistente()" [disabled]="asignando" style="margin-left:.5rem"></button></div>
           </div>
         </div>
 

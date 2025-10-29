@@ -14,6 +14,7 @@ import { NotificationService } from '../../service/notification.service';
 import { SeccionService } from '../../service/seccion.service';
 import { InputSwitchModule } from 'primeng/inputswitch';
 import { TooltipModule } from 'primeng/tooltip';
+import { AuthService } from '../../service/auth.service';
 
 @Component({
   selector: 'app-vehiculos-gestionar',
@@ -35,10 +36,15 @@ export class VehiculosGestionarComponent implements OnInit {
   bloqueadoUI = false;
   canUpdateBloqueado = false;
   blockedSaving = false;
-  showBloqueado = true; // visible; el backend decide si se puede editar vía capabilities
   capabilitiesMsg: string | null = null;
+  isAdmin = false;
+  // Visible para ADMIN; se deshabilita si backend no permite
+  showBloqueado = false;
 
-  model = { placa: '', marca: '', modelo: '', linea: '', anio: null as number | null, color: '' };
+  // Modelo de edición
+  model: { placa: string; marca: string; modelo: string; linea: string; anio: number | null; color: string } = {
+    placa: '', marca: '', modelo: '', linea: '', anio: null, color: ''
+  };
 
   constructor(
     private route: ActivatedRoute,
@@ -47,23 +53,27 @@ export class VehiculosGestionarComponent implements OnInit {
     private notify: NotificationService,
     private router: Router,
     private secciones: SeccionService,
+    private auth: AuthService,
   ) {}
 
   ngOnInit(): void {
     this.orgId = this.orgCtx.value;
-    // Visibilidad del switch controlada por backend (capabilities)
-    this.showBloqueado = true;
+    this.isAdmin = this.auth.hasRole('ADMIN');
+    this.showBloqueado = this.isAdmin;
+
     if (!this.orgId) {
       this.notify.warn('Atención', 'Seleccione una organización');
       this.router.navigate(['/listar-organizaciones']);
       return;
     }
+
     this.vehiculoId = String(this.route.snapshot.queryParamMap.get('id') || '');
     if (!this.vehiculoId) {
       this.notify.warn('Atención', 'Falta el parámetro id del vehículo');
       this.router.navigate(['/gestion-de-vehiculos/mis-vehiculos']);
       return;
     }
+
     this.load();
   }
 
@@ -74,7 +84,7 @@ export class VehiculosGestionarComponent implements OnInit {
         const sec = arr.find(s => s.id === seccionId);
         this.seccionNombre = sec?.nombre ?? seccionId;
       },
-      error: () => { this.seccionNombre = seccionId; }
+      error: () => { this.seccionNombre = seccionId || null; }
     });
   }
 
@@ -84,11 +94,13 @@ export class VehiculosGestionarComponent implements OnInit {
       next: (caps: VehiculoCapabilities) => {
         this.canUpdateBloqueado = !!caps?.canUpdateBloqueado;
         this.capabilitiesMsg = caps?.message || null;
+        this.showBloqueado = this.isAdmin; // visible; se deshabilita con canUpdateBloqueado
       },
-      error: (e) => {
+      error: (e: any) => {
         console.warn('[VehiculosGestionarComponent] GET capabilities error:', e);
         this.canUpdateBloqueado = false;
         this.capabilitiesMsg = e?.error?.message || 'No autorizado';
+        this.showBloqueado = this.isAdmin; // visible pero deshabilitado
       }
     });
   }
@@ -98,7 +110,6 @@ export class VehiculosGestionarComponent implements OnInit {
     this.loading = true;
     this.vehiculos.get(this.orgId, this.vehiculoId).subscribe({
       next: (v) => {
-        console.log('[VehiculosGestionarComponent] GET /vehiculos/{id} respuesta:', v);
         this.entity = v;
         this.model.placa = v.placa || '';
         this.model.marca = v.marca || '';
@@ -107,14 +118,12 @@ export class VehiculosGestionarComponent implements OnInit {
         this.model.anio = v.anio ?? null;
         this.model.color = v.color || '';
         this.bloqueadoUI = !!v.bloqueado;
-        this.cargarSeccionNombre(v.seccionAsignadaId ?? (v as any).seccionId ?? null);
+        this.cargarSeccionNombre((v as any).seccionAsignadaId ?? (v as any).seccionId ?? null);
         this.loading = false;
         this.forbidden = false;
-        // Cargar capabilities en segundo plano
         this.loadCapabilities();
       },
-      error: (e) => {
-        console.error('[VehiculosGestionarComponent] GET /vehiculos/{id} error:', e?.status, e?.error || e);
+      error: (e: any) => {
         this.loading = false;
         if (e?.status === 404) {
           this.notify.warn('Aviso', 'El vehículo no existe');
@@ -146,6 +155,7 @@ export class VehiculosGestionarComponent implements OnInit {
     const err = this.validate();
     if (err) { this.notify.warn('Validación', err); return; }
     if (!this.orgId || !this.vehiculoId) return;
+
     this.saving = true;
     const body: any = { placa: this.model.placa.trim().toUpperCase() };
     const marca = (this.model.marca || '').trim();
@@ -159,53 +169,66 @@ export class VehiculosGestionarComponent implements OnInit {
     if (!isNaN(anio as any) && anio != null) body.anio = anio;
     if (color) body.color = color;
 
-    console.log('[VehiculosGestionarComponent] PATCH body:', body);
-
     this.vehiculos.update(this.orgId, this.vehiculoId, body).subscribe({
-      next: (res) => { console.log('[VehiculosGestionarComponent] PATCH /vehiculos/{id} respuesta:', res); this.saving = false; this.entity = res.vehicle; this.notify.success('Éxito', res.message || 'Vehículo actualizado'); },
-      error: (e) => { console.error('[VehiculosGestionarComponent] PATCH /vehiculos/{id} error:', e?.status, e?.error || e); this.saving = false; this.notify.error('Error', e?.error?.message || (typeof e?.error === 'string' ? e.error : 'No se pudo actualizar el vehículo')); }
-    });
-  }
-
-  toggleActivo() {
-    if (this.forbidden) { this.notify.warn('Sin permisos', 'No puede cambiar el estado'); return; }
-    if (!this.orgId || !this.vehiculoId || !this.entity) return;
-    const target = !this.entity.activo;
-    this.saving = true;
-    this.vehiculos.setActive(this.orgId, this.vehiculoId, target).subscribe({
-      next: (res) => { console.log('[VehiculosGestionarComponent] PATCH /vehiculos/{id}/estado respuesta:', res); this.saving = false; if (res.vehicle) this.entity = res.vehicle; else this.entity = { ...(this.entity as any), activo: target }; if (res?.message) this.notify.success('Listo', res.message); },
-      error: (e) => { console.error('[VehiculosGestionarComponent] PATCH /vehiculos/{id}/estado error:', e?.status, e?.error || e); this.saving = false; this.notify.error('Error', e?.error?.message || (typeof e?.error === 'string' ? e.error : 'No se pudo cambiar el estado')); }
+      next: (res) => {
+        this.saving = false;
+        if (res?.vehicle) {
+          this.entity = res.vehicle;
+          // reflejar en modelo
+          this.model.placa = this.entity.placa || this.model.placa;
+          this.model.marca = this.entity.marca || '';
+          this.model.modelo = this.entity.modelo || '';
+          this.model.linea = this.entity.linea || '';
+          this.model.anio = this.entity.anio ?? null;
+          this.model.color = this.entity.color || '';
+          this.bloqueadoUI = !!this.entity.bloqueado;
+        }
+        this.notify.success('Listo', res?.message || 'Vehículo actualizado');
+      },
+      error: (e: any) => {
+        this.saving = false;
+        if (e?.status === 400) this.notify.warn('Validación', e?.error?.message || 'Solicitud inválida');
+        else if (e?.status === 403) this.notify.warn('Sin permisos', e?.error?.message || 'No autorizado');
+        else this.notify.error('Error', e?.error?.message || 'No se pudo actualizar el vehículo');
+      }
     });
   }
 
   toggleBloqueado(newValue: boolean) {
     if (this.forbidden) { this.notify.warn('Sin permisos', 'No puede cambiar el bloqueo'); this.bloqueadoUI = !!this.entity?.bloqueado; return; }
-    if (!this.canUpdateBloqueado) { this.notify.warn('Sin permisos', this.capabilitiesMsg || 'No autorizado para cambiar el bloqueo'); this.bloqueadoUI = !!this.entity?.bloqueado; return; }
+    if (!this.canUpdateBloqueado && !this.isAdmin) { this.notify.warn('Sin permisos', this.capabilitiesMsg || 'No autorizado para cambiar el bloqueo'); this.bloqueadoUI = !!this.entity?.bloqueado; return; }
     if (!this.orgId || !this.vehiculoId) { this.bloqueadoUI = !!this.entity?.bloqueado; return; }
 
-    const prev = !!this.entity?.bloqueado;
     this.blockedSaving = true;
-
     this.vehiculos.setBloqueado(this.orgId, this.vehiculoId, newValue).subscribe({
       next: (res) => {
         this.blockedSaving = false;
         if (res.vehicle) this.entity = res.vehicle;
-        // Confirmar con estado del servidor o usar el target en su defecto
-        this.bloqueadoUI = !!(this.entity?.bloqueado ?? newValue);
+        this.bloqueadoUI = (this.entity?.bloqueado ?? newValue);
         if (res?.message) this.notify.success('Listo', res.message);
       },
-      error: (e) => {
-        console.error('[VehiculosGestionarComponent] PATCH /vehiculos/{id}/bloqueado error:', e?.status, e?.error || e);
+      error: (e: any) => {
         this.blockedSaving = false;
-        // Revertir toggle
-        this.bloqueadoUI = prev;
-        if (e?.status === 403) {
-          this.notify.warn('Sin permisos', e?.error?.message || 'No autorizado para cambiar el bloqueo');
-          // Actualizar capabilities por si cambiaron
-          this.loadCapabilities();
-        } else {
-          this.notify.error('Error', e?.error?.message || 'No se pudo cambiar el estado de bloqueo');
-        }
+        this.bloqueadoUI = !!this.entity?.bloqueado; // revertir UI
+        const msg = e?.error?.message || (typeof e?.error === 'string' ? e.error : 'No se pudo cambiar el bloqueo');
+        this.notify.error('Error', msg);
+      }
+    });
+  }
+
+  toggleActivo() {
+    if (this.forbidden || !this.orgId || !this.vehiculoId || !this.entity) { this.notify.warn('Sin permisos', 'No puede cambiar el estado'); return; }
+    const target = !this.entity.activo;
+    this.saving = true;
+    this.vehiculos.setActive(this.orgId, this.vehiculoId, target).subscribe({
+      next: (res) => {
+        this.saving = false;
+        if (res.vehicle) this.entity = res.vehicle; else this.entity = { ...(this.entity as any), activo: target };
+        if (res?.message) this.notify.success('Listo', res.message);
+      },
+      error: (e: any) => {
+        this.saving = false;
+        this.notify.error('Error', e?.error?.message || (typeof e?.error === 'string' ? e.error : 'No se pudo cambiar el estado'));
       }
     });
   }
@@ -215,5 +238,7 @@ export class VehiculosGestionarComponent implements OnInit {
     this.router.navigate(['/gestion-de-vehiculos/asignar-vehiculo-a-seccion'], { queryParams: { id: this.vehiculoId, from: 'gestionar' } });
   }
 
-  volver() { this.router.navigate(['/gestion-de-vehiculos/mis-vehiculos']); }
+  volver() {
+    this.router.navigate(['/gestion-de-vehiculos/mis-vehiculos']);
+  }
 }

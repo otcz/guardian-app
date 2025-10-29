@@ -54,6 +54,13 @@ export interface ApiResponse<T> {
   data: T | null;
 }
 
+export interface TransferirUsuarioRequest {
+  usuarioId: string;
+  seccionDestinoId: string;
+  mantenerRolContextual?: boolean | null;
+  nuevoRolContextualId?: string | null;
+}
+
 @Injectable({ providedIn: 'root' })
 export class SeccionService {
   private base = environment.apiBase;
@@ -283,6 +290,53 @@ export class SeccionService {
         fechaActualizacion: d?.fechaActualizacion ? String(d?.fechaActualizacion) : null
       } as UserEntity))),
       catchError(err => throwError(() => ({ status: err?.status, error: { message: err?.error?.message || err?.message } })))
+    );
+  }
+
+  /**
+   * Transferir usuario de una sección origen a una sección destino dentro de la misma organización.
+   * POST /orgs/{orgId}/secciones/{seccionId}/usuarios/transferir
+   */
+  transferirUsuario(orgId: string, seccionOrigenId: string, body: TransferirUsuarioRequest) {
+    const url = `${this.base}/orgs/${orgId}/secciones/${seccionOrigenId}/usuarios/transferir`;
+    return this.http.post<any>(url, body, { headers: this.json }).pipe(
+      map((payload) => {
+        // El backend devuelve la asignación actualizada. Aceptar planos o envueltos.
+        const resp: ApiResponse<any> = (payload && typeof payload === 'object' && 'success' in payload)
+          ? (payload as ApiResponse<any>)
+          : ({ success: true, message: (payload as any)?.message, data: (payload as any) } as any);
+        if (resp.success === false) {
+          throw { status: 400, error: { message: resp.message || 'No se pudo transferir el usuario' } };
+        }
+        const d = (resp.data || {}) as any;
+        const asig: UsuarioSeccionEntity = {
+          id: String(d?.id ?? d?._id ?? ''),
+          activo: d?.activo != null ? !!d?.activo : true,
+          usuarioEntity: d?.usuarioEntity ? {
+            id: String(d?.usuarioEntity?.id ?? d?.usuarioEntity?._id ?? ''),
+            username: String(d?.usuarioEntity?.username ?? d?.usuarioEntity?.userName ?? ''),
+            nombreCompleto: d?.usuarioEntity?.nombreCompleto ?? null,
+            scopeNivel: d?.usuarioEntity?.scopeNivel ?? undefined
+          } : null,
+          seccionEntity: d?.seccionEntity ? {
+            id: String(d?.seccionEntity?.id ?? ''),
+            nombre: d?.seccionEntity?.nombre ?? null
+          } : null,
+          rolEntityContextual: d?.rolEntityContextual ? {
+            id: String(d?.rolEntityContextual?.id ?? ''),
+            nombre: d?.rolEntityContextual?.nombre ?? null
+          } : null
+        } as UsuarioSeccionEntity;
+        return { asignacion: asig, message: resp.message };
+      }),
+      catchError((err) => {
+        // Propagar código y mensaje para mapeo en UI
+        const status = err?.status;
+        const payload = err?.error ?? {};
+        const code = payload?.code || payload?.errorCode || undefined;
+        const message = payload?.message || err?.message || 'No se pudo transferir el usuario';
+        return throwError(() => ({ status, error: { code, message } }));
+      })
     );
   }
 }

@@ -43,24 +43,34 @@
         <p-dropdown [options]="secciones" optionLabel="nombre" optionValue="id" [(ngModel)]="seccionId" name="seccionId" placeholder="Seleccione sección"></p-dropdown>
       </div>
 
+      <!-- Bloque de Transferencia de Usuario -->
+      <div class="field" *ngIf="selectedUser">
+        <label>Transferir a sección</label>
+        <p-dropdown [options]="secciones" optionLabel="nombre" optionValue="id" [(ngModel)]="seccionDestinoId" name="seccionDestinoId" placeholder="Seleccione sección destino" [disabled]="!selectedUser"></p-dropdown>
+      </div>
+
+      <div class="field inline" *ngIf="selectedUser">
+        <label>
+          <input type="checkbox" [(ngModel)]="transferMantenerRolContextual" name="transferMantenerRolContextual" />
+          Mantener rol contextual actual
+        </label>
+      </div>
+
+      <div class="field" *ngIf="selectedUser && !transferMantenerRolContextual">
+        <label>Nuevo rol contextual</label>
+        <p-dropdown [options]="rolesDisponibles" optionLabel="nombre" optionValue="id" [(ngModel)]="transferNuevoRolId" name="transferNuevoRolId" placeholder="Seleccione rol" [showClear]="true"></p-dropdown>
+      </div>
+
       <div class="actions">
         <button pButton type="button" label="Asignar" icon="pi pi-check" (click)="assign()" [disabled]="saving || !usuarioId || !seccionId"></button>
         <button pButton type="button" label="Quitar sección" class="p-button p-button-outlined" icon="pi pi-times" (click)="remove()" [disabled]="saving || !usuarioId"></button>
         <!-- Asignar Administrador de Organización (solo SYSADMIN) -->
         <button *ngIf="isSysadmin" pButton type="button" label="Asignar como Administrador" class="p-button p-button-secondary" icon="pi pi-shield" (click)="assignAsOrgAdmin()" [disabled]="saving || !usuarioId || !orgAdminTargetOrgId" pTooltip="Otorga rol ORGADMIN y mueve al usuario a la organización seleccionada"></button>
+        <!-- Transferir usuario -->
+        <button pButton type="button" label="Transferir" class="p-button p-button-help" icon="pi pi-angle-double-right" (click)="transfer()" [disabled]="saving || !usuarioId || !seccionDestinoId || (selectedUser && selectedUser.seccionPrincipalId === seccionDestinoId) || (!transferMantenerRolContextual && !transferNuevoRolId)" pTooltip="Mover usuario a otra sección manteniendo o cambiando su rol contextual"></button>
       </div>
     </div>
   </p-card>
 
   <!-- Diálogo de invitación eliminado de esta pantalla -->
 </div>
-
-
-
-
-
-
-
-
-
-

@@ -47,7 +47,20 @@ export interface UpdateVehicleRequest {
   linea?: string | null;
   anio?: number | null;
   color?: string | null;
+  activo?: boolean;
 }
+
+// Contratos del checklist (alias explícitos)
+export interface VehiculoUpdateReq {
+  placa?: string;
+  marca?: string | null;
+  modelo?: string | null;
+  linea?: string | null;
+  anio?: number | null;
+  color?: string | null;
+  activo?: boolean;
+}
+export interface VehiculoUserAssignReq { usuarioIds: string[]; }
 
 export interface VehiculoCapabilities { canUpdateBloqueado: boolean; message?: string; }
 
@@ -250,7 +263,7 @@ export class VehiculosService {
         const v = d ? this.ensureVehicle(d) : undefined;
         return { vehicle: v, message: (resp as any)?.message };
       }),
-      catchError((err) => throwError(() => ({ error: { message: (err?.error?.message ?? (typeof err?.error === 'string' ? err.error : null) ?? err?.message ?? 'No se pudo cambiar el estado del vehículo') }, status: err?.status })))
+      catchError((err) => throwError((() => ({ error: { message: (err?.error?.message ?? (typeof err?.error === 'string' ? err.error : null) ?? err?.message ?? 'No se pudo cambiar el estado del vehículo') }, status: err?.status }))))
     );
   }
 
@@ -267,5 +280,73 @@ export class VehiculosService {
       }),
       catchError((err) => throwError(() => ({ error: { message: (err?.error?.message ?? (typeof err?.error === 'string' ? err.error : null) ?? err?.message ?? 'No se pudo asignar la sección del vehículo') }, status: err?.status })))
     );
+  }
+
+  // NUEVO: asignar usuarios al vehículo (idempotente)
+  assignUsers(orgId: string, vehiculoId: string, usuarioIds: string[]): Observable<{ vehicle: VehiculoDto; message?: string }> {
+    const url = `${this.base}/orgs/${orgId}/vehiculos/${vehiculoId}/usuarios`;
+    const body: VehiculoUserAssignReq = { usuarioIds: usuarioIds ?? [] };
+    return this.http.post<any>(url, body, { headers: this.json, responseType: 'text' as 'json' }).pipe(
+      map((payload: any) => this.toApiResponse(payload)),
+      map((resp) => {
+        const d = this.unwrap<any>(resp);
+        const v = this.ensureVehicle(d);
+        return { vehicle: v, message: (resp as any)?.message };
+      }),
+      catchError((err) => throwError(() => ({ error: { message: (err?.error?.message ?? (typeof err?.error === 'string' ? err.error : null) ?? err?.message ?? 'No se pudieron asignar usuarios al vehículo') }, status: err?.status })))
+    );
+  }
+
+  // NUEVO: desasignar un usuario del vehículo (idempotente)
+  unassignUser(orgId: string, vehiculoId: string, usuarioId: string): Observable<{ vehicle?: VehiculoDto; message?: string }> {
+    const url = `${this.base}/orgs/${orgId}/vehiculos/${vehiculoId}/usuarios/${usuarioId}`;
+    return this.http.delete<any>(url, { headers: this.accept, responseType: 'text' as 'json' }).pipe(
+      map((payload: any) => this.toApiResponse(payload)),
+      map((resp) => {
+        const d = this.unwrap<any>(resp);
+        const v = d ? this.ensureVehicle(d) : undefined;
+        return { vehicle: v, message: (resp as any)?.message };
+      }),
+      catchError((err) => throwError(() => ({ error: { message: (err?.error?.message ?? (typeof err?.error === 'string' ? err.error : null) ?? err?.message ?? 'No se pudo desasignar el usuario del vehículo') }, status: err?.status })))
+    );
+  }
+
+  // ===== Aliases en español para cumplir checklist (devuelven ApiResponse<T>) =====
+  crear(orgId: string, body: VehiculoCreateReq): Observable<ApiResponse<VehiculoDto>> {
+    return this.create(orgId, body).pipe(map(({ vehicle, message }) => ({ success: true, message, data: vehicle })));
+  }
+
+  listar(orgId: string, opts?: { seccionId?: string; subtree?: boolean }): Observable<ApiResponse<VehiculoDto[]>> {
+    return this.list(orgId, { seccionId: opts?.seccionId ?? null, subtree: opts?.subtree }).pipe(
+      map((items) => ({ success: true, data: items } as ApiResponse<VehiculoDto[]>))
+    );
+  }
+
+  obtener(orgId: string, vehiculoId: string): Observable<ApiResponse<VehiculoDto>> {
+    return this.get(orgId, vehiculoId).pipe(map((v) => ({ success: true, data: v })));
+  }
+
+  actualizar(orgId: string, vehiculoId: string, body: VehiculoUpdateReq): Observable<ApiResponse<VehiculoDto>> {
+    return this.update(orgId, vehiculoId, body as UpdateVehicleRequest).pipe(map(({ vehicle, message }) => ({ success: true, message, data: vehicle })));
+  }
+
+  actualizarEstado(orgId: string, vehiculoId: string, activo: boolean): Observable<ApiResponse<VehiculoDto>> {
+    return this.setActive(orgId, vehiculoId, activo).pipe(map(({ vehicle, message }) => ({ success: true, message, data: vehicle! })));
+  }
+
+  actualizarBloqueado(orgId: string, vehiculoId: string, bloqueado: boolean): Observable<ApiResponse<VehiculoDto>> {
+    return this.setBloqueado(orgId, vehiculoId, bloqueado).pipe(map(({ vehicle, message }) => ({ success: true, message, data: vehicle! })));
+  }
+
+  asignarSeccion(orgId: string, vehiculoId: string, seccionId?: string): Observable<ApiResponse<VehiculoDto>> {
+    return this.assignSection(orgId, vehiculoId, seccionId ?? null).pipe(map(({ vehicle, message }) => ({ success: true, message, data: vehicle })));
+  }
+
+  asignarUsuarios(orgId: string, vehiculoId: string, usuarioIds: string[]): Observable<ApiResponse<VehiculoDto>> {
+    return this.assignUsers(orgId, vehiculoId, usuarioIds).pipe(map(({ vehicle, message }) => ({ success: true, message, data: vehicle })));
+  }
+
+  desasignarUsuario(orgId: string, vehiculoId: string, usuarioId: string): Observable<ApiResponse<VehiculoDto | undefined>> {
+    return this.unassignUser(orgId, vehiculoId, usuarioId).pipe(map(({ vehicle, message }) => ({ success: true, message, data: vehicle })));
   }
 }

@@ -235,49 +235,96 @@ OpcionUsuarioController (Base: /api/orgs/{orgId}/opciones-usuario)
   - 200: OpcionUsuarioDto[] (IDs solamente, sin expandir Opcion)
 
 VehiculoController (Base: /api/orgs/{orgId}/vehiculos)
-- POST /
-  - Auth: SYSADMIN u ORGADMIN; o usuario perteneciente a la org (se asigna sección por defecto si es posible)
-  - Body: { placa }
-  - 201: ApiResponse { success: true, message: Messages.VEHICLE_CREATE_OK, data: VehiculoDto { id, placa, marca, modelo, linea, anio, color, activo, seccionId, orgId, fechaCreacion, fechaActualizacion } }
-  - 400/404/409: ApiResponse { success: false, message: ORG_NOT_FOUND | VEHICLE_PLATE_DUPLICATE | … }
-- GET /
-  - Query: soloMios?=boolean
-  - Auth: SYSADMIN/ORGADMIN: lista todo; usuarios: solo vehículos en secciones accesibles si soloMios=true; de lo contrario requiere raíz admin de sección
-  - 200: ApiResponse { success: true, message: Messages.VEHICLE_LIST_OK, data: VehiculoDto[] }
-- GET /{vehiculoId}
-  - Auth: visible si pertenece a una sección accesible o admin
-  - 200: ApiResponse { success: true, message: Messages.VEHICLE_GET_OK, data: VehiculoDto }
-  - 403/404/400: ApiResponse { success: false, message: … }
-- PATCH /{vehiculoId}/estado?value=boolean
-  - Auth: SYSADMIN/ORGADMIN o quien pueda ver el vehículo
-  - 200: ApiResponse { success: true, message: VEHICLE_ACTIVATE_OK | VEHICLE_DEACTIVATE_OK, data: VehiculoDto }
-- PATCH /{vehiculoId}/seccion?seccionId=UUID|null
-  - Auth: SYSADMIN/ORGADMIN; si ORGADMIN, restringe al subárbol administrado
-  - 200: ApiResponse { success: true, message: VEHICLE_SECTION_SET_OK | VEHICLE_SECTION_CLEAR_OK, data: VehiculoDto }
-  - 404/400: ApiResponse { success: false, message: VEHICLE_NOT_FOUND | SECTION_NOT_FOUND | SECTION_PARENT_INVALID_ORG }
 
-IngresoController (Base: /api/orgs/{orgId}/ingresos)
-- POST /
-  - Auth: SYSADMIN u ORGADMIN; o ADMIN/GUARDIA solo si registran en su sección
-  - Body: { seccionId?, vehiculoId?, usuarioId?, origenNivel?, tipo? [ENTRADA|SALIDA], controlEstadoPresencia?, timestampEvento? }
-  - 201: IngresoEntity
-  - 403: body: Messages.PROHIBIDO
-- GET /
-  - Query: desde?, hasta? (ISO 8601)
-  - 200: IngresoEntity[]
-- GET /{ingresoId}
-  - 200: IngresoEntity
-  - 404: body: Messages.INGRESS_NOT_FOUND
-  - 403: body: Messages.PROHIBIDO
+Resumen de endpoints y comportamiento por rol
+- POST /api/orgs/{orgId}/vehiculos
+  - Crea vehículo.
+  - USUARIO: auto-asignado al usuario actual (ignora usuarioIds).
+  - ADMIN | ADMIN de SECCIÓN | ORGADMIN | SYSADMIN: deben enviar usuarioIds (obligatorio).
+- GET /api/orgs/{orgId}/vehiculos
+  - SYSADMIN: devuelve todos los vehículos del sistema (si no se envía seccionId).
+  - ORGADMIN y ADMIN (org): devuelve todos los vehículos de su organización; opcional: filtrar por ?seccionId=... y ?subtree=true.
+  - ADMIN de SECCIÓN: devuelve vehículos dentro de su subárbol (sección principal o contextuales).
+  - USUARIO: devuelve solo vehículos asignados a su usuario.
+- GET /api/orgs/{orgId}/vehiculos/{vehiculoId}
+  - Obtiene detalle si el usuario tiene visibilidad suficiente.
+- PATCH /api/orgs/{orgId}/vehiculos/{vehiculoId}
+  - Actualiza datos (placa, marca, modelo, línea, año, color).
+- PATCH /api/orgs/{orgId}/vehiculos/{vehiculoId}/estado?value=true|false
+  - Activa/desactiva vehículo (roles con visibilidad suficiente).
+- PATCH /api/orgs/{orgId}/vehiculos/{vehiculoId}/bloqueado?value=true|false
+  - Actualiza flag “bloqueado” (roles admin, verificado contra sección).
+- PATCH /api/orgs/{orgId}/vehiculos/{vehiculoId}/seccion?seccionId={id}
+  - Asigna o elimina sección del vehículo (requiere permiso de menú y roles admin). Si se omite seccionId, limpia la sección.
+- POST /api/orgs/{orgId}/vehiculos/{vehiculoId}/usuarios
+  - Asigna usuarios al vehículo (idempotente). Requiere: SYSADMIN | ORGADMIN | ADMIN (org) | ADMIN de la sección del vehículo.
+- DELETE /api/orgs/{orgId}/vehiculos/{vehiculoId}/usuarios/{usuarioId}
+  - Desasigna un usuario (idempotente), mismos roles que arriba.
 
-AuditoriaController (Base: /api/orgs/{orgId}/auditoria)
-- GET /
-  - 200: LogAuditoriaEntity[]
-- GET /seccion/{seccionId}
-  - 200: LogAuditoriaEntity[]
-- POST /
-  - Body: { seccionId?, usuarioId?, nivelContexto? [ORGANIZACION|SECCION|...], accion, detalle? }
-  - 201: LogAuditoriaEntity
+Parámetros de listado
+- seccionId: UUID de la sección para filtrar.
+- subtree: boolean (true = incluye subárbol de esa sección).
+
+Permisos de menú (para UI)
+- Para listar/mostrar menú: ITEM_LISTAR_VEHICULOS
+- Para asignar sección: ITEM_ASIGNAR_VEHICULO_A_SECCION
+
+Contratos (inputs/outputs) relevantes
+- Respuesta estándar: ApiResponse<T> = { success: boolean; message: string; data: T }
+- VehiculoDto: { id: string; placa: string; marca?: string; modelo?: string; linea?: string; anio?: number; color?: string; activo: boolean; bloqueado: boolean; seccionId?: string; orgId: string; fechaCreacion: string; fechaActualizacion: string }
+- VehiculoCreateReq: { placa: string; marca?: string; modelo?: string; linea?: string; anio?: number; color?: string; usuarioIds?: string[] }
+- VehiculoUpdateReq: { placa?: string; marca?: string; modelo?: string; linea?: string; anio?: number; color?: string; activo?: boolean }
+- VehiculoUserAssignReq: { usuarioIds: string[] }
+
+Servicio Angular (VehiculosService)
+- Ubicación: src/app/service/vehiculos.service.ts
+- Métodos principales (alias en español que devuelven ApiResponse<T>):
+  - crear(orgId, body: VehiculoCreateReq)
+  - listar(orgId, opts?: { seccionId?: string; subtree?: boolean })
+  - obtener(orgId, vehiculoId)
+  - actualizar(orgId, vehiculoId, body: VehiculoUpdateReq)
+  - actualizarEstado(orgId, vehiculoId, activo: boolean)
+  - actualizarBloqueado(orgId, vehiculoId, bloqueado: boolean)
+  - asignarSeccion(orgId, vehiculoId, seccionId?)
+  - asignarUsuarios(orgId, vehiculoId, usuarioIds: string[])
+  - desasignarUsuario(orgId, vehiculoId, usuarioId)
+
+Ejemplos de uso en componentes
+- Crear como USUARIO (auto-asignado):
+  this.vehiculos.crear(orgId, { placa: 'ABC123', marca: 'Toyota', modelo: 'Yaris' })
+    .subscribe(({ success, message, data }) => { /* notify y refrescar */ });
+- Crear como ADMIN (asignación manual):
+  this.vehiculos.crear(orgId, { placa: 'DEF456', usuarioIds: [usuario1Id, usuario2Id] })
+    .subscribe(/* ... */);
+- Listar (admin org/sección y orgadmin):
+  this.vehiculos.listar(orgId, { seccionId, subtree: true }).subscribe(/* ... */);
+- Listar para USUARIO (backend filtra por asignación):
+  this.vehiculos.listar(orgId).subscribe(/* ... */);
+- Asignar usuarios (roles admin):
+  this.vehiculos.asignarUsuarios(orgId, vehiculoId, [usuario1Id, usuario2Id]).subscribe(/* ... */);
+- Desasignar un usuario:
+  this.vehiculos.desasignarUsuario(orgId, vehiculoId, usuarioId).subscribe(/* ... */);
+- Asignar / limpiar sección:
+  this.vehiculos.asignarSeccion(orgId, vehiculoId, seccionId).subscribe(/* ... */);
+  this.vehiculos.asignarSeccion(orgId, vehiculoId).subscribe(/* limpia sección */);
+- Activar/Desactivar y Bloquear/Desbloquear:
+  this.vehiculos.actualizarEstado(orgId, vehiculoId, true).subscribe(/* ... */);
+  this.vehiculos.actualizarBloqueado(orgId, vehiculoId, false).subscribe(/* ... */);
+
+Manejo de errores en Angular
+- El backend devuelve ApiResponse con success=false y message descriptivo en errores “controlados” (400/403/404/409). Mapear message a un toast/banner.
+- 403 PROHIBIDO: mostrar “No tiene permisos para esta acción”.
+- 409 placa duplicada: resaltar el campo placa.
+- 400 VALIDACION FALLIDA: mostrar errores de formulario.
+- Headers: Authorization: Bearer <token> (o X-User para entornos de prueba). orgId siempre en el path.
+
+Notas rápidas por rol
+- USUARIO: Crear solo con placa (auto-asignado). Listar: solo verá sus vehículos.
+- ADMIN de SECCIÓN: Listar con seccionId y subtree; puede asignar/desasignar usuarios y mover sección si está en su alcance.
+- ADMIN (org) y ORGADMIN: Ven toda la organización; gestionan usuarios y sección del vehículo.
+- SYSADMIN: GET lista todos los vehículos del sistema.
+
+---
 
 Guía de manejo de respuestas heterogéneas en el front
 - Detectar forma de respuesta:
@@ -303,4 +350,3 @@ Buenas prácticas para componentes
 - En operaciones 204, mostrar un toast genérico si hace sentido (p.ej., “Operación realizada”) o silencio si se actualiza UI directamente
 
 Fin de documento
-

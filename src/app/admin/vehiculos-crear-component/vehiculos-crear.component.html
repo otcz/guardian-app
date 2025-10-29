@@ -72,7 +72,7 @@
             <div><b>Placa:</b> {{ v.placa }}</div>
             <div><b>Activo:</b> <span [ngClass]="{ 'text-success': v.activo, 'text-muted': !v.activo }">{{ v.activo ? 'Sí' : 'No' }}</span></div>
             <div><b>Marca/Modelo:</b> {{ v.marca || '-' }} / {{ v.modelo || '-' }}</div>
-            <div><b>Sección:</b> {{ seccionNombreVehiculo(v) }} <button pButton type="button" class="asignar-inline p-button-sm" label="Asignar" (click)="asignarmeAExistente()" [disabled]="asignando" style="margin-left:.5rem"></button></div>
+            <div><b>Sección:</b> {{ seccionNombreVehiculo(v) }} <button pButton type="button" class="p-button-success p-button-sm" label="Asignar" (click)="asignarmeAExistente()" [disabled]="asignando" style="margin-left:.5rem"></button></div>
           </div>
         </div>
 
@@ -81,7 +81,7 @@
             <label>Asociar usuarios a este vehículo</label>
             <div style="display:flex; gap:.5rem; align-items:center">
               <button pButton type="button" class="p-button-text p-button-sm" icon="pi pi-user-plus" label="Agregarme a mí" (click)="addMeToExistingUsers()" [disabled]="asignando"></button>
-              <button pButton type="button" class="asignar-inline p-button-sm" icon="pi pi-user" label="Asignarme a este vehículo" (click)="asignarmeAExistente()" [disabled]="asignando"></button>
+              <button pButton type="button" class="p-button-success p-button-sm" icon="pi pi-user" label="Asignarme a este vehículo" (click)="asignarmeAExistente()" [disabled]="asignando"></button>
             </div>
           </div>
           <p-multiSelect [options]="usuarios"
@@ -94,7 +94,7 @@
           </p-multiSelect>
           <div class="mt-2">
             <button pButton type="button" label="Asociar a existente" icon="pi pi-user-plus"
-                    class="asignar-cta"
+                    class="p-button-success"
                     (click)="asociarAExistente()" [disabled]="asignando || (usuariosParaExistente.length === 0)"></button>
           </div>
           <small class="text-muted">Como ya existe, no podrás crear otro con la misma placa. Usa la asociación.</small>

@@ -2,36 +2,43 @@
   <div class="form-grid">
     <div class="form-row">
       <label for="placa">Placa</label>
-      <input id="placa" type="text" pInputText [(ngModel)]="model.placa" appUppercase placeholder="ABC123" [disabled]="saving" />
+      <div style="display:flex; gap:.5rem; align-items:center; width:100%">
+        <input id="placa" type="text" pInputText [(ngModel)]="model.placa" appUppercase placeholder="ABC123" [disabled]="saving || asignando" style="flex:1" />
+        <button pButton type="button" label="Buscar por placa" class="p-button-outlined" (click)="buscarPorPlaca()" [disabled]="buscando || !model.placa"></button>
+      </div>
     </div>
 
-    <div class="form-row">
-      <label for="marca">Marca</label>
-      <input id="marca" type="text" pInputText [(ngModel)]="model.marca" placeholder="Toyota" [disabled]="saving" />
+    <div class="grid-2">
+      <div class="form-row">
+        <label for="marca">Marca</label>
+        <input id="marca" type="text" pInputText [(ngModel)]="model.marca" placeholder="Toyota" [disabled]="saving || asignando" />
+      </div>
+      <div class="form-row">
+        <label for="modelo">Modelo</label>
+        <input id="modelo" type="text" pInputText [(ngModel)]="model.modelo" placeholder="Corolla" [disabled]="saving || asignando" />
+      </div>
     </div>
 
-    <div class="form-row">
-      <label for="modelo">Modelo</label>
-      <input id="modelo" type="text" pInputText [(ngModel)]="model.modelo" placeholder="Corolla" [disabled]="saving" />
-    </div>
-
-    <div class="form-row">
-      <label for="linea">Línea</label>
-      <input id="linea" type="text" pInputText [(ngModel)]="model.linea" placeholder="SE" [disabled]="saving" />
-    </div>
-
-    <div class="form-row">
-      <label for="anio">Año</label>
-      <input id="anio" type="number" pInputText [(ngModel)]="model.anio" placeholder="2024" [disabled]="saving" />
-    </div>
-
-    <div class="form-row">
-      <label for="color">Color</label>
-      <input id="color" type="text" pInputText [(ngModel)]="model.color" placeholder="Blanco" [disabled]="saving" />
+    <div class="grid-3">
+      <div class="form-row">
+        <label for="linea">Línea</label>
+        <input id="linea" type="text" pInputText [(ngModel)]="model.linea" placeholder="SE" [disabled]="saving || asignando" />
+      </div>
+      <div class="form-row">
+        <label for="anio">Año</label>
+        <input id="anio" type="number" pInputText [(ngModel)]="model.anio" placeholder="2024" [disabled]="saving || asignando" />
+      </div>
+      <div class="form-row">
+        <label for="color">Color</label>
+        <input id="color" type="text" pInputText [(ngModel)]="model.color" placeholder="Blanco" [disabled]="saving || asignando" />
+      </div>
     </div>
 
     <div class="form-row" *ngIf="isAdmin">
-      <label for="usuarios">Usuarios (1..N)</label>
+      <div class="row-label-actions">
+        <label for="usuarios">Usuarios (1..N)</label>
+        <button pButton type="button" class="p-button-text p-button-sm" icon="pi pi-user-plus" label="Agregarme a mí" (click)="addMeToCreateUsers()" [disabled]="saving || asignando"></button>
+      </div>
       <p-multiSelect id="usuarios"
                      [options]="usuarios"
                      optionLabel="username"
@@ -39,7 +46,7 @@
                      [(ngModel)]="model.usuarioIds"
                      defaultLabel="Seleccione usuarios"
                      [filter]="true"
-                     [disabled]="saving">
+                     [disabled]="saving || asignando">
       </p-multiSelect>
     </div>
 
@@ -47,16 +54,61 @@
       <label for="seccion">Asignar a Sección (opcional)</label>
       <p-dropdown id="seccion" [options]="secciones" optionLabel="nombre" optionValue="id"
                   [(ngModel)]="model.seccionAsignadaId" [showClear]="true" placeholder="Seleccione"
-                  [disabled]="loading || saving"></p-dropdown>
+                  [disabled]="loading || saving || asignando"></p-dropdown>
+      <small class="text-muted">Nota: la sección se puede mover luego desde "Gestionar vehículo".</small>
+    </div>
+
+    <!-- Estado de búsqueda -->
+    <div class="form-row" *ngIf="buscando">
+      <span class="text-muted">Buscando vehículo por placa...</span>
+    </div>
+
+    <!-- Resultado de búsqueda: encontrado -->
+    <div class="form-row" *ngIf="!buscando && existente.status === 'found' && existente.vehiculo as v">
+      <div class="found-box">
+        <div class="found-header"><i class="pi pi-car" style="margin-right:.5rem"></i>Vehículo existente encontrado</div>
+        <div class="found-body">
+          <div class="grid-2">
+            <div><b>Placa:</b> {{ v.placa }}</div>
+            <div><b>Activo:</b> <span [ngClass]="{ 'text-success': v.activo, 'text-muted': !v.activo }">{{ v.activo ? 'Sí' : 'No' }}</span></div>
+            <div><b>Marca/Modelo:</b> {{ v.marca || '-' }} / {{ v.modelo || '-' }}</div>
+            <div><b>Sección:</b> {{ v.seccionNombre || v.seccionAsignadaId || v.seccionId || '-' }}</div>
+          </div>
+        </div>
+
+        <div class="form-row" *ngIf="isAdmin">
+          <div class="row-label-actions">
+            <label>Asociar usuarios a este vehículo</label>
+            <button pButton type="button" class="p-button-text p-button-sm" icon="pi pi-user-plus" label="Agregarme a mí" (click)="addMeToExistingUsers()" [disabled]="asignando"></button>
+          </div>
+          <p-multiSelect [options]="usuarios"
+                         optionLabel="username"
+                         optionValue="id"
+                         [(ngModel)]="usuariosParaExistente"
+                         defaultLabel="Seleccione usuarios"
+                         [filter]="true"
+                         [disabled]="asignando">
+          </p-multiSelect>
+          <div class="mt-2">
+            <button pButton type="button" label="Asociar a existente" icon="pi pi-user-plus"
+                    (click)="asociarAExistente()" [disabled]="asignando || (usuariosParaExistente.length === 0)"></button>
+          </div>
+          <small class="text-muted">Como ya existe, no podrás crear otro con la misma placa. Usa la asociación.</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Resultado de búsqueda: no encontrado / error -->
+    <div class="form-row" *ngIf="!buscando && (existente.status === 'notfound')">
+      <span class="text-warn">No se encontró un vehículo con esa placa en la organización.</span>
+    </div>
+    <div class="form-row" *ngIf="!buscando && (existente.status === 'error')">
+      <span class="text-error">{{ existente.message || 'Error buscando vehículo' }}</span>
     </div>
 
     <div class="actions">
-      <button pButton type="button" label="Cancelar" class="p-button-text" (click)="cancelar()" [disabled]="saving"></button>
-      <button pButton type="button" label="Crear" (click)="onSubmit()" [disabled]="saving"></button>
+      <button pButton type="button" label="Cancelar" class="p-button-text" (click)="cancelar()" [disabled]="saving || asignando"></button>
+      <button pButton type="button" label="Crear" (click)="onSubmit()" [disabled]="saving || asignando || existente.status==='found'"></button>
     </div>
-  </div>
-
-  <div class="loading" *ngIf="loading">
-    <p-progressSpinner styleClass="block"></p-progressSpinner>
   </div>
 </p-card>

@@ -11,15 +11,17 @@ import { UppercaseDirective } from '../../shared/formatting.directives';
 import { OrgContextService } from '../../service/org-context.service';
 import { SeccionEntity, SeccionService } from '../../service/seccion.service';
 import { NotificationService } from '../../service/notification.service';
-import { VehiculosService } from '../../service/vehiculos.service';
+import { VehiculosService, VehicleEntity } from '../../service/vehiculos.service';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { UsersService, UserEntity } from '../../service/users.service';
 import { AuthService } from '../../service/auth.service';
+import { TabViewModule } from 'primeng/tabview';
+import { MessageModule } from 'primeng/message';
 
 @Component({
   selector: 'app-vehiculos-crear',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, CardModule, InputTextModule, DropdownModule, ButtonModule, ProgressSpinnerModule, UppercaseDirective, MultiSelectModule],
+  imports: [CommonModule, FormsModule, RouterModule, CardModule, InputTextModule, DropdownModule, ButtonModule, ProgressSpinnerModule, UppercaseDirective, MultiSelectModule, TabViewModule, MessageModule],
   templateUrl: './vehiculos-crear.component.html',
   styleUrls: ['./vehiculos-crear.component.scss']
 })
@@ -33,6 +35,16 @@ export class VehiculosCrearComponent implements OnInit {
   isAdmin = false;
   model: { placa: string; seccionAsignadaId: string | null; marca?: string | null; modelo?: string | null; linea?: string | null; anio?: number | null; color?: string | null; usuarioIds?: string[] } = { placa: '', seccionAsignadaId: null, marca: null, modelo: null, linea: null, anio: null, color: null, usuarioIds: [] };
 
+  // Usuario actual
+  currentUsername: string | null = null;
+  currentUserId: string | null = null;
+
+  // Nuevo: búsqueda por placa y asociación a existente
+  buscando = false;
+  existente: { status: 'idle' | 'found' | 'notfound' | 'error'; vehiculo?: VehicleEntity | null; message?: string | null } = { status: 'idle', vehiculo: null };
+  usuariosParaExistente: string[] = [];
+  asignando = false;
+
   constructor(
     private orgCtx: OrgContextService,
     private seccionService: SeccionService,
@@ -45,15 +57,21 @@ export class VehiculosCrearComponent implements OnInit {
 
   ngOnInit(): void {
     this.orgId = this.orgCtx.value;
+    this.currentUsername = this.readUsername();
     // Determinar si el usuario posee rol de admin (tolerante a variantes de nombre)
-    this.isAdmin = this.auth.hasAnyRole('SYSADMIN', 'ORGADMIN', 'ORG_ADMIN', 'ADMIN_ORG');
+    this.isAdmin = this.auth.hasAnyRole('SYSADMIN', 'ORGADMIN', 'ORG_ADMIN', 'ADMIN_ORG', 'ADMIN');
     if (!this.orgId) {
       this.notify.warn('Atención', 'Seleccione una organización');
       this.router.navigate(['/listar-organizaciones']);
       return;
     }
     this.loadSecciones();
+    // Cargar usuarios si es admin (para seleccionar usuarios y detectar currentUserId)
     if (this.isAdmin) this.loadUsuarios();
+  }
+
+  private readUsername(): string | null {
+    try { const u = localStorage.getItem('username'); return u ? String(u) : null; } catch { return null; }
   }
 
   loadSecciones() {
@@ -68,7 +86,14 @@ export class VehiculosCrearComponent implements OnInit {
   private loadUsuarios() {
     if (!this.orgId) return;
     this.users.list(this.orgId).subscribe({
-      next: (arr) => { this.usuarios = arr; },
+      next: (arr) => {
+        this.usuarios = arr;
+        // Intentar resolver currentUserId por username
+        if (!this.currentUserId && this.currentUsername) {
+          const me = arr.find(u => (u.username || '').toLowerCase() === this.currentUsername!.toLowerCase());
+          if (me) this.currentUserId = me.id;
+        }
+      },
       error: (e) => { this.notify.warn('Usuarios', e?.error?.message || 'No se pudieron cargar usuarios'); }
     });
   }
@@ -109,9 +134,8 @@ export class VehiculosCrearComponent implements OnInit {
     if (linea) body.linea = linea;
     if (!isNaN(anio as any) && anio != null) body.anio = anio;
     if (color) body.color = color;
-    // Nuevo: usuarioIds (solo admins pueden enviar 1..N usuarios)
+    // usuarioIds (solo admins pueden enviar 1..N usuarios)
     if (this.isAdmin && this.model.usuarioIds && this.model.usuarioIds.length) body.usuarioIds = this.model.usuarioIds;
-    // Nota: ya no enviar seccionAsignadaId en create; el backend la determina automáticamente
 
     console.log('[VehiculosCrearComponent] POST body:', body);
 
@@ -136,5 +160,90 @@ export class VehiculosCrearComponent implements OnInit {
 
   cancelar() {
     this.router.navigate(['/gestion-de-vehiculos/mis-vehiculos']);
+  }
+
+  // ==== NUEVO: Buscar por placa y asociar a un vehículo existente ====
+  buscarPorPlaca() {
+    const placa = (this.model.placa || '').trim().toUpperCase();
+    if (!placa) { this.notify.warn('Búsqueda', 'Ingrese una placa para buscar'); return; }
+    if (!this.orgId) return;
+
+    this.buscando = true;
+    this.existente = { status: 'idle', vehiculo: null };
+
+    // Nota: el backend no expone búsqueda por placa directa; listamos y filtramos en el front
+    this.vehiculos.list(this.orgId, { subtree: true }).subscribe({
+      next: (items) => {
+        const found = (items || []).find(v => (v.placa || '').toUpperCase() === placa);
+        if (found) {
+          this.existente = { status: 'found', vehiculo: found };
+          // Resetear selección de usuarios para este flujo
+          this.usuariosParaExistente = [];
+        } else {
+          this.existente = { status: 'notfound', vehiculo: null, message: 'No se encontró un vehículo con esa placa en la organización' };
+        }
+        this.buscando = false;
+      },
+      error: (e) => {
+        this.buscando = false;
+        const msg = e?.error?.message || e?.message || 'Error buscando vehículo';
+        this.existente = { status: 'error', vehiculo: null, message: msg };
+        this.notify.error('Error', msg);
+      }
+    });
+  }
+
+  asociarAExistente() {
+    if (!this.orgId) return;
+    if (!this.isAdmin) { this.notify.warn('Sin permisos', 'Solo un administrador puede asociar usuarios a un vehículo existente'); return; }
+    const v = this.existenteVehiculo();
+    if (!v) { this.notify.warn('Asociar', 'Primero busque y seleccione un vehículo existente'); return; }
+    const usuarios = this.usuariosParaExistente || [];
+    if (!usuarios.length) { this.notify.warn('Validación', 'Seleccione al menos un usuario para asociar'); return; }
+
+    this.asignando = true;
+    this.vehiculos.assignUsers(this.orgId, v.id, usuarios).subscribe({
+      next: (res) => {
+        this.asignando = false;
+        this.notify.success('Listo', res.message || 'Usuarios asociados al vehículo');
+        // Navegar a gestionar el vehículo
+        this.router.navigate(['/gestion-de-vehiculos/gestionar-vehiculo'], { queryParams: { id: v.id } });
+      },
+      error: (e) => {
+        this.asignando = false;
+        if (e?.status === 403) {
+          this.notify.warn('Sin permisos', e?.error?.message || 'No tiene permisos para asociar usuarios a este vehículo');
+        } else if (e?.status === 400) {
+          this.notify.warn('Validación', e?.error?.message || 'Solicitud inválida');
+        } else {
+          this.notify.error('Error', e?.error?.message || 'No se pudo asociar el/los usuario(s)');
+        }
+      }
+    });
+  }
+
+  // Helpers: Agregarme a mí
+  addMeToCreateUsers() {
+    if (!this.isAdmin) { this.notify.warn('Sin permisos', 'Solo administradores pueden asignar usuarios en creación'); return; }
+    if (!this.currentUserId) { this.notify.warn('Usuario', 'No se pudo identificar el usuario actual'); return; }
+    this.model.usuarioIds = this.model.usuarioIds || [];
+    if (!this.model.usuarioIds.includes(this.currentUserId)) {
+      this.model.usuarioIds.push(this.currentUserId);
+      this.notify.success('Listo', 'Te agregaste como usuario del vehículo a crear');
+    }
+  }
+
+  addMeToExistingUsers() {
+    if (!this.isAdmin) { this.notify.warn('Sin permisos', 'Solo administradores pueden asociar usuarios a un vehículo existente'); return; }
+    if (!this.currentUserId) { this.notify.warn('Usuario', 'No se pudo identificar el usuario actual'); return; }
+    if (!this.existenteVehiculo()) { this.notify.warn('Asociar', 'Primero busca un vehículo existente'); return; }
+    if (!this.usuariosParaExistente.includes(this.currentUserId)) {
+      this.usuariosParaExistente.push(this.currentUserId);
+      this.notify.success('Listo', 'Te agregaste para asociarte a este vehículo');
+    }
+  }
+
+  private existenteVehiculo(): VehicleEntity | null {
+    return (this.existente.status === 'found' && this.existente.vehiculo) ? this.existente.vehiculo : null;
   }
 }

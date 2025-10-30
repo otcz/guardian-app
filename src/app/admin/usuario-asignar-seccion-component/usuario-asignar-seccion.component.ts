@@ -102,10 +102,10 @@ export class UsuarioAsignarSeccionComponent implements OnInit {
     if (!this.orgId) return;
     this.users.list(this.orgId).subscribe({ next: list => {
       this.usuarios = list;
-      // Si ya hay un usuario seleccionado (por query param), preseleccionar su sección actual
+      // Si ya hay un usuario seleccionado (por query param), preseleccionar su sección actual (pertenencia)
       if (this.usuarioId) {
         const u = this.usuarios.find(us => String(us.id) === String(this.usuarioId));
-        this.seccionId = u?.seccionPrincipalId ?? null;
+        this.seccionId = (u as any)?.seccionId ?? null;
         // Por defecto, limpiar selección de destino de transferencia
         this.seccionDestinoId = null;
       }
@@ -126,16 +126,16 @@ export class UsuarioAsignarSeccionComponent implements OnInit {
   assign() {
     if (!this.orgId || !this.usuarioId || !this.seccionId) return;
     this.saving = true;
-    this.users.assignMainSection(this.orgId, this.usuarioId, this.seccionId).subscribe({
-      next: res => { this.saving = false; this.notify.success('Éxito', res.message || 'SECCIÓN PRINCIPAL ASIGNADA.'); },
+    this.seccionesSrv.asignarUsuario(this.orgId, this.seccionId, this.usuarioId).subscribe({
+      next: res => { this.saving = false; this.notify.success('Éxito', res.message || 'USUARIO ASIGNADO A LA SECCIÓN.'); },
       error: e => { this.saving = false; this.notify.error('Error', e?.error?.message || 'No se pudo asignar la sección'); }
     });
   }
   onUserChange(id: string) {
     this.usuarioId = id;
-    // Preseleccionar la sección actual del usuario (si existe)
+    // Preseleccionar la sección actual del usuario (pertenencia)
     const user = this.selectedUser;
-    this.seccionId = user?.seccionPrincipalId ?? null;
+    this.seccionId = (user as any)?.seccionId ?? null;
     // reset de transferencia
     this.seccionDestinoId = null;
     this.transferMantenerRolContextual = true;
@@ -173,7 +173,7 @@ export class UsuarioAsignarSeccionComponent implements OnInit {
   transfer() {
     if (!this.orgId) { this.notify.warn('Atención', 'Seleccione una organización'); return; }
     if (!this.usuarioId) { this.notify.warn('Falta usuario', 'Seleccione un usuario'); return; }
-    const origenId = this.selectedUser?.seccionPrincipalId || null;
+    const origenId = (this.selectedUser as any)?.seccionId || null;
     if (!origenId) { this.notify.warn('No permitido', 'El usuario no tiene una sección de origen'); return; }
     if (!this.seccionDestinoId) { this.notify.warn('Falta destino', 'Seleccione la sección destino'); return; }
     if (String(origenId) === String(this.seccionDestinoId)) { this.notify.warn('Sin cambios', 'La sección destino es igual a la actual'); return; }
@@ -193,10 +193,10 @@ export class UsuarioAsignarSeccionComponent implements OnInit {
     this.seccionesSrv.transferirUsuario(this.orgId, origenId, body).subscribe({
       next: (resp) => {
         this.saving = false;
-        // Actualizar sección principal del usuario en la lista local
+        // Actualizar sección de pertenencia del usuario en la lista local
         const idx = this.usuarios.findIndex(u => String(u.id) === String(this.usuarioId));
         if (idx >= 0) {
-          this.usuarios[idx] = { ...this.usuarios[idx], seccionPrincipalId: this.seccionDestinoId };
+          (this.usuarios[idx] as any) = { ...this.usuarios[idx], seccionId: this.seccionDestinoId } as any;
         }
         this.notify.success('Transferido', resp.message || `Usuario movido a ${this.getSeccionNombre(this.seccionDestinoId)}`);
         // Reset suaves

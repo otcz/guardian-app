@@ -197,6 +197,20 @@ export class VehiculosService {
     );
   }
 
+  // Nuevo endpoint: Mis Vehículos (ADMIN de SECCIÓN)
+  getMisVehiculos(orgId: string): Observable<VehiculoDto[]> {
+    const url = `${this.base}/orgs/${orgId}/vehiculos/mis`;
+    return this.http.get<any>(url, { headers: this.accept, responseType: 'text' as 'json' }).pipe(
+      map((payload: any) => this.toApiResponse(payload)),
+      map((resp) => {
+        if (resp && resp.success === false) throw { error: { message: resp?.message || 'No se pudieron obtener mis vehículos' }, status: 400 };
+        const data = (resp as any)?.data;
+        const arr = Array.isArray(data) ? data : [];
+        return arr.map((d: any) => this.ensureVehicle(d));
+      })
+    );
+  }
+
   // Capabilities del vehículo (para controlar el switch bloqueado)
   getCapabilities(orgId: string, vehiculoId: string): Observable<VehiculoCapabilities> {
     const url = `${this.base}/orgs/${orgId}/vehiculos/${vehiculoId}/capabilities`;

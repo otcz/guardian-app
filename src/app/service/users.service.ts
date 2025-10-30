@@ -16,6 +16,9 @@ export interface UserEntity {
   email?: string | null;
   activo: boolean;
   scopeNivel?: ScopeNivel | null;
+  // Nuevo: sección de pertenencia actual (ID_SECCION)
+  seccionId?: string | null;
+  // Sección principal (solo cuando es administrador de una sección)
   seccionPrincipalId?: string | null;
   orgId?: string | null;
   fechaCreacion?: string | null;
@@ -27,7 +30,8 @@ export interface CreateUserRequest {
   nombreCompleto?: string | null;
   email?: string | null;
   scopeNivel?: ScopeNivel;
-  seccionPrincipalId?: string | null;
+  // Nuevo: permitir setear pertenencia en alta
+  seccionId?: string | null;
 }
 
 export interface UpdateUserRequest {
@@ -73,6 +77,8 @@ export class UsersService {
       email: d?.email ?? null,
       activo: d?.activo != null ? !!d?.activo : (d?.active != null ? !!d?.active : true),
       scopeNivel: (d?.scopeNivel ?? d?.nivel ?? null) as ScopeNivel | null,
+      // mapear pertenencia y principal
+      seccionId: d?.seccionId != null ? String(d?.seccionId) : (d?.seccionEntity?.id != null ? String(d?.seccionEntity?.id) : null),
       seccionPrincipalId: d?.seccionPrincipalId != null ? String(d?.seccionPrincipalId) : null,
       orgId: d?.orgId != null ? String(d?.orgId) : (d?.organizacionId != null ? String(d?.organizacionId) : null),
       fechaCreacion: d?.fechaCreacion ? String(d?.fechaCreacion) : null,
@@ -105,7 +111,15 @@ export class UsersService {
 
   create(orgId: string, body: CreateUserRequest): Observable<{ user: UserEntity; message?: string }> {
     const url = `${this.base}/orgs/${orgId}/usuarios`;
-    return this.http.post<ApiResponse<any>>(url, body, { headers: this.json }).pipe(
+    // Sanitizar: solo enviar campos permitidos en alta; NO enviar seccionPrincipalId
+    const payload: any = {
+      username: body.username,
+      nombreCompleto: body.nombreCompleto ?? undefined,
+      email: body.email ?? undefined,
+      scopeNivel: body.scopeNivel ?? undefined,
+      seccionId: body.seccionId ?? undefined
+    };
+    return this.http.post<ApiResponse<any>>(url, payload, { headers: this.json }).pipe(
       map((resp) => {
         const d = this.unwrap<any>(resp);
         const user = this.ensureUser(d);

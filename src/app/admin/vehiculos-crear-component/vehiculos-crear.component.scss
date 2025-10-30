@@ -100,7 +100,7 @@ p-multiSelect, .p-multiselect { width: 100%; }
 
 /* === Overlay del MultiSelect de este componente (scoped) === */
 :host ::ng-deep {
-  /* Modo claro: fondo blanco y texto negro en el overlay específico */
+  /* Modo claro */
   :root.theme-light body .vehiculos-users-panel,
   :root.theme-light body .ng-star-inserted.p-multiselect-overlay.vehiculos-users-panel,
   :root.theme-light body .ng-star-inserted.p-multiselect-panel.vehiculos-users-panel {
@@ -118,7 +118,7 @@ p-multiSelect, .p-multiselect { width: 100%; }
   :root.theme-light body .vehiculos-users-panel .p-multiselect-item.p-highlight { background: color-mix(in srgb, var(--primary) 14%, transparent) !important; color: #000000 !important; }
   :root.theme-light body .vehiculos-users-panel .p-multiselect-item:not(.p-highlight):hover { background: color-mix(in srgb, var(--primary) 10%, transparent) !important; }
 
-  /* Ajustes de hover/focus de items para evitar fondo negro (tema claro) */
+  /* Hover/focus */
   :root.theme-light body .vehiculos-users-panel .p-multiselect-item.p-highlight:hover,
   :root.theme-light body .vehiculos-users-panel .p-multiselect-item.p-highlight.p-focus {
     background: color-mix(in srgb, var(--primary) 18%, transparent) !important;
@@ -141,7 +141,7 @@ p-multiSelect, .p-multiselect { width: 100%; }
     color: #000000 !important;
   }
 
-  /* Modo oscuro/negro: fondo oscuro y texto blanco en el overlay específico */
+  /* Modo oscuro/negro */
   :root.theme-dark body .vehiculos-users-panel,
   :root.theme-dark body .ng-star-inserted.p-multiselect-overlay.vehiculos-users-panel,
   :root.theme-dark body .ng-star-inserted.p-multiselect-panel.vehiculos-users-panel,
@@ -170,7 +170,7 @@ p-multiSelect, .p-multiselect { width: 100%; }
   :root.theme-dark body .vehiculos-users-panel .p-multiselect-item:not(.p-highlight):hover,
   :root.theme-black body .vehiculos-users-panel .p-multiselect-item:not(.p-highlight):hover { background: color-mix(in srgb, var(--primary) 16%, transparent) !important; }
 
-  /* Ajustes de hover/focus de items para evitar fondo negro (temas oscuros) */
+  /* Ajustes hover/focus en oscuro */
   :root.theme-dark body .vehiculos-users-panel .p-multiselect-item.p-highlight:hover,
   :root.theme-dark body .vehiculos-users-panel .p-multiselect-item.p-highlight.p-focus,
   :root.theme-black body .vehiculos-users-panel .p-multiselect-item.p-highlight:hover,

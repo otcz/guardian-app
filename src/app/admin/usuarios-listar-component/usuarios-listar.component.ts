@@ -166,7 +166,7 @@ export class UsuariosListarComponent implements OnInit {
     const TTL_ERROR_MS = 60_000; // 60s sin reintentar una sección que falla (500)
 
     const secIdsAll = Array.from(new Set(baseArr
-      .map(u => u.seccionPrincipalId)
+      .map(u => (u as any).seccionId)
       .filter((v): v is string => !!v)
       .map(s => String(s))));
 
@@ -282,8 +282,9 @@ export class UsuariosListarComponent implements OnInit {
   }
 
   sectionName(u: UserEntity): string {
-    if (!u?.seccionPrincipalId) return '-';
-    const found = this.secciones.find(s => String(s.id) === String(u.seccionPrincipalId));
-    return found?.nombre || String(u.seccionPrincipalId);
+    const sid = (u as any)?.seccionId;
+    if (!sid) return '-';
+    const found = this.secciones.find(s => String(s.id) === String(sid));
+    return found?.nombre || String(sid);
   }
 }

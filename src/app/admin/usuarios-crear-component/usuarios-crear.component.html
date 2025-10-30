@@ -11,7 +11,7 @@
           <p-chip icon="pi pi-id-card" [label]="model.username || 'USUARIO'" class="pill"></p-chip>
           <p-chip *ngIf="model.nombreCompleto" icon="pi pi-user" [label]="model.nombreCompleto" class="pill"></p-chip>
           <p-chip *ngIf="model.email" icon="pi pi-envelope" [label]="model.email" class="pill"></p-chip>
-          <p-chip *ngIf="isSeccionPrincipalRequerida && model.seccionPrincipalId" icon="pi pi-sitemap" [label]="'Sección: ' + (seccionPrincipalNombre || model.seccionPrincipalId)" class="pill muted"></p-chip>
+          <p-chip *ngIf="isSeccionRequerida && model.seccionId" icon="pi pi-sitemap" [label]="'Sección: ' + (seccionNombre || model.seccionId)" class="pill muted"></p-chip>
         </div>
       </div>
       <div class="actions-toolbar">
@@ -44,17 +44,17 @@
           <p-dropdown [options]="scopeOptions" optionLabel="label" optionValue="value" [(ngModel)]="model.scopeNivel" name="scopeNivel" (onChange)="onScopeChange()"></p-dropdown>
         </div>
 
-        <div class="field" *ngIf="isSeccionPrincipalRequerida">
-          <label>Sección principal</label>
+        <div class="field" *ngIf="isSeccionRequerida">
+          <label>Sección</label>
           <ng-container *ngIf="!loading; else sectionsLoading">
-            <p-dropdown [options]="secciones" optionLabel="nombre" optionValue="id" [(ngModel)]="model.seccionPrincipalId" name="seccionPrincipalId" placeholder="Seleccione sección"></p-dropdown>
+            <p-dropdown [options]="secciones" optionLabel="nombre" optionValue="id" [(ngModel)]="model.seccionId" name="seccionId" placeholder="Seleccione sección"></p-dropdown>
           </ng-container>
           <small class="hint">Requerido si el alcance lo exige.</small>
         </div>
       </div>
 
       <div class="actions footer-actions">
-        <button pButton type="submit" label="Crear" [disabled]="saving || (isSeccionPrincipalRequerida && !model.seccionPrincipalId)"></button>
+        <button pButton type="submit" label="Crear" [disabled]="saving || (isSeccionRequerida && !model.seccionId)"></button>
         <button pButton type="button" class="p-button p-button-text" label="Cancelar" [routerLink]="['/gestion-de-usuarios/listar-usuarios']" [disabled]="saving"></button>
       </div>
     </form>

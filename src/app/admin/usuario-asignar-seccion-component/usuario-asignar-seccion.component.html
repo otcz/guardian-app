@@ -11,7 +11,7 @@
           <p-chip icon="pi pi-id-card" [label]="selectedUser.username || '-'" class="pill"></p-chip>
           <p-chip *ngIf="selectedUser.nombreCompleto" icon="pi pi-user" [label]="selectedUser.nombreCompleto || ''" class="pill"></p-chip>
           <p-chip *ngIf="selectedUser.email" icon="pi pi-envelope" [label]="selectedUser.email || ''" class="pill"></p-chip>
-          <p-chip icon="pi pi-sitemap" [label]="'Sección: ' + getSeccionNombre(selectedUser.seccionPrincipalId)" class="pill"></p-chip>
+          <p-chip icon="pi pi-sitemap" [label]="'Sección: ' + getSeccionNombre(selectedUser.seccionId)" class="pill"></p-chip>
         </div>
       </div>
       <div class="actions-toolbar">
@@ -35,7 +35,7 @@
 
       <div class="field" *ngIf="selectedUser">
         <label>Sección actual</label>
-        <div>{{ getSeccionNombre(selectedUser.seccionPrincipalId) }}</div>
+        <div>{{ getSeccionNombre(selectedUser.seccionId) }}</div>
       </div>
 
       <div class="field">
@@ -63,11 +63,11 @@
 
       <div class="actions">
         <button pButton type="button" label="Asignar" icon="pi pi-check" (click)="assign()" [disabled]="saving || !usuarioId || !seccionId"></button>
-        <button pButton type="button" label="Quitar sección" class="p-button p-button-outlined" icon="pi pi-times" (click)="remove()" [disabled]="saving || !usuarioId"></button>
+        <button pButton type="button" label="Quitar sección principal" class="p-button p-button-outlined" icon="pi pi-times" (click)="remove()" [disabled]="saving || !usuarioId"></button>
         <!-- Asignar Administrador de Organización (solo SYSADMIN) -->
         <button *ngIf="isSysadmin" pButton type="button" label="Asignar como Administrador" class="p-button p-button-secondary" icon="pi pi-shield" (click)="assignAsOrgAdmin()" [disabled]="saving || !usuarioId || !orgAdminTargetOrgId" pTooltip="Otorga rol ORGADMIN y mueve al usuario a la organización seleccionada"></button>
         <!-- Transferir usuario -->
-        <button pButton type="button" label="Transferir" class="p-button p-button-help" icon="pi pi-angle-double-right" (click)="transfer()" [disabled]="saving || !usuarioId || !seccionDestinoId || (selectedUser && selectedUser.seccionPrincipalId === seccionDestinoId) || (!transferMantenerRolContextual && !transferNuevoRolId)" pTooltip="Mover usuario a otra sección manteniendo o cambiando su rol contextual"></button>
+        <button pButton type="button" label="Transferir" class="p-button p-button-help" icon="pi pi-angle-double-right" (click)="transfer()" [disabled]="saving || !usuarioId || !seccionDestinoId || (selectedUser?.seccionId === seccionDestinoId) || (!transferMantenerRolContextual && !transferNuevoRolId)" pTooltip="Mover usuario a otra sección manteniendo o cambiando su rol contextual"></button>
       </div>
     </div>
   </p-card>

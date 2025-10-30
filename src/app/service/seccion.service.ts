@@ -46,6 +46,8 @@ export interface UsuarioSeccionEntity {
     id: string;
     nombre?: string | null;
   } | null;
+  // nuevo: roles del usuario en la organización del path
+  rolesUsuarioOrganizacion?: string[] | null;
 }
 
 export interface ApiResponse<T> {
@@ -258,6 +260,52 @@ export class SeccionService {
         return { seccion, message: (payload as any)?.message };
       }),
       catchError((err) => throwError(() => ({ error: { message: err?.error?.message || err?.message || 'No se pudo asignar el administrador' }, status: err?.status })))
+    );
+  }
+
+  /** Asignar pertenencia de un usuario a esta sección. */
+  asignarUsuario(orgId: string, seccionId: string, usuarioId: string, rolContextualId?: string | null) {
+    const url = `${this.base}/orgs/${orgId}/secciones/${seccionId}/usuarios`;
+    const body: any = { usuarioId };
+    if (rolContextualId != null) body.rolContextualId = rolContextualId;
+    return this.http.post<any>(url, body, { headers: this.json }).pipe(
+      map((payload) => {
+        const resp: ApiResponse<any> = (payload && typeof payload === 'object' && 'success' in payload)
+          ? (payload as ApiResponse<any>)
+          : ({ success: true, message: (payload as any)?.message, data: (payload as any) } as any);
+        if (resp.success === false) throw { status: 400, error: { message: resp.message || 'No se pudo asignar el usuario a la sección' } };
+        const d = (resp.data || {}) as any;
+        const asig: UsuarioSeccionEntity = {
+          id: String(d?.id ?? d?._id ?? ''),
+          activo: d?.activo != null ? !!d?.activo : true,
+          usuarioEntity: d?.usuarioEntity ? {
+            id: String(d?.usuarioEntity?.id ?? d?.usuarioEntity?._id ?? ''),
+            username: String(d?.usuarioEntity?.username ?? d?.usuarioEntity?.userName ?? ''),
+            nombreCompleto: d?.usuarioEntity?.nombreCompleto ?? null,
+            scopeNivel: d?.usuarioEntity?.scopeNivel ?? undefined
+          } : null,
+          seccionEntity: d?.seccionEntity ? { id: String(d?.seccionEntity?.id ?? seccionId), nombre: d?.seccionEntity?.nombre ?? null } : { id: seccionId, nombre: null },
+          rolEntityContextual: d?.rolEntityContextual ? { id: String(d?.rolEntityContextual?.id ?? ''), nombre: d?.rolEntityContextual?.nombre ?? null } : null,
+          rolesUsuarioOrganizacion: Array.isArray(d?.rolesUsuarioOrganizacion) ? d.rolesUsuarioOrganizacion.map((r: any) => String(r)) : null
+        } as UsuarioSeccionEntity;
+        return { asignacion: asig, message: resp.message };
+      }),
+      catchError((err) => throwError(() => ({ status: err?.status, error: { message: err?.error?.message || err?.message || 'No se pudo asignar el usuario a la sección' } })))
+    );
+  }
+
+  /** Desasignar por id de relación usuario-sección. */
+  desasignarUsuario(orgId: string, seccionId: string, usuarioSeccionId: string) {
+    const url = `${this.base}/orgs/${orgId}/secciones/${seccionId}/usuarios/${usuarioSeccionId}`;
+    return this.http.delete<any>(url, { headers: this.accept }).pipe(
+      map((payload) => {
+        const resp: ApiResponse<any> = (payload && typeof payload === 'object' && 'success' in payload)
+          ? (payload as ApiResponse<any>)
+          : ({ success: true, message: (payload as any)?.message, data: (payload as any) } as any);
+        if (resp.success === false) throw { status: 400, error: { message: resp.message || 'No se pudo desasignar el usuario' } };
+        return { message: resp.message };
+      }),
+      catchError((err) => throwError(() => ({ status: err?.status, error: { message: err?.error?.message || err?.message || 'No se pudo desasignar el usuario' } })))
     );
   }
 

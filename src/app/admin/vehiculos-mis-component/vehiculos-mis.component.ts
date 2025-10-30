@@ -62,14 +62,22 @@ export class VehiculosMisComponent implements OnInit {
   load() {
     if (!this.orgId) return;
     this.loading = true;
-    this.vehiculos.listWithMessage(this.orgId, { soloMios: true }).subscribe({
-      next: (res) => {
-        console.log('[VehiculosMisComponent] GET /vehiculos?soloMios=true respuesta:', res);
-        this.items = res.items;
+    this.vehiculos.getMisVehiculos(this.orgId).subscribe({
+      next: (items) => {
+        this.items = items;
         this.loading = false;
-        if (res?.message) this.notify.info('Info', res.message);
       },
-      error: (e) => { console.error('[VehiculosMisComponent] GET /vehiculos error:', e?.status, e?.error || e); this.loading = false; this.notify.error('Error', e?.error?.message || 'No se pudieron cargar vehículos'); }
+      error: (e) => {
+        this.loading = false;
+        const status = e?.status;
+        if (status === 403) {
+          this.notify.warn('Acceso denegado', 'Esta opción está disponible solo para ADMIN de SECCIÓN.');
+          // Opcional: navegar fuera
+          this.router.navigate(['/dashboard']);
+        } else {
+          this.notify.error('Error', e?.error?.message || 'No se pudieron cargar vehículos');
+        }
+      }
     });
   }
 

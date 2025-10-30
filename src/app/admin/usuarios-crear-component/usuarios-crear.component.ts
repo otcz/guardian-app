@@ -51,7 +51,7 @@ export class UsuariosCrearComponent implements OnInit {
     email: '',
     // no default para scopeNivel
     scopeNivel: undefined as any,
-    seccionPrincipalId: null
+    seccionId: null
   };
 
   constructor(
@@ -116,16 +116,17 @@ export class UsuariosCrearComponent implements OnInit {
   }
 
   // ¿Este scope requiere sección principal?
-  get isSeccionPrincipalRequerida(): boolean {
+  get isSeccionRequerida(): boolean {
     const cur = String(this.model.scopeNivel || '').toUpperCase();
     const requires = this.usuariosMeta?.requiresSeccionPrincipalWhen ?? [];
+    // backend ahora exige seccionId cuando aplique; reaprovechamos metadata existente
     return requires.map((x) => String(x).toUpperCase()).includes(cur);
   }
 
   onScopeChange() {
     // Si el alcance no requiere sección, limpiar y deshabilitar
-    if (!this.isSeccionPrincipalRequerida) {
-      this.model.seccionPrincipalId = null;
+    if (!this.isSeccionRequerida) {
+      this.model.seccionId = null;
     }
   }
 
@@ -139,12 +140,12 @@ export class UsuariosCrearComponent implements OnInit {
   }
 
   reset() {
-    this.model = { username: '', nombreCompleto: '', email: '', scopeNivel: undefined as any, seccionPrincipalId: null };
+    this.model = { username: '', nombreCompleto: '', email: '', scopeNivel: undefined as any, seccionId: null };
   }
 
   validate(): string | null {
     if (!this.model.username || this.model.username.trim().length < 3) return 'Username es requerido (mín. 3)';
-    if (this.isSeccionPrincipalRequerida && !this.model.seccionPrincipalId) return 'Debe seleccionar la sección principal';
+    if (this.isSeccionRequerida && !this.model.seccionId) return 'Debe seleccionar la sección';
     return null;
   }
 
@@ -158,7 +159,7 @@ export class UsuariosCrearComponent implements OnInit {
       nombreCompleto: (this.model.nombreCompleto || '').trim() || undefined,
       email: (this.model.email || '').trim() || undefined,
       scopeNivel: this.model.scopeNivel,
-      seccionPrincipalId: this.isSeccionPrincipalRequerida ? (this.model.seccionPrincipalId || null) : null
+      seccionId: this.isSeccionRequerida ? (this.model.seccionId || null) : undefined
     };
     this.users.create(this.orgId, body).subscribe({
       next: (res) => {
@@ -176,11 +177,11 @@ export class UsuariosCrearComponent implements OnInit {
   openInvite() { this.showInvite = true; }
 
   get seccionIdForInvite(): string | null {
-    return this.isSeccionPrincipalRequerida && this.model.seccionPrincipalId ? String(this.model.seccionPrincipalId) : null;
+    return this.isSeccionRequerida && this.model.seccionId ? String(this.model.seccionId) : null;
   }
 
-  get seccionPrincipalNombre(): string | null {
-    const id = this.model?.seccionPrincipalId;
+  get seccionNombre(): string | null {
+    const id = (this.model as any)?.seccionId;
     if (!id) return null;
     const found = this.secciones.find(s => String(s.id) === String(id));
     return found?.nombre ?? null;

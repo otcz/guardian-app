@@ -1,4 +1,4 @@
-<p-card header="Crear vehículo" styleClass="mb-3">
+<p-card header="Crear vehículo" styleClass="vehiculos-crear-card mb-3">
   <div class="form-grid">
     <div class="form-row">
       <label for="placa">Placa</label>
@@ -34,33 +34,29 @@
       </div>
     </div>
 
+    <!-- ÚNICO MultiSelect: crea o asocia según el estado -->
     <div class="form-row" *ngIf="isAdmin">
       <div class="row-label-actions">
-        <label for="usuarios">Usuarios (1..N)</label>
-        <button pButton type="button" class="p-button-text p-button-sm" icon="pi pi-user-plus" label="Agregarme a mí" (click)="addMeToCreateUsers()" [disabled]="saving || asignando"></button>
-      </div>
+        <label for="usuarios">{{ existente.status === 'found' ? 'Asociar usuarios a este vehículo' : 'Usuarios (1..N)' }}</label>
+            </div>
       <p-multiSelect id="usuarios"
+                     class="user-multiselect"
                      [options]="usuarios"
                      optionLabel="username"
                      optionValue="id"
-                     [(ngModel)]="model.usuarioIds"
+                     [ngModel]="existente.status === 'found' ? usuariosParaExistente : model.usuarioIds"
+                     (ngModelChange)="existente.status === 'found' ? (usuariosParaExistente = $event) : (model.usuarioIds = $event)"
                      defaultLabel="Seleccione usuarios"
                      [filter]="true"
-                     [disabled]="saving || asignando">
+                     [appendTo]="'body'"
+                     panelStyleClass="vehiculos-users-panel"
+                     [disabled]="existente.status === 'found' ? asignando : (saving || asignando)">
       </p-multiSelect>
-    </div>
-
-    <div class="form-row">
-      <label for="seccion">Asignar a Sección (opcional)</label>
-      <p-dropdown id="seccion" [options]="secciones" optionLabel="nombre" optionValue="id"
-                  [(ngModel)]="model.seccionAsignadaId" [showClear]="true" placeholder="Seleccione"
-                  [disabled]="loading || saving || asignando"></p-dropdown>
-      <small class="text-muted">Nota: la sección se puede mover luego desde "Gestionar vehículo".</small>
-    </div>
-
-    <!-- Estado de búsqueda -->
-    <div class="form-row" *ngIf="buscando">
-      <span class="text-muted">Buscando vehículo por placa...</span>
+      <div class="mt-2" *ngIf="existente.status === 'found'">
+        <button pButton type="button" label="Asociar a existente" icon="pi pi-user-plus"
+                class="asignar-cta"
+                (click)="asociarAExistente()" [disabled]="asignando || (usuariosParaExistente.length === 0)"></button>
+      </div>
     </div>
 
     <!-- Resultado de búsqueda: encontrado -->
@@ -72,33 +68,10 @@
             <div><b>Placa:</b> {{ v.placa }}</div>
             <div><b>Activo:</b> <span [ngClass]="{ 'text-success': v.activo, 'text-muted': !v.activo }">{{ v.activo ? 'Sí' : 'No' }}</span></div>
             <div><b>Marca/Modelo:</b> {{ v.marca || '-' }} / {{ v.modelo || '-' }}</div>
-            <div><b>Sección:</b> {{ seccionNombreVehiculo(v) }} <button pButton type="button" class="p-button-success p-button-sm" label="Asignar" (click)="asignarmeAExistente()" [disabled]="asignando" style="margin-left:.5rem"></button></div>
+            <div><b>Sección:</b> {{ seccionNombreVehiculo(v) }} <button pButton type="button" class="asignar-inline p-button-sm" label="Asignar" (click)="asignarmeAExistente()" [disabled]="asignando" style="margin-left:.5rem"></button></div>
           </div>
         </div>
-
-        <div class="form-row" *ngIf="isAdmin">
-          <div class="row-label-actions">
-            <label>Asociar usuarios a este vehículo</label>
-            <div style="display:flex; gap:.5rem; align-items:center">
-              <button pButton type="button" class="p-button-text p-button-sm" icon="pi pi-user-plus" label="Agregarme a mí" (click)="addMeToExistingUsers()" [disabled]="asignando"></button>
-              <button pButton type="button" class="p-button-success p-button-sm" icon="pi pi-user" label="Asignarme a este vehículo" (click)="asignarmeAExistente()" [disabled]="asignando"></button>
-            </div>
-          </div>
-          <p-multiSelect [options]="usuarios"
-                         optionLabel="username"
-                         optionValue="id"
-                         [(ngModel)]="usuariosParaExistente"
-                         defaultLabel="Seleccione usuarios"
-                         [filter]="true"
-                         [disabled]="asignando">
-          </p-multiSelect>
-          <div class="mt-2">
-            <button pButton type="button" label="Asociar a existente" icon="pi pi-user-plus"
-                    class="p-button-success"
-                    (click)="asociarAExistente()" [disabled]="asignando || (usuariosParaExistente.length === 0)"></button>
-          </div>
-          <small class="text-muted">Como ya existe, no podrás crear otro con la misma placa. Usa la asociación.</small>
-        </div>
+        <small class="text-muted" *ngIf="isAdmin">Como ya existe, no podrás crear otro con la misma placa. Usa la asociación.</small>
       </div>
     </div>
 

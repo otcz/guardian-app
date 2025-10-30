@@ -33,7 +33,7 @@ export class VehiculosCrearComponent implements OnInit {
   secciones: SeccionEntity[] = [];
   usuarios: UserEntity[] = [];
   isAdmin = false;
-  model: { placa: string; seccionAsignadaId: string | null; marca?: string | null; modelo?: string | null; linea?: string | null; anio?: number | null; color?: string | null; usuarioIds?: string[] } = { placa: '', seccionAsignadaId: null, marca: null, modelo: null, linea: null, anio: null, color: null, usuarioIds: [] };
+  model: { placa: string; marca?: string | null; modelo?: string | null; linea?: string | null; anio?: number | null; color?: string | null; usuarioIds?: string[] } = { placa: '', marca: null, modelo: null, linea: null, anio: null, color: null, usuarioIds: [] };
 
   // Usuario actual
   currentUsername: string | null = null;

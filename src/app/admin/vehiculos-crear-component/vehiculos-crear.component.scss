@@ -1,7 +1,18 @@
+/* Estructura general */
+:host { display: block; }
 .form-grid { display: grid; gap: 1rem; max-width: 720px; }
 .form-row { display: grid; gap: .5rem; }
 .actions { display: flex; gap: .5rem; justify-content: flex-end; }
 .loading { display: flex; justify-content: center; padding: 1rem; }
+
+/* Card con acento superior según paleta */
+.vehiculos-crear-card { position: relative; overflow: hidden; }
+.vehiculos-crear-card::before {
+  content: '';
+  position: absolute; inset: 0 0 auto 0; height: 4px;
+  background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+  opacity: .9;
+}
 
 /* Grids responsivas */
 .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
@@ -10,16 +21,12 @@
   .grid-2, .grid-3 { grid-template-columns: 1fr; }
 }
 
-/* Caja del resultado encontrado */
-.found-box { border: 1px solid var(--surface-border, #dcdcdc); border-left: 4px solid var(--primary-color, #10b981); border-radius: 6px; background: var(--surface-50, #f8fafc); }
-.found-header { font-weight: 600; padding: .75rem 1rem; border-bottom: 1px solid var(--surface-border, #e6e6e6); }
-.found-body { padding: 1rem; }
-
-/* Colores utilitarios */
-.text-muted { color: var(--text-color-secondary, #6b7280); }
-.text-warn { color: var(--yellow-700, #b45309); }
-.text-error { color: var(--red-600, #dc2626); }
-.text-success { color: var(--green-600, #16a34a); }
+/* Etiquetas y textos */
+.form-row label { font-weight: 700; color: var(--text); letter-spacing: .2px; font-size: .9rem; }
+.text-muted { color: var(--muted); }
+.text-warn { color: #b45309; }
+.text-error { color: var(--danger); }
+.text-success { color: var(--success); }
 
 /* Fila con label y acciones a la derecha */
 .row-label-actions { display: flex; align-items: center; justify-content: space-between; gap: .75rem; }
@@ -27,6 +34,21 @@
 /* Ajustes de componentes */
 p-multiSelect, .p-multiselect { width: 100%; }
 .mt-2 { margin-top: .5rem; }
+
+/* Caja del resultado encontrado (look consistente claro/oscuro) */
+.found-box {
+  background: color-mix(in srgb, var(--surface) 96%, var(--bg));
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--primary-600);
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(0,0,0,.06);
+}
+.found-header {
+  font-weight: 800; padding: .75rem 1rem;
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--surface) 90%, var(--primary) 10%), var(--surface));
+}
+.found-body { padding: 1rem; }
 
 /* Botón CTA de asignación (gradiente, dinámico y acorde a la paleta) */
 .asignar-cta {
@@ -75,3 +97,90 @@ p-multiSelect, .p-multiselect { width: 100%; }
   transform: translateY(-1px);
 }
 .asignar-inline.p-button-sm:active { transform: translateY(0); }
+
+/* === Overlay del MultiSelect de este componente (scoped) === */
+:host ::ng-deep {
+  /* Modo claro: fondo blanco y texto negro en el overlay específico */
+  :root.theme-light body .vehiculos-users-panel,
+  :root.theme-light body .ng-star-inserted.p-multiselect-overlay.vehiculos-users-panel,
+  :root.theme-light body .ng-star-inserted.p-multiselect-panel.vehiculos-users-panel {
+    background: #ffffff !important;
+    color: #000000 !important;
+    border: 1px solid var(--border) !important;
+    box-shadow: 0 12px 28px rgba(0,0,0,0.12), 0 4px 10px rgba(79,140,255,0.10) !important;
+  }
+  :root.theme-light body .vehiculos-users-panel .p-multiselect-header { background: #ffffff !important; border-bottom: 1px solid var(--border) !important; }
+  :root.theme-light body .vehiculos-users-panel .p-inputtext { background: #ffffff !important; color: #000000 !important; border: 1px solid var(--border) !important; }
+  :root.theme-light body .vehiculos-users-panel .p-multiselect-items,
+  :root.theme-light body .vehiculos-users-panel .p-multiselect-items-wrapper,
+  :root.theme-light body .vehiculos-users-panel .p-multiselect-content { background: transparent !important; }
+  :root.theme-light body .vehiculos-users-panel .p-multiselect-item { color: #000000 !important; }
+  :root.theme-light body .vehiculos-users-panel .p-multiselect-item.p-highlight { background: color-mix(in srgb, var(--primary) 14%, transparent) !important; color: #000000 !important; }
+  :root.theme-light body .vehiculos-users-panel .p-multiselect-item:not(.p-highlight):hover { background: color-mix(in srgb, var(--primary) 10%, transparent) !important; }
+
+  /* Ajustes de hover/focus de items para evitar fondo negro (tema claro) */
+  :root.theme-light body .vehiculos-users-panel .p-multiselect-item.p-highlight:hover,
+  :root.theme-light body .vehiculos-users-panel .p-multiselect-item.p-highlight.p-focus {
+    background: color-mix(in srgb, var(--primary) 18%, transparent) !important;
+    color: #000000 !important;
+  }
+  :root.theme-light body .vehiculos-users-panel .p-multiselect-item.p-focus:not(.p-highlight) {
+    background: color-mix(in srgb, var(--primary) 12%, transparent) !important;
+    color: #000000 !important;
+  }
+
+  /* PrimeNG v18: nuevas clases .p-multiselect-option (tema claro) */
+  :root.theme-light body .vehiculos-users-panel .p-multiselect-option { color: #000000 !important; }
+  :root.theme-light body .vehiculos-users-panel .p-multiselect-option.p-multiselect-option-selected {
+    background: color-mix(in srgb, var(--success) 22%, #ffffff) !important;
+    color: #000000 !important;
+  }
+  :root.theme-light body .vehiculos-users-panel .p-multiselect-option:not(.p-multiselect-option-selected):not(.p-disabled):hover,
+  :root.theme-light body .vehiculos-users-panel .p-multiselect-option:not(.p-multiselect-option-selected):not(.p-disabled).p-focus {
+    background: color-mix(in srgb, var(--success) 16%, #ffffff) !important;
+    color: #000000 !important;
+  }
+
+  /* Modo oscuro/negro: fondo oscuro y texto blanco en el overlay específico */
+  :root.theme-dark body .vehiculos-users-panel,
+  :root.theme-dark body .ng-star-inserted.p-multiselect-overlay.vehiculos-users-panel,
+  :root.theme-dark body .ng-star-inserted.p-multiselect-panel.vehiculos-users-panel,
+  :root.theme-black body .vehiculos-users-panel,
+  :root.theme-black body .ng-star-inserted.p-multiselect-overlay.vehiculos-users-panel,
+  :root.theme-black body .ng-star-inserted.p-multiselect-panel.vehiculos-users-panel {
+    background: color-mix(in srgb, var(--surface) 92%, #000) !important;
+    color: #ffffff !important;
+    border: 1px solid color-mix(in srgb, var(--border) 70%, transparent) !important;
+    box-shadow: 0 12px 28px rgba(0,0,0,0.35), 0 6px 12px rgba(0,0,0,0.25) !important;
+  }
+  :root.theme-dark body .vehiculos-users-panel .p-multiselect-header,
+  :root.theme-black body .vehiculos-users-panel .p-multiselect-header { background: var(--surface-alt) !important; border-bottom: 1px solid color-mix(in srgb, var(--border) 70%, transparent) !important; }
+  :root.theme-dark body .vehiculos-users-panel .p-inputtext,
+  :root.theme-black body .vehiculos-users-panel .p-inputtext { background: color-mix(in srgb, var(--surface) 88%, #000) !important; color: #ffffff !important; border: 1px solid color-mix(in srgb, var(--border) 70%, transparent) !important; }
+  :root.theme-dark body .vehiculos-users-panel .p-multiselect-items,
+  :root.theme-black body .vehiculos-users-panel .p-multiselect-items,
+  :root.theme-dark body .vehiculos-users-panel .p-multiselect-items-wrapper,
+  :root.theme-black body .vehiculos-users-panel .p-multiselect-items-wrapper,
+  :root.theme-dark body .vehiculos-users-panel .p-multiselect-content,
+  :root.theme-black body .vehiculos-users-panel .p-multiselect-content { background: transparent !important; }
+  :root.theme-dark body .vehiculos-users-panel .p-multiselect-item,
+  :root.theme-black body .vehiculos-users-panel .p-multiselect-item { color: #ffffff !important; }
+  :root.theme-dark body .vehiculos-users-panel .p-multiselect-item.p-highlight,
+  :root.theme-black body .vehiculos-users-panel .p-multiselect-item.p-highlight { background: color-mix(in srgb, var(--primary) 22%, transparent) !important; color: #ffffff !important; }
+  :root.theme-dark body .vehiculos-users-panel .p-multiselect-item:not(.p-highlight):hover,
+  :root.theme-black body .vehiculos-users-panel .p-multiselect-item:not(.p-highlight):hover { background: color-mix(in srgb, var(--primary) 16%, transparent) !important; }
+
+  /* Ajustes de hover/focus de items para evitar fondo negro (temas oscuros) */
+  :root.theme-dark body .vehiculos-users-panel .p-multiselect-item.p-highlight:hover,
+  :root.theme-dark body .vehiculos-users-panel .p-multiselect-item.p-highlight.p-focus,
+  :root.theme-black body .vehiculos-users-panel .p-multiselect-item.p-highlight:hover,
+  :root.theme-black body .vehiculos-users-panel .p-multiselect-item.p-highlight.p-focus {
+    background: color-mix(in srgb, var(--primary) 30%, transparent) !important;
+    color: #ffffff !important;
+  }
+  :root.theme-dark body .vehiculos-users-panel .p-multiselect-item.p-focus:not(.p-highlight),
+  :root.theme-black body .vehiculos-users-panel .p-multiselect-item.p-focus:not(.p-highlight) {
+    background: color-mix(in srgb, var(--primary) 16%, transparent) !important;
+    color: #ffffff !important;
+  }
+}

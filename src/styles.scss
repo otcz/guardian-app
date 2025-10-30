@@ -835,7 +835,8 @@ body .p-toast .p-toast-message-info {
 /* Limitar a paneles PrimeNG para evitar efectos colaterales */
 :root.theme-light body .ng-star-inserted.p-select-overlay,
 :root.theme-light body .ng-star-inserted.p-dropdown-panel,
-:root.theme-light body .ng-star-inserted.p-multiselect-panel {
+:root.theme-light body .ng-star-inserted.p-multiselect-panel,
+:root.theme-light body .ng-star-inserted.p-multiselect-overlay {
   background: #ffffff !important;
   color: #000 !important;
 }
@@ -844,7 +845,8 @@ body .p-toast .p-toast-message-info {
 :root.theme_dark body .ng-star-inserted.p-multiselect-panel,
 :root.theme-black body .ng-star-inserted.p-select-overlay,
 :root.theme-black body .ng-star-inserted.p-dropdown-panel,
-:root.theme-black body .ng-star-inserted.p-multiselect-panel {
+:root.theme-black body .ng-star-inserted.p-multiselect-panel,
+:root.theme-black body .ng-star-inserted.p-multiselect-overlay {
   background: color-mix(in srgb, var(--surface) 92%, #000) !important;
   color: #fff !important;
 }
@@ -1396,4 +1398,113 @@ body .p-tag.p-tag-contrast .p-tag-icon { color: inherit !important; }
 :root.theme-black body .p-table .p-paginator {
   border-top: none !important;
 }
+
+/* MultiSelect PrimeNG: estilo acorde a la paleta */
+.p-multiselect {
+  background: var(--surface);
+  border: none; /* borderless */
+  border-radius: 10px;
+  color: var(--text);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--border) 60%, transparent);
+  transition: box-shadow .15s ease, background .15s ease;
+}
+.p-multiselect:hover {
+  background: color-mix(in srgb, var(--surface) 94%, var(--bg));
+  box-shadow: inset 0 0 0 1.25px color-mix(in srgb, var(--primary) 18%, var(--border));
+}
+.p-multiselect.p-focus {
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary) 20%, transparent), inset 0 0 0 1.5px color-mix(in srgb, var(--primary) 50%, var(--border));
+}
+/* Overlay flotante (alias reciente de PrimeNG) */
+.p-multiselect-overlay {
+  background: var(--surface);
+  border: none; /* borderless */
+  box-shadow: 0 12px 28px rgba(0,0,0,0.18), 0 6px 12px rgba(79,140,255,0.10);
+}
+/* Items dentro del panel/overlay */
+.p-multiselect-items .p-multiselect-item {
+  color: var(--text);
+  border-radius: 8px;
+}
+.p-multiselect-items .p-multiselect-item.p-highlight {
+  background: color-mix(in srgb, var(--primary) 16%, transparent);
+  color: var(--text);
+}
+.p-multiselect-items .p-multiselect-item:not(.p-highlight):hover {
+  background: color-mix(in srgb, var(--primary) 10%, transparent);
+}
+/* Cabecera/filtro del overlay si está activo el filtro */
+.p-multiselect-header {
+  background: var(--surface);
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+}
+.p-multiselect-filter-container .p-inputtext {
+  background: color-mix(in srgb, var(--surface) 96%, var(--bg));
+  color: var(--text);
+}
+
+/* Tema claro: fondo blanco explícito para control y panel/overlay */
+:root.theme-light {
+  .p-multiselect, .p-multiselect-panel, .p-multiselect-overlay { background: #ffffff !important; }
+  .p-multiselect .p-multiselect-label { color: #000000 !important; }
+  .p-multiselect-panel .p-multiselect-item,
+  .p-multiselect-overlay .p-multiselect-item { color: #000000 !important; }
+  .p-multiselect-header { background: #ffffff !important; border-bottom: 1px solid var(--border) !important; }
+  .p-multiselect-filter-container .p-inputtext { background: #ffffff !important; color: #000000 !important; border: 1px solid var(--border) !important; }
+}
+/* Temas oscuro/negro: panel/overlay más oscuros y tipografía clara */
+:root.theme-dark, :root.theme-black {
+  .p-multiselect { background: var(--surface-alt) !important; }
+  .p-multiselect .p-multiselect-label { color: #ffffff !important; }
+  .p-multiselect-panel, .p-multiselect-overlay { background: var(--surface-alt) !important; }
+  .p-multiselect-panel .p-multiselect-item,
+  .p-multiselect-overlay .p-multiselect-item { color: #ffffff !important; }
+  .p-multiselect-header { background: var(--surface-alt) !important; border-bottom: 1px solid color-mix(in srgb, var(--border) 70%, transparent) !important; }
+  .p-multiselect-filter-container .p-inputtext { background: color-mix(in srgb, var(--surface) 88%, #000) !important; color: #ffffff !important; border: 1px solid color-mix(in srgb, var(--border) 70%, transparent) !important; }
+}
+
+/* ===== FINAL: MultiSelect overlay específico de Vehículos (.vehiculos-users-panel) ===== */
+:root.theme-light body .vehiculos-users-panel .p-multiselect-item,
+:root.theme-light body .vehiculos-users-panel .p-multiselect-option { color: #000 !important; background: transparent !important; }
+/* Seleccionado (light) */
+:root.theme-light body .vehiculos-users-panel .p-multiselect-item.p-highlight,
+:root.theme-light body .vehiculos-users-panel .p-multiselect-option.p-multiselect-option-selected {
+  background: color-mix(in srgb, var(--success) 22%, #ffffff) !important;
+  color: #000 !important;
+}
+/* Hover/Focus no seleccionado (light) */
+:root.theme-light body .vehiculos-users-panel .p-multiselect-item:not(.p-highlight):hover,
+:root.theme-light body .vehiculos-users-panel .p-multiselect-item.p-focus:not(.p-highlight),
+:root.theme-light body .vehiculos-users-panel .p-multiselect-option:not(.p-multiselect-option-selected):not(.p-disabled):hover,
+:root.theme-light body .vehiculos-users-panel .p-multiselect-option:not(.p-multiselect-option-selected):not(.p-disabled).p-focus {
+  background: color-mix(in srgb, var(--success) 16%, #ffffff) !important;
+  color: #000 !important;
+}
+
+/* DARK/BLACK themes */
+:root.theme-dark body .vehiculos-users-panel .p-multiselect-item,
+:root.theme-dark body .vehiculos-users-panel .p-multiselect-option,
+:root.theme-black body .vehiculos-users-panel .p-multiselect-item,
+:root.theme-black body .vehiculos-users-panel .p-multiselect-option { color: #fff !important; background: transparent !important; }
+/* Seleccionado (dark/black) */
+:root.theme-dark body .vehiculos-users-panel .p-multiselect-item.p-highlight,
+:root.theme-dark body .vehiculos-users-panel .p-multiselect-option.p-multiselect-option-selected,
+:root.theme-black body .vehiculos-users-panel .p-multiselect-item.p-highlight,
+:root.theme-black body .vehiculos-users-panel .p-multiselect-option.p-multiselect-option-selected {
+  background: color-mix(in srgb, var(--primary) 28%, transparent) !important;
+  color: #fff !important;
+}
+/* Hover/Focus no seleccionado (dark/black) */
+:root.theme-dark body .vehiculos-users-panel .p-multiselect-item:not(.p-highlight):hover,
+:root.theme-dark body .vehiculos-users-panel .p-multiselect-item.p-focus:not(.p-highlight),
+:root.theme-dark body .vehiculos-users-panel .p-multiselect-option:not(.p-multiselect-option-selected):not(.p-disabled):hover,
+:root.theme-dark body .vehiculos-users-panel .p-multiselect-option:not(.p-multiselect-option-selected):not(.p-disabled).p-focus,
+:root.theme-black body .vehiculos-users-panel .p-multiselect-item:not(.p-highlight):hover,
+:root.theme-black body .vehiculos-users-panel .p-multiselect-item.p-focus:not(.p-highlight),
+:root.theme-black body .vehiculos-users-panel .p-multiselect-option:not(.p-multiselect-option-selected):not(.p-disabled):hover,
+:root.theme-black body .vehiculos-users-panel .p-multiselect-option:not(.p-multiselect-option-selected):not(.p-disabled).p-focus {
+  background: color-mix(in srgb, var(--primary) 18%, var(--surface-alt)) !important;
+  color: #fff !important;
+}
+/* ===== END FINAL ===== */
 

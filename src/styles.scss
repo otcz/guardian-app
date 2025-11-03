@@ -1508,3 +1508,14 @@ body .p-tag.p-tag-contrast .p-tag-icon { color: inherit !important; }
 }
 /* ===== END FINAL ===== */
 
+/* Placeholder de PrimeNG (Dropdown/Select) por tema */
+:root.theme-light body .p-dropdown .p-dropdown-label.p-placeholder,
+:root.theme-light body .p-select .p-select-label.p-placeholder {
+  color: #000 !important;
+}
+:root.theme-dark body .p-dropdown .p-dropdown-label.p-placeholder,
+:root.theme-black body .p-dropdown .p-dropdown-label.p-placeholder,
+:root.theme-dark body .p-select .p-select-label.p-placeholder,
+:root.theme-black body .p-select .p-select-label.p-placeholder {
+  color: #ffffff !important;
+}

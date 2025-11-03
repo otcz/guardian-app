@@ -1,98 +1,61 @@
-.container { padding: 1rem; }
-.card { display: block; }
+/* Asignar menú a un rol - estilos mínimos válidos */
+
+/* Contenedor y card a altura de pantalla (no exceder sidebar/viewport) */
+.container { padding: 16px; height: calc(100vh - 24px); max-height: calc(100vh - 24px); overflow: hidden; }
+.card { display: flex; flex-direction: column; height: 100%; max-height: 100%; overflow: hidden; }
+.card .p-card { display: flex; flex-direction: column; height: 100%; max-height: 100%; overflow: hidden; }
+.card .p-card-body { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; overflow: hidden; }
+
+/* Encabezado y grid */
 .header .title { margin: 0; font-weight: 800; }
-.form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; }
+/* Más espacio para el selector de rol (columna 1) */
+.form-grid { display: grid; grid-template-columns: 1.6fr 1fr 1fr; gap: 12px; align-items: end; }
 .field label { display: block; font-weight: 700; margin-bottom: 4px; }
-.actions { display: flex; gap: .5rem; justify-content: flex-end; margin-top: .75rem; }
-.cell-narrow { width: 46px; }
+.actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 12px; }
 
-/* Estructura de cuerpo con área scrolleable */
-.body { display: flex; flex-direction: column; gap: 12px; }
-.scroll-area {
-  overflow: auto;
-  /* No crecer indefinidamente: altura máxima responsiva */
-  max-height: clamp(320px, 60vh, 720px);
-  padding-right: 6px; /* evitar ocultar contenido bajo scrollbar */
-  border-radius: 10px;
-  background: transparent;
-}
+/* Alinear input y p-dropdown */
+.form-grid input[pInputText] { width: 100%; height: 42px; }
+.form-grid .p-dropdown { width: 100%; min-height: 42px; display: flex; align-items: center; }
+.form-grid .p-dropdown .p-dropdown-label { line-height: 40px; }
+.form-grid .p-dropdown .p-dropdown-trigger { height: 100%; }
 
-/* Scrollbar estilizado (opcional) */
-.scroll-area::-webkit-scrollbar { width: 10px; height: 10px; }
-.scroll-area::-webkit-scrollbar-track { background: color-mix(in srgb, var(--surface) 80%, transparent); border-radius: 10px; }
-.scroll-area::-webkit-scrollbar-thumb { background: color-mix(in srgb, var(--primary) 30%, var(--border)); border-radius: 10px; }
-.scroll-area::-webkit-scrollbar-thumb:hover { background: color-mix(in srgb, var(--primary) 45%, var(--border)); }
+/* Cuerpo con scroll interno */
+.body { display: flex; flex-direction: column; gap: 12px; flex: 1 1 auto; min-height: 0; overflow: hidden; }
+/* Ajuste clave: evitar colapso del área de tabla y mantenerla dentro del viewport */
+.scroll-area { overflow: auto; flex: 1 1 auto; min-height: 240px; max-height: 100%; padding: 6px; border: 1px solid rgba(0,0,0,0.06); border-radius: 8px; background: var(--surface-card, #fff); }
 
-/* Para Firefox */
-.scroll-area { scrollbar-color: color-mix(in srgb, var(--primary) 30%, var(--border)) color-mix(in srgb, var(--surface) 80%, transparent); scrollbar-width: thin; }
-
-/* Toolbar de selección global */
-.list-toolbar {
-  margin: 10px 0 14px;
-  padding: 10px 12px;
-  display: flex; align-items: center; justify-content: space-between;
-  background: var(--surface-alt);
-  border-radius: 10px;
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--border) 60%, transparent);
-}
+/* Toolbar */
+.list-toolbar { margin: 8px 0 12px; padding: 10px 12px; display: flex; align-items: center; justify-content: space-between; border: 1px solid rgba(0,0,0,0.08); border-radius: 8px; background: var(--surface-section, #fff); }
 .list-toolbar .left { display: flex; align-items: center; gap: 10px; }
-.list-toolbar .label { font-weight: 600; color: var(--text); }
-.list-toolbar .right { font-size: .86rem; }
 
-/* Grupos de menú */
-.menu-groups { display: flex; flex-direction: column; gap: 14px; }
-.menu-group {
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 4px 14px rgba(0,0,0,0.08);
-}
-.menu-header {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 12px 14px;
-  background: color-mix(in srgb, var(--surface) 90%, var(--primary) 10%);
-  border-bottom: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
-}
-.menu-title { font-weight: 800; letter-spacing: .2px; color: var(--text); }
-.menu-actions { display: flex; align-items: center; gap: 8px; color: var(--muted); }
-.menu-actions .count { font-size: .86rem; }
+/* Tabla: header sticky para mejor usabilidad */
+:host ::ng-deep .p-datatable .p-datatable-thead > tr > th { position: sticky; top: 0; z-index: 1; background: var(--surface-section, #fff); }
 
-.menu-items {
-  list-style: none; margin: 0; padding: 6px 0;
-  background: var(--surface);
-}
-.menu-item { border-top: 1px solid color-mix(in srgb, var(--border) 70%, transparent); }
+/* Meta row y estado vacío */
+.meta-row { display: flex; align-items: center; gap: 6px; }
+.empty { text-align: center; padding: 24px 8px; }
+
+/* Utilidades locales usadas por la plantilla (evita depender de globales) */
+.text-muted { color: var(--text-color-secondary, rgba(0,0,0,0.6)); }
+.mr-1 { margin-right: .5rem; }
+.ml-2 { margin-left: .5rem; }
+.ml-3 { margin-left: 1rem; }
+.mb-sm { margin-bottom: .5rem; }
+.fs-sm { font-size: .875rem; }
+.fs-xs { font-size: .75rem; }
+.w-90 { width: 90px; }
+.toolbar-divider { display: inline-block; width: 1px; height: 16px; background: rgba(0,0,0,0.12); margin: 0 8px; }
+.truncate { display: inline-block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Lista (residuales si se usa agrupado) */
+.menu-groups { display: flex; flex-direction: column; gap: 12px; }
+.menu-group { border: 1px solid rgba(0,0,0,0.08); border-radius: 8px; overflow: hidden; }
+.menu-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; border-bottom: 1px solid rgba(0,0,0,0.08); }
+.menu-items { list-style: none; margin: 0; padding: 6px 0; }
+.menu-item { border-top: 1px solid rgba(0,0,0,0.06); }
 .menu-item:first-child { border-top: none; }
-.item-row {
-  display: flex; align-items: center; gap: 10px;
-  padding: 10px 14px;
-  transition: background .12s ease;
-}
-.item-row:hover { background: color-mix(in srgb, var(--primary) 8%, transparent); }
-.item-row:focus-within { outline: 3px solid color-mix(in srgb, var(--primary) 30%, transparent); outline-offset: -3px; }
+.item-row { display: flex; align-items: center; gap: 10px; padding: 10px 12px; }
 
-.item-row .meta { display: flex; flex-direction: column; gap: 2px; }
-.item-row .name { font-weight: 600; color: var(--text); }
-.item-row .ruta { font-size: .86rem; color: var(--muted); }
-
-/* Empty state */
-.empty { padding: 16px; text-align: center; }
-
-/* Modo claro */
-:host-context(.theme-light) {
-  .menu-header { background: color-mix(in srgb, #ffffff 88%, var(--primary) 12%); }
-  .item-row:hover { background: color-mix(in srgb, var(--primary) 8%, #ffffff); }
-}
-
-/* Modo oscuro/negro */
-:host-context(.theme-dark),
-:host-context(.theme-black) {
-  .menu-group { box-shadow: 0 6px 18px rgba(0,0,0,0.32); }
-  .menu-header { background: color-mix(in srgb, var(--surface) 75%, black); }
-  .menu-items { background: var(--surface-alt); }
-  .scroll-area::-webkit-scrollbar-track { background: color-mix(in srgb, var(--surface-alt) 80%, transparent); }
-}
-
-/* Responsivo: reducir alto máx en pantallas muy pequeñas */
-@media (max-height: 680px) {
-  .scroll-area { max-height: clamp(240px, 50vh, 560px); }
-}
+/* Responsive */
+@media (max-width: 900px) { .form-grid { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 600px) { .form-grid { grid-template-columns: 1fr; } }

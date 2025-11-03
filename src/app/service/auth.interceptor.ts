@@ -10,13 +10,10 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const isAuthCall = /\/(auth)\/(login|register|password)/.test(req.url);
   const hasBypassQuery = /[?&]bypass=true(?![^#])/i.test(req.url);
 
-  // Nunca adjuntar auth/ctx en endpoints de auth, y no redirigir en sus errores
   if (isAuthCall) {
-    return next(req); // Dejar que el componente maneje cualquier error (401/400) y muestre el message del backend
+    return next(req);
   }
 
-  // En llamadas con bypass (?bypass=true) asegurar NO enviar Authorization,
-  // pero no tocar headers personalizados X-* existentes (X-User, X-User-Roles, X-Api-Sysadmin-Key, etc.)
   if (hasBypassQuery) {
     if (req.headers.has('Authorization')) {
       req = req.clone({ headers: req.headers.delete('Authorization') });
@@ -41,26 +38,35 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     );
   }
 
-  // Resto de llamadas: adjuntar token y contexto organizacional si existen
   const token = localStorage.getItem('token');
   const ctx = inject(OrgContextService);
-  const orgId = ctx.value || localStorage.getItem('currentOrgId') || undefined as any;
-  const scope = ctx.scope || (localStorage.getItem('scopeNivel') as any) || undefined;
-  const seccionId = ctx.seccion || localStorage.getItem('seccionPrincipalId') || undefined as any;
+  const router = inject(Router);
+  const auth = inject(AuthService);
+  const notify = inject(NotificationService);
+
+  // Normalizar path sin origen (para URLs absolutas)
+  const urlPath = req.url.replace(/^https?:\/\/[^/]+/i, '');
+  const isRolesEndpoint = /^\/?api\/roles(\/|$)/i.test(urlPath);
+  const orgMatch = urlPath.match(/\/orgs\/([^/]+)/i);
+  const urlOrgId = orgMatch ? String(orgMatch[1]) : null;
 
   const headers: Record<string, string> = {};
   if (token) headers['Authorization'] = `Bearer ${token}`;
-  if (orgId) headers['X-Org-Id'] = String(orgId);
-  if (scope) headers['X-Scope-Nivel'] = String(scope);
-  if (seccionId) headers['X-Seccion-Id'] = String(seccionId);
+
+  // Política de headers por endpoint
+  if (!isRolesEndpoint) {
+    // Si la URL indica una organización, forzar ese valor
+    const effectiveOrgId = urlOrgId || ctx.value || localStorage.getItem('currentOrgId') || undefined as any;
+    const scope = ctx.scope || (localStorage.getItem('scopeNivel') as any) || undefined;
+    const seccionId = ctx.seccion || localStorage.getItem('seccionPrincipalId') || undefined as any;
+    if (effectiveOrgId) headers['X-Org-Id'] = String(effectiveOrgId);
+    if (scope) headers['X-Scope-Nivel'] = String(scope);
+    if (seccionId) headers['X-Seccion-Id'] = String(seccionId);
+  }
 
   if (Object.keys(headers).length) {
     req = req.clone({ setHeaders: headers });
   }
-
-  const router = inject(Router);
-  const auth = inject(AuthService);
-  const notify = inject(NotificationService);
 
   return next(req).pipe(
     catchError((err) => {

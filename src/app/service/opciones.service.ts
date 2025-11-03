@@ -10,6 +10,10 @@ export interface OpcionEntity {
   ruta?: string | null;
   codigo?: string | null;
   padreId?: string | null;
+  // nuevos campos opcionales según contrato canónico
+  tipo?: 'MENU' | 'ITEM' | string | null;
+  activo?: boolean;
+  icono?: string | null;
 }
 
 export interface ApiResponse<T> {
@@ -57,12 +61,34 @@ export class OpcionesService {
   }
 
   private ensureOpcion(d: any): OpcionEntity {
+    const codigo: string | null = d?.codigo ?? d?.code ?? null;
+    const rutaRaw: string | null = d?.ruta ?? d?.path ?? null;
+    const tipoRaw: any = d?.tipo ?? d?.type ?? null;
+    // Inferencia robusta del tipo
+    const upperCode = (codigo || '').toUpperCase();
+    let tipo: 'MENU' | 'ITEM' | string | null = null;
+    if (tipoRaw) {
+      const t = String(tipoRaw).toUpperCase();
+      tipo = (t === 'MENU' || t === 'ITEM') ? (t as any) : t;
+    } else if (upperCode.startsWith('MENU_')) {
+      tipo = 'MENU';
+    } else if (upperCode.startsWith('ITEM_')) {
+      tipo = 'ITEM';
+    } else if (rutaRaw && String(rutaRaw).trim().length > 0 && String(rutaRaw) !== '/') {
+      tipo = 'ITEM';
+    } else {
+      tipo = 'MENU';
+    }
+
     return {
       id: String(d?.id ?? d?._id ?? ''),
       nombre: String(d?.nombre ?? d?.name ?? ''),
-      ruta: d?.ruta ?? d?.path ?? null,
-      codigo: d?.codigo ?? d?.code ?? null,
-      padreId: d?.padreId ?? d?.parentId ?? null
+      ruta: rutaRaw,
+      codigo: codigo,
+      padreId: d?.padreId ?? d?.parentId ?? null,
+      tipo,
+      activo: d?.activo != null ? !!d?.activo : (d?.active != null ? !!d?.active : true),
+      icono: d?.icono ?? d?.icon ?? null
     } as OpcionEntity;
   }
 

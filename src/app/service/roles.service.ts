@@ -3,6 +3,8 @@ import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {Observable, throwError} from 'rxjs';
 import {catchError, map} from 'rxjs/operators';
 import {environment} from '../config/environment';
+import { PageDto } from '../models/paging.models';
+import { RolGlobalItem } from '../models/roles.models';
 
 export interface ApiResponse<T> {
   success: boolean;
@@ -15,6 +17,12 @@ export interface RoleEntity {
   nombre: string;
   descripcion?: string | null;
   estado?: 'ACTIVO' | 'INACTIVO' | string;
+  /** Organización a la que pertenece el rol (si aplica). */
+  orgId?: string | null;
+  /** Nombre de la organización del rol (si aplica). */
+  orgNombre?: string | null;
+  /** Etiqueta para UI (ROL-ORG) si el backend la provee. */
+  display?: string | null;
 }
 
 export interface CreateRoleRequest {
@@ -36,11 +44,18 @@ export interface UserRoleAssignment {
   rolNombre?: string;
 }
 
+/** Resultado paginado estándar para listados */
+export interface PagedResult<T> { total: number; items: T[] }
+
 @Injectable({providedIn: 'root'})
 export class RolesService {
   private base = environment.apiBase;
   private json = new HttpHeaders({'Content-Type': 'application/json', Accept: 'application/json'});
   private accept = new HttpHeaders({Accept: 'application/json'});
+
+  // Centralización de endpoints canónicos
+  private readonly rolesBase = `${this.base}/roles`;
+  private readonly rolesPaged = `${this.base}/roles/paged`;
 
   constructor(private http: HttpClient) {}
 
@@ -49,13 +64,17 @@ export class RolesService {
   }
 
   private ensureRole(d: any): RoleEntity {
+    const orgRaw = d?.org ?? d?.organizacion ?? d?.organization ?? null;
+    const orgIdRaw = d?.orgId ?? d?.organizacionId ?? d?.organizationId ?? (orgRaw?.id) ?? null;
+    const orgNameRaw = d?.orgNombre ?? d?.organizacionNombre ?? d?.organizationName ?? d?.orgName ?? orgRaw?.nombre ?? orgRaw?.name ?? null;
     return {
-      // aceptar id, _id o rolId
       id: String(d?.id ?? d?._id ?? d?.rolId ?? ''),
-      // aceptar nombre, name o rolNombre
-      nombre: String(d?.nombre ?? d?.name ?? d?.rolNombre ?? ''),
+      nombre: String(d?.nombre ?? d?.name ?? d?.rolNombre ?? d?.rol ?? ''),
       descripcion: d?.descripcion ?? null,
-      estado: (d?.estado ?? (d?.active === false ? 'INACTIVO' : 'ACTIVO')) as any
+      estado: (d?.estado ?? (d?.active === false ? 'INACTIVO' : 'ACTIVO')) as any,
+      orgId: orgIdRaw != null ? String(orgIdRaw) : null,
+      orgNombre: orgNameRaw != null ? String(orgNameRaw) : (d?.org ?? d?.organization ?? null),
+      display: d?.display ?? null
     } as RoleEntity;
   }
 
@@ -70,7 +89,6 @@ export class RolesService {
         if (obj && typeof obj === 'object' && 'success' in obj) return obj as ApiResponse<any>;
         return {success: true, data: obj} as ApiResponse<any>;
       } catch {
-        // Si llega HTML/Texto, no romper: tratar como sin datos
         return {success: true, data: undefined} as ApiResponse<any>;
       }
     }
@@ -86,7 +104,6 @@ export class RolesService {
     const url = `${this.base}${path}`;
     const urlFallback = `${environment.backendHost}${this.base}${path}`;
     const mapResp = (resp: ApiResponse<any> | any) => {
-      // Aceptar { success, data }, o array directo, o data.items
       if (resp && typeof resp === 'object' && 'success' in resp && (resp as ApiResponse<any>).success === false) {
         throw { error: { message: (resp as ApiResponse<any>)?.message || 'No se pudieron obtener los roles' }, status: 400 };
       }
@@ -118,13 +135,82 @@ export class RolesService {
     );
   }
 
+  /** Nuevo contrato: búsqueda paginada canónica */
+  searchGlobalRoles(opts?: { q?: string; page?: number; size?: number }): Observable<PagedResult<RoleEntity>> {
+    const q = opts?.q ?? '';
+    const page = Math.max(0, Math.floor(opts?.page ?? 0));
+    const size = Math.min(200, Math.max(1, Math.floor(opts?.size ?? 20)));
+
+    const params: any = { page: String(page), size: String(size) };
+    if (q) params.q = q;
+
+    const mapPaged = (payload: any): PagedResult<RoleEntity> => {
+      const inner = this.toApiResponse(payload).data ?? payload;
+      const dto: PageDto<RolGlobalItem> = inner as any;
+      const content: any[] = Array.isArray((dto as any)?.content) ? (dto as any).content : [];
+      const total = typeof (dto as any)?.totalElements === 'number' ? (dto as any).totalElements : content.length;
+      const items = content.map((it: any) => this.ensureRole({
+        id: it?.id,
+        rol: it?.rol,
+        org: it?.org,
+        orgId: it?.orgId,
+        display: it?.display
+      }));
+      return { total, items };
+    };
+
+    return this.http.get(this.rolesPaged, { headers: this.accept, params, responseType: 'text' as 'json' }).pipe(
+      map(mapPaged),
+      catchError((e1) => {
+        const shouldFb = [0, 200, 204, 404, 500, 502, 503].includes(e1?.status ?? 0);
+        if (!shouldFb) return throwError(() => ({ error: { message: e1?.error?.message || e1?.message || 'No se pudieron obtener los roles' }, status: e1?.status }));
+        const abs = `${environment.backendHost}${this.rolesPaged}`;
+        return this.http.get(abs, { headers: this.accept, params, responseType: 'text' as 'json' }).pipe(
+          map(mapPaged),
+          catchError((e2) => throwError(() => ({ error: { message: e2?.error?.message || e2?.message || 'No se pudieron obtener los roles' }, status: e2?.status })))
+        );
+      })
+    );
+  }
+
+  /** Alias de compatibilidad */
+  listGlobalPaged(opts?: { q?: string; page?: number; size?: number }): Observable<PagedResult<RoleEntity>> {
+    return this.searchGlobalRoles(opts);
+  }
+
+  /** Listado global completo (opcional): GET /api/roles */
+  fetchAllGlobalRoles(): Observable<RoleEntity[]> {
+    const mapList = (payload: any): RoleEntity[] => {
+      const inner = this.toApiResponse(payload).data ?? payload;
+      const arr: RolGlobalItem[] = Array.isArray(inner) ? inner : (Array.isArray((inner as any)?.items) ? (inner as any).items : []);
+      return arr.map((it: any) => this.ensureRole({ id: it?.id, rol: it?.rol ?? it?.nombre, org: it?.org ?? it?.orgNombre, orgId: it?.orgId, display: it?.display }));
+    };
+    return this.http.get(this.rolesBase, { headers: this.accept, responseType: 'text' as 'json' }).pipe(
+      map(mapList),
+      catchError((e1) => {
+        const shouldFb = [0, 200, 204, 404, 500, 502, 503].includes(e1?.status ?? 0);
+        if (!shouldFb) return throwError(() => ({ error: { message: e1?.error?.message || e1?.message || 'No se pudieron obtener los roles' }, status: e1?.status }));
+        const abs = `${environment.backendHost}${this.rolesBase}`;
+        return this.http.get(abs, { headers: this.accept, responseType: 'text' as 'json' }).pipe(
+          map(mapList),
+          catchError((e2) => throwError(() => ({ error: { message: e2?.error?.message || e2?.message || 'No se pudieron obtener los roles' }, status: e2?.status })))
+        );
+      })
+    );
+  }
+
+  /** Alias de compatibilidad */
+  listGlobalAll(): Observable<RoleEntity[]> {
+    return this.fetchAllGlobalRoles();
+  }
+
   get(orgId: string, roleId: string): Observable<RoleEntity> {
     const url = `${this.base}/orgs/${orgId}/roles/${roleId}`;
     return this.http.get(url, {headers: this.accept, responseType: 'text' as 'json'}).pipe(
       map((payload: any) => this.toApiResponse(payload)),
       map(resp => {
-        if (!resp || resp.success === false) throw {
-          error: {message: resp?.message || 'No se pudo obtener el rol'},
+        if (!resp || (resp as any).success === false) throw {
+          error: {message: (resp as any)?.message || 'No se pudo obtener el rol'},
           status: 400
         };
         return this.ensureRole(this.unwrap(resp));
@@ -284,7 +370,6 @@ export class RolesService {
     const url = `${this.base}${path}`;
     const urlFallback = `${environment.backendHost}${this.base}${path}`;
     const mapResp = (resp: ApiResponse<any> | any) => {
-      // Aceptar tanto { success, data } como array directo o data.items
       if (resp && typeof resp === 'object' && 'success' in resp && (resp as ApiResponse<any>).success === false) {
         throw { error: { message: (resp as ApiResponse<any>)?.message || 'No se pudieron listar roles del usuario' }, status: 400 };
       }
@@ -326,7 +411,6 @@ export class RolesService {
     const url = `${this.base}/usuarios/${usuarioId}/roles/${rolUsuarioId}`;
     return this.http.delete<ApiResponse<any> | any>(url, {headers: this.accept}).pipe(
       map((payload) => {
-        // 204 No Content -> payload null/undefined
         if (payload == null) return { message: undefined };
         const resp = (payload && typeof payload === 'object' && 'success' in payload) ? payload as ApiResponse<any> : ({
           success: true,

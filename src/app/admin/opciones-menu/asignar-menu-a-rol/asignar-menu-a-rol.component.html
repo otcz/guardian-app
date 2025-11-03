@@ -3,77 +3,100 @@
     <div class="header"><h2 class="title">Asignar menú a un rol</h2></div>
     <div class="body">
       <div class="form-grid">
+        <!-- Selector de rol -->
         <div class="field">
-          <label>Rol</label>
-          <p-dropdown [options]="roles" optionLabel="nombre" optionValue="id" [(ngModel)]="rolId" name="rolId" placeholder="Seleccione rol" [filter]="true" [showClear]="true" (onChange)="onRolChange()"></p-dropdown>
+          <label>Selector de rol</label>
+          <p-dropdown [options]="roles" optionValue="id" [(ngModel)]="rolId" name="rolId" placeholder="Seleccione rol" [filter]="false" [showClear]="true" (onChange)="onRolChange()">
+            <ng-template pTemplate="selectedItem" let-value>
+              <ng-container *ngIf="value as id">
+                <span *ngIf="roleById.get(id) as r">{{ r.nombre }}<span class="text-muted" *ngIf="r.orgNombre">-{{ r.orgNombre }}</span></span>
+              </ng-container>
+            </ng-template>
+            <ng-template pTemplate="item" let-r>
+              <span>{{ r.nombre }}<span class="text-muted" *ngIf="r.orgNombre">-{{ r.orgNombre }}</span></span>
+            </ng-template>
+          </p-dropdown>
         </div>
+        <!-- Buscar rol local -->
+        <div class="field">
+          <label>Buscar rol</label>
+          <input pInputText type="text" [(ngModel)]="roleQuery" (ngModelChange)="onRoleQueryChange()" placeholder="Buscar rol (local)" />
+        </div>
+        <!-- Buscar opción -->
         <div class="field">
           <label>Buscar opción</label>
           <input pInputText type="text" [(ngModel)]="query" (ngModelChange)="applyFilter()" placeholder="Filtrar por nombre o ruta" />
         </div>
-        <div class="field" style="align-self: end; display:flex; gap:.5rem;">
-          <button pButton type="button" class="p-button-outlined p-button-sm" label="Sembrar catálogo" icon="pi pi-download" (click)="seedNow()" [disabled]="!orgId || saving"></button>
-        </div>
       </div>
 
+      <!-- Resumen y estados -->
       <div class="meta-row fs-xs text-muted" *ngIf="orgId && rolId">
-        <span>Total: {{ allOptions.length }}</span>
-        <span class="mx-2">Filtradas: {{ filteredOptions.length }}</span>
-        <span class="mx-2">Asignadas: {{ totalAssigned }}</span>
-        <span class="mx-2">Seleccionadas: {{ totalSelected }}</span>
+        <p-tag value="Total: {{ allOptions.length }}" severity="secondary" class="mr-1"></p-tag>
+        <p-tag value="Filtradas: {{ filteredOptions.length }}" severity="info" class="mr-1"></p-tag>
+        <p-tag value="Asignadas: {{ totalAssigned }}" severity="success" class="mr-1"></p-tag>
+        <p-tag value="Seleccionadas: {{ totalSelected }}" severity="warn"></p-tag>
       </div>
 
       <p *ngIf="errorMsg" class="p-error mb-sm fs-sm">{{ errorMsg }}</p>
 
-      <!-- Toolbar para selección global del filtro -->
-      <div class="list-toolbar" *ngIf="filteredOptions.length">
+      <div class="list-toolbar" *ngIf="tableRows.length">
         <div class="left">
           <p-checkbox [binary]="true" [ngModel]="allFilteredSelected()" (ngModelChange)="onToggleSelectAllFiltered($event)"></p-checkbox>
-          <span class="label">Seleccionar todo lo filtrado</span>
+          <span class="label">Seleccionar todo lo visible (solo activos)</span>
         </div>
-        <div class="right text-muted">{{ filteredOptions.length }} opciones visibles</div>
+        <div class="right">
+          <span class="text-muted mr-1">{{ tableRows.length }} opciones visibles</span>
+          <span class="toolbar-divider"></span>
+          <span class="ml-2 mr-1">Solo activos</span>
+          <p-checkbox [binary]="true" [(ngModel)]="onlyActive" (ngModelChange)="applyFilter()"></p-checkbox>
+          <span class="ml-3 mr-1">Solo menús</span>
+          <p-checkbox [binary]="true" [(ngModel)]="onlyMenus" (ngModelChange)="applyFilter()"></p-checkbox>
+        </div>
       </div>
 
       <div class="scroll-area">
-        <!-- Vista jerárquica MENÚ -> opciones -->
-        <div class="menu-groups" *ngIf="grouped.length; else emptyState">
-          <div class="menu-group" *ngFor="let g of grouped">
-            <div class="menu-header">
-              <div class="menu-title">{{ g.parent?.nombre || 'Menú' }}</div>
-              <div class="menu-actions">
-                <p-checkbox [binary]="true" [ngModel]="isGroupFullySelected(g)" (ngModelChange)="toggleGroup(g, $event)"></p-checkbox>
-                <span class="count">{{ groupSelectedCount(g) }}/{{ groupVisibleCount(g) }} seleccionadas</span>
-              </div>
-            </div>
-            <ul class="menu-items">
-              <!-- padre como item si está visible -->
-              <li class="menu-item" *ngIf="isParentVisible(g)">
-                <div class="item-row">
-                  <p-checkbox [binary]="true" [ngModel]="selectedIds.has(g.parent!.id)" (ngModelChange)="toggleOne(g.parent!.id, $event)"></p-checkbox>
-                  <div class="meta">
-                    <div class="name">{{ g.parent!.nombre }}</div>
-                    <div class="ruta" *ngIf="g.parent!.ruta">{{ g.parent!.ruta }}</div>
-                  </div>
+        <p-table [value]="tableRows" dataKey="id" [rowHover]="true" [responsiveLayout]="'scroll'" [tableStyle]="{ 'min-width': '560px', width: '100%' }">
+          <ng-template pTemplate="header">
+            <tr>
+              <th style="width:3rem">
+                <p-checkbox [binary]="true" [ngModel]="allFilteredSelected()" (ngModelChange)="onToggleSelectAllFiltered($event)"></p-checkbox>
+              </th>
+              <th>Nombre</th>
+              <th>Ruta</th>
+              <th class="w-90">Tipo</th>
+              <th class="w-90">Estado</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-row>
+            <tr>
+              <td>
+                <p-checkbox [binary]="true" [ngModel]="selectedIds.has(row.id)" (ngModelChange)="toggleOne(row.id, $event)" [disabled]="row.activo === false"></p-checkbox>
+              </td>
+              <td>
+                <div [style.padding-left.px]="row.nivel * 20" [style.font-weight]="(row.tipo || '').toUpperCase()==='MENU' ? 600 : 400">
+                  <i *ngIf="row.icono" class="pi pi-fw" [ngClass]="'pi-' + row.icono"></i>
+                  {{ row.nombre }}
                 </div>
-              </li>
-              <!-- hijos visibles -->
-              <li class="menu-item" *ngFor="let it of g.items">
-                <div class="item-row">
-                  <p-checkbox [binary]="true" [ngModel]="selectedIds.has(it.id)" (ngModelChange)="toggleOne(it.id, $event)"></p-checkbox>
-                  <div class="meta">
-                    <div class="name">{{ it.nombre }}</div>
-                    <div class="ruta" *ngIf="it.ruta">{{ it.ruta }}</div>
-                  </div>
-                </div>
-              </li>
-            </ul>
-          </div>
+              </td>
+              <td>
+                <span class="truncate" [title]="row.ruta || ''">{{ row.ruta }}</span>
+              </td>
+              <td>
+                <p-tag [value]="(row.tipo || '').toUpperCase()" [severity]="(row.tipo || '').toUpperCase()==='MENU' ? 'info' : 'secondary'"></p-tag>
+              </td>
+              <td>
+                <p-tag [value]="row.activo===false ? 'INACTIVO' : 'ACTIVO'" [severity]="row.activo===false ? 'danger' : 'success'"></p-tag>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+        <div *ngIf="!tableRows.length" class="empty text-muted">
+          <div>Sin datos</div>
+          <button pButton type="button" icon="pi pi-database" label="Crear catálogo" class="p-button-text" (click)="seedNow()" *ngIf="orgId && !loading"></button>
         </div>
-        <ng-template #emptyState>
-          <div class="empty text-muted">Sin datos</div>
-        </ng-template>
       </div>
     </div>
+
     <div class="actions">
       <button pButton type="button" label="Guardar" icon="pi pi-save" (click)="save()" [disabled]="!rolId || saving || !hasChanges"></button>
       <button pButton type="button" class="p-button-text" label="Revertir cambios" icon="pi pi-refresh" (click)="revert()" [disabled]="!hasChanges"></button>

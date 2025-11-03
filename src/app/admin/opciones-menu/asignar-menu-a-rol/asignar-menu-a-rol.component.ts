@@ -58,8 +58,12 @@ export class AsignarMenuARolComponent implements OnInit {
   private byId = new Map<string, OpcionEntity>();
   private children = new Map<string, OpcionEntity[]>();
 
-  // Filas visibles en tabla
-  tableRows: Array<{ id: string; nombre: string; ruta?: string | null; tipo?: string | null; activo?: boolean; icono?: string | null; nivel: number; parentId?: string | null; ref: OpcionEntity }> = [];
+  // Ids visibles segun filtro/árbol y expansión por grupo
+  private visibleIdSet = new Set<string>();
+  expanded = new Set<string>();
+
+  // Filas visibles agrupadas (agrega rootId y isMenu)
+  tableRows: Array<{ id: string; nombre: string; ruta?: string | null; tipo?: string | null; activo?: boolean; icono?: string | null; nivel: number; parentId?: string | null; rootId: string; isMenu: boolean; ref: OpcionEntity }> = [];
 
   constructor(
     private rolesSvc: RolesService,
@@ -73,7 +77,6 @@ export class AsignarMenuARolComponent implements OnInit {
   ngOnInit(): void {
     this.isSysAdmin = this.auth.hasRole('SYSADMIN');
 
-    // Búsqueda local de roles (solo SYSADMIN)
     this.roleQuery$
       .pipe(debounceTime(150), distinctUntilChanged(), switchMap((q) => this.rolesStore.filterLocal(q || '')))
       .subscribe({
@@ -95,18 +98,14 @@ export class AsignarMenuARolComponent implements OnInit {
           this.roles = list || [];
           this.roleById.clear();
           for (const r of this.roles) this.roleById.set(String(r.id), r);
-          // aplica filtro inicial de roles si hay query cargada
           this.onRoleQueryChange();
         },
-        error: (e) => {
-          this.errorMsg = e?.error?.message || e?.message || 'No se pudieron obtener los roles';
-        },
+        error: (e) => { this.errorMsg = e?.error?.message || e?.message || 'No se pudieron obtener los roles'; },
         complete: () => { this.loading = false; }
       });
       return;
     }
 
-    // No SYSADMIN: roles por organización
     this.orgId = this.orgCtx.value || localStorage.getItem('currentOrgId');
     if (!this.orgId) { this.resetData(); return; }
     this.loading = true;
@@ -124,19 +123,13 @@ export class AsignarMenuARolComponent implements OnInit {
           this.resetData();
         }
       },
-      error: (e) => {
-        this.errorMsg = e?.error?.message || e?.message || 'No se pudieron obtener los roles';
-        this.resetData();
-      },
+      error: (e) => { this.errorMsg = e?.error?.message || e?.message || 'No se pudieron obtener los roles'; this.resetData(); },
       complete: () => { this.loading = false; }
     });
   }
 
-  onRoleQueryChange() {
-    this.roleQuery$.next(this.roleQuery);
-  }
+  onRoleQueryChange() { this.roleQuery$.next(this.roleQuery); }
 
-  // Cargar catálogo de opciones y asignaciones del rol
   async onRolChange() {
     this.errorMsg = null;
     if (!this.rolId) { this.resetData(); return; }
@@ -148,28 +141,21 @@ export class AsignarMenuARolComponent implements OnInit {
     this.orgId = effectiveOrgId;
     this.loading = true;
     try {
-      // 1) catálogo completo de la organización (43 opciones)
       const catalog = await lastValueFrom(this.opcionesSvc.ensureOrgOptions(this.orgId));
       this.allOptions = Array.isArray(catalog) ? catalog : [];
-
-      // Índices para árbol
       this.buildIndex();
 
-      // 2) opciones asignadas al rol
       const assignedList = await lastValueFrom(this.opcionesSvc.listRoleOptions(this.orgId, this.rolId));
       const assignedSet = new Set((assignedList || []).map(o => String(o.id)));
       this.assignedIds = assignedSet;
-      this.selectedIds = new Set(assignedSet); // selección inicial = asignadas
+      this.selectedIds = new Set(assignedSet);
 
-      // 3) aplicar filtro actual y construir filas visibles
       this.applyFilter();
       this.syncSelectedRows();
     } catch (e: any) {
       this.errorMsg = e?.error?.message || e?.message || 'No se pudieron cargar las opciones del rol';
-      this.resetData(false); // conserva orgId/rolId pero limpia listas
-    } finally {
-      this.loading = false;
-    }
+      this.resetData(false);
+    } finally { this.loading = false; }
   }
 
   private buildIndex() {
@@ -179,20 +165,15 @@ export class AsignarMenuARolComponent implements OnInit {
       const id = String(o.id);
       this.byId.set(id, o);
       const p = o?.padreId ? String(o.padreId) : '';
-      if (p) {
-        if (!this.children.has(p)) this.children.set(p, []);
-        this.children.get(p)!.push(o);
-      }
+      if (p) { if (!this.children.has(p)) this.children.set(p, []); this.children.get(p)!.push(o); }
     }
   }
 
   applyFilter() {
     const q = (this.query || '').trim().toLowerCase();
     const match = (o: OpcionEntity): boolean => {
-      // filtros extra
       if (this.onlyActive && o?.activo === false) return false;
       if (this.onlyMenus && (o?.tipo || '').toUpperCase() !== 'MENU') return false;
-      // texto
       if (!q) return true;
       const nombre = (o?.nombre || '').toLowerCase();
       const ruta = (o?.ruta || '').toLowerCase();
@@ -204,6 +185,8 @@ export class AsignarMenuARolComponent implements OnInit {
       this.filteredOptions = [];
       this.filteredIdSet = new Set<string>();
       this.tableRows = [];
+      this.visibleIdSet = new Set<string>();
+      this.expanded.clear();
       return;
     }
 
@@ -233,20 +216,25 @@ export class AsignarMenuARolComponent implements OnInit {
     };
 
     const rows: typeof this.tableRows = [];
-    const walk = (node: OpcionEntity, nivel: number) => {
+    const visibleIds = new Set<string>();
+
+    const walk = (node: OpcionEntity, nivel: number, rootId: string) => {
       const id = String(node.id);
       if (!visible(id)) return;
-      // sólo empujar si el nodo pasa el filtro directo; aún así recorremos hijos visibles
-      const includeSelf = this.filteredIdSet.size === 0 || this.filteredIdSet.has(id);
-      if (includeSelf) {
-        rows.push({ id, nombre: node.nombre, ruta: node.ruta, tipo: node.tipo, activo: node.activo, icono: node.icono, nivel, parentId: node.padreId ?? null, ref: node });
-      }
+      // incluir siempre la cabecera de grupo (nivel 0) y cualquier nodo con match/hijos visibles
+      rows.push({ id, nombre: node.nombre, ruta: node.ruta, tipo: node.tipo, activo: node.activo, icono: node.icono, nivel, parentId: node.padreId ?? null, rootId, isMenu: isMenu(node), ref: node });
+      visibleIds.add(id);
       const kids = (this.children.get(id) || []).sort(cmp);
-      for (const ch of kids) walk(ch, nivel + 1);
+      for (const ch of kids) walk(ch, nivel + 1, rootId);
     };
-    for (const r of roots.sort(cmp)) walk(r, 0);
+    for (const r of roots.sort(cmp)) walk(r, 0, String(r.id));
 
     this.tableRows = rows;
+    this.visibleIdSet = visibleIds;
+
+    // Expandir por defecto cabeceras
+    const rootIds = new Set(rows.filter(r => r.nivel === 0).map(r => r.id));
+    for (const rid of rootIds) if (!this.expanded.has(rid)) this.expanded.add(rid);
   }
 
   private syncSelectedRows() {
@@ -262,19 +250,71 @@ export class AsignarMenuARolComponent implements OnInit {
 
   onToggleSelectAllFiltered(checked: boolean) {
     const selectable = this.tableRows.filter(r => r.activo !== false);
-    if (checked) {
-      for (const r of selectable) this.selectedIds.add(r.id);
+    if (checked) { for (const r of selectable) this.selectedIds.add(r.id); }
+    else { for (const r of selectable) this.selectedIds.delete(r.id); }
+    this.syncSelectedRows();
+  }
+
+  private getDescendantIds(id: string, includeSelf = true, onlyVisible = true): string[] {
+    const out: string[] = [];
+    const pushIf = (val: string) => { if (!onlyVisible || this.visibleIdSet.has(val)) out.push(val); };
+    const walk = (nid: string) => { pushIf(nid); const kids = this.children.get(nid) || []; for (const ch of kids) walk(String(ch.id)); };
+    if (includeSelf) walk(String(id)); else { const kids = this.children.get(String(id)) || []; for (const ch of kids) walk(String(ch.id)); }
+    return out;
+  }
+
+  private isMenuById(id: string): boolean {
+    const o = this.byId.get(String(id));
+    if (!o) return false;
+    const t = (o?.tipo || '').toUpperCase();
+    return t === 'MENU' || !o.padreId || (this.children.get(String(id)) || []).length > 0;
+  }
+
+  toggleOne(id: string, checked: boolean) {
+    id = String(id);
+    if (this.isMenuById(id)) {
+      const ids = this.getDescendantIds(id, true, true);
+      if (checked) {
+        for (const did of ids) {
+          const row = this.tableRows.find(r => r.id === did);
+          if (!row || row.activo === false) continue;
+          this.selectedIds.add(did);
+        }
+      } else {
+        for (const did of ids) this.selectedIds.delete(did);
+      }
     } else {
-      for (const r of selectable) this.selectedIds.delete(r.id);
+      if (checked) this.selectedIds.add(String(id));
+      else this.selectedIds.delete(String(id));
     }
     this.syncSelectedRows();
   }
 
-  toggleOne(id: string, checked: boolean) {
-    if (checked) this.selectedIds.add(String(id));
-    else this.selectedIds.delete(String(id));
+  // Helpers de grupo
+  groupRows(rootId: string) { return this.tableRows.filter(r => r.rootId === rootId); }
+  groupAllSelectedById(rootId: string): boolean {
+    const rows = this.groupRows(rootId).filter(r => r.activo !== false);
+    if (!rows.length) return false;
+    return rows.every(r => this.selectedIds.has(r.id));
+  }
+  groupSomeSelectedById(rootId: string): boolean {
+    const rows = this.groupRows(rootId).filter(r => r.activo !== false);
+    if (!rows.length) return false;
+    const selected = rows.filter(r => this.selectedIds.has(r.id));
+    return selected.length > 0 && selected.length < rows.length;
+  }
+  groupSelectedCount(rootId: string): number {
+    const rows = this.groupRows(rootId);
+    if (!rows.length) return 0;
+    return rows.filter(r => r.id !== rootId && this.selectedIds.has(r.id)).length;
+  }
+  onToggleGroup(rootId: string, checked: boolean) {
+    const rows = this.groupRows(rootId).filter(r => r.activo !== false);
+    if (checked) { for (const r of rows) this.selectedIds.add(r.id); }
+    else { for (const r of rows) this.selectedIds.delete(r.id); }
     this.syncSelectedRows();
   }
+  toggleExpand(rootId: string) { if (this.expanded.has(rootId)) this.expanded.delete(rootId); else this.expanded.add(rootId); }
 
   get totalSelected(): number { return this.selectedIds.size; }
   get totalAssigned(): number { return this.assignedIds.size; }
@@ -284,10 +324,7 @@ export class AsignarMenuARolComponent implements OnInit {
     return false;
   }
 
-  revert() {
-    this.selectedIds = new Set(this.assignedIds);
-    this.syncSelectedRows();
-  }
+  revert() { this.selectedIds = new Set(this.assignedIds); this.syncSelectedRows(); }
 
   async save() {
     if (!this.orgId || !this.rolId) { this.notify.warn('Atención', 'Seleccione un rol'); return; }
@@ -298,32 +335,16 @@ export class AsignarMenuARolComponent implements OnInit {
 
     this.saving = true; let ok = 0; const fails: string[] = [];
     try {
-      for (const id of removes) {
-        try { await lastValueFrom(this.opcionesSvc.unassignOptionFromRole(this.orgId, this.rolId, id)); ok++; } catch (e: any) { fails.push(e?.error?.message || e?.message || `Error al quitar ${id}`); }
-      }
-      for (const id of adds) {
-        try { await lastValueFrom(this.opcionesSvc.assignOptionToRole(this.orgId, this.rolId, id)); ok++; } catch (e: any) { fails.push(e?.error?.message || e?.message || `Error al asignar ${id}`); }
-      }
-      if (ok > 0) {
-        try {
-          const assigned = await lastValueFrom(this.opcionesSvc.listRoleOptions(this.orgId, this.rolId));
-          this.assignedIds = new Set((assigned || []).map(o => String(o.id)));
-          this.selectedIds = new Set(this.assignedIds);
-        } catch {}
-      }
+      for (const id of removes) { try { await lastValueFrom(this.opcionesSvc.unassignOptionFromRole(this.orgId!, this.rolId!, id)); ok++; } catch (e: any) { fails.push(e?.error?.message || e?.message || `Error al quitar ${id}`); } }
+      for (const id of adds) { try { await lastValueFrom(this.opcionesSvc.assignOptionToRole(this.orgId!, this.rolId!, id)); ok++; } catch (e: any) { fails.push(e?.error?.message || e?.message || `Error al asignar ${id}`); } }
+      if (ok > 0) { try { const assigned = await lastValueFrom(this.opcionesSvc.listRoleOptions(this.orgId!, this.rolId!)); this.assignedIds = new Set((assigned || []).map(o => String(o.id))); this.selectedIds = new Set(this.assignedIds); } catch {} }
       if (fails.length) { this.notify.warn('Parcial', `${ok} cambios aplicados. ${fails.length} con error.`); this.notify.error('Detalle', fails[0]); }
       else { this.notify.success('Listo', `${ok} cambios aplicados`); }
-    } finally {
-      this.saving = false;
-      this.syncSelectedRows();
-    }
+    } finally { this.saving = false; this.syncSelectedRows(); }
   }
 
   resetData(clearAll: boolean = true) {
-    if (clearAll) {
-      this.allOptions = [];
-      this.filteredOptions = [];
-    }
+    if (clearAll) { this.allOptions = []; this.filteredOptions = []; }
     this.assignedIds.clear();
     this.selectedIds.clear();
     this.selectedRows = [];
@@ -331,24 +352,14 @@ export class AsignarMenuARolComponent implements OnInit {
     this.tableRows = [];
     this.byId.clear();
     this.children.clear();
+    this.visibleIdSet = new Set();
+    this.expanded.clear();
   }
 
   async seedNow() {
     if (!this.orgId) { this.notify.warn('Atención', 'No hay organización activa'); return; }
-    try {
-      this.saving = true;
-      await lastValueFrom(this.opcionesSvc.seedOrgOptions(this.orgId));
-      this.notify.success('Catálogo creado', 'Se creó el catálogo de opciones de la organización');
-      await this.onRolChange();
-    } catch (e: any) {
-      const msg = e?.error?.message || e?.message || 'No se pudo sembrar el catálogo de opciones';
-      this.notify.error('Error', msg);
-    } finally {
-      this.saving = false;
-    }
+    try { this.saving = true; await lastValueFrom(this.opcionesSvc.seedOrgOptions(this.orgId)); this.notify.success('Catálogo creado', 'Se creó el catálogo de opciones de la organización'); await this.onRolChange(); }
+    catch (e: any) { const msg = e?.error?.message || e?.message || 'No se pudo sembrar el catálogo de opciones'; this.notify.error('Error', msg); }
+    finally { this.saving = false; }
   }
 }
-
-
-
-

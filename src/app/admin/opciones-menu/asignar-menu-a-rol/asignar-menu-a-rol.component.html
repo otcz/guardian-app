@@ -55,45 +55,54 @@
       </div>
 
       <div class="scroll-area">
-        <p-table [value]="tableRows" dataKey="id" [rowHover]="true" [responsiveLayout]="'scroll'" [tableStyle]="{ 'min-width': '560px', width: '100%' }">
-          <ng-template pTemplate="header">
-            <tr>
-              <th style="width:3rem">
-                <p-checkbox [binary]="true" [ngModel]="allFilteredSelected()" (ngModelChange)="onToggleSelectAllFiltered($event)"></p-checkbox>
-              </th>
-              <th>Nombre</th>
-              <th>Ruta</th>
-              <th class="w-90">Tipo</th>
-              <th class="w-90">Estado</th>
-            </tr>
-          </ng-template>
-          <ng-template pTemplate="body" let-row>
-            <tr>
-              <td>
-                <p-checkbox [binary]="true" [ngModel]="selectedIds.has(row.id)" (ngModelChange)="toggleOne(row.id, $event)" [disabled]="row.activo === false"></p-checkbox>
-              </td>
-              <td>
-                <div [style.padding-left.px]="row.nivel * 20" [style.font-weight]="(row.tipo || '').toUpperCase()==='MENU' ? 600 : 400">
-                  <i *ngIf="row.icono" class="pi pi-fw" [ngClass]="'pi-' + row.icono"></i>
-                  {{ row.nombre }}
+        <div class="menu-groups" *ngIf="tableRows.length; else emptyState">
+          <div class="menu-group" *ngFor="let g of tableRows" [ngClass]="{'is-root': g.nivel===0}">
+            <ng-container *ngIf="g.nivel === 0">
+              <div class="menu-header" (click)="toggleExpand(g.id)">
+                <div class="left" style="display:flex; align-items:center; gap:10px;">
+                  <i class="pi pi-fw" [ngClass]="expanded.has(g.id) ? 'pi-chevron-down' : 'pi-chevron-right'"></i>
+                  <p-checkbox [binary]="true"
+                              [ngModel]="groupAllSelectedById(g.id)"
+                              [indeterminate]="groupSomeSelectedById(g.id)"
+                              (click)="$event.stopPropagation()"
+                              (ngModelChange)="onToggleGroup(g.id, $event)"></p-checkbox>
+                  <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
+                    <i *ngIf="g.icono" class="pi pi-fw" [ngClass]="'pi-' + g.icono"></i>
+                    <span>{{ g.nombre }}</span>
+                  </div>
                 </div>
-              </td>
-              <td>
-                <span class="truncate" [title]="row.ruta || ''">{{ row.ruta }}</span>
-              </td>
-              <td>
-                <p-tag [value]="(row.tipo || '').toUpperCase()" [severity]="(row.tipo || '').toUpperCase()==='MENU' ? 'info' : 'secondary'"></p-tag>
-              </td>
-              <td>
-                <p-tag [value]="row.activo===false ? 'INACTIVO' : 'ACTIVO'" [severity]="row.activo===false ? 'danger' : 'success'"></p-tag>
-              </td>
-            </tr>
-          </ng-template>
-        </p-table>
-        <div *ngIf="!tableRows.length" class="empty text-muted">
-          <div>Sin datos</div>
-          <button pButton type="button" icon="pi pi-database" label="Crear catálogo" class="p-button-text" (click)="seedNow()" *ngIf="orgId && !loading"></button>
+                <div class="right" style="display:flex; align-items:center; gap:6px;">
+                  <p-tag [value]="'MENÚ'" severity="info"></p-tag>
+                  <p-tag [value]="(groupRows(g.id).length - 1) + ' ítems'" severity="secondary"></p-tag>
+                  <p-tag [value]="groupSelectedCount(g.id) + ' sel'" severity="success"></p-tag>
+                  <p-tag [value]="g.activo===false ? 'INACTIVO' : 'ACTIVO'" [severity]="g.activo===false ? 'danger' : 'success'"></p-tag>
+                </div>
+              </div>
+              <ul class="menu-items" *ngIf="expanded.has(g.id)">
+                <li class="menu-item" *ngFor="let r of groupRows(g.id)" [ngClass]="{'is-header': r.id===g.id}">
+                  <ng-container *ngIf="r.id !== g.id">
+                    <div class="item-row" [style.padding-left.px]="r.nivel * 20">
+                      <p-checkbox [binary]="true" [ngModel]="selectedIds.has(r.id)" (ngModelChange)="toggleOne(r.id, $event)" [disabled]="r.activo === false"></p-checkbox>
+                      <div style="display:flex; align-items:center; gap:6px;">
+                        <i *ngIf="r.icono" class="pi pi-fw" [ngClass]="'pi-' + r.icono"></i>
+                        <span [style.font-weight]="(r.tipo || '').toUpperCase()==='MENU' ? 600 : 400">{{ r.nombre }}</span>
+                      </div>
+                      <span class="truncate text-muted" [title]="r.ruta || ''" style="margin-left:auto; margin-right:8px;">{{ r.ruta }}</span>
+                      <p-tag [value]="(r.tipo || '').toUpperCase()" [severity]="(r.tipo || '').toUpperCase()==='MENU' ? 'info' : 'secondary'"></p-tag>
+                      <p-tag [value]="r.activo===false ? 'INACTIVO' : 'ACTIVO'" [severity]="r.activo===false ? 'danger' : 'success'"></p-tag>
+                    </div>
+                  </ng-container>
+                </li>
+              </ul>
+            </ng-container>
+          </div>
         </div>
+        <ng-template #emptyState>
+          <div class="empty text-muted">
+            <div>Sin datos</div>
+            <button pButton type="button" icon="pi pi-database" label="Crear catálogo" class="p-button-text" (click)="seedNow()" *ngIf="orgId && !loading"></button>
+          </div>
+        </ng-template>
       </div>
     </div>
 

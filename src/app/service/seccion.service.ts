@@ -387,4 +387,34 @@ export class SeccionService {
       })
     );
   }
+
+  /** Obtener una sección por ID. */
+  get(orgId: string, seccionId: string): Observable<SeccionEntity> {
+    const path = `/orgs/${orgId}/secciones/${seccionId}`;
+    const urlPrimary = `${this.base}${path}`;
+    const urlFallback = `${environment.backendHost}${this.base}${path}`;
+
+    const mapResp = (payload: any): SeccionEntity => {
+      const d = (payload && typeof payload === 'object' && 'success' in payload)
+        ? (payload as any).data
+        : payload;
+      if (!d) throw { error: { message: 'Sección no encontrada' }, status: 404 };
+      return {
+        id: String(d.id ?? seccionId),
+        nombre: String(d.nombre ?? ''),
+        descripcion: d.descripcion || undefined,
+        estado: d.estado || undefined,
+        autonomiaConfigurada: d.autonomiaConfigurada != null ? !!d.autonomiaConfigurada : undefined,
+        seccionPadreId: d.seccionPadreId ?? d.idSeccionPadre ?? null
+      } as SeccionEntity;
+    };
+
+    return this.http.get<any>(urlPrimary, { headers: this.accept }).pipe(
+      map(mapResp),
+      catchError((_e1) => this.http.get<any>(urlFallback, { headers: this.accept }).pipe(
+        map(mapResp),
+        catchError((e2) => throwError(() => ({ error: { message: e2?.error?.message || e2?.message || 'No se pudo obtener la sección' }, status: e2?.status })))
+      ))
+    );
+  }
 }

@@ -38,8 +38,7 @@
           </td>
           <td>
             <div class="stack">
-              <p-chip icon="pi pi-shield" [label]="u.scopeNivel || '-'" class="pill muted"></p-chip>
-              <p-chip *ngIf="u['seccionId']" icon="pi pi-sitemap" [label]="'Sección: ' + sectionName(u)" class="pill"></p-chip>
+              <p-chip icon="pi pi-sitemap" [label]="mandoNombre(u)" class="pill"></p-chip>
               <p-chip *ngIf="roleByUserId[u.id]" icon="pi pi-user" [label]="'Rol: ' + roleByUserId[u.id]" class="pill"></p-chip>
             </div>
           </td>

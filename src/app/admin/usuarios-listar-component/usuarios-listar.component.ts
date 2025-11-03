@@ -19,6 +19,7 @@ import { SeccionService, SeccionEntity } from '../../service/seccion.service';
 import { forkJoin, of } from 'rxjs';
 import { catchError, finalize } from 'rxjs/operators';
 import { environment } from '../../config/environment';
+import { OrganizationService } from '../../service/organization.service';
 
 @Component({
   selector: 'app-usuarios-listar',
@@ -35,6 +36,8 @@ export class UsuariosListarComponent implements OnInit {
   filter = '';
   secciones: SeccionEntity[] = [];
   // showInvite eliminado
+  // Nombre de la organización actual para construir la línea de mando
+  orgName: string | null = null;
 
   // Paginación adaptable
   pageSize = 10;
@@ -52,13 +55,17 @@ export class UsuariosListarComponent implements OnInit {
   // Mapa de rol contextual por usuario (solo en scope SECCION)
   roleByUserId: Record<string, string> = {};
 
+  private sectionNameCache: Record<string, string> = {};
+  private sectionFetchInFlight = new Set<string>();
+
   constructor(
     private orgCtx: OrgContextService,
     private users: UsersService,
     private notify: NotificationService,
     private router: Router,
     private confirm: ConfirmationService,
-    private seccionSvc: SeccionService
+    private seccionSvc: SeccionService,
+    private orgSvc: OrganizationService
   ) {}
 
   private calcRowsFromViewport(viewH: number): number {
@@ -115,11 +122,17 @@ export class UsuariosListarComponent implements OnInit {
       this.router.navigate(['/listar-organizaciones']);
       return;
     }
+    // Cargar lista de usuarios
     this.load();
     // Cargar secciones para mostrar el nombre y luego roles contextuales si aplica
     this.seccionSvc.list(this.orgId).subscribe({
       next: list => { this.secciones = list || []; this.loadSectionRolesIfApplies(); },
       error: () => { this.secciones = []; this.loadSectionRolesIfApplies(); }
+    });
+    // Cargar nombre de la organización para construir la línea de mando
+    this.orgSvc.get(this.orgId).subscribe({
+      next: org => { this.orgName = (org && org.nombre) ? String(org.nombre) : null; },
+      error: () => { this.orgName = null; }
     });
   }
 
@@ -284,7 +297,42 @@ export class UsuariosListarComponent implements OnInit {
   sectionName(u: UserEntity): string {
     const sid = (u as any)?.seccionId;
     if (!sid) return '-';
+
+    // 1) Caché local
+    const cached = this.sectionNameCache[String(sid)];
+    if (cached) return cached;
+
+    // 2) Buscar en lista precargada
     const found = this.secciones.find(s => String(s.id) === String(sid));
-    return found?.nombre || String(sid);
+    if (found) {
+      this.sectionNameCache[String(sid)] = found.nombre;
+      return found.nombre;
+    }
+
+    // 3) Resolver bajo demanda (una sola vez por id)
+    if (this.orgId && !this.sectionFetchInFlight.has(String(sid))) {
+      this.sectionFetchInFlight.add(String(sid));
+      this.seccionSvc.get(this.orgId, String(sid)).subscribe({
+        next: (sec) => {
+          this.sectionNameCache[String(sid)] = (sec?.nombre ?? String(sid));
+          this.sectionFetchInFlight.delete(String(sid));
+        },
+        error: () => {
+          // fallback: no cachear nombre inválido, permitir reintentos futuros tras TTL implícito (navegación/refresco)
+          this.sectionFetchInFlight.delete(String(sid));
+        }
+      });
+    }
+
+    // Mientras se resuelve, mostrar el id; se actualizará automáticamente cuando llegue el nombre
+    return String(sid);
+  }
+
+  // Devuelve solo los nombres: "ORG", o "ORG, SEC" si corresponde
+  mandoNombre(u: UserEntity): string {
+    const org = (this.orgName && this.orgName.trim()) ? this.orgName.trim() : (this.orgId || '-');
+    const sec = this.sectionName(u);
+    if (sec && sec !== '-' ) return `${org}, ${sec}`;
+    return org || '-';
   }
 }

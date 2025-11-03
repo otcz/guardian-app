@@ -7,6 +7,7 @@ import { DropdownModule } from 'primeng/dropdown';
 import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
+import { InputTextModule } from 'primeng/inputtext';
 import { OrgContextService } from '../../service/org-context.service';
 import { SeccionService, SeccionEntity } from '../../service/seccion.service';
 import type { UserEntity } from '../../service/users.service';
@@ -15,7 +16,7 @@ import { NotificationService } from '../../service/notification.service';
 @Component({
   selector: 'app-seccion-asignar-admin',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, CardModule, DropdownModule, ButtonModule, TagModule, TooltipModule],
+  imports: [CommonModule, FormsModule, RouterModule, CardModule, DropdownModule, ButtonModule, TagModule, TooltipModule, InputTextModule],
   templateUrl: './seccion-asignar-admin.component.html',
   styleUrls: ['./seccion-asignar-admin.component.scss']
 })
@@ -23,11 +24,21 @@ export class SeccionAsignarAdminComponent implements OnInit {
   orgId: string | null = null;
   secciones: SeccionEntity[] = [];
   usuarios: UserEntity[] = [];
+  // colecciones filtradas usadas por la plantilla
+  filteredSecciones: SeccionEntity[] = [];
+  filteredUsuarios: UserEntity[] = [];
+
   seccionId: string | null = null;
   usuarioId: string | null = null;
+
+  // filtros de búsqueda
+  seccionQuery = '';
+  usuarioQuery = '';
+
   loading = true;
   saving = false;
   private pendingLoads = 0;
+  errorMsg: string | null = null;
 
   constructor(
     private orgCtx: OrgContextService,
@@ -45,20 +56,22 @@ export class SeccionAsignarAdminComponent implements OnInit {
     this.pendingLoads = 1;
     // Cargar secciones
     this.seccionesSrv.list(this.orgId).subscribe({
-      next: list => this.secciones = list,
-      error: e => this.notify.error('Error', e?.error?.message || 'No se pudieron listar secciones'),
+      next: list => { this.secciones = list || []; this.filteredSecciones = this.secciones.slice(); },
+      error: (e) => { const msg = e?.error?.message || 'No se pudieron listar secciones'; this.errorMsg = msg; this.notify.error('Error', msg); },
       complete: () => { this.pendingLoads--; this.loading = this.pendingLoads > 0; }
     });
 
     // Prefill desde query
-    this.route.queryParamMap.subscribe(qm => {
-      const sId = qm.get('seccionId');
-      const uId = qm.get('usuarioId');
-      if (sId && sId !== this.seccionId) {
-        this.seccionId = sId;
-        this.loadCandidates();
+    this.route.queryParamMap.subscribe({
+      next: (qm) => {
+        const sId = qm.get('seccionId');
+        const uId = qm.get('usuarioId');
+        if (sId && sId !== this.seccionId) {
+          this.seccionId = sId;
+          this.loadCandidates();
+        }
+        this.usuarioId = uId;
       }
-      this.usuarioId = uId;
     });
   }
 
@@ -72,6 +85,15 @@ export class SeccionAsignarAdminComponent implements OnInit {
     return this.secciones.find(s => String(s.id) === String(this.seccionId)) || null;
   }
 
+  // aplicar filtros externos
+  applyFilters() {
+    const sq = (this.seccionQuery || '').trim().toLowerCase();
+    this.filteredSecciones = !sq ? this.secciones.slice() : this.secciones.filter(s => (s.nombre || '').toLowerCase().includes(sq));
+
+    const uq = (this.usuarioQuery || '').trim().toLowerCase();
+    this.filteredUsuarios = !uq ? this.usuarios.slice() : this.usuarios.filter(u => (u.username || '').toLowerCase().includes(uq) || (u.nombreCompleto || '').toLowerCase().includes(uq));
+  }
+
   onSeccionChange() {
     // Limpiar usuario seleccionado al cambiar de sección
     this.usuarioId = null;
@@ -79,7 +101,7 @@ export class SeccionAsignarAdminComponent implements OnInit {
   }
 
   private loadCandidates() {
-    if (!this.orgId || !this.seccionId) { this.usuarios = []; return; }
+    if (!this.orgId || !this.seccionId) { this.usuarios = []; this.filteredUsuarios = []; return; }
     this.loading = true;
     this.seccionesSrv.getAdminCandidates(this.orgId, this.seccionId).subscribe({
       next: list => {
@@ -88,13 +110,15 @@ export class SeccionAsignarAdminComponent implements OnInit {
         if (this.usuarioId && !this.usuarios.some(u => String(u.id) === String(this.usuarioId))) {
           this.usuarioId = null;
         }
+        this.filteredUsuarios = this.usuarios.slice();
+        this.applyFilters();
         this.loading = false;
       },
       error: (e) => {
         this.loading = false;
         if (e?.status === 404) this.notify.warn('Sección', 'Sección no encontrada');
         else this.notify.error('Error', e?.error?.message || 'No se pudieron listar candidatos');
-        this.usuarios = [];
+        this.usuarios = []; this.filteredUsuarios = [];
       }
     });
   }

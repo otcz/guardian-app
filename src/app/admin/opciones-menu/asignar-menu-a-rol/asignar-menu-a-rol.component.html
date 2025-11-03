@@ -8,9 +8,13 @@
           <label>Selector de rol</label>
           <p-dropdown [options]="roles" optionValue="id" [(ngModel)]="rolId" name="rolId" placeholder="Seleccione rol" [filter]="false" [showClear]="true" (onChange)="onRolChange()">
             <ng-template pTemplate="selectedItem" let-value>
-              <ng-container *ngIf="value as id">
-                <span *ngIf="roleById.get(id) as r">{{ r.nombre }}<span class="text-muted" *ngIf="r.orgNombre">-{{ r.orgNombre }}</span></span>
+              <ng-container *ngIf="resolveSelectedRole(value) as r; else plainValue">
+                <span>{{ r.nombre }}<span class="text-muted" *ngIf="r.orgNombre">-{{ r.orgNombre }}</span></span>
               </ng-container>
+              <ng-template #plainValue>
+                <span *ngIf="value && value.nombre; else rawVal">{{ value.nombre }}</span>
+                <ng-template #rawVal><span>{{ value }}</span></ng-template>
+              </ng-template>
             </ng-template>
             <ng-template pTemplate="item" let-r>
               <span>{{ r.nombre }}<span class="text-muted" *ngIf="r.orgNombre">-{{ r.orgNombre }}</span></span>
@@ -43,6 +47,9 @@
         <div class="left">
           <p-checkbox [binary]="true" [ngModel]="allFilteredSelected()" (ngModelChange)="onToggleSelectAllFiltered($event)"></p-checkbox>
           <span class="label">Seleccionar todo lo visible (solo activos)</span>
+          <span class="toolbar-divider"></span>
+          <button pButton type="button" class="p-button-text p-button-sm" icon="pi pi-plus"  (click)="expandAllVisible()" title="Expandir todos los menús"></button>
+          <button pButton type="button" class="p-button-text p-button-sm" icon="pi pi-minus"  (click)="collapseAllVisible()" title="Colapsar todos los menús"></button>
         </div>
         <div class="right">
           <span class="text-muted mr-1">{{ tableRows.length }} opciones visibles</span>

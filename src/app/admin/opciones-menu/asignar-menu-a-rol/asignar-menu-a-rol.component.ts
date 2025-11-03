@@ -66,6 +66,17 @@ export class AsignarMenuARolComponent implements OnInit {
   // Filas visibles agrupadas (agrega rootId y isMenu)
   tableRows: Array<{ id: string; nombre: string; ruta?: string | null; tipo?: string | null; activo?: boolean; icono?: string | null; nivel: number; parentId?: string | null; rootId: string; isMenu: boolean; ref: OpcionEntity }> = [];
 
+  // Resolver el rol seleccionado tanto si el dropdown entrega id (primitivo) como objeto
+  resolveSelectedRole(value: any): RoleEntity | null {
+    if (value == null) return null;
+    if (typeof value === 'object') {
+      const id = value?.id != null ? String(value.id) : '';
+      return this.roleById.get(id) || (value as RoleEntity);
+    }
+    const id = String(value);
+    return this.roleById.get(id) || null;
+  }
+
   constructor(
     private rolesSvc: RolesService,
     private opcionesSvc: OpcionesService,
@@ -351,6 +362,16 @@ export class AsignarMenuARolComponent implements OnInit {
     this.syncSelectedRows();
   }
   toggleExpand(rootId: string) { if (this.expanded.has(rootId)) this.expanded.delete(rootId); else this.expanded.add(rootId); }
+
+  // Expandir/Colapsar todos los menús raíz visibles
+  expandAllVisible() {
+    const roots = this.tableRows.filter(r => r.nivel === 0).map(r => r.id);
+    for (const id of roots) this.expanded.add(id);
+  }
+  collapseAllVisible() {
+    const roots = this.tableRows.filter(r => r.nivel === 0).map(r => r.id);
+    for (const id of roots) this.expanded.delete(id);
+  }
 
   get totalSelected(): number { return this.selectedIds.size; }
   get totalAssigned(): number { return this.assignedIds.size; }

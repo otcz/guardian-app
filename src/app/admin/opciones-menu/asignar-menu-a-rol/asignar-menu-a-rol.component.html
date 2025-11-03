@@ -65,7 +65,7 @@
                               [ngModel]="groupAllSelectedById(g.id)"
                               [indeterminate]="groupSomeSelectedById(g.id)"
                               (click)="$event.stopPropagation()"
-                              (ngModelChange)="onToggleGroup(g.id, $event)"></p-checkbox>
+                              (onChange)="onToggleGroup(g.id, $event.checked)"></p-checkbox>
                   <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
                     <i *ngIf="g.icono" class="pi pi-fw" [ngClass]="'pi-' + g.icono"></i>
                     <span>{{ g.nombre }}</span>

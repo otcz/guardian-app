@@ -57,6 +57,7 @@ export class AsignarMenuARolComponent implements OnInit {
   // Índices del árbol
   private byId = new Map<string, OpcionEntity>();
   private children = new Map<string, OpcionEntity[]>();
+  private derivedChildren = new Map<string, OpcionEntity[]>();
 
   // Ids visibles segun filtro/árbol y expansión por grupo
   private visibleIdSet = new Set<string>();
@@ -161,12 +162,48 @@ export class AsignarMenuARolComponent implements OnInit {
   private buildIndex() {
     this.byId = new Map<string, OpcionEntity>();
     this.children = new Map<string, OpcionEntity[]>();
+    this.derivedChildren = new Map<string, OpcionEntity[]>();
     for (const o of this.allOptions) {
       const id = String(o.id);
       this.byId.set(id, o);
       const p = o?.padreId ? String(o.padreId) : '';
       if (p) { if (!this.children.has(p)) this.children.set(p, []); this.children.get(p)!.push(o); }
     }
+    this.buildDerivedChildren();
+  }
+
+  private buildDerivedChildren() {
+    const isMenu = (o: OpcionEntity) => (o?.tipo || '').toUpperCase() === 'MENU';
+    const menus = this.allOptions.filter(isMenu);
+    const items = this.allOptions.filter(o => !isMenu(o));
+
+    const norm = (s: string | null | undefined) => (s || '').trim();
+
+    for (const m of menus) {
+      const mid = String(m.id);
+      const existing = this.children.get(mid);
+      if (existing && existing.length > 0) continue; // ya hay jerarquía real
+
+      let arr: OpcionEntity[] = [];
+      const rutaM = norm(m.ruta);
+      if (rutaM && rutaM !== '/') {
+        arr = items.filter(i => {
+          const r = norm(i.ruta);
+          return r && r !== rutaM && r.startsWith(rutaM);
+        });
+      }
+      if (!arr.length) {
+        const codeM = (norm((m as any).codigo) || '').toUpperCase().replace(/^MENU_/, '');
+        if (codeM) {
+          arr = items.filter(i => ((norm((i as any).codigo) || '').toUpperCase().replace(/^ITEM_/, '')).startsWith(codeM));
+        }
+      }
+      if (arr.length) this.derivedChildren.set(mid, arr);
+    }
+  }
+
+  private getChildrenList(id: string): OpcionEntity[] {
+    return (this.children.get(id) || this.derivedChildren.get(id) || []);
   }
 
   applyFilter() {
@@ -197,7 +234,7 @@ export class AsignarMenuARolComponent implements OnInit {
   }
 
   private buildTableRows() {
-    const isMenu = (o: OpcionEntity) => (o?.tipo || '').toUpperCase() === 'MENU' || (!o.padreId);
+    const isMenu = (o: OpcionEntity) => (o?.tipo || '').toUpperCase() === 'MENU';
     const cmp = (a: OpcionEntity, b: OpcionEntity) => {
       const at = isMenu(a) ? 0 : 1; const bt = isMenu(b) ? 0 : 1;
       if (at !== bt) return at - bt;
@@ -205,12 +242,12 @@ export class AsignarMenuARolComponent implements OnInit {
     };
 
     const roots: OpcionEntity[] = [];
-    for (const o of this.allOptions) if (!o?.padreId) roots.push(o);
+    for (const o of this.allOptions) if (isMenu(o) && (!o?.padreId || !this.byId.has(String(o.padreId)))) roots.push(o);
 
     const visible = (id: string): boolean => {
       if (this.filteredIdSet.size === 0) return true;
       if (this.filteredIdSet.has(id)) return true;
-      const kids = this.children.get(id) || [];
+      const kids = this.getChildrenList(id) || [];
       for (const k of kids) if (visible(String(k.id))) return true;
       return false;
     };
@@ -221,10 +258,9 @@ export class AsignarMenuARolComponent implements OnInit {
     const walk = (node: OpcionEntity, nivel: number, rootId: string) => {
       const id = String(node.id);
       if (!visible(id)) return;
-      // incluir siempre la cabecera de grupo (nivel 0) y cualquier nodo con match/hijos visibles
       rows.push({ id, nombre: node.nombre, ruta: node.ruta, tipo: node.tipo, activo: node.activo, icono: node.icono, nivel, parentId: node.padreId ?? null, rootId, isMenu: isMenu(node), ref: node });
       visibleIds.add(id);
-      const kids = (this.children.get(id) || []).sort(cmp);
+      const kids = (this.getChildrenList(id) || []).sort(cmp);
       for (const ch of kids) walk(ch, nivel + 1, rootId);
     };
     for (const r of roots.sort(cmp)) walk(r, 0, String(r.id));
@@ -258,8 +294,8 @@ export class AsignarMenuARolComponent implements OnInit {
   private getDescendantIds(id: string, includeSelf = true, onlyVisible = true): string[] {
     const out: string[] = [];
     const pushIf = (val: string) => { if (!onlyVisible || this.visibleIdSet.has(val)) out.push(val); };
-    const walk = (nid: string) => { pushIf(nid); const kids = this.children.get(nid) || []; for (const ch of kids) walk(String(ch.id)); };
-    if (includeSelf) walk(String(id)); else { const kids = this.children.get(String(id)) || []; for (const ch of kids) walk(String(ch.id)); }
+    const walk = (nid: string) => { pushIf(nid); const kids = this.getChildrenList(nid) || []; for (const ch of kids) walk(String(ch.id)); };
+    if (includeSelf) walk(String(id)); else { const kids = this.getChildrenList(String(id)) || []; for (const ch of kids) walk(String(ch.id)); }
     return out;
   }
 
@@ -267,7 +303,7 @@ export class AsignarMenuARolComponent implements OnInit {
     const o = this.byId.get(String(id));
     if (!o) return false;
     const t = (o?.tipo || '').toUpperCase();
-    return t === 'MENU' || !o.padreId || (this.children.get(String(id)) || []).length > 0;
+    return t === 'MENU';
   }
 
   toggleOne(id: string, checked: boolean) {
@@ -352,6 +388,7 @@ export class AsignarMenuARolComponent implements OnInit {
     this.tableRows = [];
     this.byId.clear();
     this.children.clear();
+    this.derivedChildren.clear();
     this.visibleIdSet = new Set();
     this.expanded.clear();
   }

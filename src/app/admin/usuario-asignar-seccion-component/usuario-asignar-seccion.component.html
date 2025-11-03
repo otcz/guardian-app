@@ -1,76 +1,68 @@
-<div class="container">
-  <p-card class="card user-card">
-    <div class="user-hero">
-      <p-avatar [label]="initial" shape="circle" size="large" [style]="{ background: 'linear-gradient(135deg, var(--primary), var(--secondary))', color: '#fff' }"></p-avatar>
-      <div class="user-meta">
-        <div class="title-row">
-          <h2 class="title">Asignar usuario a sección</h2>
-          <p-tag *ngIf="selectedUser" [value]="selectedUser.activo ? 'ACTIVO' : 'INACTIVO'" [severity]="selectedUser.activo ? 'success' : 'danger'"></p-tag>
-        </div>
-        <div class="chip-row" *ngIf="selectedUser">
-          <p-chip icon="pi pi-id-card" [label]="selectedUser.username || '-'" class="pill"></p-chip>
-          <p-chip *ngIf="selectedUser.nombreCompleto" icon="pi pi-user" [label]="selectedUser.nombreCompleto || ''" class="pill"></p-chip>
-          <p-chip *ngIf="selectedUser.email" icon="pi pi-envelope" [label]="selectedUser.email || ''" class="pill"></p-chip>
-          <p-chip icon="pi pi-sitemap" [label]="'Sección: ' + getSeccionNombre(selectedUser.seccionId)" class="pill"></p-chip>
-        </div>
-      </div>
-      <div class="actions-toolbar">
-        <button pButton type="button" icon="pi pi-arrow-left" class="p-button p-button-text" [routerLink]="['/gestion-de-usuarios/listar-usuarios']" pTooltip="Volver"></button>
-        <span class="spacer"></span>
-        <!-- Botón 'Invitar a la Sección' eliminado -->
-      </div>
+<div class="page-wrap">
+  <p-card class="card">
+    <div class="header">
+      <h2 class="title">Asignar usuario a sección</h2>
     </div>
 
-    <div class="form-grid">
-      <!-- Organización destino para Administrador (primero) -->
-      <div class="field" *ngIf="isSysadmin">
-        <label>Organización destino (Administrador)</label>
-        <p-dropdown [options]="orgOptions" optionLabel="nombre" optionValue="id" [(ngModel)]="orgAdminTargetOrgId" name="orgAdminTargetOrgId" placeholder="Seleccione organización" pTooltip="Seleccione la organización a la que será administrador (no incluye DEFAULT)"></p-dropdown>
+    <div class="body">
+      <!-- Resumen del usuario -->
+      <div class="meta-row" *ngIf="selectedUser">
+        <p-tag [value]="selectedUser.activo ? 'ACTIVO' : 'INACTIVO'" [severity]="selectedUser.activo ? 'success' : 'danger'"></p-tag>
+        <p-chip icon="pi pi-id-card" [label]="selectedUser.username || '-'" class="pill"></p-chip>
+        <p-chip *ngIf="selectedUser.nombreCompleto" icon="pi pi-user" [label]="selectedUser.nombreCompleto || ''" class="pill"></p-chip>
+        <p-chip *ngIf="selectedUser.email" icon="pi pi-envelope" [label]="selectedUser.email || ''" class="pill"></p-chip>
+        <p-chip icon="pi pi-sitemap" [label]="'Sección: ' + getSeccionNombre(selectedUser.seccionId)" class="pill"></p-chip>
       </div>
 
-      <div class="field">
-        <label>Usuario</label>
-        <p-dropdown [options]="usuarios" optionLabel="username" optionValue="id" [(ngModel)]="usuarioId" (ngModelChange)="onUserChange($event)" name="usuarioId" placeholder="Seleccione usuario"></p-dropdown>
+      <div class="form-grid">
+        <!-- Organización destino para Administrador (primero) -->
+        <div class="field" *ngIf="isSysadmin">
+          <label>Organización destino (Administrador)</label>
+          <p-dropdown [options]="orgOptions" optionLabel="nombre" optionValue="id" [(ngModel)]="orgAdminTargetOrgId" name="orgAdminTargetOrgId" placeholder="Seleccione organización" pTooltip="Seleccione la organización a la que será administrador (no incluye DEFAULT)"></p-dropdown>
+        </div>
+
+        <div class="field">
+          <label>Usuario</label>
+          <p-dropdown [options]="usuarios" optionLabel="username" optionValue="id" [(ngModel)]="usuarioId" (ngModelChange)="onUserChange($event)" name="usuarioId" placeholder="Seleccione usuario"></p-dropdown>
+        </div>
+
+        <div class="field" *ngIf="selectedUser">
+          <label>Sección actual</label>
+          <div>{{ getSeccionNombre(selectedUser.seccionId) }}</div>
+        </div>
+
+        <div class="field">
+          <label>Sección</label>
+          <p-dropdown [options]="secciones" optionLabel="nombre" optionValue="id" [(ngModel)]="seccionId" name="seccionId" placeholder="Seleccione sección"></p-dropdown>
+        </div>
+
+        <!-- Bloque de Transferencia de Usuario -->
+        <div class="field" *ngIf="selectedUser">
+          <label>Transferir a sección</label>
+          <p-dropdown [options]="secciones" optionLabel="nombre" optionValue="id" [(ngModel)]="seccionDestinoId" name="seccionDestinoId" placeholder="Seleccione sección destino" [disabled]="!selectedUser"></p-dropdown>
+        </div>
+
+        <div class="field inline" *ngIf="selectedUser">
+          <label>
+            <input type="checkbox" [(ngModel)]="transferMantenerRolContextual" name="transferMantenerRolContextual" />
+            Mantener rol contextual actual
+          </label>
+        </div>
+
+        <div class="field" *ngIf="selectedUser && !transferMantenerRolContextual">
+          <label>Nuevo rol contextual</label>
+          <p-dropdown [options]="rolesDisponibles" optionLabel="nombre" optionValue="id" [(ngModel)]="transferNuevoRolId" name="transferNuevoRolId" placeholder="Seleccione rol" [showClear]="true"></p-dropdown>
+        </div>
       </div>
 
-      <div class="field" *ngIf="selectedUser">
-        <label>Sección actual</label>
-        <div>{{ getSeccionNombre(selectedUser.seccionId) }}</div>
-      </div>
-
-      <div class="field">
-        <label>Sección</label>
-        <p-dropdown [options]="secciones" optionLabel="nombre" optionValue="id" [(ngModel)]="seccionId" name="seccionId" placeholder="Seleccione sección"></p-dropdown>
-      </div>
-
-      <!-- Bloque de Transferencia de Usuario -->
-      <div class="field" *ngIf="selectedUser">
-        <label>Transferir a sección</label>
-        <p-dropdown [options]="secciones" optionLabel="nombre" optionValue="id" [(ngModel)]="seccionDestinoId" name="seccionDestinoId" placeholder="Seleccione sección destino" [disabled]="!selectedUser"></p-dropdown>
-      </div>
-
-      <div class="field inline" *ngIf="selectedUser">
-        <label>
-          <input type="checkbox" [(ngModel)]="transferMantenerRolContextual" name="transferMantenerRolContextual" />
-          Mantener rol contextual actual
-        </label>
-      </div>
-
-      <div class="field" *ngIf="selectedUser && !transferMantenerRolContextual">
-        <label>Nuevo rol contextual</label>
-        <p-dropdown [options]="rolesDisponibles" optionLabel="nombre" optionValue="id" [(ngModel)]="transferNuevoRolId" name="transferNuevoRolId" placeholder="Seleccione rol" [showClear]="true"></p-dropdown>
-      </div>
-
+      <!-- Acciones abajo de los componentes -->
       <div class="actions">
         <button pButton type="button" label="Asignar" icon="pi pi-check" (click)="assign()" [disabled]="saving || !usuarioId || !seccionId"></button>
         <button pButton type="button" label="Quitar sección principal" class="p-button p-button-outlined" icon="pi pi-times" (click)="remove()" [disabled]="saving || !usuarioId"></button>
-        <!-- Asignar Administrador de Organización (solo SYSADMIN) -->
         <button *ngIf="isSysadmin" pButton type="button" label="Asignar como Administrador" class="p-button p-button-secondary" icon="pi pi-shield" (click)="assignAsOrgAdmin()" [disabled]="saving || !usuarioId || !orgAdminTargetOrgId" pTooltip="Otorga rol ORGADMIN y mueve al usuario a la organización seleccionada"></button>
-        <!-- Transferir usuario -->
         <button pButton type="button" label="Transferir" class="p-button p-button-help" icon="pi pi-angle-double-right" (click)="transfer()" [disabled]="saving || !usuarioId || !seccionDestinoId || (selectedUser?.seccionId === seccionDestinoId) || (!transferMantenerRolContextual && !transferNuevoRolId)" pTooltip="Mover usuario a otra sección manteniendo o cambiando su rol contextual"></button>
+        <button pButton type="button" class="p-button-text" icon="pi pi-arrow-left" [routerLink]="['/gestion-de-usuarios/listar-usuarios']" pTooltip="Volver"></button>
       </div>
     </div>
   </p-card>
-
-  <!-- Diálogo de invitación eliminado de esta pantalla -->
 </div>

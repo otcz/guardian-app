@@ -1,4 +1,4 @@
-<div class="container">
+<div class="page-wrap">
   <p-card class="card">
     <div class="page-header">
       <h2>Usuarios</h2>
@@ -8,53 +8,56 @@
       </div>
     </div>
 
-    <p-table [value]="filtered"
-             [loading]="loading"
-             [paginator]="true"
-             [rows]="pageSize"
-             [rowsPerPageOptions]="rowsOptions"
-             [(first)]="first"
-             [responsiveLayout]="'scroll'"
-             [showCurrentPageReport]="true"
-             currentPageReportTemplate="Mostrando {first}-{last} de {totalRecords}">
-      <ng-template pTemplate="header">
-        <tr>
-          <th>Usuario</th>
-          <th>Alcance/Sección</th>
-          <th>Estado</th>
-          <th class="col-actions">Acciones</th>
-        </tr>
-      </ng-template>
-      <ng-template pTemplate="body" let-u>
-        <tr>
-          <td>
-            <div class="user-cell">
-              <p-avatar [label]="userInitial(u)" shape="circle" size="large" [style]="{ background: 'linear-gradient(135deg, var(--primary), var(--secondary))', color: '#fff' }"></p-avatar>
-              <div class="meta">
-                <div class="top">{{ u.username }}</div>
-                <div class="sub">{{ u.nombreCompleto || u.email || '—' }}</div>
+    <div class="body">
+      <p-table [value]="filtered"
+               styleClass="full-height-table"
+               [loading]="loading"
+               [paginator]="true"
+               [rows]="pageSize"
+               [rowsPerPageOptions]="rowsOptions"
+               [(first)]="first"
+               [responsiveLayout]="'scroll'"
+               [showCurrentPageReport]="true"
+               currentPageReportTemplate="Mostrando {first}-{last} de {totalRecords}">
+        <ng-template pTemplate="header">
+          <tr>
+            <th>Usuario</th>
+            <th>Alcance/Sección</th>
+            <th>Estado</th>
+            <th class="col-actions">Acciones</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-u>
+          <tr>
+            <td>
+              <div class="user-cell">
+                <p-avatar [label]="userInitial(u)" shape="circle" size="large" [style]="{ background: 'linear-gradient(135deg, var(--primary), var(--secondary))', color: '#fff' }"></p-avatar>
+                <div class="meta">
+                  <div class="top">{{ u.username }}</div>
+                  <div class="sub">{{ u.nombreCompleto || u.email || '—' }}</div>
+                </div>
               </div>
-            </div>
-          </td>
-          <td>
-            <div class="stack">
-              <p-chip icon="pi pi-sitemap" [label]="mandoNombre(u)" class="pill"></p-chip>
-              <p-chip *ngIf="roleByUserId[u.id]" icon="pi pi-user" [label]="'Rol: ' + roleByUserId[u.id]" class="pill"></p-chip>
-            </div>
-          </td>
-          <td>
-            <p-tag [value]="u.activo ? 'ACTIVO' : 'INACTIVO'" [severity]="u.activo ? 'success' : 'danger'"></p-tag>
-          </td>
-          <td>
-            <div class="actions">
-              <button pButton type="button" icon="pi pi-cog" class="p-button p-button-text p-button-sm p-button-rounded btn-icon" [routerLink]="['/gestion-de-usuarios/gestionar-usuario']" [queryParams]="{ id: u.id }" pTooltip="Gestionar" tooltipPosition="top"></button>
-              <button pButton type="button" [icon]="u.activo ? 'pi pi-ban' : 'pi pi-check'" [class]="u.activo ? 'p-button p-button-outlined p-button-danger p-button-sm p-button-rounded btn-icon' : 'p-button p-button-outlined p-button-success p-button-sm p-button-rounded btn-icon'" (click)="toggle(u)" pTooltip="Cambiar estado" tooltipPosition="top"></button>
-              <button pButton type="button" icon="pi pi-user-plus" class="p-button p-button-text p-button-sm p-button-rounded btn-icon" [routerLink]="['/gestion-de-usuarios/asignar-roles']" [queryParams]="{ id: u.id }" pTooltip="Asignar roles" tooltipPosition="top"></button>
-              <button pButton type="button" icon="pi pi-sitemap" class="p-button p-button-text p-button-sm p-button-rounded btn-icon" [routerLink]="['/gestion-de-usuarios/asignar-usuario-a-seccion']" [queryParams]="{ id: u.id }" pTooltip="Asignar sección" tooltipPosition="top"></button>
-            </div>
-          </td>
-        </tr>
-      </ng-template>
-    </p-table>
+            </td>
+            <td>
+              <div class="stack">
+                <p-chip icon="pi pi-sitemap" [label]="mandoNombre(u)" class="pill"></p-chip>
+                <p-chip *ngIf="roleByUserId[u.id]" icon="pi pi-user" [label]="'Rol: ' + roleByUserId[u.id]" class="pill"></p-chip>
+              </div>
+            </td>
+            <td>
+              <p-tag [value]="u.activo ? 'ACTIVO' : 'INACTIVO'" [severity]="u.activo ? 'success' : 'danger'"></p-tag>
+            </td>
+            <td>
+              <div class="actions">
+                <button pButton type="button" icon="pi pi-cog" class="p-button p-button-text p-button-sm p-button-rounded btn-icon" [routerLink]="['/gestion-de-usuarios/gestionar-usuario']" [queryParams]="{ id: u.id }" pTooltip="Gestionar" tooltipPosition="top"></button>
+                <button pButton type="button" [icon]="u.activo ? 'pi pi-ban' : 'pi pi-check'" [class]="u.activo ? 'p-button p-button-outlined p-button-danger p-button-sm p-button-rounded btn-icon' : 'p-button p-button-outlined p-button-success p-button-sm p-button-rounded btn-icon'" (click)="toggle(u)" pTooltip="Cambiar estado" tooltipPosition="top"></button>
+                <button pButton type="button" icon="pi pi-user-plus" class="p-button p-button-text p-button-sm p-button-rounded btn-icon" [routerLink]="['/gestion-de-usuarios/asignar-roles']" [queryParams]="{ id: u.id }" pTooltip="Asignar roles" tooltipPosition="top"></button>
+                <button pButton type="button" icon="pi pi-sitemap" class="p-button p-button-text p-button-sm p-button-rounded btn-icon" [routerLink]="['/gestion-de-usuarios/asignar-usuario-a-seccion']" [queryParams]="{ id: u.id }" pTooltip="Asignar sección" tooltipPosition="top"></button>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
   </p-card>
 </div>

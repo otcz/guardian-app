@@ -1,22 +1,31 @@
 .actions { display:flex; gap:.5rem; flex-wrap:wrap; }
 
+/* Layout a la par de gestión de menús */
+:host { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; --app-header-h: 56px; }
+
+.page-wrap { display: flex; flex-direction: column; padding: 0 16px 16px; width: 100%; flex: 1 1 auto; min-height: 0; overflow: hidden; margin-top: -8px; height: calc(100vh - var(--app-header-h, 56px) - 24px); }
+
+.card { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; max-height: 100%; overflow: hidden; }
+.p-card.card { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; height: 100%; margin: 0; }
+.card .p-card-body { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; overflow: hidden; height: 100%; }
+.card .p-card-content { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; height: 100%; }
+:host ::ng-deep p-card.card { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; height: 100%; }
+:host ::ng-deep p-card.card > .p-card, :host ::ng-deep p-card.card .p-card-body, :host ::ng-deep p-card.card .p-card-content { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; height: 100%; }
+
+/* Body flexible y tabla de altura completa */
+.body { display: flex; flex-direction: column; gap: 8px; flex: 1 1 auto; min-height: 0; overflow: hidden; }
+:host ::ng-deep .full-height-table { display: flex; flex-direction: column; flex: 1 1 auto; height: 100%; width: 100%; }
+:host ::ng-deep .full-height-table .p-datatable-wrapper { flex: 1 1 auto; min-height: 0; overflow: auto; }
+:host ::ng-deep .full-height-table .p-datatable-scrollable-body { flex: 1 1 auto; min-height: 0; height: 100% !important; max-height: none !important; overflow: auto; }
+
 /* Header y barra de herramientas */
-.page-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
-.page-header h2 { margin: 0; }
+.page-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 0; }
+.page-header h2 { margin: 0; font-weight: 800; }
 .page-header .tools { margin-left: auto; display: flex; align-items: center; gap: .5rem; flex-wrap: nowrap; }
 .search-input { width: clamp(200px, 32vw, 420px); }
 
 /* Botones de acciones: solo icono, tamaño consistente */
-:host ::ng-deep .btn-icon.p-button {
-  width: 36px;
-  height: 36px;
-  min-width: 36px;
-  min-height: 36px;
-  padding: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
+:host ::ng-deep .btn-icon.p-button { width: 36px; height: 36px; min-width: 36px; min-height: 36px; padding: 0; display: inline-flex; align-items: center; justify-content: center; }
 :host ::ng-deep .btn-icon.p-button .p-button-label { display: none; }
 
 /* Celda de usuario con avatar */
@@ -33,11 +42,9 @@
 /* Tabla: ancho y espaciado cómodo */
 :host ::ng-deep .p-table .p-datatable-wrapper table td { vertical-align: middle; }
 
-/* Columna Acciones responsiva: ancho preferido y reducción progresiva */
+/* Columna Acciones responsiva */
 :host ::ng-deep th.col-actions { width: 320px; }
-@media (max-width: 1200px) {
-  :host ::ng-deep th.col-actions { width: 240px; }
-}
+@media (max-width: 1200px) { :host ::ng-deep th.col-actions { width: 240px; } }
 @media (max-width: 768px) {
   .page-header .tools { flex-wrap: wrap; }
   .search-input { width: 100%; max-width: 100%; }

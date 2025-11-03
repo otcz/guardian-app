@@ -1,23 +1,33 @@
-/* Estructura principal */
-.container { padding: 12px 0 32px; }
+/* Layout similar a gestión de menús: card a altura completa dentro de page-wrap */
+:host { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; --app-header-h: 56px; }
 
-/* Hero */
-.user-hero { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 16px; padding: 12px 8px 8px; border-bottom: 1px dashed var(--border); }
-.user-meta { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
-.title-row { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
-.title { margin: 0; line-height: 1.2; font-weight: 800; letter-spacing: .2px; }
-.actions-toolbar { display: flex; align-items: center; gap: 8px; }
-.actions-toolbar .spacer { flex: 1; }
-.chip-row { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+.page-wrap { display: flex; flex-direction: column; padding: 0 16px 16px; width: 100%; flex: 1 1 auto; min-height: 0; overflow: hidden; margin-top: -8px; height: calc(100vh - var(--app-header-h, 56px) - 24px); }
+
+.card { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; max-height: 100%; overflow: hidden; }
+.p-card.card { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; height: 100%; margin: 0; }
+.card .p-card-body { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; overflow: hidden; height: 100%; }
+.card .p-card-content { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; height: 100%; }
+:host ::ng-deep p-card.card { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; height: 100%; }
+:host ::ng-deep p-card.card > .p-card, :host ::ng-deep p-card.card .p-card-body, :host ::ng-deep p-card.card .p-card-content { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; height: 100%; }
+
+/* Encabezado y cuerpo */
+.header .title { margin: 0; font-weight: 800; }
+.body { display: flex; flex-direction: column; gap: 12px; flex: 1 1 auto; min-height: 0; overflow: hidden; }
+
+/* Chips resumen (preview de datos) */
+.meta-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .pill .p-chip { background: var(--surface-alt); color: var(--text); border-radius: 999px; }
 .pill.muted .p-chip { opacity: .9; }
 
 /* Formulario */
-.edit-form { padding: 16px 8px 8px; }
+.edit-form { display: flex; flex-direction: column; gap: 12px; }
 .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px 16px; }
-.field { display: flex; flex-direction: column; gap: .5rem; margin-bottom: .25rem; }
+.field { display: flex; flex-direction: column; gap: .5rem; }
 .hint { color: var(--muted); font-size: .86rem; }
-.footer-actions { margin-top: 8px; display: flex; gap: .5rem; flex-wrap: wrap; }
+
+/* Barra de acciones */
+.actions { display: flex; gap: 8px; justify-content: flex-end; align-items: center; margin-top: 8px; }
+.actions .spacer { flex: 1; }
 
 /* Loading */
 .overlay-spinner { position: fixed; inset: 0; margin: auto; }

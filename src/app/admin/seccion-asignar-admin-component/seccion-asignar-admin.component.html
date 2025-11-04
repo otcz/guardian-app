@@ -1,32 +1,44 @@
-<div class="container">
-  <h2 class="title">Asignar administrador de sección</h2>
-  <p class="helper">Seleccione una sección y un usuario, luego presione “Asignar”.</p>
+<div class="page-wrap">
   <p-card class="card">
-    <div class="form-grid">
-      <div class="field">
-        <label>Sección</label>
-         <p-dropdown [options]="secciones" optionLabel="nombre" optionValue="id" [(ngModel)]="seccionId" name="seccionId" placeholder="Seleccione sección" [filter]="true" [showClear]="true" (onChange)="onSeccionChange()"></p-dropdown>
+    <div class="header">
+      <h2 class="title">Asignar administrador de sección</h2>
+      <p class="helper text-muted fs-sm" style="margin:0;">Seleccione una sección y un usuario, luego presione “Asignar”.</p>
+    </div>
+    <div class="body">
+      <div class="form-grid">
+        <div class="field">
+          <label>Buscar sección</label>
+          <input pInputText type="text" [(ngModel)]="seccionQuery" (ngModelChange)="applyFilters()" placeholder="Nombre de sección" />
+        </div>
+        <div class="field">
+          <label>Sección</label>
+          <p-dropdown [options]="filteredSecciones" optionLabel="nombre" optionValue="id" [(ngModel)]="seccionId" name="seccionId" placeholder="Seleccione sección" [filter]="false" [showClear]="true" (onChange)="onSeccionChange()"></p-dropdown>
+        </div>
+        <div class="field">
+          <label>Buscar usuario</label>
+          <input pInputText type="text" [(ngModel)]="usuarioQuery" (ngModelChange)="applyFilters()" placeholder="Nombre de usuario" [disabled]="!seccionId" />
+        </div>
+        <div class="field">
+          <label>Usuario</label>
+          <p-dropdown [options]="filteredUsuarios" optionLabel="username" optionValue="id" [(ngModel)]="usuarioId" name="usuarioId" placeholder="Seleccione usuario" [filter]="false" [showClear]="true" [disabled]="!seccionId"></p-dropdown>
+        </div>
       </div>
-      <div class="field">
-        <label>Usuario</label>
-        <p-dropdown [options]="usuarios" optionLabel="username" optionValue="id" [(ngModel)]="usuarioId" name="usuarioId" placeholder="Seleccione usuario" [filter]="true" [showClear]="true" [disabled]="!seccionId"></p-dropdown>
+
+      <div class="preview" *ngIf="selectedSection || selectedUser">
+        <div class="preview-item" *ngIf="selectedSection">
+          <span class="label">Sección seleccionada</span>
+          <b>{{ selectedSection!.nombre }}</b>
+        </div>
+        <div class="preview-item" *ngIf="selectedUser">
+          <span class="label">Usuario seleccionado</span>
+          <b>{{ selectedUser!.username }}</b>
+        </div>
       </div>
     </div>
 
     <div class="actions">
       <button pButton type="button" label="Asignar" icon="pi pi-check" (click)="assign()" [disabled]="!seccionId || !usuarioId || saving"></button>
       <button pButton type="button" class="p-button-text" label="Volver" icon="pi pi-arrow-left" [routerLink]="['/listar-secciones']"></button>
-    </div>
-
-    <div class="preview" *ngIf="selectedSection || selectedUser">
-      <div class="preview-item" *ngIf="selectedSection">
-        <span class="label">Sección seleccionada</span>
-        <b>{{ selectedSection!.nombre }}</b>
-      </div>
-      <div class="preview-item" *ngIf="selectedUser">
-        <span class="label">Usuario seleccionado</span>
-        <b>{{ selectedUser!.username }}</b>
-      </div>
     </div>
   </p-card>
 </div>

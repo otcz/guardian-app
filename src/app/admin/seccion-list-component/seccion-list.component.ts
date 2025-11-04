@@ -15,6 +15,7 @@ import {InputSwitchModule} from 'primeng/inputswitch';
 import {ConfirmDialogModule} from 'primeng/confirmdialog';
 import {ConfirmationService, MessageService} from 'primeng/api';
 import { SeccionUsuariosComponent } from '../seccion-usuarios-component/seccion-usuarios.component';
+import { MenuService } from '../../service/menu.service';
 
 @Component({
   selector: 'app-seccion-list',
@@ -53,7 +54,8 @@ export class SeccionListComponent implements OnInit, OnDestroy {
     private orgCtx: OrgContextService,
     private orgService: OrganizationService,
     private confirm: ConfirmationService,
-    private messages: MessageService
+    private messages: MessageService,
+    private menu: MenuService
   ) {
   }
 
@@ -297,6 +299,15 @@ export class SeccionListComponent implements OnInit, OnDestroy {
   viewUsuarios(row: SeccionEntity) {
     if (!row?.id) return;
     this.selectedSeccionId = row.id;
+  }
+
+  // Permiso para mostrar acción de asignar admin
+  get canAssignAdmin(): boolean { return this.menu?.canAccessCode('SECTION_ASSIGN_ADMIN'); }
+
+  // Navegar a pantalla de asignación de admin para la sección
+  gotoAssignAdmin(row: SeccionEntity) {
+    if (!row?.id) return;
+    this.router.navigate(['/asignar-administrador-de-seccion'], { queryParams: { seccionId: row.id } });
   }
 
   // Utils

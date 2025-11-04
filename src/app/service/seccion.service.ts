@@ -12,6 +12,9 @@ export interface SeccionEntity {
   estado?: string;
   autonomiaConfigurada?: boolean;
   seccionPadreId?: string | null;
+  /** Admin principal de la sección (si el backend lo provee). */
+  adminId?: string | null;
+  adminNombre?: string | null;
 }
 
 export interface CreateSeccionRequest {
@@ -107,7 +110,10 @@ export class SeccionService {
         descripcion: d.descripcion || undefined,
         estado: d.estado || undefined,
         autonomiaConfigurada: !!(d.autonomiaConfigurada ?? d.autonomiaConfigurada === true),
-        seccionPadreId: d.seccionPadreId ?? d.idSeccionPadre ?? null
+        seccionPadreId: d.seccionPadreId ?? d.idSeccionPadre ?? null,
+        // Nuevos campos si vienen en respuesta
+        adminId: (d.administradorId ?? d.administradorPrincipal ?? d.adminId ?? d?.administradorEntity?.id) != null ? String(d.administradorId ?? d.administradorPrincipal ?? d.adminId ?? d?.administradorEntity?.id) : null,
+        adminNombre: (d.administradorNombre ?? d.administradorUsername ?? d?.administradorEntity?.nombre ?? d?.administradorEntity?.username) != null ? String(d.administradorNombre ?? d.administradorUsername ?? d?.administradorEntity?.nombre ?? d?.administradorEntity?.username) : null
       })) as SeccionEntity[];
     };
 
@@ -142,6 +148,12 @@ export class SeccionService {
         if (d.estado !== undefined) seccion.estado = d.estado || undefined;
         if (d.autonomiaConfigurada !== undefined) seccion.autonomiaConfigurada = !!d.autonomiaConfigurada;
         if (d.seccionPadreId !== undefined || d.idSeccionPadre !== undefined) seccion.seccionPadreId = d.seccionPadreId ?? d.idSeccionPadre ?? null;
+        // Admin si viene en respuesta
+        if (d.administradorId != null || d.administradorPrincipal != null || d.adminId != null || (d.administradorEntity && d.administradorEntity.id != null)) {
+          seccion.adminId = String(d.administradorId ?? d.administradorPrincipal ?? d.adminId ?? d?.administradorEntity?.id);
+        }
+        const admNombre = d.administradorNombre ?? d.administradorUsername ?? d?.administradorEntity?.nombre ?? d?.administradorEntity?.username;
+        if (admNombre != null) seccion.adminNombre = String(admNombre);
         return { seccion: seccion as SeccionEntity, message: resp.message };
       }),
       catchError((err) => throwError(() => ({ error: { message: err?.error?.message || err?.message || 'No se pudo actualizar la sección' }, status: err?.status })))
@@ -164,7 +176,9 @@ export class SeccionService {
         descripcion: d.descripcion || undefined,
         estado: (d.estado || estado) as string,
         autonomiaConfigurada: d.autonomiaConfigurada != null ? !!d.autonomiaConfigurada : undefined,
-        seccionPadreId: d.seccionPadreId ?? d.idSeccionPadre ?? null
+        seccionPadreId: d.seccionPadreId ?? d.idSeccionPadre ?? null,
+        adminId: (d.administradorId ?? d.administradorPrincipal ?? d.adminId ?? d?.administradorEntity?.id) != null ? String(d.administradorId ?? d.administradorPrincipal ?? d.adminId ?? d?.administradorEntity?.id) : null,
+        adminNombre: (d.administradorNombre ?? d.administradorUsername ?? d?.administradorEntity?.nombre ?? d?.administradorEntity?.username) != null ? String(d.administradorNombre ?? d.administradorUsername ?? d?.administradorEntity?.nombre ?? d?.administradorEntity?.username) : null
       } as SeccionEntity;
       return { seccion, message: resp.message };
     };
@@ -196,7 +210,9 @@ export class SeccionService {
         descripcion: d.descripcion || undefined,
         estado: d.estado || undefined,
         autonomiaConfigurada: d.autonomiaConfigurada != null ? !!d.autonomiaConfigurada : autonomia,
-        seccionPadreId: d.seccionPadreId ?? d.idSeccionPadre ?? null
+        seccionPadreId: d.seccionPadreId ?? d.idSeccionPadre ?? null,
+        adminId: (d.administradorId ?? d.administradorPrincipal ?? d.adminId ?? d?.administradorEntity?.id) != null ? String(d.administradorId ?? d.administradorPrincipal ?? d.adminId ?? d?.administradorEntity?.id) : null,
+        adminNombre: (d.administradorNombre ?? d.administradorUsername ?? d?.administradorEntity?.nombre ?? d?.administradorEntity?.username) != null ? String(d.administradorNombre ?? d.administradorUsername ?? d?.administradorEntity?.nombre ?? d?.administradorEntity?.username) : null
       } as SeccionEntity;
       return { seccion, message: resp.message };
     };
@@ -229,7 +245,9 @@ export class SeccionService {
         descripcion: d.descripcion || undefined,
         estado: d.estado || 'INACTIVA',
         autonomiaConfigurada: d.autonomiaConfigurada != null ? !!d.autonomiaConfigurada : undefined,
-        seccionPadreId: d.seccionPadreId ?? d.idSeccionPadre ?? null
+        seccionPadreId: d.seccionPadreId ?? d.idSeccionPadre ?? null,
+        adminId: (d.administradorId ?? d.administradorPrincipal ?? d.adminId ?? d?.administradorEntity?.id) != null ? String(d.administradorId ?? d.administradorPrincipal ?? d.adminId ?? d?.administradorEntity?.id) : null,
+        adminNombre: (d.administradorNombre ?? d.administradorUsername ?? d?.administradorEntity?.nombre ?? d?.administradorEntity?.username) != null ? String(d.administradorNombre ?? d.administradorUsername ?? d?.administradorEntity?.nombre ?? d?.administradorEntity?.username) : null
       } as SeccionEntity : undefined;
       return { seccion, message: resp.message, soft: true } as { message?: string; seccion?: SeccionEntity; soft?: boolean };
     };
@@ -255,7 +273,9 @@ export class SeccionService {
           descripcion: d.descripcion || undefined,
           estado: d.estado || undefined,
           autonomiaConfigurada: d.autonomiaConfigurada != null ? !!d.autonomiaConfigurada : undefined,
-          seccionPadreId: d.seccionPadreId ?? d.idSeccionPadre ?? null
+          seccionPadreId: d.seccionPadreId ?? d.idSeccionPadre ?? null,
+          adminId: (d.administradorId ?? d.administradorPrincipal ?? d.adminId ?? d?.administradorEntity?.id) != null ? String(d.administradorId ?? d.administradorPrincipal ?? d.adminId ?? d?.administradorEntity?.id) : String(usuarioId),
+          adminNombre: (d.administradorNombre ?? d.administradorUsername ?? d?.administradorEntity?.nombre ?? d?.administradorEntity?.username) != null ? String(d.administradorNombre ?? d.administradorUsername ?? d?.administradorEntity?.nombre ?? d?.administradorEntity?.username) : undefined
         } as SeccionEntity;
         return { seccion, message: (payload as any)?.message };
       }),
@@ -405,7 +425,9 @@ export class SeccionService {
         descripcion: d.descripcion || undefined,
         estado: d.estado || undefined,
         autonomiaConfigurada: d.autonomiaConfigurada != null ? !!d.autonomiaConfigurada : undefined,
-        seccionPadreId: d.seccionPadreId ?? d.idSeccionPadre ?? null
+        seccionPadreId: d.seccionPadreId ?? d.idSeccionPadre ?? null,
+        adminId: (d.administradorId ?? d.administradorPrincipal ?? d.adminId ?? d?.administradorEntity?.id) != null ? String(d.administradorId ?? d.administradorPrincipal ?? d.adminId ?? d?.administradorEntity?.id) : null,
+        adminNombre: (d.administradorNombre ?? d.administradorUsername ?? d?.administradorEntity?.nombre ?? d?.administradorEntity?.username) != null ? String(d.administradorNombre ?? d.administradorUsername ?? d?.administradorEntity?.nombre ?? d?.administradorEntity?.username) : null
       } as SeccionEntity;
     };
 

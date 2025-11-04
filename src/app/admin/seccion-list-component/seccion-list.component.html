@@ -29,9 +29,10 @@
           <th class="w-70">#</th>
           <th>Nombre</th>
           <th>Descripción</th>
+          <th class="w-160">Administrador</th>
           <th class="w-110">Estado</th>
           <th class="w-140">Autonomía</th>
-          <th class="w-280 text-center">Acciones</th>
+          <th class="w-360 text-center">Acciones</th>
         </tr>
       </ng-template>
       <ng-template pTemplate="body" let-row let-i="rowIndex">
@@ -66,6 +67,16 @@
                 <span class="fs-sm opacity-85">{{ row.descripcion || '-' }}</span>
               </ng-template>
             </ng-template>
+          </td>
+
+          <!-- Columna Administrador -->
+          <td>
+            <div class="flex ai-center gap-xs">
+              <p-tag *ngIf="row.adminNombre; else noAdmin" icon="pi pi-user" severity="info" [value]="row.adminNombre!" pTooltip="Administrador actual" tooltipPosition="top"></p-tag>
+              <ng-template #noAdmin>
+                <span class="fs-sm text-muted">Sin administrador</span>
+              </ng-template>
+            </div>
           </td>
 
           <!-- Columna Estado -->
@@ -114,6 +125,7 @@
             <!-- Acciones normales -->
             <ng-container *ngIf="!adding && editingId !== row.id">
               <button pButton type="button" icon="pi pi-user" label="Usuarios" class="p-button-outlined p-button-sm" (click)="viewUsuarios(row)" [disabled]="saving" pTooltip="VER USUARIOS" tooltipPosition="top"></button>
+              <button *ngIf="canAssignAdmin" pButton type="button" icon="pi pi-user-plus" label="Asignar admin" class="p-button-outlined p-button-sm p-button-info" (click)="gotoAssignAdmin(row)" [disabled]="saving" pTooltip="ASIGNAR ADMINISTRADOR" tooltipPosition="top"></button>
               <button pButton type="button" icon="pi pi-pencil" class="p-button-rounded p-button-text" (click)="startEdit(row)" [disabled]="saving" pTooltip="EDITAR" tooltipPosition="top"></button>
               <button pButton type="button" icon="pi pi-trash" class="p-button-rounded p-button-text p-button-danger" (click)="remove(row)" [disabled]="saving" pTooltip="ELIMINAR (LÓGICA)" tooltipPosition="top"></button>
             </ng-container>
@@ -121,7 +133,7 @@
         </tr>
       </ng-template>
       <ng-template pTemplate="emptymessage">
-        <tr><td colspan="6" class="text-center fs-sm text-muted">Sin datos</td></tr>
+        <tr><td colspan="7" class="text-center fs-sm text-muted">Sin datos</td></tr>
       </ng-template>
     </p-table>
 

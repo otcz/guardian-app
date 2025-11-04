@@ -344,7 +344,17 @@ export class SeccionService {
   /** Candidatos válidos para Administrador de Sección (scope SECCION). */
   getAdminCandidates(orgId: string, seccionId: string) {
     const url = `${this.base}/orgs/${orgId}/secciones/${seccionId}/administrador/candidatos`;
-    return this.http.get<any[]>(url, { headers: this.accept }).pipe(
+    return this.http.get<any>(url, { headers: this.accept, responseType: 'text' as 'json' }).pipe(
+      map((payload: any) => {
+        // Aceptar plano o envuelto en { success, data } o { items }
+        let inner: any = payload;
+        try {
+          if (typeof payload === 'string') inner = JSON.parse(payload);
+        } catch { inner = undefined; }
+        const data = (inner && typeof inner === 'object' && 'data' in inner) ? (inner as any).data : inner;
+        const arr = Array.isArray(data) ? data : (Array.isArray((data as any)?.items) ? (data as any).items : []);
+        return arr;
+      }),
       map(arr => (Array.isArray(arr) ? arr : []).map(d => ({
         id: String(d?.id ?? d?._id ?? ''),
         username: String(d?.username ?? d?.userName ?? ''),

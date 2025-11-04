@@ -6,12 +6,18 @@
 
 .header .title { margin: 0; font-weight: 800; }
 .body { display: flex; flex-direction: column; gap: 12px; flex: 1 1 auto; min-height: 0; overflow: hidden; }
-.actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 12px; }
+.actions { display: flex; gap: 8px; justify-content: flex-start; margin-top: 12px; }
 
 .form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; align-items: end; }
 .field label { display: block; font-weight: 700; margin-bottom: 4px; }
 .form-grid input[pInputText] { width: 100%; height: 42px; }
 .form-grid .p-dropdown { width: 100%; min-height: 42px; display: flex; align-items: center; }
+
+/* Grupos verticales para inputs/selectores */
+.form-groups { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: start; }
+.group { border: 1px solid color-mix(in srgb, var(--border) 70%, transparent); border-radius: 10px; padding: 12px; background: color-mix(in srgb, var(--surface-alt) 92%, transparent); display: flex; flex-direction: column; gap: 10px; }
+.group-title { font-weight: 800; color: var(--text); margin-bottom: 4px; }
+.group-disabled { opacity: .7; }
 
 .meta-row { display: flex; align-items: center; gap: 6px; }
 .text-muted { color: var(--muted); }
@@ -25,7 +31,7 @@
 .preview-item .label { display: block; color: var(--muted); font-weight: 600; margin-bottom: 4px; }
 .preview-item b { color: var(--text); font-weight: 800; }
 
-@media (max-width: 900px) { .form-grid { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 900px) { .form-grid { grid-template-columns: 1fr 1fr; } .form-groups { grid-template-columns: 1fr; } }
 @media (max-width: 600px) { .form-grid { grid-template-columns: 1fr; } }
 
 :host-context(.dark),

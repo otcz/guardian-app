@@ -5,22 +5,20 @@
       <p class="helper text-muted fs-sm" style="margin:0;">Seleccione una sección y un usuario, luego presione “Asignar”.</p>
     </div>
     <div class="body">
-      <div class="form-grid">
-        <div class="field">
-          <label>Buscar sección</label>
-          <input pInputText type="text" [(ngModel)]="seccionQuery" (ngModelChange)="applyFilters()" placeholder="Nombre de sección" />
+      <div class="form-groups">
+        <div class="group">
+          <div class="group-title">Sección</div>
+          <div class="field">
+            <label>Sección</label>
+            <p-dropdown [options]="filteredSecciones" optionLabel="nombre" optionValue="id" [(ngModel)]="seccionId" name="seccionId" placeholder="Seleccione sección" [filter]="false" [showClear]="true" (onChange)="onSeccionChange()"></p-dropdown>
+          </div>
         </div>
-        <div class="field">
-          <label>Sección</label>
-          <p-dropdown [options]="filteredSecciones" optionLabel="nombre" optionValue="id" [(ngModel)]="seccionId" name="seccionId" placeholder="Seleccione sección" [filter]="false" [showClear]="true" (onChange)="onSeccionChange()"></p-dropdown>
-        </div>
-        <div class="field">
-          <label>Buscar usuario</label>
-          <input pInputText type="text" [(ngModel)]="usuarioQuery" (ngModelChange)="applyFilters()" placeholder="Nombre de usuario" [disabled]="!seccionId" />
-        </div>
-        <div class="field">
-          <label>Usuario</label>
-          <p-dropdown [options]="filteredUsuarios" optionLabel="username" optionValue="id" [(ngModel)]="usuarioId" name="usuarioId" placeholder="Seleccione usuario" [filter]="false" [showClear]="true" [disabled]="!seccionId"></p-dropdown>
+        <div class="group" [class.group-disabled]="!seccionId">
+          <div class="group-title">Usuario</div>
+          <div class="field">
+            <label>Usuario</label>
+            <p-dropdown [options]="filteredUsuarios" optionLabel="username" optionValue="id" [(ngModel)]="usuarioId" name="usuarioId" placeholder="Seleccione usuario" [filter]="false" [showClear]="true" [disabled]="!seccionId"></p-dropdown>
+          </div>
         </div>
       </div>
 

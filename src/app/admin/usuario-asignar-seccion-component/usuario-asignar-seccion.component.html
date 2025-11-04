@@ -11,7 +11,6 @@
         <p-chip icon="pi pi-id-card" [label]="selectedUser.username || '-'" class="pill"></p-chip>
         <p-chip *ngIf="selectedUser.nombreCompleto" icon="pi pi-user" [label]="selectedUser.nombreCompleto || ''" class="pill"></p-chip>
         <p-chip *ngIf="selectedUser.email" icon="pi pi-envelope" [label]="selectedUser.email || ''" class="pill"></p-chip>
-        <p-chip icon="pi pi-sitemap" [label]="'Sección: ' + getSeccionNombre(selectedUser.seccionId)" class="pill"></p-chip>
       </div>
 
       <div class="form-grid">

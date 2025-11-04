@@ -14,31 +14,20 @@
       </div>
 
       <div class="form-grid">
-        <!-- Organización destino para Administrador (primero) -->
-        <div class="field" *ngIf="isSysadmin">
-          <label>Organización destino (Administrador)</label>
-          <p-dropdown [options]="orgOptions" optionLabel="nombre" optionValue="id" [(ngModel)]="orgAdminTargetOrgId" name="orgAdminTargetOrgId" placeholder="Seleccione organización" pTooltip="Seleccione la organización a la que será administrador (no incluye DEFAULT)"></p-dropdown>
-        </div>
-
         <div class="field">
           <label>Usuario</label>
           <p-dropdown [options]="usuarios" optionLabel="username" optionValue="id" [(ngModel)]="usuarioId" (ngModelChange)="onUserChange($event)" name="usuarioId" placeholder="Seleccione usuario"></p-dropdown>
         </div>
-
-        <!-- Campo 'Sección' removido -->
 
         <!-- Bloque de Transferencia de Usuario -->
         <div class="field" *ngIf="selectedUser">
           <label>Transferir a sección</label>
           <p-dropdown [options]="secciones" optionLabel="nombre" optionValue="id" [(ngModel)]="seccionDestinoId" name="seccionDestinoId" placeholder="Seleccione sección destino" [disabled]="!selectedUser"></p-dropdown>
         </div>
-
-        <!-- Campo 'Nuevo rol contextual (opcional)' removido -->
       </div>
 
       <!-- Acciones abajo de los componentes -->
       <div class="actions">
-        <button *ngIf="isSysadmin" pButton type="button" label="Asignar como Administrador" class="p-button p-button-secondary" icon="pi pi-shield" (click)="assignAsOrgAdmin()" [disabled]="saving || !usuarioId || !orgAdminTargetOrgId" pTooltip="Otorga rol ORGADMIN y mueve al usuario a la organización seleccionada"></button>
         <button pButton type="button" label="Transferir" class="p-button p-button-help" icon="pi pi-angle-double-right" (click)="transfer()" [disabled]="saving || !usuarioId || !seccionDestinoId || (selectedUser?.seccionId === seccionDestinoId)" pTooltip="Mover usuario a otra sección manteniendo el rol contextual actual"></button>
         <button pButton type="button" class="p-button-text" icon="pi pi-arrow-left" [routerLink]="['/gestion-de-usuarios/listar-usuarios']" pTooltip="Volver"></button>
       </div>

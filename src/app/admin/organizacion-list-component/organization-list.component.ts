@@ -217,6 +217,7 @@ export class OrganizationListComponent implements OnInit {
       localStorage.setItem('currentOrgId', org.id);
       this.orgCtx.set(org.id);
     }
-    this.router.navigate(['/gestion-de-usuarios/asignar-usuario-a-seccion'], { queryParams: { targetOrgId: org.id } });
+    // Navegar a Gestionar Organización con el id y foco en sección de admin
+    this.router.navigate(['/gestionar-organizacion'], { queryParams: { id: org.id, focus: 'assign-admin' } });
   }
 }

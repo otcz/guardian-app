@@ -1,4 +1,4 @@
-<div class="container">
+<div class="page-wrap">
   <p-card class="card user-card" *ngIf="user && !loading; else loadingTpl">
     <!-- Header / Hero -->
     <div class="user-hero">
@@ -16,7 +16,6 @@
       </div>
       <div class="actions-toolbar">
         <button pButton type="button" icon="pi pi-arrow-left" class="p-button p-button-text" [routerLink]="['/gestion-de-usuarios/listar-usuarios']" pTooltip="Volver" tooltipPosition="top"></button>
-        <span class="spacer"></span>
         <button pButton type="button" icon="pi pi-pencil" label="Editar" class="p-button p-button-outlined" (click)="toggleEdit()" [disabled]="editing"></button>
         <button pButton type="button" [label]="user.activo ? 'Desactivar' : 'Activar'" [icon]="user.activo ? 'pi pi-ban' : 'pi pi-check'" [class]="user.activo ? 'p-button p-button-outlined p-button-danger' : 'p-button p-button-outlined p-button-success'" (click)="toggleActive()"></button>
         <button pButton type="button" icon="pi pi-user-plus" label="Asignar roles" class="p-button p-button-text" [routerLink]="['/gestion-de-usuarios/asignar-roles']" [queryParams]="{ id: user.id }"></button>
@@ -113,7 +112,6 @@
       </div>
       <div class="actions-toolbar">
         <p-skeleton width="90px" height="36px"></p-skeleton>
-        <span class="spacer"></span>
         <p-skeleton width="120px" height="36px"></p-skeleton>
         <p-skeleton width="160px" height="36px"></p-skeleton>
       </div>

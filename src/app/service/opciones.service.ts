@@ -344,11 +344,32 @@ export class OpcionesService {
    * Asignar una opción a un usuario (POST body)
    */
   assignOptionToUser(orgId: string, usuarioId: string, opcionId: string, seccionId: string | null = null, habilitada: boolean = true): Observable<void> {
-    const url = `${this.base}/orgs/${orgId}/opciones-usuario`;
+    const path = `/orgs/${orgId}/opciones-usuario`;
+    const url = `${this.base}${path}`;
+    const urlFallback = `${environment.backendHost}${this.base}${path}`;
+    const urlAuthFallback = `${environment.authHost}${this.base}${path}`;
     const body = { opcionId, usuarioId, seccionId, habilitada };
     return this.http.post(url, body, { headers: this.json, observe: 'response' }).pipe(
       map(() => void 0),
-      catchError((e) => throwError(() => ({ error: { message: e?.error?.message || e?.message || 'No se pudo asignar la opción al usuario' }, status: e?.status })))
+      catchError((e1) => {
+        const status1 = e1?.status;
+        if (status1 === 0 || status1 === 200 || status1 === 204 || status1 === 404 || status1 === 500 || status1 === 502 || status1 === 503) {
+          return this.http.post(urlFallback, body, { headers: this.json, observe: 'response' }).pipe(
+            map(() => void 0),
+            catchError((e2) => {
+              const status2 = e2?.status;
+              if (status2 === 0 || status2 === 200 || status2 === 204 || status2 === 404 || status2 === 500 || status2 === 502 || status2 === 503) {
+                return this.http.post(urlAuthFallback, body, { headers: this.json, observe: 'response' }).pipe(
+                  map(() => void 0),
+                  catchError((e3) => throwError(() => ({ error: { message: e3?.error?.message || e3?.message || 'No se pudo asignar la opción al usuario' }, status: e3?.status })))
+                );
+              }
+              return throwError(() => ({ error: { message: e2?.error?.message || e2?.message || 'No se pudo asignar la opción al usuario' }, status: status2 }));
+            })
+          );
+        }
+        return throwError(() => ({ error: { message: e1?.error?.message || e1?.message || 'No se pudo asignar la opción al usuario' }, status: status1 }));
+      })
     );
   }
 
@@ -374,4 +395,3 @@ export class OpcionesService {
     );
   }
 }
-

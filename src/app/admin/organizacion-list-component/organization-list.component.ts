@@ -13,11 +13,15 @@ import { OrgContextService } from '../../service/org-context.service';
 import { MessageService } from 'primeng/api';
 import { InputSwitchModule } from 'primeng/inputswitch';
 import { AuthService } from '../../service/auth.service';
+import { DialogModule } from 'primeng/dialog';
+import { DropdownModule } from 'primeng/dropdown';
+import { UsersService, UserEntity } from '../../service/users.service';
+import { OpcionesService, OpcionEntity } from '../../service/opciones.service';
 
 @Component({
   selector: 'app-organization-list',
   standalone: true,
-  imports: [CommonModule, RouterModule, TableModule, ButtonModule, InputTextModule, TagModule, FormsModule, TooltipModule, InputSwitchModule],
+  imports: [CommonModule, RouterModule, TableModule, ButtonModule, InputTextModule, TagModule, FormsModule, TooltipModule, InputSwitchModule, DialogModule, DropdownModule],
   templateUrl: './organization-list.component.html',
   styleUrls: ['./organization-list.component.scss']
 })
@@ -37,7 +41,20 @@ export class OrganizationListComponent implements OnInit {
   editDraft: Organization | null = null;
   flashRowId: string | null = null;
 
-  constructor(private orgService: OrganizationService, private router: Router, private orgCtx: OrgContextService, private route: ActivatedRoute, private messages: MessageService, private auth: AuthService) {
+  // ==== Modal Asignar Admin ====
+  showAdminDialog = false;
+  adminOrgId: string | null = null;
+  adminOrgNombre: string | null = null;
+  adminUsers: UserEntity[] = [];
+  adminLoadingUsers = false;
+  adminLoadingOptions = false;
+  adminSelectedUserId: string | null = null;
+  adminSaving = false;
+  adminError: string | null = null;
+  adminOptionId: string | null = null;
+
+  constructor(private orgService: OrganizationService, private router: Router, private orgCtx: OrgContextService, private route: ActivatedRoute, private messages: MessageService, private auth: AuthService,
+              private usersSvc: UsersService, private opcionesSvc: OpcionesService) {
   }
 
   get isSysadmin(): boolean { return this.auth.hasRole('SYSADMIN'); }
@@ -210,14 +227,89 @@ export class OrganizationListComponent implements OnInit {
     this.router.navigate(['/gestionar-organizacion'], { queryParams: { id: org.id } });
   }
 
-  // Nuevo: Ir a asignar Administrador de la Organización (solo SYSADMIN)
+  // Nuevo: Abrir modal para asignar Administrador de la Organización (solo SYSADMIN)
   assignAdmin(org: Organization) {
     if (!this.isSysadmin) { return; }
+    this.adminOrgId = org.id ? String(org.id) : null;
+    this.adminOrgNombre = org.nombre || null;
+    this.adminSelectedUserId = null;
+    this.showAdminDialog = true;
+    this.adminError = null;
+    // Mantener contexto como antes
     if (org.id) {
       localStorage.setItem('currentOrgId', org.id);
       this.orgCtx.set(org.id);
     }
-    // Navegar a Gestionar Organización con el id y foco en sección de admin
-    this.router.navigate(['/gestionar-organizacion'], { queryParams: { id: org.id, focus: 'assign-admin' } });
+    // Cargar datos necesarios (usuarios y opción admin)
+    this.loadAdminDialogData();
+  }
+
+  private loadAdminDialogData() {
+    const orgId = this.adminOrgId;
+    if (!orgId) { this.adminUsers = []; this.adminOptionId = null; return; }
+    // Usuarios
+    this.adminLoadingUsers = true;
+    this.usersSvc.list(orgId).subscribe({
+      next: list => { this.adminUsers = list || []; this.adminLoadingUsers = false; },
+      error: e => { this.adminUsers = []; this.adminLoadingUsers = false; this.adminError = e?.error?.message || 'No se pudieron listar usuarios'; }
+    });
+    // Resolver opcionId de Administrador de Organización
+    this.adminLoadingOptions = true;
+    this.opcionesSvc.listOrgOptions(orgId).subscribe({
+      next: (ops: OpcionEntity[]) => {
+        this.adminLoadingOptions = false;
+        this.adminOptionId = this.resolveAdminOptionId(ops);
+        if (!this.adminOptionId) {
+          this.adminError = 'No se encontró la opción de Administrador de Organización en el catálogo de opciones.';
+        }
+      },
+      error: (e) => {
+        this.adminLoadingOptions = false;
+        this.adminOptionId = null;
+        this.adminError = e?.error?.message || 'No se pudieron cargar las opciones de la organización';
+      }
+    });
+  }
+
+  private resolveAdminOptionId(ops: OpcionEntity[]): string | null {
+    if (!Array.isArray(ops) || ops.length === 0) return null;
+    // Buscar por códigos comunes
+    const candidates = ['ORGADMIN', 'ORG_ADMIN', 'ADMIN_ORG', 'ADMIN_ORGANIZACION', 'ADMINISTRADOR_ORGANIZACION', 'ORG:ADMIN', 'ADMIN:ORG'];
+    const byCode = ops.find(o => (o.codigo || '').toUpperCase() && candidates.includes((o.codigo || '').toUpperCase()));
+    if (byCode?.id) return byCode.id;
+    // Heurística por nombre
+    const byName = ops.find(o => {
+      const n = (o.nombre || '').toUpperCase();
+      return n.includes('ADMIN') && (n.includes('ORGANIZ') || n.includes('ORG'));
+    });
+    return byName?.id || null;
+  }
+
+  closeAdminDialog() {
+    this.showAdminDialog = false;
+    this.adminSelectedUserId = null;
+    this.adminUsers = [];
+    this.adminError = null;
+    this.adminOptionId = null;
+  }
+
+  confirmAssignAdmin() {
+    if (!this.adminOrgId) { this.messages.add({ severity: 'warn', summary: 'Organización', detail: 'Falta organización', life: 3000 }); return; }
+    if (!this.adminSelectedUserId) { this.messages.add({ severity: 'warn', summary: 'Usuario', detail: 'Seleccione usuario', life: 3000 }); return; }
+    if (!this.adminOptionId) { this.messages.add({ severity: 'error', summary: 'Opción no encontrada', detail: 'No se pudo identificar la opción de Administrador de Organización', life: 4000 }); return; }
+    this.adminSaving = true;
+    this.opcionesSvc.assignOptionToUser(this.adminOrgId, this.adminSelectedUserId, this.adminOptionId, null, true).subscribe({
+      next: () => {
+        this.adminSaving = false;
+        this.messages.add({ severity: 'success', summary: 'Asignado', detail: 'Administrador asignado a la organización', life: 3000 });
+        this.closeAdminDialog();
+      },
+      error: (e) => {
+        this.adminSaving = false;
+        const status = e?.status;
+        if (status === 403) this.messages.add({ severity: 'warn', summary: 'No autorizado', detail: 'Requiere SYSADMIN u ORGADMIN en la organización', life: 4000 });
+        else this.messages.add({ severity: 'error', summary: 'Error', detail: e?.error?.message || 'No se pudo asignar el administrador', life: 4000 });
+      }
+    });
   }
 }

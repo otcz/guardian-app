@@ -91,3 +91,66 @@
     </p-table>
   </div>
 </div>
+
+<!-- Modal Asignar Administrador -->
+<p-dialog [(visible)]="$any(this).showAdminDialog" [modal]="true" [dismissableMask]="true" [style]="{width:'520px'}" (onHide)="closeAdminDialog()" [draggable]="false" [resizable]="false">
+  <ng-template pTemplate="header">
+    <div class="flex ai-center gap-sm">
+      <i class="pi pi-shield"></i>
+      <span>Asignar administrador</span>
+    </div>
+  </ng-template>
+
+  <div class="p-fluid">
+    <p class="mb-sm">Organización: <b>{{ $any(this).adminOrgNombre }}</b></p>
+
+    <div class="field">
+      <label for="adminUserSelect">Usuario</label>
+      <p-dropdown id="adminUserSelect"
+                  [options]="$any(this).adminUsers"
+                  optionLabel="username"
+                  optionValue="id"
+                  [filter]="true"
+                  filterBy="nombreCompleto,username"
+                  [loading]="$any(this).adminLoadingUsers"
+                  [showClear]="true"
+                  appendTo="body"
+                  placeholder="Seleccione usuario"
+                  [(ngModel)]="$any(this).adminSelectedUserId"
+                  (onChange)="$any(this).adminSelectedUserId = $event.value"
+                  [ngModelOptions]="{standalone: true}"
+                  [virtualScroll]="true"
+                  [itemSize]="36"
+                  [autoDisplayFirst]="false"
+                  [panelStyle]="{maxHeight:'260px'}">
+        <ng-template let-opt pTemplate="selectedItem">
+          <div class="dd-item" *ngIf="opt as u">
+            <span class="name">{{ u.username }}</span>
+            <span class="sep" *ngIf="u.nombreCompleto"> - </span>
+            <span class="muted" *ngIf="u.nombreCompleto">{{ u.nombreCompleto }}</span>
+          </div>
+        </ng-template>
+        <ng-template let-opt pTemplate="item">
+          <div class="dd-item">
+            <span class="name">{{ opt.username }}</span>
+            <span class="sep" *ngIf="opt.nombreCompleto"> - </span>
+            <span class="muted" *ngIf="opt.nombreCompleto">{{ opt.nombreCompleto }}</span>
+          </div>
+        </ng-template>
+        <ng-template pTemplate="emptyfilter">
+          <div class="fs-xs p-2 text-muted">Sin coincidencias</div>
+        </ng-template>
+        <ng-template pTemplate="empty">
+          <div class="fs-xs p-2 text-muted">{{ $any(this).adminLoadingUsers ? 'Cargando usuarios…' : 'Sin usuarios' }}</div>
+        </ng-template>
+      </p-dropdown>
+    </div>
+
+    <p *ngIf="$any(this).adminError" class="p-error">{{ $any(this).adminError }}</p>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <button pButton type="button" label="Cancelar" class="p-button-text" (click)="closeAdminDialog()" [disabled]="$any(this).adminSaving"></button>
+    <button pButton type="button" label="Asignar" icon="pi pi-check" class="p-button-success" (click)="confirmAssignAdmin()" [disabled]="$any(this).adminSaving || !$any(this).adminSelectedUserId || !$any(this).adminOptionId"></button>
+  </ng-template>
+</p-dialog>

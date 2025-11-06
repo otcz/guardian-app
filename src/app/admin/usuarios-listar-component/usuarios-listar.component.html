@@ -23,6 +23,7 @@
           <tr>
             <th>Usuario</th>
             <th>Alcance/Sección</th>
+            <th>ROL</th>
             <th>Estado</th>
             <th class="col-actions">Acciones</th>
           </tr>
@@ -41,8 +42,11 @@
             <td>
               <div class="stack">
                 <p-chip icon="pi pi-sitemap" [label]="mandoNombre(u)" class="pill"></p-chip>
-                <p-chip *ngIf="roleByUserId[u.id]" icon="pi pi-user" [label]="'Rol: ' + roleByUserId[u.id]" class="pill"></p-chip>
+                <!-- Eliminado chip de rol aquí para no duplicar -->
               </div>
+            </td>
+            <td>
+              <p-tag [value]="roleByUserId[u.id] | roleLabel" [severity]="roleByUserId[u.id] | roleSeverity"></p-tag>
             </td>
             <td>
               <p-tag [value]="u.activo ? 'ACTIVO' : 'INACTIVO'" [severity]="u.activo ? 'success' : 'danger'"></p-tag>
@@ -59,7 +63,7 @@
         </ng-template>
         <ng-template pTemplate="emptymessage">
           <tr>
-            <td colspan="4" class="text-muted" style="text-align:center;">Sin usuarios para mostrar.</td>
+            <td colspan="5" class="text-muted" style="text-align:center;">Sin usuarios para mostrar.</td>
           </tr>
         </ng-template>
       </p-table>

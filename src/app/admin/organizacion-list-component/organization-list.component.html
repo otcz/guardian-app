@@ -78,7 +78,7 @@
 
             <ng-container *ngIf="!adding && editingId !== row.id">
               <button pButton type="button" icon="pi pi-pencil" class="p-button-rounded p-button-text" (click)="startEdit(row)" [disabled]="saving" pTooltip="EDITAR" tooltipPosition="top"></button>
-              <!-- Nuevo: Asignar Administrador de Organización -->
+              <!-- Restaurado: botón Asignar Administrador solo para SYSADMIN -->
               <button *ngIf="isSysadmin" pButton type="button" icon="pi pi-shield" class="p-button-rounded p-button-text" (click)="assignAdmin(row)" [disabled]="saving" pTooltip="ASIGNAR ADMIN" tooltipPosition="top"></button>
             </ng-container>
           </td>
@@ -147,10 +147,11 @@
     </div>
 
     <p *ngIf="$any(this).adminError" class="p-error">{{ $any(this).adminError }}</p>
+    <p *ngIf="$any(this).adminError" class="fs-sm text-muted">Si la opción no existe en el catálogo se intentará asignar desde el endpoint directo de organización (fallback).</p>
   </div>
 
   <ng-template pTemplate="footer">
     <button pButton type="button" label="Cancelar" class="p-button-text" (click)="closeAdminDialog()" [disabled]="$any(this).adminSaving"></button>
-    <button pButton type="button" label="Asignar" icon="pi pi-check" class="p-button-success" (click)="confirmAssignAdmin()" [disabled]="$any(this).adminSaving || !$any(this).adminSelectedUserId || !$any(this).adminOptionId"></button>
+    <button pButton type="button" label="Asignar" icon="pi pi-check" class="p-button-success" (click)="confirmAssignAdmin()" [disabled]="$any(this).adminSaving || !$any(this).adminSelectedUserId"></button>
   </ng-template>
 </p-dialog>

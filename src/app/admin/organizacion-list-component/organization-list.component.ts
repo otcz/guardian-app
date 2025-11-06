@@ -296,12 +296,31 @@ export class OrganizationListComponent implements OnInit {
   confirmAssignAdmin() {
     if (!this.adminOrgId) { this.messages.add({ severity: 'warn', summary: 'Organización', detail: 'Falta organización', life: 3000 }); return; }
     if (!this.adminSelectedUserId) { this.messages.add({ severity: 'warn', summary: 'Usuario', detail: 'Seleccione usuario', life: 3000 }); return; }
-    if (!this.adminOptionId) { this.messages.add({ severity: 'error', summary: 'Opción no encontrada', detail: 'No se pudo identificar la opción de Administrador de Organización', life: 4000 }); return; }
     this.adminSaving = true;
-    this.opcionesSvc.assignOptionToUser(this.adminOrgId, this.adminSelectedUserId, this.adminOptionId, null, true).subscribe({
-      next: () => {
+    if (this.adminOptionId) {
+      // Preferir asignación por opción si está disponible
+      this.opcionesSvc.assignOptionToUser(this.adminOrgId, this.adminSelectedUserId, this.adminOptionId, null, true).subscribe({
+        next: () => {
+          this.adminSaving = false;
+          this.messages.add({ severity: 'success', summary: 'Asignado', detail: 'Administrador asignado a la organización', life: 3000 });
+          this.closeAdminDialog();
+        },
+        error: (e) => {
+          this.adminSaving = false;
+          const status = e?.status;
+          if (status === 403) this.messages.add({ severity: 'warn', summary: 'No autorizado', detail: 'Requiere SYSADMIN u ORGADMIN en la organización', life: 4000 });
+          else this.messages.add({ severity: 'error', summary: 'Error', detail: e?.error?.message || 'No se pudo asignar el administrador', life: 4000 });
+        }
+      });
+      return;
+    }
+
+    // Fallback: si no existe la opción en el catálogo, usar el endpoint directo de organización
+    this.orgService.assignOrgAdmin(this.adminOrgId, this.adminSelectedUserId).subscribe({
+      next: (res) => {
         this.adminSaving = false;
-        this.messages.add({ severity: 'success', summary: 'Asignado', detail: 'Administrador asignado a la organización', life: 3000 });
+        const msg = (res && (res as any).message) || 'Administrador asignado a la organización';
+        this.messages.add({ severity: 'success', summary: 'Asignado', detail: msg, life: 3000 });
         this.closeAdminDialog();
       },
       error: (e) => {

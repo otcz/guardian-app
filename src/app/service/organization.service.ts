@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { environment } from '../config/environment';
@@ -336,14 +336,39 @@ export class OrganizationService {
   }
 
   // -------------------- Administración de Organización --------------------
-  assignOrgAdmin(orgId: string | number, usuarioId: string | number): Observable<{ message?: string; orgId: string; usuarioId: string }> {
+  assignOrgAdmin(orgId: string | number, usuarioId: string | number, observeResponse: boolean = false): Observable<any> {
     const url = `${this.collectionUrl()}/${orgId}/administrador`;
     const body = { usuarioId } as any;
+    if (observeResponse) {
+      return this.http.post<any>(url, body, { headers: this.jsonHeaders(), observe: 'response' as const }).pipe(
+        map((resp: HttpResponse<any>) => {
+          // Passthrough: devolver HttpResponse completo al llamador
+          return resp;
+        }),
+        catchError(err => throwError(() => ({ error: { message: (err?.error?.message ?? err?.message) as string | undefined }, status: err?.status })))
+      );
+    }
     return this.http.post<any>(url, body, { headers: this.jsonHeaders() }).pipe(
       map((resp: any) => {
         if (resp && resp.success === false) { throw { error: { message: resp.message } }; }
         const message = (resp && typeof resp === 'object' && 'message' in resp) ? (resp.message as string) : undefined;
         return { message, orgId: String(orgId), usuarioId: String(usuarioId) };
+      }),
+      catchError(err => throwError(() => ({ error: { message: (err?.error?.message ?? err?.message) as string | undefined }, status: err?.status })))
+    );
+  }
+
+  /**
+   * Lista candidatos para administrador de una organización.
+   * Endpoint: GET /{orgId}/administrador/candidatos
+   * Auth: SYSADMIN (según contrato en docs)
+   */
+  listAdminCandidates(orgId: string | number): Observable<any[]> {
+    const url = `${this.collectionUrl()}/${orgId}/administrador/candidatos`;
+    return this.http.get<any>(url, { headers: this.acceptJsonHeaders() }).pipe(
+      map((resp: any) => {
+        if (resp && resp.success === false) { throw { error: { message: resp.message } }; }
+        return this.normalizeListResponse(resp);
       }),
       catchError(err => throwError(() => ({ error: { message: (err?.error?.message ?? err?.message) as string | undefined }, status: err?.status })))
     );

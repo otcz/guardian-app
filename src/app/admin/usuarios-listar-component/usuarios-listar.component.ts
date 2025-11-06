@@ -20,11 +20,13 @@ import { forkJoin, of } from 'rxjs';
 import { catchError, finalize } from 'rxjs/operators';
 import { environment } from '../../config/environment';
 import { OrganizationService } from '../../service/organization.service';
+import { RoleLabelPipe } from '../../shared/pipes/role-label.pipe';
+import { RoleSeverityPipe } from '../../shared/pipes/role-severity.pipe';
 
 @Component({
   selector: 'app-usuarios-listar',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, CardModule, InputTextModule, ButtonModule, TableModule, TagModule, TooltipModule, AvatarModule, ChipModule],
+  imports: [CommonModule, FormsModule, RouterModule, CardModule, InputTextModule, ButtonModule, TableModule, TagModule, TooltipModule, AvatarModule, ChipModule, RoleLabelPipe, RoleSeverityPipe],
   templateUrl: './usuarios-listar.component.html',
   styleUrls: ['./usuarios-listar.component.scss']
 })

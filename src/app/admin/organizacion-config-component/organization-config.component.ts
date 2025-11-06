@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {CommonModule, ViewportScroller} from '@angular/common';
+import {CommonModule} from '@angular/common';
 import {ActivatedRoute, Router, RouterModule} from '@angular/router';
 import {FormsModule} from '@angular/forms';
 import {CardModule} from 'primeng/card';
@@ -10,9 +10,11 @@ import {TagModule} from 'primeng/tag';
 import {ProgressSpinnerModule} from 'primeng/progressspinner';
 import {MultiSelectModule} from 'primeng/multiselect';
 import { OrganizationService, Organization } from '../../service/organization.service';
-import { MessageService } from 'primeng/api';
 import { OrgContextService } from '../../service/org-context.service';
+import { MessageService } from 'primeng/api';
 import { UsersService, UserEntity } from '../../service/users.service';
+import { ViewportScroller } from '@angular/common';
+import { HttpResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-organization-config',
@@ -79,12 +81,6 @@ export class OrganizationConfigComponent implements OnInit {
     }
   }
 
-  private tryFocusAssignAdmin() {
-    if (!this.shouldFocusAssignAdmin) return;
-    // retrasar un poco para asegurar que la vista esté lista
-    setTimeout(() => this.scroller.scrollToAnchor('assign-admin-section'), 50);
-  }
-
   private loadOrganizations(selectFirst: boolean) {
     this.loadingOrgs = true;
     this.orgSvc.list().subscribe({
@@ -94,7 +90,6 @@ export class OrganizationConfigComponent implements OnInit {
         if (selectFirst && this.orgs.length > 0) {
           const first = this.orgs.find(o => o.activa) || this.orgs[0];
           if (first?.id) this.onOrgChanged(first.id);
-          this.tryFocusAssignAdmin();
         }
       },
       error: () => { this.loadingOrgs = false; }
@@ -134,6 +129,11 @@ export class OrganizationConfigComponent implements OnInit {
     });
   }
 
+  private tryFocusAssignAdmin() {
+    if (!this.shouldFocusAssignAdmin) return;
+    setTimeout(() => this.scroller.scrollToAnchor('assign-admin-section'), 50);
+  }
+
   private loadUsers() {
     if (!this.orgId) { this.usuarios = []; return; }
     this.loadingUsers = true;
@@ -147,14 +147,44 @@ export class OrganizationConfigComponent implements OnInit {
     if (!this.orgId) { this.messageService.add({ severity: 'warn', summary: 'Organización', detail: 'Seleccione organización', life: 3000 }); return; }
     if (!this.selectedUserId) { this.messageService.add({ severity: 'warn', summary: 'Usuario', detail: 'Seleccione usuario', life: 3000 }); return; }
     this.savingAdmin = true;
-    this.orgSvc.assignOrgAdmin(this.orgId, this.selectedUserId).subscribe({
-      next: (res) => {
+    this.orgSvc.assignOrgAdmin(this.orgId, this.selectedUserId, true).subscribe({
+      next: (resp: any) => {
+        // Si recibimos HttpResponse (observeResponse = true)
+        if (resp instanceof HttpResponse) {
+          console.log('[ORG CONFIG] assignOrgAdmin HttpResponse status:', resp.status);
+          console.log('[ORG CONFIG] assignOrgAdmin HttpResponse headers:', resp.headers ? resp.headers.keys().map(k => ({ [k]: resp.headers.get(k) })) : {});
+          console.log('[ORG CONFIG] assignOrgAdmin HttpResponse body:', resp.body);
+        } else {
+          console.log('[ORG CONFIG] assignOrgAdmin mapped response:', resp);
+        }
+        // Mantener compatibilidad: mensaje original (intentar extraer message cuando exista)
         this.savingAdmin = false;
-        this.messageService.add({ severity: 'success', summary: 'Asignado', detail: res?.message || 'Administrador asignado', life: 3000 });
-        // Consumido el foco una vez ejecutada la acción
+        const msg = (resp && (resp as any).body && (resp as any).body.message) || (resp && (resp as any).message) || 'Administrador asignado';
+        this.messageService.add({ severity: 'success', summary: 'Asignado', detail: msg, life: 3000 });
+        // Verificación adicional: consultar candidatos y confirmar que el usuario aparece
+        this.orgSvc.listAdminCandidates(this.orgId).subscribe({
+          next: (cands) => {
+            console.log('[ORG CONFIG] listAdminCandidates response:', cands);
+            const found = Array.isArray(cands) && cands.some((u: any) => String(u?.id ?? u?._id ?? u?.usuarioId ?? u?.userId) === String(this.selectedUserId));
+            if (!found) {
+              this.messageService.add({ severity: 'warn', summary: 'Verificación', detail: 'La API respondió ok pero no se encontró al usuario en la lista de administradores; revise el backend.', life: 6000 });
+              // intentar recargar usuarios para reflejar estado real
+              this.loadUsers();
+            } else {
+              // Recargar usuarios para reflejar cambios en UI
+              this.loadUsers();
+            }
+          },
+          error: (err) => {
+            console.error('[ORG CONFIG] listAdminCandidates error:', err);
+            // Si falla la verificación, al menos recargar usuarios
+            this.loadUsers();
+          }
+        });
         this.shouldFocusAssignAdmin = false;
       },
       error: (e) => {
+        console.error('[ORG CONFIG] assignOrgAdmin error:', e);
         this.savingAdmin = false;
         const status = e?.status;
         if (status === 403) this.messageService.add({ severity: 'warn', summary: 'No autorizado', detail: 'Solo SYSADMIN puede asignar administrador.', life: 4000 });

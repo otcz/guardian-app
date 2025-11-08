@@ -120,7 +120,16 @@ export class LoginComponent {
         localStorage.setItem('expiresAt', String(expiresAt));
         // Menú (el servicio ya lo hace, pero mantenemos idempotente)
         this.menu.setFromLogin(resp.opcionesDetalle);
-        // Intentar autoselección/conservación de organización
+
+        // Si el backend ya fijó el contexto (orgId/scope/sección), respetarlo y navegar directo
+        const hasCtx = !!(this.orgCtx.value || localStorage.getItem('currentOrgId'));
+        if (hasCtx) {
+          this.router.navigate(['/']);
+          this.loading = false;
+          return;
+        }
+
+        // Fallback: si no vino contexto en el login, intentar heurísticas previas
         this.orgSvc.list().subscribe({
           next: (orgs: Organization[]) => {
             const nonSysAdmin = !isSys;

@@ -4,7 +4,7 @@ import { AuthService } from './auth.service';
 import { OrgContextService } from './org-context.service';
 
 // Guard que exige contexto organizacional: redirige a login si no está autenticado,
-// a listar-organizaciones si falta orgId o scope, y a listar-secciones si el alcance es SECCION y falta seccionPrincipalId
+// a listar-organizaciones si falta orgId; y a listar-secciones solo si el alcance es SECCION y falta seccionPrincipalId
 export const OrgRequiredGuard: CanActivateFn = (route: ActivatedRouteSnapshot, state: RouterStateSnapshot) => {
   const auth = inject(AuthService);
   const router = inject(Router);
@@ -26,12 +26,14 @@ export const OrgRequiredGuard: CanActivateFn = (route: ActivatedRouteSnapshot, s
   const scope = ctx.scope || (localStorage.getItem('scopeNivel') as any);
   const seccionId = ctx.seccion || localStorage.getItem('seccionPrincipalId');
 
-  if (!orgId || !scope) {
-    router.navigate(['/listar-organizaciones']);
+  // Requerir solo organización para poder continuar
+  if (!orgId) {
+    router.navigate(['/listar-organizaciones'], { state: { returnUrl: currentUrl } });
     return false;
   }
 
-  const scopeStr = String(scope).toUpperCase();
+  // Si el alcance es SECCION, exigir seccionPrincipalId; si no hay scope, permitir navegar.
+  const scopeStr = scope ? String(scope).toUpperCase() : '';
   if (scopeStr === 'SECCION' && !seccionId) {
     // Permitir navegar a listar-secciones para que el usuario seleccione una sección
     if (path === 'listar-secciones') return true;

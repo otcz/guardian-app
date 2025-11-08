@@ -263,7 +263,9 @@ export class SeccionService {
 
   assignAdministrador(orgId: string, seccionId: string, usuarioId: string): Observable<{ seccion: SeccionEntity; message?: string }> {
     const url = `${this.base}/orgs/${orgId}/secciones/${seccionId}/administrador`;
-    return this.http.post<any>(url, { usuarioId }, { headers: this.json }).pipe(
+    // Enviar orgId además de usuarioId: algunos backends requieren orgId para resolver rol por nombre cuando asigna SYSADMIN
+    const body = { usuarioId, orgId } as any;
+    return this.http.post<any>(url, body, { headers: this.json }).pipe(
       map((payload) => {
         // Respuesta esperada: entidad plana SeccionEntity
         const d = (payload || {}) as any;

@@ -138,11 +138,20 @@ export class AuthService {
 
               if (orgName != null) localStorage.setItem('currentOrgName', String(orgName));
 
-              // Bloquear si backend define la organización; de lo contrario setear parcialmente sin bloquear
-              if (adminId != null) {
+              // Política corregida: sólo bloquear si el backend provee algún dato de contexto.
+              // Si no hay org/scope/sección, dejar el contexto desbloqueado para que el usuario seleccione una organización.
+              if (adminId || scope || seccionId) {
+                // Reiniciar estado previo y bloquear con los valores conocidos
+                this.orgCtx.clear();
                 this.orgCtx.lock({ orgId: adminId, scopeNivel: scope, seccionPrincipalId: seccionId });
+                try {
+                  if (adminId != null) localStorage.setItem('loginOrgImmutable', adminId);
+                  localStorage.setItem('loginRolesImmutable', JSON.stringify(resp.roles || []));
+                  localStorage.setItem('loginUsernameImmutable', resp.username || data.username);
+                } catch {}
               } else {
-                this.orgCtx.setContext({ orgId: null, scopeNivel: scope, seccionPrincipalId: seccionId });
+                // Asegurar que no quede bloqueado por sesiones anteriores
+                this.orgCtx.clear();
               }
             } catch {}
 

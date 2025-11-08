@@ -17,6 +17,7 @@ import { DialogModule } from 'primeng/dialog';
 import { DropdownModule } from 'primeng/dropdown';
 import { UsersService, UserEntity } from '../../service/users.service';
 import { OpcionesService, OpcionEntity } from '../../service/opciones.service';
+import { RolesService } from '../../service/roles.service';
 
 @Component({
   selector: 'app-organization-list',
@@ -54,7 +55,7 @@ export class OrganizationListComponent implements OnInit {
   adminOptionId: string | null = null;
 
   constructor(private orgService: OrganizationService, private router: Router, private orgCtx: OrgContextService, private route: ActivatedRoute, private messages: MessageService, private auth: AuthService,
-              private usersSvc: UsersService, private opcionesSvc: OpcionesService) {
+              private usersSvc: UsersService, private opcionesSvc: OpcionesService, private rolesSvc: RolesService) {
   }
 
   get isSysadmin(): boolean { return this.auth.hasRole('SYSADMIN'); }
@@ -174,10 +175,11 @@ export class OrganizationListComponent implements OnInit {
     const body = { nombre: desiredName, activa: desiredActive };
     this.orgService.update(this.editingId, body).subscribe({
       next: (res) => {
-        const idx = this.orgs.findIndex(o => o.id === this.editingId);
+        const idx = this.orgs.findIndex((o: Organization) => o.id === this.editingId);
         if (idx >= 0) {
           const resp: any = (res as any)?.org || {};
           const newActiva = (typeof resp.activa === 'boolean') ? resp.activa : desiredActive;
+          // corregido thisorgs -> this.orgs
           this.orgs[idx] = { ...this.orgs[idx], ...resp, activa: newActiva } as Organization;
         }
         this.applyFilter();
@@ -229,18 +231,19 @@ export class OrganizationListComponent implements OnInit {
 
   // Nuevo: Abrir modal para asignar Administrador de la Organización (solo SYSADMIN)
   assignAdmin(org: Organization) {
-    if (!this.isSysadmin) { return; }
+    if (!this.isSysadmin) {
+      // Comportamiento original para roles no SYSADMIN: cambia contexto activo
+      if (org.id) {
+        localStorage.setItem('currentOrgId', org.id);
+        this.orgCtx.set(org.id);
+      }
+    }
+    // Para SYSADMIN: NO modificar contexto de login (inmutable). Solo preparar datos locales.
     this.adminOrgId = org.id ? String(org.id) : null;
     this.adminOrgNombre = org.nombre || null;
     this.adminSelectedUserId = null;
     this.showAdminDialog = true;
     this.adminError = null;
-    // Mantener contexto como antes
-    if (org.id) {
-      localStorage.setItem('currentOrgId', org.id);
-      this.orgCtx.set(org.id);
-    }
-    // Cargar datos necesarios (usuarios y opción admin)
     this.loadAdminDialogData();
   }
 
@@ -297,37 +300,62 @@ export class OrganizationListComponent implements OnInit {
     if (!this.adminOrgId) { this.messages.add({ severity: 'warn', summary: 'Organización', detail: 'Falta organización', life: 3000 }); return; }
     if (!this.adminSelectedUserId) { this.messages.add({ severity: 'warn', summary: 'Usuario', detail: 'Seleccione usuario', life: 3000 }); return; }
     this.adminSaving = true;
-    if (this.adminOptionId) {
-      // Preferir asignación por opción si está disponible
-      this.opcionesSvc.assignOptionToUser(this.adminOrgId, this.adminSelectedUserId, this.adminOptionId, null, true).subscribe({
-        next: () => {
-          this.adminSaving = false;
-          this.messages.add({ severity: 'success', summary: 'Asignado', detail: 'Administrador asignado a la organización', life: 3000 });
-          this.closeAdminDialog();
-        },
-        error: (e) => {
-          this.adminSaving = false;
-          const status = e?.status;
-          if (status === 403) this.messages.add({ severity: 'warn', summary: 'No autorizado', detail: 'Requiere SYSADMIN u ORGADMIN en la organización', life: 4000 });
-          else this.messages.add({ severity: 'error', summary: 'Error', detail: e?.error?.message || 'No se pudo asignar el administrador', life: 4000 });
-        }
-      });
-      return;
-    }
 
-    // Fallback: si no existe la opción en el catálogo, usar el endpoint directo de organización
-    this.orgService.assignOrgAdmin(this.adminOrgId, this.adminSelectedUserId).subscribe({
-      next: (res) => {
-        this.adminSaving = false;
-        const msg = (res && (res as any).message) || 'Administrador asignado a la organización';
-        this.messages.add({ severity: 'success', summary: 'Asignado', detail: msg, life: 3000 });
-        this.closeAdminDialog();
+    // Paso 1 (canónico según checklist): asignar rol ORGADMIN por nombre incluyendo orgId
+    this.rolesSvc.assignRoleToUserByName(this.adminSelectedUserId, 'ORGADMIN', this.adminOrgId).subscribe({
+      next: () => {
+        // Verificación opcional: listar roles del usuario para confirmar presencia de ORGADMIN
+        this.rolesSvc.listUserRoles(this.adminSelectedUserId!).subscribe({
+          next: (roles) => {
+            const ok = (roles || []).some(r => (r.rolNombre || '').toUpperCase() === 'ORGADMIN');
+            this.adminSaving = false;
+            this.messages.add({ severity: 'success', summary: 'Asignado', detail: ok ? 'Administrador asignado a la organización' : 'Administrador asignado (pendiente de reflejo en listado)', life: 3000 });
+            this.closeAdminDialog();
+          },
+          error: () => {
+            // Si la verificación falla, igualmente considerar éxito de la asignación principal
+            this.adminSaving = false;
+            this.messages.add({ severity: 'success', summary: 'Asignado', detail: 'Administrador asignado a la organización', life: 3000 });
+            this.closeAdminDialog();
+          }
+        });
       },
       error: (e) => {
-        this.adminSaving = false;
         const status = e?.status;
-        if (status === 403) this.messages.add({ severity: 'warn', summary: 'No autorizado', detail: 'Requiere SYSADMIN u ORGADMIN en la organización', life: 4000 });
-        else this.messages.add({ severity: 'error', summary: 'Error', detail: e?.error?.message || 'No se pudo asignar el administrador', life: 4000 });
+        const msg = e?.error?.message || e?.message || '';
+        // Manejo explícito según checklist
+        if (status === 403) {
+          this.adminSaving = false;
+          this.messages.add({ severity: 'warn', summary: 'No autorizado', detail: 'Solo SYSADMIN puede asignar ORGADMIN', life: 4000 });
+          return;
+        }
+        if (status === 404 && (msg.toUpperCase().includes('ROLE_NOT_FOUND') || msg.toUpperCase().includes('ROL') && msg.toUpperCase().includes('NO') && msg.toUpperCase().includes('ENCON'))) {
+          // Rol ORGADMIN no existe en la organización
+          this.adminSaving = false;
+          this.messages.add({ severity: 'error', summary: 'Rol no encontrado', detail: 'Verifica que ORGADMIN exista en la organización o re-ejecuta bootstrap.', life: 5000 });
+          return;
+        }
+        if (status === 400 && msg.toUpperCase().includes('ORGANIZ')) {
+          // Error de resolución de organización en asignación por nombre
+          this.adminSaving = false;
+          this.messages.add({ severity: 'error', summary: 'Asignación', detail: 'No se pudo determinar la organización para resolver el rol por nombre. Reintente o verifique orgId.', life: 5000 });
+          return;
+        }
+        // Fallback: usar endpoint directo de organización si el backend no soporta el canónico o falló por otra razón
+        this.orgService.assignOrgAdmin(this.adminOrgId!, this.adminSelectedUserId!).subscribe({
+          next: (res) => {
+            this.adminSaving = false;
+            const m = (res && (res as any).message) || 'Administrador asignado a la organización';
+            this.messages.add({ severity: 'success', summary: 'Asignado', detail: m, life: 3000 });
+            this.closeAdminDialog();
+          },
+          error: (e2) => {
+            this.adminSaving = false;
+            const st2 = e2?.status;
+            if (st2 === 403) this.messages.add({ severity: 'warn', summary: 'No autorizado', detail: 'Requiere SYSADMIN', life: 4000 });
+            else this.messages.add({ severity: 'error', summary: 'Error', detail: e2?.error?.message || 'No se pudo asignar el administrador', life: 4000 });
+          }
+        });
       }
     });
   }

@@ -34,18 +34,6 @@ export class UserAvatarProComponent {
   seccionName = signal<string | null>(null);
   expiresAt = signal<number | null>(null);
 
-  // Datos auxiliares
-  orgs = signal<Organization[]>([]);
-  displayedOrgs = computed(() => {
-    const list = this.orgs() || [];
-    const scope = (this.scopeNivel() || '').toString().toUpperCase();
-    const currentId = this.orgId();
-    if ((scope === 'ORGANIZACION' || scope === 'SECCION') && currentId) {
-      return list.filter(o => String(o.id) === String(currentId));
-    }
-    return list;
-  });
-
   private timer?: any;
   private tick = signal<number>(Date.now());
 
@@ -96,37 +84,6 @@ export class UserAvatarProComponent {
       }
       if (onCleanup) onCleanup(() => { if (sub?.unsubscribe) sub.unsubscribe(); });
     }, { allowSignalWrites: true });
-
-    // Cargar lista de organizaciones y autoseleccionar si falta (si no está bloqueado)
-    if (isAuth) {
-      this.orgSvc.listAccessible().subscribe({
-        next: (list) => {
-          const arr = Array.isArray(list) ? list : [];
-          this.orgs.set(arr);
-          const current = this.orgId();
-          const exists = current ? arr.some(o => String(o.id) === String(current)) : false;
-          const locked = this.ctx.isLocked;
-          if (locked) return;
-          if (!current || !exists) {
-            const chosen = arr.find(o => (o as any)?.activa) || arr[0] || null;
-            if (chosen?.id) {
-              const id = String(chosen.id);
-              const name = chosen.nombre || null;
-              try { localStorage.setItem('currentOrgId', id); } catch {}
-              if (name) { try { localStorage.setItem('currentOrgName', name); } catch {} }
-              this.orgId.set(id);
-              this.orgName.set(name);
-              // no bloquear aquí; el bloqueo ocurre en primera selección explícita o viene del login
-            } else {
-              try { localStorage.removeItem('currentOrgId'); localStorage.removeItem('currentOrgName'); } catch {}
-              this.orgId.set(null);
-              this.orgName.set(null);
-            }
-          }
-        },
-        error: () => this.orgs.set([])
-      });
-    }
 
     // Cargar nombre de sección si aplica (solo si autenticado)
     effect((onCleanup) => {
@@ -213,25 +170,6 @@ export class UserAvatarProComponent {
     const s = Math.floor((leftMs % 60000) / 1000);
     return `${m}m ${s}s`;
   });
-
-  // Acciones
-  switchOrg(o: Organization, pop: any) {
-    if (!o?.id) return;
-    const id = String(o.id);
-    const name = o.nombre || null;
-    const locked = this.ctx.isLocked;
-    const current = this.orgId();
-    if (locked && current && id !== String(current)) {
-      if (pop?.hide) pop.hide();
-      return;
-    }
-    try { localStorage.setItem('currentOrgId', id); } catch {}
-    if (name) { try { localStorage.setItem('currentOrgName', name); } catch {} }
-    this.orgId.set(id);
-    this.orgName.set(name);
-    if (!locked) this.ctx.lock({ orgId: id, scopeNivel: this.scopeNivel() as any, seccionPrincipalId: this.seccionId() });
-    if (pop?.hide) pop.hide();
-  }
 
   logout() {
     this.auth.logout();

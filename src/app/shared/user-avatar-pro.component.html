@@ -29,16 +29,6 @@
         </span>
       </div>
 
-      <div class="orgs" *ngIf="displayedOrgs().length">
-        <div class="org-item" *ngFor="let o of displayedOrgs()" [class.active]="o.id === orgId()" (click)="switchOrg(o, pop)">
-          <span class="dot"></span>
-          <div class="meta-col">
-            <b>{{ o.nombre }}</b>
-            <small class="status">{{ o.activa ? 'Activa' : 'Inactiva' }}</small>
-          </div>
-        </div>
-      </div>
-
       <div class="actions">
         <!-- Eliminados: Gestionar y Organizaciones -->
         <button pButton type="button" class="p-button-danger p-button-text" icon="pi pi-sign-out" label="Salir" (click)="logout()"></button>

@@ -12,6 +12,7 @@ import { OrgContextService } from '../../service/org-context.service';
 import { SeccionService, SeccionEntity } from '../../service/seccion.service';
 import type { UserEntity } from '../../service/users.service';
 import { NotificationService } from '../../service/notification.service';
+import { AuthService } from '../../service/auth.service';
 
 @Component({
   selector: 'app-seccion-asignar-admin',
@@ -45,16 +46,36 @@ export class SeccionAsignarAdminComponent implements OnInit {
     private seccionesSrv: SeccionService,
     private notify: NotificationService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private auth: AuthService
   ) {}
 
   ngOnInit(): void {
-    this.orgId = this.orgCtx.value || localStorage.getItem('currentOrgId');
+    // Permitir orgId por query param (para SYSADMIN que salta desde listado de organizaciones)
+    const qpOrgId = this.route.snapshot.queryParamMap.get('orgId') || this.route.snapshot.queryParamMap.get('oId');
+    // Contexto base (locked) o storage
+    const ctxOrgId = this.orgCtx.value || localStorage.getItem('currentOrgId');
+    // Prioridad: query param explícito > contexto > storage
+    this.orgId = qpOrgId || ctxOrgId || null;
+
     if (!this.orgId) { this.notify.warn('Atención', 'Seleccione una organización'); this.router.navigate(['/listar-organizaciones']); return; }
+
+    // Validar formato UUID (si backend lo requiere) para evitar enviar orgId inválido que cause error de resolución de rol
+    const uuidLike = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(this.orgId);
+    if (!uuidLike) {
+      // Si es SYSADMIN intentar continuar (puede ser código interno), pero avisar.
+      if (this.auth.hasRole('SYSADMIN')) {
+        this.notify.warn('OrgId', 'Formato de orgId no parece UUID, continuar como SYSADMIN');
+      } else {
+        this.notify.warn('OrgId', 'Identificador de organización inválido');
+        this.router.navigate(['/listar-organizaciones']);
+        return;
+      }
+    }
 
     this.loading = true;
     this.pendingLoads = 1;
-    // Cargar secciones
+    // Cargar secciones de la organización efectiva
     this.seccionesSrv.list(this.orgId).subscribe({
       next: list => { this.secciones = list || []; this.filteredSecciones = this.secciones.slice(); },
       error: (e) => { const msg = e?.error?.message || 'No se pudieron listar secciones'; this.errorMsg = msg; this.notify.error('Error', msg); },
@@ -66,6 +87,11 @@ export class SeccionAsignarAdminComponent implements OnInit {
       next: (qm) => {
         const sId = qm.get('seccionId');
         const uId = qm.get('usuarioId');
+        const orgIdQ = qm.get('orgId') || qm.get('oId');
+        if (orgIdQ && orgIdQ !== this.orgId) {
+          this.orgId = orgIdQ; // actualizar si cambia (caso navegación directa SYSADMIN)
+          this.onOrgIdChanged();
+        }
         if (sId && sId !== this.seccionId) {
           this.seccionId = sId;
           this.loadCandidates();
@@ -123,8 +149,27 @@ export class SeccionAsignarAdminComponent implements OnInit {
     });
   }
 
+  private onOrgIdChanged() {
+    if (!this.orgId) { this.secciones = []; this.filteredSecciones = []; return; }
+    this.loading = true;
+    this.seccionesSrv.list(this.orgId).subscribe({
+      next: list => { this.secciones = list || []; this.filteredSecciones = this.secciones.slice(); this.applyFilters(); },
+      error: e => { this.notify.error('Error', e?.error?.message || 'No se pudieron listar secciones'); this.secciones = []; this.filteredSecciones = []; },
+      complete: () => { this.loading = false; }
+    });
+  }
+
   assign() {
-    if (!this.orgId || !this.seccionId || !this.usuarioId) return;
+    if (!this.orgId || !this.seccionId || !this.usuarioId) { this.notify.warn('Datos', 'Complete selección de organización, sección y usuario'); return; }
+    // Para SYSADMIN: si la organización objetivo difiere del contexto locked, enviamos orgId explícito igualmente (ya incluido en body) y advertimos si coincide con DEFAULT_ORG para evitar ambigüedad.
+    const isSysadmin = this.auth.hasRole('SYSADMIN');
+    if (isSysadmin) {
+      const lockedOrg = this.orgCtx.value || localStorage.getItem('loginOrgImmutable');
+      if (lockedOrg && lockedOrg !== this.orgId) {
+        // Documentar diferencia (solo aviso visual)
+        this.notify.warn('Contexto', 'Asignando en organización distinta al contexto de login (permitido por SYSADMIN)');
+      }
+    }
     this.saving = true;
     this.seccionesSrv.assignAdministrador(this.orgId, this.seccionId, this.usuarioId).subscribe({
       next: _res => {
@@ -135,7 +180,11 @@ export class SeccionAsignarAdminComponent implements OnInit {
         this.saving = false;
         const raw = (e?.error?.message || '').toString().toUpperCase();
         if (e?.status === 400) {
-          if (raw.includes('USER_SCOPE_RESTRICTED') || raw.includes('ORGANIZACION')) {
+          if ((raw.includes('DETERMINAR') || raw.includes('RESOLVER')) && raw.includes('ORGANIZ')) {
+            this.notify.warn('Validación', 'No se pudo determinar la organización para resolver el rol por nombre. Verifique orgId y reintente');
+            return;
+          }
+          if (raw.includes('USER_SCOPE_RESTRICTED') || raw.includes('ALCANCE') && raw.includes('ORGANIZACIÓN')) {
             this.notify.warn('Validación', 'El usuario con alcance ORGANIZACIÓN no puede ser administrador de sección');
             return;
           }
@@ -148,16 +197,19 @@ export class SeccionAsignarAdminComponent implements OnInit {
             return;
           }
         }
-        if (e?.status === 404) {
-          this.notify.warn('Sección', 'Sección no encontrada');
-          return;
-        }
-        if (e?.status === 401 || e?.status === 403) {
-          this.notify.warn('No autorizado', 'Inicie sesión nuevamente');
-          return;
-        }
+        if (e?.status === 404) { this.notify.warn('Sección', 'Sección no encontrada'); return; }
+        if (e?.status === 401 || e?.status === 403) { this.notify.warn('No autorizado', 'Inicie sesión nuevamente'); return; }
         this.notify.error('Error', e?.error?.message || 'No se pudo asignar el administrador');
       }
     });
   }
 }
+
+
+
+
+
+
+
+
+

@@ -81,3 +81,16 @@
   justify-content: center;
 }
 :host ::ng-deep .btn-icon.p-button .p-button-label { display: none; }
+
+/* Estilos unificados para ROL-ORG en el dropdown */
+:host ::ng-deep .role-item {
+  display: inline-flex;
+  align-items: baseline;
+  gap: .25ch;
+  font-weight: 600;
+  letter-spacing: .2px;
+}
+:host ::ng-deep .role-item .role-part { color: #111; }
+:host ::ng-deep .role-item .org-part { color: var(--primary-color, #0B6EF0); font-weight: 500; opacity: .65; }
+:host ::ng-deep .p-dropdown-items .p-dropdown-item .role-item { line-height: 1.25; }
+:host ::ng-deep .p-dropdown .p-dropdown-label .role-item { line-height: 1.25; }

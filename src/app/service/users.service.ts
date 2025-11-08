@@ -212,7 +212,6 @@ export class UsersService {
     const url = `${this.base}/usuarios/${usuarioId}/roles`;
     return this.http.post<any>(url, payload, { headers: this.json }).pipe(
       map((resp) => {
-        // Aceptar respuesta directa o envuelta en { success, data }
         const d = this.unwrap<any>(resp) ?? resp;
         return {
           id: String(d?.id ?? d?._id ?? ''),

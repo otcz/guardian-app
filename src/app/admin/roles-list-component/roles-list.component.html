@@ -43,7 +43,10 @@
                 <input pInputText [ngModel]="editDraft?.nombre" (ngModelChange)="onEditChange('nombre', $event)" placeholder="Nombre del rol" class="w-100" />
               </ng-container>
               <ng-template #viewName>
-                {{ row.nombre }}
+                <ng-container *ngIf="displayParts(row).post as orgPart; else onlyMain">
+                  <span>{{ displayParts(row).pre }}-<span class="org-muted">{{ orgPart }}</span></span>
+                </ng-container>
+                <ng-template #onlyMain>{{ displayParts(row).pre }}</ng-template>
               </ng-template>
             </ng-template>
           </td>

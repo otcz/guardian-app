@@ -16,6 +16,7 @@ import { UsersService, UserEntity } from '../../service/users.service';
 import { RolesService, RoleEntity, UserRoleAssignment } from '../../service/roles.service';
 import { NotificationService } from '../../service/notification.service';
 import { ConfirmationService } from 'primeng/api';
+import { AuthService } from '../../service/auth.service';
 
 @Component({
   selector: 'app-usuario-asignar-roles',
@@ -34,7 +35,7 @@ export class UsuarioAsignarRolesComponent implements OnInit {
   rolSeleccionado: string | null = null;
   saving = false;
 
-  constructor(private orgCtx: OrgContextService, private users: UsersService, private rolesSrv: RolesService, private notify: NotificationService, private router: Router, private confirm: ConfirmationService, private route: ActivatedRoute) {}
+  constructor(private orgCtx: OrgContextService, private users: UsersService, private rolesSrv: RolesService, private notify: NotificationService, private router: Router, private confirm: ConfirmationService, private route: ActivatedRoute, private auth: AuthService) {}
 
   ngOnInit(): void {
     this.orgId = this.orgCtx.value;
@@ -52,13 +53,27 @@ export class UsuarioAsignarRolesComponent implements OnInit {
     });
   }
 
-  // Cargar roles de una organización específica
+  private shouldUseGlobalRoles(): boolean { return this.auth.hasAnyRole('ORGADMIN','SYSADMIN'); }
+
+  // Cargar roles de una organización específica (o global si tiene permisos)
   private loadRolesForOrg(orgId: string | null | undefined) {
+    // Si puede ver todo, usar endpoint global
+    if (this.shouldUseGlobalRoles()) {
+      this.rolesSrv.fetchAllGlobalRoles().subscribe({
+        next: list => {
+          this.roles = list || [];
+          this.roleNameById = Object.fromEntries((this.roles || []).map(r => [String(r.id), String(r.display || r.nombre || '')]));
+          this.hydrateRoleAssignments();
+        },
+        error: e => this.notify.error('Error', e?.error?.message || 'No se pudieron listar roles globales')
+      });
+      return;
+    }
     if (!orgId) { this.roles = []; this.roleNameById = {}; return; }
     this.rolesSrv.list(orgId).subscribe({
       next: list => {
         this.roles = list || [];
-        this.roleNameById = Object.fromEntries((this.roles || []).map(r => [String(r.id), String(r.nombre || '')]));
+        this.roleNameById = Object.fromEntries((this.roles || []).map(r => [String(r.id), String(r.display || r.nombre || '')]));
         this.hydrateRoleAssignments();
       },
       error: e => this.notify.error('Error', e?.error?.message || 'No se pudieron listar roles')
@@ -92,7 +107,27 @@ export class UsuarioAsignarRolesComponent implements OnInit {
 
   getRoleName(ru: UserRoleAssignment | null | undefined): string {
     if (!ru) return '';
-    return (ru.rolNombre || ru.rol?.nombre || this.roleNameById[ru.rolId] || ru.rolId || '').toString();
+    return (ru.rol?.display || ru.rolNombre || ru.rol?.nombre || this.roleNameById[ru.rolId] || ru.rolId || '').toString();
+  }
+
+  /** Divide un display en { pre: rol, post: organización }. Nuevo formato principal: "ROL-org ORG". Fallback: "ROL-ORG". */
+  splitDisplay(r: RoleEntity | null | undefined): { pre: string; post: string | null } {
+    const raw = String(r?.display || r?.nombre || '').trim();
+    if (!raw) return { pre: '', post: null };
+    // Priorizar nuevo patrón '-org '
+    const marker = '-org ';
+    const idxMarker = raw.indexOf(marker);
+    if (idxMarker >= 0) {
+      const pre = raw.slice(0, idxMarker); // antes de '-org '
+      const post = raw.slice(idxMarker + marker.length); // después de '-org '
+      return { pre: pre.trim(), post: post.trim() || null };
+    }
+    // Fallback al primer '-'
+    const idxDash = raw.indexOf('-');
+    if (idxDash < 0) return { pre: raw, post: null };
+    const pre = raw.slice(0, idxDash);
+    const post = raw.slice(idxDash + 1);
+    return { pre: pre.trim(), post: post.trim() || null };
   }
 
   /** Hidrata las asignaciones con la entidad RoleEntity según rolId para asegurar que haya nombre disponible */
@@ -116,6 +151,7 @@ export class UsuarioAsignarRolesComponent implements OnInit {
 
   assignRole() {
     if (!this.usuarioId || !this.rolSeleccionado) return;
+    console.log('[assignRole]', { usuarioId: this.usuarioId, rolId: this.rolSeleccionado });
     this.saving = true;
     // Preferir asignación por rolId (UUID del rol de la organización)
     const role = this.roles.find(r => String(r.id) === String(this.rolSeleccionado));

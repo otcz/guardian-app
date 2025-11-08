@@ -22,7 +22,21 @@
 
         <div class="field">
           <label>Roles disponibles</label>
-          <p-dropdown [options]="roles" optionLabel="nombre" optionValue="id" [(ngModel)]="rolSeleccionado" name="rolId" placeholder="Seleccione rol"></p-dropdown>
+          <p-dropdown [options]="roles" optionValue="id" [(ngModel)]="rolSeleccionado" name="rolId" placeholder="Seleccione rol">
+            <ng-template let-r pTemplate="item">
+              <span class="role-item" *ngIf="r as rr">
+                <span class="role-part">{{ splitDisplay(rr).pre }}</span><span *ngIf="splitDisplay(rr).post" class="org-part">&nbsp;{{ splitDisplay(rr).post }}</span>
+              </span>
+            </ng-template>
+            <ng-template let-r pTemplate="selectedItem">
+              <ng-container *ngIf="r; else selPlaceholder">
+                <span class="role-item" *ngIf="r as rr">
+                  <span class="role-part">{{ splitDisplay(rr).pre }}</span><span *ngIf="splitDisplay(rr).post" class="org-part">&nbsp;{{ splitDisplay(rr).post }}</span>
+                </span>
+              </ng-container>
+              <ng-template #selPlaceholder><span class="text-muted">Seleccione rol</span></ng-template>
+            </ng-template>
+          </p-dropdown>
         </div>
 
         <div class="actions">
@@ -46,7 +60,12 @@
           <ng-template pTemplate="body" let-ru let-i="rowIndex">
             <tr>
               <td>{{ i + 1 }}</td>
-              <td>{{ getRoleName(ru) }}</td>
+              <td>
+                <span class="role-item">
+                  <span class="role-part">{{ splitDisplay(ru?.rol).pre || getRoleName(ru) }}</span>
+                  <span *ngIf="splitDisplay(ru?.rol).post" class="org-part">&nbsp;{{ splitDisplay(ru?.rol).post }}</span>
+                </span>
+              </td>
               <td>{{ ru.rol?.descripcion || '—' }}</td>
               <td style="text-align:center;">
                 <button pButton type="button" icon="pi pi-trash" class="p-button-rounded p-button-danger p-button-text" (click)="unassignRole(ru.id)" pTooltip="Quitar rol"></button>

@@ -178,4 +178,14 @@ export class RolesListComponent implements OnInit, OnDestroy {
 
   get rows(): RoleEntity[] { return this.adding ? [this.newDraft, ...this.filtered] : this.filtered; }
   onEditChange<K extends keyof RoleEntity>(key: K, value: RoleEntity[K]) { if (this.editDraft) (this.editDraft as any)[key] = value as any; }
+
+  /** Separa display en [rol, org] para estilizar la parte de la organización. */
+  displayParts(r: RoleEntity | null | undefined): { pre: string; post: string | null } {
+    const raw = String(r?.display || r?.nombre || '').trim();
+    const idx = raw.indexOf('-');
+    if (idx < 0) return { pre: raw, post: null };
+    const pre = raw.slice(0, idx);
+    const post = raw.slice(idx + 1);
+    return { pre: pre.trim(), post: post.trim() || null };
+  }
 }

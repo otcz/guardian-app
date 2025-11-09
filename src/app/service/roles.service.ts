@@ -253,35 +253,35 @@ export class RolesService {
   }
 
   changeState(orgId: string, roleId: string, estado: 'ACTIVO' | 'INACTIVO'): Observable<{
-    role: RoleEntity;
+    role?: RoleEntity;
     message?: string
   }> {
     const path = `/orgs/${orgId}/roles/${roleId}/estado`;
     const url = `${this.base}${path}`;
     const urlFallback = `${environment.backendHost}${this.base}${path}`;
-    const options = {headers: this.accept, params: {estado} as any} as const;
-    const mapResp = (resp: ApiResponse<any>) => {
-      if (!resp || resp.success === false) throw {
-        error: {message: resp?.message || 'NO SE PUDO CAMBIAR EL ESTADO DEL ROL'},
-        status: 400
-      };
-      return {role: this.ensureRole(this.unwrap(resp)), message: resp.message};
+    const params = { estado } as any;
+    const options = { headers: this.accept, params, responseType: 'text' as 'json' } as const;
+
+    const mapText = (text: any) => {
+      const message = (typeof text === 'string' ? text : '')?.toString()?.trim() || undefined;
+      return { role: undefined, message } as { role?: RoleEntity; message?: string };
     };
-    return this.http.patch<ApiResponse<any>>(url, null, options).pipe(
-      map(mapResp),
+
+    return this.http.patch(url, null, options).pipe(
+      map(mapText),
       catchError((e1) => {
         const status = e1?.status;
         if (status === 0 || status === 404 || status === 502 || status === 503) {
-          return this.http.patch<ApiResponse<any>>(urlFallback, null, options).pipe(
-            map(mapResp),
+          return this.http.patch(urlFallback, null, options).pipe(
+            map(mapText),
             catchError((e2) => throwError(() => ({
-              error: {message: e2?.error?.message || e2?.message || 'NO SE PUDO CAMBIAR EL ESTADO DEL ROL'},
+              error: { message: e2?.error?.message || e2?.message || 'NO SE PUDO CAMBIAR EL ESTADO DEL ROL' },
               status: e2?.status
             })))
           );
         }
         return throwError(() => ({
-          error: {message: e1?.error?.message || e1?.message || 'NO SE PUDO CAMBIAR EL ESTADO DEL ROL'},
+          error: { message: e1?.error?.message || e1?.message || 'NO SE PUDO CAMBIAR EL ESTADO DEL ROL' },
           status
         }));
       })

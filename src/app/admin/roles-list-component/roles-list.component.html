@@ -70,7 +70,9 @@
               <p-inputSwitch
                 [ngModel]="['ACTIVO'].includes((row.estado||'').toUpperCase())"
                 (onChange)="onToggleEstado(row, $event.checked)"
-                [disabled]="saving || (adding && row.id==='')">
+                [disabled]="saving || (adding && row.id==='') || !canToggle(row)"
+                [pTooltip]="!canToggle(row) ? 'Requiere SYSADMIN para cambiar este rol' : 'Cambiar estado'"
+                tooltipPosition="top">
               </p-inputSwitch>
               <p-tag [severity]="['ACTIVO'].includes((row.estado||'').toUpperCase()) ? 'success' : 'danger'" [value]="row.estado || '-' "></p-tag>
             </div>

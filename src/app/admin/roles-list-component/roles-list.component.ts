@@ -13,6 +13,7 @@ import { OrgContextService } from '../../service/org-context.service';
 import { InputSwitchModule } from 'primeng/inputswitch';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService, MessageService } from 'primeng/api';
+import { AuthService } from '../../service/auth.service';
 
 @Component({
   selector: 'app-roles-list',
@@ -45,7 +46,8 @@ export class RolesListComponent implements OnInit, OnDestroy {
     private svc: RolesService,
     private orgCtx: OrgContextService,
     private confirm: ConfirmationService,
-    private messages: MessageService
+    private messages: MessageService,
+    private auth: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -149,19 +151,54 @@ export class RolesListComponent implements OnInit, OnDestroy {
     });
   }
 
-  // State toggle
+  // Helpers de permisos
+  get isSysadmin(): boolean { return this.auth.hasRole('SYSADMIN'); }
+  canToggle(row: RoleEntity): boolean {
+    const nameUp = (row.nombre || '').toUpperCase();
+    if (!this.isSysadmin && (nameUp === 'SYSADMIN' || nameUp === 'ORGADMIN')) return false;
+    return true;
+  }
+
+  // Toggle con confirmación al desactivar y reglas especiales
   onToggleEstado(row: RoleEntity, checked: boolean) {
     if (!this.orgId) return;
-    const target = checked ? 'ACTIVO' : 'INACTIVO';
+    if (!this.canToggle(row)) { this.toastWarn('No autorizado para cambiar este rol'); return; }
+    const currentActive = ['ACTIVO'].includes((row.estado || '').toUpperCase());
+    const desiredActive = checked;
+    if (currentActive && !desiredActive) {
+      // Confirmar desactivación
+      this.confirm.confirm({
+        header: 'Confirmación',
+        message: `¿Desactivar el rol "${row.nombre}"?`,
+        icon: 'pi pi-exclamation-triangle',
+        acceptLabel: 'Sí',
+        rejectLabel: 'No',
+        accept: () => {
+          this.executeStateChange(row, desiredActive);
+        }
+      });
+      return;
+    }
+    this.executeStateChange(row, desiredActive);
+  }
+
+  private executeStateChange(row: RoleEntity, active: boolean) {
+    const target = active ? 'ACTIVO' : 'INACTIVO';
     const prev = row.estado;
     row.estado = target;
-    this.svc.changeState(this.orgId, row.id, target as any).subscribe({
+    this.svc.changeState(this.orgId!, row.id, target as any).subscribe({
       next: (res) => {
-        const idx = this.items.findIndex(i => i.id === row.id);
-        if (idx >= 0) this.items[idx] = { ...this.items[idx], ...res.role };
-        this.applyFilter(); this.toastSuccess(res.message || '');
+        const msg = res.message || (active ? 'ROL ACTIVADO' : 'ROL DESACTIVADO');
+        this.toastSuccess(msg);
       },
-      error: (e) => { row.estado = prev; this.toastError(e?.error?.message || e?.message || ''); }
+      error: (e) => {
+        row.estado = prev; // revertir
+        const st = e?.status;
+        if (st === 400) this.toastWarn(e?.error?.message || 'ESTADO DE ROL INVÁLIDO');
+        else if (st === 403) this.toastWarn('PROHIBIDO');
+        else if (st === 404) this.toastError('ROL NO ENCONTRADO');
+        else this.toastError(e?.error?.message || 'Error al cambiar estado');
+      }
     });
   }
 

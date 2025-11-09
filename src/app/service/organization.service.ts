@@ -359,6 +359,28 @@ export class OrganizationService {
   }
 
   /**
+   * Remover administrador principal de una organización.
+   * DELETE /{orgId}/administrador
+   */
+  removeOrgAdmin(orgId: string | number, observeResponse: boolean = false): Observable<any> {
+    const url = `${this.collectionUrl()}/${orgId}/administrador`;
+    if (observeResponse) {
+      return this.http.delete<any>(url, { headers: this.acceptJsonHeaders(), observe: 'response' as const }).pipe(
+        map((resp: HttpResponse<any>) => resp),
+        catchError(err => throwError(() => ({ error: { message: (err?.error?.message ?? err?.message) as string | undefined }, status: err?.status })))
+      );
+    }
+    return this.http.delete<any>(url, { headers: this.acceptJsonHeaders() }).pipe(
+      map((resp: any) => {
+        if (resp && resp.success === false) { throw { error: { message: resp.message } }; }
+        const message = (resp && typeof resp === 'object' && 'message' in resp) ? (resp.message as string) : undefined;
+        return { message, orgId: String(orgId) };
+      }),
+      catchError(err => throwError(() => ({ error: { message: (err?.error?.message ?? err?.message) as string | undefined }, status: err?.status })))
+    );
+  }
+
+  /**
    * Lista candidatos para administrador de una organización.
    * Endpoint: GET /{orgId}/administrador/candidatos
    * Auth: SYSADMIN (según contrato en docs)

@@ -151,6 +151,7 @@
 
   <ng-template pTemplate="footer">
     <button pButton type="button" label="Cancelar" class="p-button-text" (click)="closeAdminDialog()" [disabled]="$any(this).adminSaving"></button>
+    <button pButton type="button" label="Quitar" icon="pi pi-user-minus" class="p-button-danger" (click)="removeAdmin()" [disabled]="$any(this).adminSaving || !$any(this).adminOrgId"></button>
     <button pButton type="button" label="Asignar" icon="pi pi-check" class="p-button-success" (click)="confirmAssignAdmin()" [disabled]="$any(this).adminSaving || !$any(this).adminSelectedUserId"></button>
   </ng-template>
 </p-dialog>

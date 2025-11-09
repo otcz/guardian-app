@@ -1,5 +1,5 @@
 // filepath: c:\Users\oscar.carrillo\WebstormProjects\guardian-app\src\app\admin\organization-form.component.ts
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
@@ -9,6 +9,7 @@ import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { MessageService } from 'primeng/api';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-organization-form',
@@ -17,7 +18,7 @@ import { MessageService } from 'primeng/api';
   templateUrl: './organization-form.component.html',
   styleUrls: ['./organization-form.component.scss']
 })
-export class OrganizationFormComponent implements OnInit {
+export class OrganizationFormComponent implements OnInit, OnDestroy {
   form!: FormGroup;
   loading = false;
   saving = false;
@@ -25,6 +26,8 @@ export class OrganizationFormComponent implements OnInit {
   success: string | null = null;
   orgId: string | null = null;
   orgLoaded: Organization | null = null;
+
+  private qpSub?: Subscription;
 
   constructor(private fb: FormBuilder, private orgService: OrganizationService, private route: ActivatedRoute, public router: Router, private messages: MessageService) {
     this.form = this.fb.group({
@@ -34,11 +37,22 @@ export class OrganizationFormComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.orgId = this.route.snapshot.queryParamMap.get('id');
-    if (this.orgId) {
-      this.load();
-    }
+    // reemplazar lógica snapshot por suscripción para soportar navegar a la misma ruta sin id
+    this.qpSub = this.route.queryParamMap.subscribe(map => {
+      this.orgId = map.get('id');
+      if (this.orgId) {
+        this.load();
+      } else {
+        // reset a modo creación
+        this.orgLoaded = null;
+        this.form.reset({ nombre: '', activa: true });
+        this.error = null;
+        this.success = null;
+      }
+    });
   }
+
+  ngOnDestroy() { this.qpSub?.unsubscribe(); }
 
   load() {
     if (!this.orgId) return; this.loading = true; this.error = null;
@@ -104,7 +118,16 @@ export class OrganizationFormComponent implements OnInit {
     }
   }
 
-  goNew() { this.router.navigate(['/crear-organizacion']); }
+  goNew() {
+    // limpiar estado y navegar sin query param
+    this.router.navigate(['/crear-organizacion']).then(() => {
+      // asegurarse de reset inmediato aunque la suscripción luego también lo hará
+      this.orgId = null;
+      this.orgLoaded = null;
+      this.form.reset({ nombre: '', activa: true });
+      this.error = null; this.success = null;
+    });
+  }
 
   backList() { this.router.navigate(['/listar-organizaciones']); }
 }

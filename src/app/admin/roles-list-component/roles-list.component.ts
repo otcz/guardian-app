@@ -202,6 +202,57 @@ export class RolesListComponent implements OnInit, OnDestroy {
     });
   }
 
+  // Toggle visibilidad para hijos con confirmación y permisos
+  canToggleVisible(row: RoleEntity): boolean {
+    const nameUp = (row.nombre || '').toUpperCase();
+    if (!this.isSysadmin && (nameUp === 'SYSADMIN' || nameUp === 'ORGADMIN')) return false;
+    return true;
+  }
+
+  onToggleVisibleParaHijos(row: RoleEntity, checked: boolean) {
+    if (!this.orgId) return;
+    if (!this.canToggleVisible(row)) { this.toastWarn('No autorizado para cambiar visibilidad de este rol'); return; }
+    const prev = !!row.visibleParaHijos;
+    const next = !!checked;
+    if (prev && !next) {
+      this.confirm.confirm({
+        header: 'Confirmación',
+        message: `¿Quitar visibilidad para hijos del rol "${row.nombre}"?`,
+        icon: 'pi pi-exclamation-triangle',
+        acceptLabel: 'Sí',
+        rejectLabel: 'No',
+        accept: () => this.executeVisibleChange(row, next)
+      });
+      return;
+    }
+    this.executeVisibleChange(row, next);
+  }
+
+  private executeVisibleChange(row: RoleEntity, value: boolean) {
+    const prev = !!row.visibleParaHijos;
+    row.visibleParaHijos = value;
+    this.svc.setVisibleForChildren(this.orgId!, row.id, value).subscribe({
+      next: (res) => {
+        const msg = res.message || (value ? 'VISIBILIDAD ACTIVADA' : 'VISIBILIDAD DESACTIVADA');
+        // Reemplazar fila con la devuelta por backend para mantener consistencia
+        const idx = this.items.findIndex(i => i.id === row.id);
+        if (idx >= 0 && res.role) {
+          this.items[idx] = { ...this.items[idx], ...res.role } as RoleEntity;
+          this.applyFilter();
+        }
+        this.toastSuccess(msg);
+      },
+      error: (e) => {
+        row.visibleParaHijos = prev; // revertir
+        const st = e?.status;
+        if (st === 400) this.toastWarn(e?.error?.message || 'SOLICITUD INVÁLIDA');
+        else if (st === 403) this.toastWarn('PROHIBIDO');
+        else if (st === 404) this.toastError('ROL NO ENCONTRADO');
+        else this.toastError(e?.error?.message || 'Error al cambiar visibilidad');
+      }
+    });
+  }
+
   // Utils
   validate(model: RoleEntity): string | null {
     if (!model.nombre || model.nombre.trim().length < 3) return 'EL NOMBRE ES REQUERIDO (MÍN. 3 CARACTERES)';

@@ -23,6 +23,8 @@ export interface RoleEntity {
   orgNombre?: string | null;
   /** Etiqueta para UI (ROL-ORG) si el backend la provee. */
   display?: string | null;
+  /** Si el rol es visible/heredable para organizaciones hijas. */
+  visibleParaHijos?: boolean;
 }
 
 export interface CreateRoleRequest {
@@ -67,6 +69,13 @@ export class RolesService {
     const orgRaw = d?.org ?? d?.organizacion ?? d?.organization ?? null;
     const orgIdRaw = d?.orgId ?? d?.organizacionId ?? d?.organizationId ?? (orgRaw?.id) ?? null;
     const orgNameRaw = d?.orgNombre ?? d?.organizacionNombre ?? d?.organizationName ?? d?.orgName ?? orgRaw?.nombre ?? orgRaw?.name ?? null;
+    const visible = ((): boolean => {
+      if (d?.visibleParaHijos != null) return !!d.visibleParaHijos;
+      if (d?.visibleHijos != null) return !!d.visibleHijos;
+      if (d?.visible != null) return !!d.visible;
+      if (d?.heredable != null) return !!d.heredable;
+      return false;
+    })();
     return {
       id: String(d?.id ?? d?._id ?? d?.rolId ?? ''),
       nombre: String(d?.nombre ?? d?.name ?? d?.rolNombre ?? d?.rol ?? ''),
@@ -74,7 +83,8 @@ export class RolesService {
       estado: (d?.estado ?? (d?.active === false ? 'INACTIVO' : 'ACTIVO')) as any,
       orgId: orgIdRaw != null ? String(orgIdRaw) : null,
       orgNombre: orgNameRaw != null ? String(orgNameRaw) : (d?.org ?? d?.organization ?? null),
-      display: d?.display ?? null
+      display: d?.display ?? null,
+      visibleParaHijos: visible
     } as RoleEntity;
   }
 
@@ -284,6 +294,38 @@ export class RolesService {
           error: { message: e1?.error?.message || e1?.message || 'NO SE PUDO CAMBIAR EL ESTADO DEL ROL' },
           status
         }));
+      })
+    );
+  }
+
+  /** Cambiar visibilidad del rol para organizaciones hijas */
+  setVisibleForChildren(orgId: string, roleId: string, value: boolean): Observable<{ role: RoleEntity; message?: string }> {
+    const path = `/orgs/${orgId}/roles/${roleId}/visible-para-hijos`;
+    const url = `${this.base}${path}`;
+    const urlFallback = `${environment.backendHost}${this.base}${path}`;
+    const params = { value } as any;
+    const options = { headers: this.accept, params } as const;
+
+    const mapJson = (resp: any) => {
+      // Backend devuelve RolDto completo (posiblemente dentro de data)
+      if (resp && resp.success === false) throw { error: { message: resp.message || 'NO SE PUDO CAMBIAR LA VISIBILIDAD' }, status: 400 };
+      const inner = (resp && typeof resp === 'object' && 'data' in resp) ? resp.data : resp;
+      const roleDto = this.ensureRole(inner);
+      const message = resp?.message;
+      return { role: roleDto, message } as { role: RoleEntity; message?: string };
+    };
+
+    return this.http.patch<any>(url, null, options).pipe(
+      map(mapJson),
+      catchError((e1) => {
+        const status = e1?.status;
+        if (status === 0 || status === 404 || status === 502 || status === 503) {
+          return this.http.patch<any>(urlFallback, null, options).pipe(
+            map(mapJson),
+            catchError((e2) => throwError(() => ({ error: { message: e2?.error?.message || e2?.message || 'NO SE PUDO CAMBIAR LA VISIBILIDAD' }, status: e2?.status })))
+          );
+        }
+        return throwError(() => ({ error: { message: e1?.error?.message || e1?.message || 'NO SE PUDO CAMBIAR LA VISIBILIDAD' }, status }));
       })
     );
   }

@@ -27,6 +27,7 @@
           <th>Nombre</th>
           <th>Descripción</th>
           <th class="w-120">Estado</th>
+          <th class="w-150">Visible Hijos</th>
           <th class="w-220 text-center">Acciones</th>
         </tr>
       </ng-template>
@@ -75,6 +76,19 @@
                 tooltipPosition="top">
               </p-inputSwitch>
               <p-tag [severity]="['ACTIVO'].includes((row.estado||'').toUpperCase()) ? 'success' : 'danger'" [value]="row.estado || '-' "></p-tag>
+            </div>
+          </td>
+
+          <td>
+            <div class="flex ai-center gap-xs">
+              <p-inputSwitch
+                [ngModel]="!!row.visibleParaHijos"
+                (onChange)="onToggleVisibleParaHijos(row, $event.checked)"
+                [disabled]="saving || (adding && row.id==='') || !canToggleVisible(row)"
+                [pTooltip]="!canToggleVisible(row) ? 'Requiere SYSADMIN para cambiar visibilidad de este rol' : 'Cambiar visibilidad para hijos'"
+                tooltipPosition="top">
+              </p-inputSwitch>
+              <p-tag [severity]="row.visibleParaHijos ? 'info' : 'secondary'" [value]="row.visibleParaHijos ? 'SÍ' : 'NO'"></p-tag>
             </div>
           </td>
 

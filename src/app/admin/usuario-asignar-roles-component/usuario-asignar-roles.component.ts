@@ -53,11 +53,11 @@ export class UsuarioAsignarRolesComponent implements OnInit {
     });
   }
 
-  private shouldUseGlobalRoles(): boolean { return this.auth.hasAnyRole('ORGADMIN','SYSADMIN'); }
+  private shouldUseGlobalRoles(): boolean { return this.auth.hasRole('SYSADMIN'); }
 
   // Cargar roles de una organización específica (o global si tiene permisos)
   private loadRolesForOrg(orgId: string | null | undefined) {
-    // Si puede ver todo, usar endpoint global
+    // Si es SYSADMIN, intentar endpoint global con fallback a roles por organización
     if (this.shouldUseGlobalRoles()) {
       this.rolesSrv.fetchAllGlobalRoles().subscribe({
         next: list => {
@@ -65,7 +65,21 @@ export class UsuarioAsignarRolesComponent implements OnInit {
           this.roleNameById = Object.fromEntries((this.roles || []).map(r => [String(r.id), String(r.display || r.nombre || '')]));
           this.hydrateRoleAssignments();
         },
-        error: e => this.notify.error('Error', e?.error?.message || 'No se pudieron listar roles globales')
+        error: e => {
+          const status = e?.status;
+          if ((status === 401 || status === 403) && orgId) {
+            this.rolesSrv.list(String(orgId)).subscribe({
+              next: list2 => {
+                this.roles = list2 || [];
+                this.roleNameById = Object.fromEntries((this.roles || []).map(r => [String(r.id), String(r.display || r.nombre || '')]));
+                this.hydrateRoleAssignments();
+              },
+              error: e2 => this.notify.error('Error', e2?.error?.message || 'No se pudieron listar roles')
+            });
+            return;
+          }
+          this.notify.error('Error', e?.error?.message || 'No se pudieron listar roles globales');
+        }
       });
       return;
     }

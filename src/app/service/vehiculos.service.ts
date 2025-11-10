@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
+import { Observable, throwError, of } from 'rxjs';
+import { catchError, map, switchMap } from 'rxjs/operators';
 import { environment } from '../config/environment';
+import { OrganizationService, Organization } from './organization.service';
 
 export interface ApiResponse<T> { success?: boolean; message?: string; data?: T; }
 
@@ -70,7 +71,7 @@ export class VehiculosService {
   private json = new HttpHeaders({ 'Content-Type': 'application/json', Accept: 'application/json' });
   private accept = new HttpHeaders({ Accept: 'application/json' });
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private orgs: OrganizationService) {}
 
   private unwrap<T = any>(payload: any): T {
     return (payload && typeof payload === 'object' && 'data' in payload) ? (payload as any).data as T : (payload as T);
@@ -397,5 +398,35 @@ export class VehiculosService {
 
   desasignarUsuario(orgId: string, vehiculoId: string, usuarioId: string): Observable<ApiResponse<VehiculoDto | undefined>> {
     return this.unassignUser(orgId, vehiculoId, usuarioId).pipe(map(({ vehicle, message }) => ({ success: true, message, data: vehicle })));
+  }
+
+  // ===== Default Org helpers =====
+  private DEFAULT_ORG_NAME = 'DEFAULT_ORG';
+  private DEFAULT_ORG_ID_KEY = 'defaultOrgId';
+
+  /** Obtiene y cachea el id de la organización cuyo nombre es EXACTAMENTE "DEFAULT_ORG". */
+  getDefaultOrgId(forceRefresh: boolean = false): Observable<string | null> {
+    if (!forceRefresh) {
+      try { const cached = localStorage.getItem(this.DEFAULT_ORG_ID_KEY); if (cached) return of(cached); } catch {}
+    }
+    return this.orgs.listAccessible().pipe(
+      map((list: Organization[]) => {
+        const found = (list || []).find(o => (o?.nombre || '') === this.DEFAULT_ORG_NAME);
+        const id = found?.id ? String(found.id) : null;
+        try { if (id) localStorage.setItem(this.DEFAULT_ORG_ID_KEY, id); } catch {}
+        return id;
+      }),
+      catchError(() => of(null))
+    );
+  }
+
+  /** Listado en modo GLOBAL: usa orgId=defaultOrgId y NO envía filtros. */
+  listGlobal(): Observable<VehiculoDto[]> {
+    return this.getDefaultOrgId().pipe(
+      switchMap((defaultOrgId) => {
+        if (!defaultOrgId) return throwError(() => ({ status: 400, error: { message: 'No se encontró DEFAULT_ORG' } }));
+        return this.list(defaultOrgId, undefined);
+      })
+    );
   }
 }

@@ -66,8 +66,13 @@ export class SectionInviteDialogComponent implements OnChanges {
     this.rolesSvc.list(this.orgId).subscribe({
       next: (list) => {
         this.roles = Array.isArray(list) ? list : [];
-        // Excluir roles con nombre que contenga 'ADMIN'
-        this.filteredRoles = this.roles.filter(r => !String(r?.nombre || '').toUpperCase().includes('ADMIN'));
+        const exclude = new Set(['SYSADMIN','ORGADMIN']);
+        this.filteredRoles = this.roles.filter(r => !exclude.has(String(r?.nombre || '').toUpperCase()));
+        if (!this.filteredRoles.length) {
+          // Fallback: si todos eran excluidos, mostrar todos para permitir rol contextual alguno
+          this.filteredRoles = [...this.roles];
+        }
+        console.debug('[InviteDialog] roles cargados', { total: this.roles.length, mostrados: this.filteredRoles.length });
       },
       error: () => { this.roles = []; this.filteredRoles = []; }
     });

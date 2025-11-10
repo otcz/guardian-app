@@ -9,6 +9,8 @@ import { NotificationService } from './notification.service';
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const isAuthCall = /\/(auth)\/(login|register|password)/.test(req.url);
   const hasBypassQuery = /[?&]bypass=true(?![^#])/i.test(req.url);
+  const quietHeader = req.headers.get('X-Quiet-Errors') === '1';
+  const isVehiculosMis = /\/vehiculos\/mis(\?|$)/.test(req.url);
 
   if (isAuthCall) {
     return next(req);
@@ -29,9 +31,11 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
         } else if (status === 403) {
           inject(Router).navigate(['/no-autorizado']);
         } else if (status === 400) {
-          const notify = inject(NotificationService);
-          const msg = err?.error?.message || err?.message || 'Solicitud inválida';
-          notify.warn('Solicitud inválida', msg);
+          if (!quietHeader && !isVehiculosMis) {
+            const notify = inject(NotificationService);
+            const msg = err?.error?.message || err?.message || 'Solicitud inválida';
+            notify.warn('Solicitud inválida', msg);
+          }
         }
         return throwError(() => err);
       })
@@ -77,8 +81,10 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
       } else if (status === 403) {
         router.navigate(['/no-autorizado']);
       } else if (status === 400) {
-        const msg = err?.error?.message || err?.message || 'Solicitud inválida';
-        notify.warn('Solicitud inválida', msg);
+        if (!quietHeader && !isVehiculosMis) {
+          const msg = err?.error?.message || err?.message || 'Solicitud inválida';
+          notify.warn('Solicitud inválida', msg);
+        }
       }
       return throwError(() => err);
     })

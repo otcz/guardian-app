@@ -207,6 +207,41 @@ export class VehiculosService {
         const data = (resp as any)?.data;
         const arr = Array.isArray(data) ? data : [];
         return arr.map((d: any) => this.ensureVehicle(d));
+      }),
+      catchError((e1) => {
+        const status = e1?.status;
+        // Fallback 1: parámetro canónico soloMios=true
+        if ([400,404,405,500,501,502,503].includes(status)) {
+          return this.list(orgId, { soloMios: true }).pipe(
+            catchError((e2) => {
+              // Fallback 2: probar nombres alternativos de parámetro (mine/onlyMine/soloPropios)
+              const base = `${this.base}/orgs/${orgId}/vehiculos`;
+              const tryAlt = (paramName: string) => this.http.get<any>(base, { headers: this.accept, params: { [paramName]: true } as any, responseType: 'text' as 'json' }).pipe(
+                map((payload: any) => this.toApiResponse(payload)),
+                map((resp) => {
+                  const data = (resp as any)?.data ?? resp;
+                  const arr = Array.isArray(data) ? data : (Array.isArray((data as any)?.items) ? (data as any).items : []);
+                  return arr.map((d: any) => this.ensureVehicle(d));
+                })
+              );
+              return tryAlt('mine').pipe(
+                catchError(() => tryAlt('onlyMine').pipe(
+                  catchError(() => tryAlt('soloPropios').pipe(
+                    // Fallback 3: si tenemos sección en contexto, listar por sección (subtree)
+                    catchError(() => {
+                      let sec: string | null = null;
+                      try { sec = localStorage.getItem('seccionPrincipalId'); } catch {}
+                      return this.list(orgId, { seccionId: sec ?? null, subtree: true }).pipe(
+                        catchError((eFinal) => throwError(() => ({ error: { message: eFinal?.error?.message || e2?.error?.message || e1?.error?.message || 'No se pudieron obtener mis vehículos' }, status: eFinal?.status ?? e2?.status ?? status })))
+                      );
+                    })
+                  ))
+                ))
+              );
+            })
+          );
+        }
+        return throwError(() => ({ error: { message: e1?.error?.message || 'No se pudieron obtener mis vehículos' }, status }));
       })
     );
   }

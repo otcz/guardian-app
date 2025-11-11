@@ -201,6 +201,32 @@ export class VehiculosMisComponent implements OnInit {
     });
   }
 
+  toggleBloqueado(row: VehicleEntity) {
+    const targetOrgId = (row.orgId || this.orgId);
+    if (!targetOrgId) return;
+    const prev = !!row.bloqueado;
+    const nuevo = !prev;
+    row.bloqueado = nuevo;
+    this.savingId = row.id;
+    this.vehiculos.actualizarBloqueado(targetOrgId, row.id, nuevo).subscribe({
+      next: (resp) => {
+        this.savingId = null;
+        if (resp?.data) {
+          const idx = this.items.findIndex(i => i.id === resp.data!.id);
+          if (idx >= 0) this.items[idx] = resp.data!;
+        }
+        if (resp?.message) this.notify.success('Listo', resp.message);
+      },
+      error: (e) => {
+        this.savingId = null;
+        row.bloqueado = prev;
+        if (e?.status === 403) this.notify.warn('Permisos', 'No tienes permisos para cambiar el bloqueo');
+        else if (e?.status === 404) this.notify.warn('No disponible', 'El vehículo ya no existe');
+        else this.notify.error('Error', e?.error?.message || 'No se pudo cambiar el estado de bloqueo');
+      }
+    });
+  }
+
   gestionar(v: VehicleEntity) {
     const org = v.orgId || this.orgId;
     this.router.navigate(['/gestion-de-vehiculos/gestionar-vehiculo'], { queryParams: { id: v.id, orgId: org } });

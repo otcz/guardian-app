@@ -9,7 +9,7 @@
         <th style="width: 14rem">Placa</th>
         <th style="width: 12rem">Estado</th>
         <th>Sección</th>
-        <th style="width: 10rem">Bloqueado</th>
+        <th style="width: 18rem">Bloqueado</th>
         <th style="width: 10rem">Acciones</th>
       </tr>
     </ng-template>
@@ -24,8 +24,19 @@
         </td>
         <td>{{ seccionNombre(row.seccionAsignadaId) }}</td>
         <td>
-          <p-tag [severity]="row.bloqueado ? 'danger' : 'success'"
-                 [value]="row.bloqueado ? 'BLOQUEADO' : 'LIBRE'"></p-tag>
+          <div class="p-d-flex p-ai-center p-gap-2">
+            <p-tag [severity]="row.bloqueado ? 'danger' : 'success'"
+                   [value]="row.bloqueado ? 'BLOQUEADO' : 'LIBRE'"></p-tag>
+            <button pButton type="button"
+                    class="p-button-text p-button-sm"
+                    [label]="row.bloqueado ? 'Desbloquear' : 'Bloquear'"
+                    [icon]="row.bloqueado ? 'pi pi-lock-open' : 'pi pi-lock'"
+                    (click)="toggleBloqueado(row)"
+                    [disabled]="savingId === row.id"
+                    pTooltip="{{ row.bloqueado ? 'Desbloquear vehículo' : 'Bloquear vehículo' }}"
+                    tooltipPosition="top"
+                    aria-label="Cambiar bloqueo"></button>
+          </div>
         </td>
         <td>
           <div class="actions">

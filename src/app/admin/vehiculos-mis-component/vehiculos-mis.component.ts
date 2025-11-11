@@ -236,4 +236,10 @@ export class VehiculosMisComponent implements OnInit {
     const org = v.orgId || this.orgId;
     this.router.navigate(['/gestion-de-vehiculos/asignar-vehiculo-a-seccion'], { queryParams: { id: v.id, orgId: org } });
   }
+
+  // Visibilidad: ocultar acción de (Des)bloquear para rol USUARIO
+  canToggleBloqueado(): boolean {
+    // Permitido solo para SYSADMIN, ORGADMIN, ADMIN
+    return this.auth.hasAnyRole('SYSADMIN', 'ORGADMIN', 'ADMIN');
+  }
 }

@@ -27,7 +27,8 @@
           <div class="p-d-flex p-ai-center p-gap-2">
             <p-tag [severity]="row.bloqueado ? 'danger' : 'success'"
                    [value]="row.bloqueado ? 'BLOQUEADO' : 'LIBRE'"></p-tag>
-            <button pButton type="button"
+            <button *ngIf="canToggleBloqueado()"
+                    pButton type="button"
                     class="p-button-text p-button-sm"
                     [label]="row.bloqueado ? 'Desbloquear' : 'Bloquear'"
                     [icon]="row.bloqueado ? 'pi pi-lock-open' : 'pi pi-lock'"

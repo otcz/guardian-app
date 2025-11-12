@@ -1,97 +1,100 @@
 <p-card styleClass="mb-3">
   <ng-template pTemplate="header">
-    <div style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
-      <div style="font-weight:600;">Inicio</div>
-      <small style="opacity:.8" *ngIf="data?.message as m">{{ m }}</small>
+    <div class="dh-header">
+      <div class="title">Inicio <p-tag *ngIf="scopeBadge as sb" [value]="sb.text" [severity]="sb.severity"></p-tag></div>
+      <div class="actions">
+        <button pButton icon="pi pi-refresh" class="p-button-text" (click)="refresh()" pTooltip="Refrescar" tooltipPosition="bottom"></button>
+        <button pButton icon="pi pi-copy" class="p-button-text" (click)="copyQr()" pTooltip="Copiar tokens QR" tooltipPosition="bottom" [disabled]="!lastQrString"></button>
+        <button pButton icon="pi pi-search" class="p-button-text" (click)="openQrDialog()" pTooltip="Ver grande" tooltipPosition="bottom" [disabled]="!qrDataUrl"></button>
+        <button pButton icon="pi pi-download" class="p-button-text" (click)="downloadQr()" pTooltip="Descargar PNG" tooltipPosition="bottom" [disabled]="!qrDataUrl"></button>
+      </div>
     </div>
   </ng-template>
 
-  <div *ngIf="loading" class="loading"><p-progressSpinner></p-progressSpinner></div>
+  <div *ngIf="loading" class="grid skeleton-grid">
+    <p-skeleton height="240px" styleClass="skel-rounded"></p-skeleton>
+    <p-skeleton height="240px" styleClass="skel-rounded"></p-skeleton>
+  </div>
 
-  <div *ngIf="!loading" class="grid" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:16px;">
-    <!-- Bloque QR + Usuario -->
-    <div class="card" style="padding:12px;">
-      <div style="display:flex; gap:12px; align-items:center;">
-        <div style="width:210px; height:210px; display:flex; align-items:center; justify-content:center; border-radius:8px; background: var(--surface-100);">
-          <img *ngIf="qrDataUrl; else noqr" [src]="qrDataUrl" alt="QR del usuario" width="200" height="200" />
-          <ng-template #noqr>
-            <div style="font-size:.9rem; opacity:.7; text-align:center; padding:8px;">QR no disponible</div>
-          </ng-template>
-        </div>
-        <div style="display:flex; flex-direction:column; gap:8px;">
-          <div style="font-weight:600; font-size:1.1rem;">{{ usuarioNombre || 'Usuario' }}</div>
-          <div style="opacity:.8;">Documento: <b>{{ usuarioDoc || '—' }}</b></div>
-          <div *ngIf="data?.usuario?.id as uid" style="opacity:.8;">ID: <code>{{ uid }}</code></div>
-        </div>
+  <div *ngIf="!loading" class="grid main-grid">
+    <!-- Identidad + QR -->
+    <div class="panel identity">
+      <div class="qr-wrapper" (click)="openQrDialog()" [class.clickable]="qrDataUrl">
+        <ng-container *ngIf="qrDataUrl; else qrEmpty">
+          <img [src]="qrDataUrl" alt="QR usuario" width="200" height="200" />
+        </ng-container>
+        <ng-template #qrEmpty>
+          <div class="qr-empty">QR no disponible</div>
+        </ng-template>
+      </div>
+      <div class="user-info">
+        <div class="name">{{ usuarioNombre || 'Usuario' }}</div>
+        <div class="doc">Documento: <b>{{ usuarioDoc || '—' }}</b></div>
+        <div class="tokens" *ngIf="lastQrString">Tokens: <code>{{ lastQrString }}</code></div>
       </div>
     </div>
 
-    <!-- Bloque actividad -->
-    <div class="card" style="padding:12px;">
-      <div style="font-weight:600; margin-bottom:8px;">Registro de actividad</div>
-      <div style="display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:12px;">
-        <div class="kpi">
-          <div style="font-size:.85rem; opacity:.8;">Ingresos usuario</div>
-          <div style="font-size:1.6rem; font-weight:700;">{{ data?.actividad?.ingresosUsuario ?? 0 }}</div>
+    <!-- KPIs -->
+    <div class="panel kpis">
+      <div class="panel-title">Registro de actividad</div>
+      <div class="kpi-grid">
+        <div class="kpi-item">
+          <div class="kpi-label">Ingresos usuario</div>
+          <div class="kpi-value">{{ animIngresos }}</div>
         </div>
-        <div class="kpi">
-          <div style="font-size:.85rem; opacity:.8;">Salidas usuario</div>
-          <div style="font-size:1.6rem; font-weight:700;">{{ data?.actividad?.salidasUsuario ?? 0 }}</div>
-        </div>
-        <div class="kpi">
-          <div style="font-size:.85rem; opacity:.8;">Ingresos vehículo</div>
-          <div style="font-size:1.6rem; font-weight:700;">{{ data?.actividad?.ingresosVehiculo ?? 0 }}</div>
-        </div>
-        <div class="kpi">
-          <div style="font-size:.85rem; opacity:.8;">Salidas vehículo</div>
-          <div style="font-size:1.6rem; font-weight:700;">{{ data?.actividad?.salidasVehiculo ?? 0 }}</div>
-        </div>
-        <div class="kpi" style="grid-column: span 2;">
-          <div style="font-size:.85rem; opacity:.8;">Invitados</div>
-          <div style="font-size:1.6rem; font-weight:700;">{{ data?.actividad?.invitados ?? 0 }}</div>
+        <div class="kpi-item">
+          <div class="kpi-label">Salidas usuario</div>
+          <div class="kpi-value">{{ animSalidas }}</div>
         </div>
       </div>
+      <div class="hint" *ngIf="canViewGlobal || canViewOrgWide || canViewSectionWide">(Vista reducida: datos agregados no disponibles sin backend)</div>
     </div>
   </div>
 </p-card>
 
-<!-- Vehículos asociados -->
-<p-card>
-  <ng-template pTemplate="header">
-    <div style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
-      <div style="font-weight:600;">Vehículos asociados</div>
-      <small style="opacity:.8" *ngIf="(data?.vehiculos?.length || 0) as c">{{ c }} items</small>
+<p-dialog [(visible)]="showQrDialog" [modal]="true" [style]="{width:'340px'}" header="QR del usuario" (onHide)="closeQrDialog()">
+  <div class="qr-dialog-content">
+    <img *ngIf="qrDataUrl" [src]="qrDataUrl" alt="QR grande" style="width:300px; height:300px;" />
+    <div *ngIf="!qrDataUrl" class="qr-empty" style="height:300px;">QR no disponible</div>
+    <div class="dialog-tokens" *ngIf="lastQrString">{{ lastQrString }}</div>
+    <div class="dialog-actions">
+      <button pButton label="Copiar" icon="pi pi-copy" (click)="copyQr()" [disabled]="!lastQrString"></button>
+      <button pButton label="Descargar" icon="pi pi-download" class="p-button-secondary" (click)="downloadQr()" [disabled]="!qrDataUrl"></button>
+      <button pButton label="Cerrar" icon="pi pi-times" class="p-button-text" (click)="closeQrDialog()"></button>
     </div>
-  </ng-template>
+  </div>
+</p-dialog>
 
-  <p-table [value]="data?.vehiculos || []" [tableStyle]="{ 'min-width': '560px' }" [paginator]="true" [rows]="10" [rowsPerPageOptions]="[10,20,50]"
-           [showCurrentPageReport]="true" currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} vehículos">
-    <ng-template pTemplate="header">
-      <tr>
-        <th>Placa</th>
-        <th>Marca</th>
-        <th>Modelo</th>
-        <th>Estado</th>
-        <th>Bloqueo</th>
-      </tr>
-    </ng-template>
-    <ng-template pTemplate="body" let-row>
-      <tr>
-        <td>{{ row.placa }}</td>
-        <td>{{ row.marca || '—' }}</td>
-        <td>{{ row.modelo || '—' }}</td>
-        <td>
-          <p-tag [value]="row.activo ? 'ACTIVO' : 'INACTIVO'" [severity]="row.activo ? 'success' : 'warn'"></p-tag>
-        </td>
-        <td>
-          <p-tag [value]="row.bloqueado ? 'BLOQUEADO' : 'LIBRE'" [severity]="row.bloqueado ? 'danger' : 'success'"></p-tag>
-        </td>
-      </tr>
-    </ng-template>
-    <ng-template pTemplate="emptymessage">
-      <tr>
-        <td colspan="5">No hay vehículos asociados.</td>
-      </tr>
-    </ng-template>
-  </p-table>
-</p-card>
+<style>
+.dh-header {display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;}
+.dh-header .title {font-weight:600; display:flex; align-items:center; gap:8px;}
+.dh-header .actions button {min-width:38px;}
+.main-grid {display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:20px;}
+.skeleton-grid {display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:20px;}
+.panel {background: var(--surface-0); border-radius:14px; padding:16px; box-shadow:0 2px 6px rgba(0,0,0,.08); display:flex; gap:16px; align-items:flex-start; position:relative;}
+.panel.identity {flex-direction:row;}
+.qr-wrapper {width:210px; height:210px; display:flex; align-items:center; justify-content:center; border-radius:12px; background: var(--surface-100); transition:box-shadow .25s, transform .25s; cursor:default;}
+.qr-wrapper.clickable {cursor:pointer;}
+.qr-wrapper.clickable:hover {box-shadow:0 0 0 3px var(--primary-300); transform:scale(1.02);}
+.qr-empty {font-size:.85rem; opacity:.6; text-align:center; padding:8px;}
+.user-info {display:flex; flex-direction:column; gap:6px; padding-top:4px;}
+.user-info .name {font-weight:600; font-size:1.15rem;}
+.user-info .doc {opacity:.85; font-size:.85rem;}
+.user-info .tokens {opacity:.75; font-size:.7rem; max-width:260px; word-break:break-all;}
+.panel.kpis {flex-direction:column;}
+.panel-title {font-weight:600; margin-bottom:12px;}
+.kpi-grid {display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:12px;}
+.kpi-item {background:var(--surface-50); padding:12px 10px; border-radius:10px; position:relative; overflow:hidden;}
+.kpi-label {font-size:.7rem; letter-spacing:.5px; text-transform:uppercase; opacity:.7;}
+.kpi-value {font-size:1.9rem; font-weight:700; line-height:1.1;}
+.hint {margin-top:10px; font-size:.65rem; opacity:.55;}
+.qr-dialog-content {display:flex; flex-direction:column; align-items:center; gap:12px;}
+.dialog-tokens {font-size:.65rem; opacity:.8; max-width:300px; word-break:break-word; text-align:center;}
+.dialog-actions {display:flex; gap:8px; flex-wrap:wrap; justify-content:center; margin-top:4px;}
+.skel-rounded { border-radius:12px; }
+@media (max-width: 640px){
+  .main-grid {grid-template-columns:1fr;}
+  .panel.identity {flex-direction:column; align-items:center; text-align:center;}
+  .user-info {align-items:center;}
+}
+</style>

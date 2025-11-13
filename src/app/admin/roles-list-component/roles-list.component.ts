@@ -38,6 +38,10 @@ export class RolesListComponent implements OnInit, OnDestroy {
   editDraft: RoleEntity | null = null;
   flashRowId: string | null = null;
 
+  // Nueva propiedad para el flag global
+  propagarRolesAHijos: boolean = true;
+  togglingPropagar = false;
+
   private sub?: Subscription;
 
   constructor(
@@ -70,9 +74,21 @@ export class RolesListComponent implements OnInit, OnDestroy {
     if (!this.orgId) return;
     this.loading = true;
     this.error = null;
-    this.svc.list(this.orgId).subscribe({
-      next: (data) => { this.items = data || []; this.applyFilter(); this.loading = false; },
-      error: (e) => { this.error = e?.error?.message || 'Error al cargar roles'; this.loading = false; }
+    // cargar flag global y luego roles
+    this.svc.getOrgPropagarRolesAHijos(this.orgId).subscribe(flag => {
+      this.propagarRolesAHijos = flag;
+      this.svc.list(this.orgId!).subscribe({
+        next: (data) => {
+          this.items = (data || []).map(r => ({
+            ...r,
+            propio: r.orgId === this.orgId,
+            heredado: r.orgId !== this.orgId
+          }));
+          this.applyFilter();
+          this.loading = false;
+        },
+        error: (e) => { this.error = e?.error?.message || 'Error al cargar roles'; this.loading = false; }
+      });
     });
   }
 
@@ -204,12 +220,13 @@ export class RolesListComponent implements OnInit, OnDestroy {
 
   // Toggle visibilidad para hijos con confirmación y permisos
   canToggleVisible(row: RoleEntity): boolean {
-    const nameUp = (row.nombre || '').toUpperCase();
-    if (!this.isSysadmin && (nameUp === 'SYSADMIN' || nameUp === 'ORGADMIN')) return false;
-    return true;
+    // Solo roles propios
+    if (!row.propio) return false;
+    return this.canToggle(row);
   }
 
   onToggleVisibleParaHijos(row: RoleEntity, checked: boolean) {
+    if (!row.propio) return; // impedir heredados
     if (!this.orgId) return;
     if (!this.canToggleVisible(row)) { this.toastWarn('No autorizado para cambiar visibilidad de este rol'); return; }
     const prev = !!row.visibleParaHijos;
@@ -249,6 +266,28 @@ export class RolesListComponent implements OnInit, OnDestroy {
         else if (st === 403) this.toastWarn('PROHIBIDO');
         else if (st === 404) this.toastError('ROL NO ENCONTRADO');
         else this.toastError(e?.error?.message || 'Error al cambiar visibilidad');
+      }
+    });
+  }
+
+  // Toggle global propagación
+  onTogglePropagarRolesAHijos(checked: boolean) {
+    if (!this.orgId) return;
+    if (!this.isSysadmin && !this.auth.hasRole('ORGADMIN')) { this.toastWarn('No autorizado'); return; }
+    const prev = this.propagarRolesAHijos;
+    this.propagarRolesAHijos = checked;
+    this.togglingPropagar = true;
+    this.svc.setOrgPropagarRolesAHijos(this.orgId, checked).subscribe({
+      next: (res) => {
+        this.propagarRolesAHijos = res.value;
+        this.togglingPropagar = false;
+        this.toastSuccess(res.message || (checked ? 'Propagación activada' : 'Propagación desactivada'));
+      },
+      error: (e) => {
+        this.propagarRolesAHijos = prev;
+        this.togglingPropagar = false;
+        const st = e?.status;
+        if (st === 403) this.toastWarn('PROHIBIDO'); else this.toastError(e?.error?.message || 'Error al cambiar propagación');
       }
     });
   }

@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
-import {Observable, throwError} from 'rxjs';
+import {Observable, throwError, of} from 'rxjs';
 import {catchError, map} from 'rxjs/operators';
 import {environment} from '../config/environment';
 import { PageDto } from '../models/paging.models';
@@ -25,6 +25,10 @@ export interface RoleEntity {
   display?: string | null;
   /** Si el rol es visible/heredable para organizaciones hijas. */
   visibleParaHijos?: boolean;
+  /** Derivado en front: true si el rol pertenece a la org actual. */
+  propio?: boolean;
+  /** Derivado: true si es rol heredado (no propio). */
+  heredado?: boolean;
 }
 
 export interface CreateRoleRequest {
@@ -76,7 +80,7 @@ export class RolesService {
       if (d?.heredable != null) return !!d.heredable;
       return false;
     })();
-    return {
+    const role: RoleEntity = {
       id: String(d?.id ?? d?._id ?? d?.rolId ?? ''),
       nombre: String(d?.nombre ?? d?.name ?? d?.rolNombre ?? d?.rol ?? ''),
       descripcion: d?.descripcion ?? null,
@@ -84,8 +88,11 @@ export class RolesService {
       orgId: orgIdRaw != null ? String(orgIdRaw) : null,
       orgNombre: orgNameRaw != null ? String(orgNameRaw) : (d?.org ?? d?.organization ?? null),
       display: d?.display ?? null,
-      visibleParaHijos: visible
+      visibleParaHijos: visible,
+      propio: undefined, // se marca luego en el componente según orgId actual
+      heredado: undefined
     } as RoleEntity;
+    return role;
   }
 
   // Parser seguro para respuestas que no sean JSON o estén vacías
@@ -461,6 +468,44 @@ export class RolesService {
         } as any);
         if (resp.success === false) throw { error: { message: resp.message || 'No se pudo desasignar el rol' }, status: 400 };
         return { message: resp.message };
+      })
+    );
+  }
+
+  /** Obtener flag de propagación de roles a hijos de la organización. Devuelve true por defecto si el endpoint no existe. */
+  getOrgPropagarRolesAHijos(orgId: string): Observable<boolean> {
+    const url = `${this.base}/orgs/${orgId}/roles/propagar-a-hijos`;
+    return this.http.get<any>(url, { headers: this.accept, responseType: 'text' as 'json' }).pipe(
+      map(raw => {
+        const r = this.toApiResponse(raw);
+        const data = r.data ?? raw;
+        if (typeof data === 'boolean') return data;
+        if (data && typeof data === 'object') {
+          if ('value' in data && typeof (data as any).value === 'boolean') return !!(data as any).value;
+          if ('propagarRolesAHijos' in data && typeof (data as any).propagarRolesAHijos === 'boolean') return !!(data as any).propagarRolesAHijos;
+        }
+        return true; // fallback
+      }),
+      catchError(() => of(true))
+    );
+  }
+
+  /** Establecer flag global de propagación de roles a hijos en organización. */
+  setOrgPropagarRolesAHijos(orgId: string, value: boolean): Observable<{ value: boolean; message?: string }> {
+    const path = `/orgs/${orgId}/roles/propagar-a-hijos`;
+    const url = `${this.base}${path}`;
+    const params = { value: String(value) } as any;
+    return this.http.patch<any>(url, null, { headers: this.accept, params }).pipe(
+      map(raw => {
+        const r = this.toApiResponse(raw);
+        const data = r.data ?? raw;
+        let v: boolean = value;
+        if (typeof data === 'boolean') v = data;
+        else if (data && typeof data === 'object') {
+          if ('value' in data && typeof (data as any).value === 'boolean') v = !!(data as any).value;
+          if ('propagarRolesAHijos' in data && typeof (data as any).propagarRolesAHijos === 'boolean') v = !!(data as any).propagarRolesAHijos;
+        }
+        return { value: v, message: r.message };
       })
     );
   }

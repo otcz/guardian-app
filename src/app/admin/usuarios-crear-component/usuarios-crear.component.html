@@ -35,17 +35,57 @@
             <p-dropdown [options]="scopeOptions" optionLabel="label" optionValue="value" [(ngModel)]="model.scopeNivel" name="scopeNivel" (onChange)="onScopeChange()"></p-dropdown>
           </div>
 
+          <!-- Organización que va a administrar cuando alcance sea ORGANIZACION -->
+          <div class="field" *ngIf="isAlcanceOrganizacion">
+            <label>Organización que administrará *</label>
+            <p-dropdown
+              [options]="organizaciones"
+              optionLabel="nombre"
+              optionValue="id"
+              [(ngModel)]="model.orgAdministradaId"
+              name="orgAdministradaId"
+              placeholder="Seleccione organización"
+              (onChange)="onOrganizacionAdministradaChange()">
+            </p-dropdown>
+          </div>
+
+          <!-- Selector de sección, solo cuando el alcance requiere sección -->
           <div class="field" *ngIf="isSeccionRequerida">
             <label>Sección</label>
             <ng-container *ngIf="!loading; else sectionsLoading">
               <p-dropdown [options]="secciones" optionLabel="nombre" optionValue="id" [(ngModel)]="model.seccionId" name="seccionId" placeholder="Seleccione sección"></p-dropdown>
             </ng-container>
-            <small class="hint">Requerido si el alcance lo exige.</small>
+          </div>
+
+          <!-- Selector de roles: para SECCION va después de la sección; para ORGANIZACION va después de la organización -->
+          <div class="field">
+            <label>Rol</label>
+            <p-dropdown
+              [options]="rolesDisponibles"
+              optionLabel="nombre"
+              optionValue="id"
+              [(ngModel)]="model.rolesIds"
+              name="rolesIds"
+              [showClear]="true"
+              placeholder="Seleccione rol">
+              <ng-template let-role pTemplate="item">
+                <div class="role-option">
+                  <span class="role-name">{{ role.nombre }}</span>
+                  <span class="role-org" *ngIf="role.orgNombre">-org {{ role.orgNombre }}</span>
+                </div>
+              </ng-template>
+              <ng-template let-role pTemplate="selectedItem">
+                <div class="role-option">
+                  <span class="role-name">{{ role?.nombre }}</span>
+                  <span class="role-org" *ngIf="role?.orgNombre">-org {{ role.orgNombre }}</span>
+                </div>
+              </ng-template>
+            </p-dropdown>
           </div>
         </div>
 
         <div class="actions">
-          <button pButton type="submit" label="Crear" icon="pi pi-save" [disabled]="saving || (isSeccionRequerida && !model.seccionId)"></button>
+          <button pButton type="submit" label="Crear" icon="pi pi-save" [disabled]="saving || (isSeccionRequerida && !model.seccionId) || (isAlcanceOrganizacion && !model.orgAdministradaId)"></button>
           <button pButton type="button" class="p-button-text" label="Limpiar" icon="pi pi-refresh" (click)="reset()" [disabled]="saving"></button>
           <button pButton type="button" class="p-button-text" label="Cancelar" icon="pi pi-times" [routerLink]="['/gestion-de-usuarios/listar-usuarios']" [disabled]="saving"></button>
           <span class="spacer"></span>

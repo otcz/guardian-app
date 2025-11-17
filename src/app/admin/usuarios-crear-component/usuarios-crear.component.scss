@@ -31,3 +31,8 @@
 
 /* Loading */
 .overlay-spinner { position: fixed; inset: 0; margin: auto; }
+
+/* Estilos para el texto de la organización del rol en el dropdown */
+.role-option .role-org {
+  color: rgba(0, 0, 0, 0.50); /* negro más opaco */
+}

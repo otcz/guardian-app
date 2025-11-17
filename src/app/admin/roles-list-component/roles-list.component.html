@@ -15,6 +15,27 @@
     </div>
   </div>
 
+  <!-- Switch global de propagación de roles a hijos -->
+  <div class="org-roles-propagation" *ngIf="orgId">
+    <label class="flex ai-center gap-xs">
+      <span class="switch-wrap">
+        <p-inputSwitch
+          [ngModel]="propagarRolesAHijos"
+          [style.pointer-events]="'none'"
+          [attr.tabindex]="-1"
+          [pTooltip]="'Permitir que los roles de esta organización se hereden a organizaciones y secciones hijas'"
+          tooltipPosition="top">
+        </p-inputSwitch>
+        <button type="button" class="switch-overlay"
+                (click)="onTogglePropagarRolesAHijos(!propagarRolesAHijos)"
+                [disabled]="togglingPropagar || loading"
+                [pTooltip]="'Permitir que los roles de esta organización se hereden a organizaciones y secciones hijas'"
+                tooltipPosition="top"></button>
+      </span>
+      <span>Permitir que los roles de esta organización se hereden a organizaciones y secciones hijas</span>
+    </label>
+  </div>
+
   <p *ngIf="error" class="p-error mb-sm fs-sm">{{error}}</p>
   <p *ngIf="!loading && !error && filtered.length===0" class="mb-sm fs-sm text-muted">No hay roles.</p>
 
@@ -68,40 +89,61 @@
 
           <td>
             <div class="flex ai-center gap-xs">
-              <p-inputSwitch
-                [ngModel]="['ACTIVO'].includes((row.estado||'').toUpperCase())"
-                (onChange)="onToggleEstado(row, $event.checked)"
-                [disabled]="saving || (adding && row.id==='') || !canToggle(row)"
-                [pTooltip]="!canToggle(row) ? 'Requiere SYSADMIN para cambiar este rol' : 'Cambiar estado'"
-                tooltipPosition="top">
-              </p-inputSwitch>
-              <p-tag [severity]="['ACTIVO'].includes((row.estado||'').toUpperCase()) ? 'success' : 'danger'" [value]="row.estado || '-' "></p-tag>
+              <span class="switch-wrap">
+                <p-inputSwitch
+                  [ngModel]="row.activo != null ? row.activo : ['ACTIVO'].includes((row.estado||'').toUpperCase())"
+                  [style.pointer-events]="'none'"
+                  [attr.tabindex]="-1">
+                </p-inputSwitch>
+                <button type="button" class="switch-overlay"
+                        (click)="onToggleEstado(row, !(row.activo != null ? row.activo : ['ACTIVO'].includes((row.estado||'').toUpperCase())))"
+                        [disabled]="saving || (adding && row.id==='') || !canToggle(row) || isToggling(row, 'estado')"
+                        [pTooltip]="!canToggle(row) ? 'No tienes permiso para cambiar este rol' : 'Cambiar estado'"
+                        tooltipPosition="top"></button>
+              </span>
+              <p-tag [severity]="(row.activo != null ? row.activo : ['ACTIVO'].includes((row.estado||'').toUpperCase())) ? 'success' : 'danger'" [value]="row.estado || (row.activo ? 'ACTIVO' : 'INACTIVO')"></p-tag>
             </div>
           </td>
 
           <td>
             <div class="flex ai-center gap-xs">
-              <p-inputSwitch
-                [ngModel]="!!row.visibleParaHijos"
-                (onChange)="onToggleVisibleParaHijos(row, $event.checked)"
-                [disabled]="saving || (adding && row.id==='') || !canToggleVisible(row)"
-                [pTooltip]="!canToggleVisible(row) ? 'Requiere SYSADMIN para cambiar visibilidad de este rol' : 'Cambiar visibilidad para hijos'"
-                tooltipPosition="top">
-              </p-inputSwitch>
-              <p-tag [severity]="row.visibleParaHijos ? 'info' : 'secondary'" [value]="row.visibleParaHijos ? 'SÍ' : 'NO'"></p-tag>
+              <span class="switch-wrap">
+                <p-inputSwitch
+                  [ngModel]="!!row.visibleParaHijos"
+                  [style.pointer-events]="'none'"
+                  [attr.tabindex]="-1">
+                </p-inputSwitch>
+                <button type="button" class="switch-overlay"
+                        (click)="onToggleVisibleParaHijos(row, !row.visibleParaHijos)"
+                        [disabled]="saving || (adding && row.id==='') || !canToggleVisible(row) || isToggling(row, 'visible')"
+                        [pTooltip]="(adding && row.id==='') ? 'Guarda el rol para poder cambiar la visibilidad para hijos' : (!canToggleVisible(row) ? 'No tienes permiso para cambiar visibilidad de este rol' : 'Cambiar visibilidad para hijos')"
+                        tooltipPosition="top"></button>
+              </span>
             </div>
           </td>
 
-          <td class="text-center">
-            <div class="flex gap-xs ai-center justify-center">
+          <td>
+            <div class="flex ai-center gap-xs">
               <ng-container *ngIf="adding && row.id === ''">
-                <button pButton type="button" icon="pi pi-check" label="Guardar" class="p-button-success" (click)="saveAdd()" [disabled]="saving"></button>
-                <button pButton type="button" icon="pi pi-times" label="Cancelar" class="p-button-text" (click)="cancelAdd()" [disabled]="saving"></button>
+                <button pButton type="button" icon="pi pi-check" class="p-button-rounded p-button-success"
+                        (click)="saveAdd()"
+                        [disabled]="saving || !(newDraft.nombre && newDraft.nombre.trim().length >= 3)"
+                        pTooltip="Guardar rol" tooltipPosition="top"></button>
+                <button pButton type="button" icon="pi pi-times" class="p-button-rounded p-button-secondary"
+                        (click)="cancelAdd()"
+                        [disabled]="saving"
+                        pTooltip="Cancelar" tooltipPosition="top"></button>
               </ng-container>
 
               <ng-container *ngIf="!adding && editingId === row.id">
-                <button pButton type="button" icon="pi pi-check" label="Guardar" class="p-button-success" (click)="saveEdit()" [disabled]="saving"></button>
-                <button pButton type="button" icon="pi pi-times" label="Cancelar" class="p-button-text" (click)="cancelEdit()" [disabled]="saving"></button>
+                <button pButton type="button" icon="pi pi-check" class="p-button-rounded p-button-success"
+                        (click)="saveEdit()"
+                        [disabled]="saving || !editDraft || !(editDraft.nombre && editDraft.nombre.trim().length >= 3)"
+                        pTooltip="Guardar cambios" tooltipPosition="top"></button>
+                <button pButton type="button" icon="pi pi-times" class="p-button-rounded p-button-secondary"
+                        (click)="cancelEdit()"
+                        [disabled]="saving"
+                        pTooltip="Cancelar edición" tooltipPosition="top"></button>
               </ng-container>
 
               <ng-container *ngIf="!adding && editingId !== row.id">
@@ -113,7 +155,7 @@
         </tr>
       </ng-template>
       <ng-template pTemplate="emptymessage">
-        <tr><td colspan="5" class="text-center fs-sm text-muted">Sin datos</td></tr>
+        <tr><td colspan="6" class="text-center fs-sm text-muted">Sin datos</td></tr>
       </ng-template>
     </p-table>
   </div>

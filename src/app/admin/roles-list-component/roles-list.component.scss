@@ -37,3 +37,29 @@
 /* Inputs full-width */
 .p-inputtext.w-100 { width: 100%; }
 .org-muted { opacity: .55; font-weight: 500; }
+
+/* Switch overlay controlado */
+.switch-wrap {
+  position: relative;
+  display: inline-block;
+}
+:host ::ng-deep .switch-wrap .p-inputswitch {
+  pointer-events: none !important; /* garantiza que el overlay capture el click */
+}
+.switch-overlay {
+  position: absolute;
+  inset: 0;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  z-index: 3; /* por encima del contenido del switch */
+}
+.switch-overlay:disabled {
+  cursor: not-allowed;
+}
+.switch-overlay:not(:disabled):hover,
+.switch-overlay:not(:disabled):focus-visible {
+  outline: 2px solid var(--primary-color, #22c55e);
+  border-radius: 14px;
+}

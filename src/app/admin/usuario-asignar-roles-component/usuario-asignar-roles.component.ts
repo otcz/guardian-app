@@ -43,7 +43,7 @@ export class UsuarioAsignarRolesComponent implements OnInit {
 
     // Cargar catálogos básicos
     this.users.list(this.orgId).subscribe({ next: list => { this.usuarios = list; this.autoSelectFromQuery(); }, error: e => this.notify.error('Error', e?.error?.message || 'No se pudieron listar usuarios') });
-    // Precarga roles por org del contexto como fallback inicial
+    this.users.list(this.orgId).subscribe({ next: list => { this.usuarios = list; this.autoSelectFromQuery(); }, error: e => this.notify.error('Error', e?.error?.message || 'No se pudieron listar usuarios') });
     this.loadRolesForOrg(this.orgId);
 
     // Reaccionar a cambios de query param

@@ -32,6 +32,10 @@ export interface CreateUserRequest {
   scopeNivel?: ScopeNivel;
   // Nuevo: permitir setear pertenencia en alta
   seccionId?: string | null;
+  // Nuevo: organización que administrará cuando el alcance es ORGANIZACION
+  orgAdministradaId?: string | null;
+  // NUEVO: lista de roles a asignar en la creación (ids)
+  rolesIds?: string[] | string | null;
 }
 
 export interface UpdateUserRequest {
@@ -117,7 +121,9 @@ export class UsersService {
       nombreCompleto: body.nombreCompleto ?? undefined,
       email: body.email ?? undefined,
       scopeNivel: body.scopeNivel ?? undefined,
-      seccionId: body.seccionId ?? undefined
+      seccionId: body.seccionId ?? undefined,
+      orgAdministradaId: body.orgAdministradaId ?? undefined,
+      rolesIds: body.rolesIds ?? undefined
     };
     return this.http.post<ApiResponse<any>>(url, payload, { headers: this.json }).pipe(
       map((resp) => {

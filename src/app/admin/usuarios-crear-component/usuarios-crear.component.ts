@@ -18,6 +18,8 @@ import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
 import { AvatarModule } from 'primeng/avatar';
 import { SectionInviteDialogComponent } from '../../shared/section-invite-dialog.component';
+import { OrganizationService, Organization } from '../../service/organization.service';
+import { RolesService, RoleEntity } from '../../service/roles.service';
 
 @Component({
   selector: 'app-usuarios-crear',
@@ -32,6 +34,10 @@ export class UsuariosCrearComponent implements OnInit {
   saving = false;
   secciones: SeccionEntity[] = [];
   showInvite = false;
+  organizaciones: Organization[] = [];
+
+  // NUEVO: roles filtrados por contexto
+  rolesDisponibles: RoleEntity[] = [];
 
   // Metadata de scope desde backend
   usuariosMeta: UsuariosMeta | null = null;
@@ -51,15 +57,21 @@ export class UsuariosCrearComponent implements OnInit {
     email: '',
     // no default para scopeNivel
     scopeNivel: undefined as any,
-    seccionId: null
-  };
+    seccionId: null,
+    // organización que administrará cuando el alcance sea ORGANIZACION
+    orgAdministradaId: null as any,
+    // nuevo: roles seleccionados (single o multiple segun backend)
+    rolesIds: [] as any
+  } as any;
 
   constructor(
     private orgCtx: OrgContextService,
     private seccionService: SeccionService,
     private users: UsersService,
     private notify: NotificationService,
-    private router: Router
+    private router: Router,
+    private orgService: OrganizationService,
+    private rolesService: RolesService
   ) {}
 
   ngOnInit(): void {
@@ -70,22 +82,48 @@ export class UsuariosCrearComponent implements OnInit {
       return;
     }
 
+    const contextoSeccionId = this.orgCtx.seccion || null;
+
     // Cargar metadata de usuarios (scope) y derivar opciones/default
     this.users.getUsuarioMeta(this.orgId).subscribe({
       next: (meta) => {
         this.usuariosMeta = meta;
-        // Opciones tal como vienen del backend
         this.scopeOptions = (meta.allowedScopeNiveles || []).map((v) => ({ label: String(v), value: v }));
-        // No aplicar default en el modelo
+
+        // PRESELECCIÓN DE ALCANCE SEGÚN CONTEXTO (solo si el modelo aún no tiene valor)
+        if (!this.model.scopeNivel && Array.isArray(meta.allowedScopeNiveles) && meta.allowedScopeNiveles.length) {
+          const allowed = meta.allowedScopeNiveles.map((x: any) => String(x).toUpperCase());
+          let defaultScope: ScopeNivel | undefined;
+
+          if (contextoSeccionId && allowed.includes('SECCION')) {
+            defaultScope = meta.allowedScopeNiveles.find((x: any) => String(x).toUpperCase() === 'SECCION');
+          } else if (!contextoSeccionId && allowed.includes('ORGANIZACION')) {
+            defaultScope = meta.allowedScopeNiveles.find((x: any) => String(x).toUpperCase() === 'ORGANIZACION');
+          }
+
+          if (defaultScope !== undefined) {
+            this.model.scopeNivel = defaultScope;
+          }
+        }
+
         this.onScopeChange();
+        this.cargarRolesPorContexto();
       },
       error: () => {
-        // Sin fallback visual; mantener opciones como están y continuar
         this.onScopeChange();
+        this.cargarRolesPorContexto();
       }
     });
 
     this.loadSecciones();
+    this.loadOrganizaciones();
+  }
+
+  loadOrganizaciones() {
+    this.orgService.listAccessible().subscribe({
+      next: (list) => { this.organizaciones = list || []; },
+      error: (e) => { this.notify.error('Error', e?.error?.message || 'No se pudieron cargar organizaciones'); }
+    });
   }
 
   private capitalize(v: string): string { return v ? (v[0].toUpperCase() + v.slice(1).toLowerCase()) : v; }
@@ -123,11 +161,77 @@ export class UsuariosCrearComponent implements OnInit {
     return requires.map((x) => String(x).toUpperCase()).includes(cur);
   }
 
+  get isAlcanceOrganizacion(): boolean {
+    return String(this.model.scopeNivel || '').toUpperCase() === 'ORGANIZACION';
+  }
+
+  // NUEVO: alcance seccion explícito
+  get isAlcanceSeccion(): boolean {
+    return String(this.model.scopeNivel || '').toUpperCase() === 'SECCION';
+  }
+
   onScopeChange() {
-    // Si el alcance no requiere sección, limpiar y deshabilitar
     if (!this.isSeccionRequerida) {
       this.model.seccionId = null;
     }
+    if (!this.isAlcanceOrganizacion) {
+      (this.model as any).orgAdministradaId = null;
+    }
+    // limpiar selección de roles al cambiar alcance
+    (this.model as any).rolesIds = Array.isArray((this.model as any).rolesIds) ? [] : null;
+    this.cargarRolesPorContexto();
+  }
+
+  // nuevo: cuando cambia la organización administrada, recargar roles
+  onOrganizacionAdministradaChange(): void {
+    // cada cambio de organización implica limpiar el rol elegido
+    (this.model as any).rolesIds = Array.isArray((this.model as any).rolesIds) ? [] : null;
+    this.cargarRolesPorContexto();
+  }
+
+  // Cargar roles válidos según el contexto actual
+  private cargarRolesPorContexto(): void {
+    this.rolesDisponibles = [];
+    if (!this.orgId) return;
+
+    // Si el alcance es SECCION y hay una sección en contexto, usamos la org actual
+    const seccionContexto = this.orgCtx.seccion || null;
+    if (this.isAlcanceSeccion && seccionContexto) {
+      this.rolesService.list(this.orgId).subscribe({
+        next: (roles) => {
+          this.rolesDisponibles = (roles || []).filter(r => r.estado === 'ACTIVO');
+        },
+        error: () => {
+          this.rolesDisponibles = [];
+        }
+      });
+      return;
+    }
+
+    // Si el alcance es ORGANIZACION y hay una organización administrada seleccionada,
+    // usamos esa organización para listar roles.
+    if (this.isAlcanceOrganizacion && (this.model as any).orgAdministradaId) {
+      const orgAdminId = String((this.model as any).orgAdministradaId);
+      this.rolesService.list(orgAdminId).subscribe({
+        next: (roles) => {
+          this.rolesDisponibles = (roles || []).filter(r => r.estado === 'ACTIVO');
+        },
+        error: () => {
+          this.rolesDisponibles = [];
+        }
+      });
+      return;
+    }
+
+    // Caso general: roles de la organización del contexto actual
+    this.rolesService.list(this.orgId).subscribe({
+      next: (roles) => {
+        this.rolesDisponibles = (roles || []).filter(r => r.estado === 'ACTIVO');
+      },
+      error: () => {
+        this.rolesDisponibles = [];
+      }
+    });
   }
 
   loadSecciones() {
@@ -140,12 +244,21 @@ export class UsuariosCrearComponent implements OnInit {
   }
 
   reset() {
-    this.model = { username: '', nombreCompleto: '', email: '', scopeNivel: undefined as any, seccionId: null };
+    this.model = {
+      username: '',
+      nombreCompleto: '',
+      email: '',
+      scopeNivel: undefined as any,
+      seccionId: null,
+      orgAdministradaId: null,
+      rolesIds: [] as any
+    } as any;
   }
 
   validate(): string | null {
     if (!this.model.username || this.model.username.trim().length < 3) return 'Username es requerido (mín. 3)';
     if (this.isSeccionRequerida && !this.model.seccionId) return 'Debe seleccionar la sección';
+    if (this.isAlcanceOrganizacion && !(this.model as any).orgAdministradaId) return 'Debe seleccionar la organización que va a administrar';
     return null;
   }
 
@@ -154,13 +267,23 @@ export class UsuariosCrearComponent implements OnInit {
     if (err) { this.notify.warn('Validación', err); return; }
     if (!this.orgId) return;
     this.saving = true;
-    const body: CreateUserRequest = {
+    const body: any = {
       username: this.model.username.trim().toUpperCase(),
       nombreCompleto: (this.model.nombreCompleto || '').trim() || undefined,
       email: (this.model.email || '').trim() || undefined,
       scopeNivel: this.model.scopeNivel,
       seccionId: this.isSeccionRequerida ? (this.model.seccionId || null) : undefined
     };
+    if (this.isAlcanceOrganizacion && (this.model as any).orgAdministradaId) {
+      body.orgAdministradaId = (this.model as any).orgAdministradaId;
+    }
+    // Incluir roles seleccionados solo si existen
+    const rolesIds = (this.model as any).rolesIds;
+    if (Array.isArray(rolesIds) && rolesIds.length) {
+      body.rolesIds = rolesIds;
+    } else if (rolesIds && typeof rolesIds === 'string') {
+      body.rolesIds = [rolesIds];
+    }
     this.users.create(this.orgId, body).subscribe({
       next: (res) => {
         this.saving = false;

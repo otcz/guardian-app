@@ -344,15 +344,28 @@ export class UsuariosListarComponent implements OnInit {
 
   // Consolidar roles con prioridad y sin duplicados
   rolesFor(u: UserEntity): string[] {
-    const fromNames = Array.isArray((u as any).rolNombres) ? (u as any).rolNombres.map((x: any) => String(x)) : [];
-    const fromOrg = Array.isArray((u as any).rolesOrganizacion) ? (u as any).rolesOrganizacion.map((r: any) => String(r?.nombre || '')).filter(Boolean) : [];
-    const single = (u as any).rolNombre ? [String((u as any).rolNombre)] : [];
-    const fallbackCtx = this.roleByUserId[u.id] ? [this.roleByUserId[u.id]] : [];
-    const preferred = fromNames.length ? fromNames : (fromOrg.length ? fromOrg : (single.length ? single : fallbackCtx));
-    // dedupe conservando orden
+    const fromNames: string[] = Array.isArray((u as any).rolNombres)
+      ? (u as any).rolNombres.map((x: any) => String(x))
+      : [];
+    const fromOrg: string[] = Array.isArray((u as any).rolesOrganizacion)
+      ? (u as any).rolesOrganizacion.map((r: any) => String(r?.nombre || '')).filter(Boolean)
+      : [];
+    const single: string[] = (u as any).rolNombre ? [String((u as any).rolNombre)] : [];
+    const fallbackCtx: string[] = this.roleByUserId[u.id] ? [this.roleByUserId[u.id]] : [];
+    const preferred: string[] = fromNames.length
+      ? fromNames
+      : (fromOrg.length
+        ? fromOrg
+        : (single.length ? single : fallbackCtx));
     const seen = new Set<string>();
     const out: string[] = [];
-    preferred.forEach(r => { const k = r.trim(); if (k && !seen.has(k.toLowerCase())) { seen.add(k.toLowerCase()); out.push(k); } });
+    preferred.forEach((r: string) => {
+      const k = r.trim();
+      if (k && !seen.has(k.toLowerCase())) {
+        seen.add(k.toLowerCase());
+        out.push(k);
+      }
+    });
     return out;
   }
 }

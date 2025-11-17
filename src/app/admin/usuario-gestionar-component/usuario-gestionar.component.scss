@@ -1,61 +1,13 @@
 .overlay-spinner { position: fixed; inset: 0; margin: auto; }
 .kv { display:flex; gap:.5rem; align-items:center; margin-bottom:.5rem; }
 .kv span { width: 200px; color: var(--muted); font-size: .9rem; font-weight: 600; }
-.kv b { font-weight: 800; color: var(--text); }
-.field { display: flex; flex-direction: column; gap: .5rem; margin-bottom: .25rem; }
-.actions { display: flex; gap: .5rem; flex-wrap: wrap; }
-
-/* Estructura principal */
-.page-wrap { padding: 12px 0 32px; }
-
-/* Hero */
-.user-hero {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  align-items: center;
-  gap: 16px;
-  padding: 12px 8px 8px;
-  border-bottom: 1px dashed var(--border);
-}
-.user-avatar { width: 64px; height: 64px; font-weight: 800; font-size: 1.2rem; }
-.user-meta { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
-.title-row { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
-.title { margin: 0; line-height: 1.2; font-weight: 800; letter-spacing: .2px; }
-.state-tag .p-tag { font-weight: 800; }
-
-.actions-toolbar { display: flex; align-items: center; gap: 8px; }
-.actions-toolbar .spacer { flex: 1 1 auto; }
-
-.chip-row { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
-.pill .p-chip { background: var(--surface-alt); color: var(--text); border-radius: 999px; }
-.pill.muted .p-chip { opacity: .9; }
-.chip-row .p-chip .p-chip-text { display: inline-block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-
-/* Ocultar chips de correo y alcance SOLO en cabecera */
-.user-hero .chip-row .p-chip:has(.pi.pi-envelope),
-.user-hero .chip-row .p-chip:has(.pi.pi-shield) {
-  display: none !important;
-}
-
-/* Formularios */
-.edit-form { padding: 16px 8px 8px; }
-.form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px 16px; }
-.field { display: flex; flex-direction: column; gap: .5rem; margin-bottom: .25rem; }
-.input-with-tools { display: flex; align-items: center; gap: 6px; }
-
-/* Grillas de contenido */
-.content-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; padding: 16px 8px 8px; }
-.section { background: color-mix(in srgb, var(--surface-alt) 92%, transparent); border: 1px solid color-mix(in srgb, var(--border) 70%, transparent); border-radius: 12px; padding: 14px; }
-.section-title { margin: 0 0 12px; font-size: 1rem; font-weight: 800; color: var(--text); letter-spacing: .25px; }
-
-/* Key-Values */
-.kv { display: flex; gap: .5rem; align-items: center; margin-bottom: .5rem; }
-.kv span { width: 200px; color: var(--muted); font-size: .9rem; font-weight: 600; }
-.kv b { font-weight: 800; color: var(--text); }
+.kv b { font-weight: 400; color: var(--text); }
+/* Mostrar valores completos, permitiendo salto de línea cuando sea necesario */
 .value-row { display: flex; align-items: center; gap: 6px; flex: 1 1 auto; min-width: 0; }
+.value-row b { display: block; max-width: 100%; overflow: visible; text-overflow: clip; white-space: normal; word-break: break-word; }
 .state-wrap .p-tag { border-radius: 999px; font-weight: 800; }
 /* Truncado seguro para valores largos (ej. email) */
-.value-row b { display: block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* .value-row b { display: block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } */
 
 /* Acciones */
 .actions { display: flex; gap: .5rem; flex-wrap: wrap; }

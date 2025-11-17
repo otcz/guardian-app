@@ -40,6 +40,29 @@ export class UsuarioGestionarComponent implements OnInit {
   roles: UserRoleAssignment[] = [];
   rolesLoading = false;
 
+  // Helpers de visualización
+  isPresent(v: any): boolean {
+    const s = (v ?? '').toString().trim();
+    if (!s) return false;
+    const low = s.toLowerCase();
+    return !(low === 'null' || low === 'undefined' || low === 'na' || low === 'n/a' || s === '-');
+  }
+
+  private clean(v: any): string {
+    const s = (v ?? '').toString().trim();
+    if (!this.isPresent(s)) return '';
+    return s;
+  }
+
+  // Línea de mando formateada para mostrar ORG y SECCIÓN si aplica
+  get lineaMando(): string | null {
+    const org = this.clean(this.user?.orgNombre);
+    const sec = this.clean(this.user?.seccionNombre);
+    if (org && sec) return `ORG: ${org}, SECCIÓN: ${sec}`;
+    if (org) return `ORG: ${org}`;
+    return null;
+  }
+
   constructor(private route: ActivatedRoute, private router: Router, private orgCtx: OrgContextService, private users: UsersService, private notify: NotificationService, private secciones: SeccionService, private rolesSvc: RolesService) {}
 
   get userInitial(): string {

@@ -42,11 +42,73 @@
 /* Tabla: ancho y espaciado cómodo */
 :host ::ng-deep .p-table .p-datatable-wrapper table td { vertical-align: middle; }
 
-/* Columna Acciones responsiva */
-:host ::ng-deep th.col-actions { width: 320px; }
-@media (max-width: 1200px) { :host ::ng-deep th.col-actions { width: 240px; } }
+/* Distribución de columnas: más espacio para nombre y organización, menos para teléfono/estado/acciones */
+:host ::ng-deep .p-table .p-datatable-wrapper table th.col-username,
+:host ::ng-deep .p-table .p-datatable-wrapper table td.col-username {
+  width: 28%;
+}
+
+:host ::ng-deep .p-table .p-datatable-wrapper table th.col-org,
+:host ::ng-deep .p-table .p-datatable-wrapper table td.col-org {
+  width: 26%;
+}
+
+:host ::ng-deep .p-table .p-datatable-wrapper table th.col-roles,
+:host ::ng-deep .p-table .p-datatable-wrapper table td.col-roles {
+  width: 18%;
+}
+
+:host ::ng-deep .p-table .p-datatable-wrapper table th.col-phone,
+:host ::ng-deep .p-table .p-datatable-wrapper table td.col-phone {
+  width: 12%;
+}
+
+:host ::ng-deep .p-table .p-datatable-wrapper table th.col-status,
+:host ::ng-deep .p-table .p-datatable-wrapper table td.col-status {
+  width: 8%;
+}
+
+:host ::ng-deep .p-table .p-datatable-wrapper table th.col-actions,
+:host ::ng-deep .p-table .p-datatable-wrapper table td.col-actions {
+  width: 8%;
+}
+
+/* Columna Acciones responsiva y compacta */
+:host ::ng-deep th.col-actions { width: 8%; min-width: 120px; }
+:host ::ng-deep td.col-actions { white-space: nowrap; }
+
+@media (max-width: 1200px) {
+  :host ::ng-deep .p-table .p-datatable-wrapper table th.col-username,
+  :host ::ng-deep .p-table .p-datatable-wrapper table td.col-username { width: 32%; }
+  :host ::ng-deep .p-table .p-datatable-wrapper table th.col-org,
+  :host ::ng-deep .p-table .p-datatable-wrapper table td.col-org { width: 28%; }
+  :host ::ng-deep .p-table .p-datatable-wrapper table th.col-roles,
+  :host ::ng-deep .p-table .p-datatable-wrapper table td.col-roles { width: 16%; }
+  :host ::ng-deep .p-table .p-datatable-wrapper table th.col-phone,
+  :host ::ng-deep .p-table .p-datatable-wrapper table td.col-phone { width: 10%; }
+  :host ::ng-deep .p-table .p-datatable-wrapper table th.col-status,
+  :host ::ng-deep .p-table .p-datatable-wrapper table td.col-status { width: 7%; }
+  :host ::ng-deep .p-table .p-datatable-wrapper table th.col-actions,
+  :host ::ng-deep .p-table .p-datatable-wrapper table td.col-actions { width: 7%; }
+}
+
 @media (max-width: 768px) {
   .page-header .tools { flex-wrap: wrap; }
   .search-input { width: 100%; max-width: 100%; }
-  :host ::ng-deep th.col-actions { width: 180px; }
+
+  :host ::ng-deep .p-table .p-datatable-wrapper table th.col-phone,
+  :host ::ng-deep .p-table .p-datatable-wrapper table td.col-phone,
+  :host ::ng-deep .p-table .p-datatable-wrapper table th.col-roles,
+  :host ::ng-deep .p-table .p-datatable-wrapper table td.col-roles {
+    display: none; /* Ocultar columnas menos críticas en móviles para más espacio */
+  }
+
+  :host ::ng-deep .p-table .p-datatable-wrapper table th.col-username,
+  :host ::ng-deep .p-table .p-datatable-wrapper table td.col-username { width: 55%; }
+  :host ::ng-deep .p-table .p-datatable-wrapper table th.col-org,
+  :host ::ng-deep .p-table .p-datatable-wrapper table td.col-org { width: 25%; }
+  :host ::ng-deep .p-table .p-datatable-wrapper table th.col-status,
+  :host ::ng-deep .p-table .p-datatable-wrapper table td.col-status { width: 10%; }
+  :host ::ng-deep .p-table .p-datatable-wrapper table th.col-actions,
+  :host ::ng-deep .p-table .p-datatable-wrapper table td.col-actions { width: 10%; }
 }

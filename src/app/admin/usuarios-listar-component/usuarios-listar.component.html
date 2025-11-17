@@ -21,32 +21,32 @@
                currentPageReportTemplate="Mostrando {first}-{last} de {totalRecords}">
         <ng-template pTemplate="header">
           <tr>
-            <th>Username</th>
-            <th>Organización/Sección</th>
-            <th>ROL(es)</th>
-            <th>Teléfono</th>
-            <th>Estado</th>
+            <th class="col-username">Username</th>
+            <th class="col-org">Organización/Sección</th>
+            <th class="col-roles">ROL(es)</th>
+            <th class="col-phone">Teléfono</th>
+            <th class="col-status">Estado</th>
             <th class="col-actions">Acciones</th>
           </tr>
         </ng-template>
         <ng-template pTemplate="body" let-u>
           <tr>
-            <td>
+            <td class="col-username">
               <div class="user-cell">
-                <p-avatar [label]="userInitial(u)" shape="circle" size="large" [style]="{ background: 'linear-gradient(135deg, var(--primary), var(--secondary))', color: '#fff' }"></p-avatar>
+                <p-avatar icon="pi pi-user" shape="circle" size="large" [style]="{ background: 'var(--surface-100)', color: 'var(--text-color)' }"></p-avatar>
                 <div class="meta">
                   <div class="top">{{ u.nombreCompleto || u.username }}</div>
                   <div class="sub">{{ u.username }}<span *ngIf="u.email"> · {{ u.email }}</span></div>
                 </div>
               </div>
             </td>
-            <td>
+            <td class="col-org">
               <div class="stack">
                 <p-chip icon="pi pi-building" [label]="u.orgNombre || orgName || '-'" class="pill"></p-chip>
                 <p-chip *ngIf="u.seccionNombre || u.seccionId" icon="pi pi-sitemap" [label]="u.seccionNombre || sectionName(u)" class="pill"></p-chip>
               </div>
             </td>
-            <td>
+            <td class="col-roles">
               <ng-container *ngIf="rolesFor(u) as rs">
                 <ng-container *ngIf="rs.length > 0; else noRoles">
                   <p-tag [value]="rs[0] | roleLabel" [severity]="rs[0] | roleSeverity"></p-tag>
@@ -71,18 +71,28 @@
                 </ng-template>
               </ng-container>
             </td>
-            <td>
+            <td class="col-phone">
               {{ u.telefono || '—' }}
             </td>
-            <td>
+            <td class="col-status">
               <p-tag [value]="u.activo ? 'ACTIVO' : 'INACTIVO'" [severity]="u.activo ? 'success' : 'danger'"></p-tag>
             </td>
-            <td>
+            <td class="col-actions">
               <div class="actions">
-                <button pButton type="button" icon="pi pi-cog" class="p-button p-button-text p-button-sm p-button-rounded btn-icon" [routerLink]="['/gestion-de-usuarios/gestionar-usuario', u.id]" pTooltip="Gestionar" tooltipPosition="top"></button>
-                <button pButton type="button" [icon]="u.activo ? 'pi pi-ban' : 'pi pi-check'" [class]="u.activo ? 'p-button p-button-outlined p-button-danger p-button-sm p-button-rounded btn-icon' : 'p-button p-button-outlined p-button-success p-button-sm p-button-rounded btn-icon'" (click)="toggle(u)" pTooltip="Cambiar estado" tooltipPosition="top"></button>
-                <button pButton type="button" icon="pi pi-user-plus" class="p-button p-button-text p-button-sm p-button-rounded btn-icon" [routerLink]="['/gestion-de-usuarios/asignar-roles']" [queryParams]="{ id: u.id }" pTooltip="Asignar roles" tooltipPosition="top"></button>
-                <button pButton type="button" icon="pi pi-sitemap" class="p-button p-button-text p-button-sm p-button-rounded btn-icon" [routerLink]="['/gestion-de-usuarios/asignar-usuario-a-seccion']" [queryParams]="{ id: u.id }" pTooltip="Asignar sección" tooltipPosition="top"></button>
+                <!-- Gestionar usuario -->
+                <button pButton type="button"
+                        icon="pi pi-cog"
+                        class="p-button p-button-text p-button-sm p-button-rounded btn-icon"
+                        [routerLink]="['/gestion-de-usuarios/gestionar-usuario']"
+                        [queryParams]="{ id: u.id }"
+                        pTooltip="Gestionar" tooltipPosition="top"></button>
+                <!-- Cambiar estado (activar/desactivar) -->
+                <button pButton type="button"
+                        class="state-button p-button-sm p-button-rounded btn-icon"
+                        [ngClass]="u.activo ? 'p-button-outlined p-button-danger' : 'p-button-outlined p-button-success'"
+                        [icon]="u.activo ? 'pi pi-ban' : 'pi pi-check'"
+                        (click)="toggle(u)"
+                        pTooltip="Cambiar estado" tooltipPosition="top"></button>
               </div>
             </td>
           </tr>

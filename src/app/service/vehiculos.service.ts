@@ -361,6 +361,36 @@ export class VehiculosService {
     );
   }
 
+  /** Buscar vehículo por placa. Devuelve null si no existe. 403 si pertenece a otra org o sin permisos. */
+  buscarPorPlaca(orgId: string, placa: string): Observable<VehiculoDto | null> {
+    const url = `${this.base}/orgs/${orgId}/vehiculos/buscar`;
+    const params = { placa: (placa || '').trim().toUpperCase() } as any;
+    return this.http.get<any>(url, { headers: this.accept, params, responseType: 'text' as 'json' }).pipe(
+      map((payload: any) => this.toApiResponse(payload)),
+      map((resp) => {
+        if (resp && resp.success === false) throw { error: { message: resp?.message || 'No se pudo buscar el vehículo' }, status: 400 };
+        const d = this.unwrap<any>(resp);
+        if (d == null) return null;
+        return this.ensureVehicle(d);
+      })
+    );
+  }
+
+  /** Asignar el vehículo por placa al usuario autenticado (misma organización). */
+  asignarPorPlaca(orgId: string, placa: string): Observable<{ vehicle: VehiculoDto; message?: string }> {
+    const url = `${this.base}/orgs/${orgId}/vehiculos/asignar-por-placa`;
+    const params = { placa: (placa || '').trim().toUpperCase() } as any;
+    return this.http.post<any>(url, null, { headers: this.accept, params, responseType: 'text' as 'json' }).pipe(
+      map((payload: any) => this.toApiResponse(payload)),
+      map((resp) => {
+        if (resp && resp.success === false) throw { error: { message: resp?.message || 'No se pudo asignar el vehículo' }, status: 400 };
+        const d = this.unwrap<any>(resp);
+        const v = this.ensureVehicle(d);
+        return { vehicle: v, message: (resp as any)?.message };
+      })
+    );
+  }
+
   // ===== Aliases en español para cumplir checklist (devuelven ApiResponse<T>) =====
   crear(orgId: string, body: VehiculoCreateReq): Observable<ApiResponse<VehiculoDto>> {
     return this.create(orgId, body).pipe(map(({ vehicle, message }) => ({ success: true, message, data: vehicle })));

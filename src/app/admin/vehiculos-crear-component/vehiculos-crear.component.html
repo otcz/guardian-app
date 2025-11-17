@@ -68,7 +68,7 @@
             <div><b>Placa:</b> {{ v.placa }}</div>
             <div><b>Activo:</b> <span [ngClass]="{ 'text-success': v.activo, 'text-muted': !v.activo }">{{ v.activo ? 'Sí' : 'No' }}</span></div>
             <div><b>Marca/Modelo:</b> {{ v.marca || '-' }} / {{ v.modelo || '-' }}</div>
-            <div><b>Sección:</b> {{ seccionNombreVehiculo(v) }} <button pButton type="button" class="asignar-inline p-button-sm" label="Asignar" (click)="asignarmeAExistente()" [disabled]="asignando" style="margin-left:.5rem"></button></div>
+            <div *ngIf="seccionNombreVehiculo(v) !== '-'"><b>Sección:</b> {{ seccionNombreVehiculo(v) }}</div>
           </div>
         </div>
         <small class="text-muted" *ngIf="isAdmin">Como ya existe, no podrás crear otro con la misma placa. Usa la asociación.</small>
@@ -85,7 +85,12 @@
 
     <div class="actions">
       <button pButton type="button" label="Cancelar" class="p-button-text" (click)="cancelar()" [disabled]="saving || asignando"></button>
-      <button pButton type="button" label="Crear" (click)="onSubmit()" [disabled]="saving || asignando || existente.status==='found'"></button>
+      <ng-container *ngIf="existente.status === 'found'; else crearBtn">
+        <button pButton type="button" label="Asignar a mí" class="p-button-success" (click)="asignarPorPlaca()" [disabled]="asignando || buscando"></button>
+      </ng-container>
+      <ng-template #crearBtn>
+        <button pButton type="button" label="Crear" (click)="onSubmit()" [disabled]="saving || asignando"></button>
+      </ng-template>
     </div>
   </div>
 </p-card>

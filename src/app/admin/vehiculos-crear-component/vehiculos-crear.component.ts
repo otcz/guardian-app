@@ -163,7 +163,7 @@ export class VehiculosCrearComponent implements OnInit {
     this.router.navigate(['/gestion-de-vehiculos/mis-vehiculos']);
   }
 
-  // ==== NUEVO: Buscar por placa y asociar a un vehículo existente ====
+  // ==== NUEVO: Buscar por placa y asociar/asignar ====
   buscarPorPlaca() {
     const placa = (this.model.placa || '').trim().toUpperCase();
     if (!placa) { this.notify.warn('Búsqueda', 'Ingrese una placa para buscar'); return; }
@@ -172,24 +172,52 @@ export class VehiculosCrearComponent implements OnInit {
     this.buscando = true;
     this.existente = { status: 'idle', vehiculo: null };
 
-    // Nota: el backend no expone búsqueda por placa directa; listamos y filtramos en el front
-    this.vehiculos.list(this.orgId, { subtree: true }).subscribe({
-      next: (items) => {
-        const found = (items || []).find(v => (v.placa || '').toUpperCase() === placa);
-        if (found) {
-          this.existente = { status: 'found', vehiculo: found };
-          // Resetear selección de usuarios para este flujo
-          this.usuariosParaExistente = [];
-        } else {
+    this.vehiculos.buscarPorPlaca(this.orgId, placa).subscribe({
+      next: (v) => {
+        if (v == null) {
           this.existente = { status: 'notfound', vehiculo: null, message: 'No se encontró un vehículo con esa placa en la organización' };
+        } else {
+          this.existente = { status: 'found', vehiculo: v };
+          this.fillFromVehiculo(v);
         }
         this.buscando = false;
       },
       error: (e) => {
         this.buscando = false;
-        const msg = e?.error?.message || e?.message || 'Error buscando vehículo';
-        this.existente = { status: 'error', vehiculo: null, message: msg };
-        this.notify.error('Error', msg);
+        const st = e?.status;
+        const msg = e?.error?.message || e?.message || (st === 403 ? 'PROHIBIDO' : 'Error buscando vehículo');
+        this.existente = { status: 'error', vehiculo: null, message: msg } as any;
+        if (st === 403) this.notify.warn('Sin permisos', msg); else this.notify.error('Error', msg);
+      }
+    });
+  }
+
+  private fillFromVehiculo(v: VehicleEntity) {
+    this.model.marca = v.marca ?? null;
+    this.model.modelo = v.modelo ?? null;
+    this.model.linea = v.linea ?? null;
+    this.model.anio = v.anio ?? null;
+    this.model.color = v.color ?? null;
+  }
+
+  asignarPorPlaca() {
+    if (!this.orgId) return;
+    const placa = (this.model.placa || '').trim().toUpperCase();
+    if (!placa) { this.notify.warn('Asignación', 'Ingrese una placa válida'); return; }
+    this.asignando = true;
+    this.vehiculos.asignarPorPlaca(this.orgId, placa).subscribe({
+      next: (res) => {
+        this.asignando = false;
+        this.notify.success('Listo', res?.message || 'Vehículo asignado a tu usuario');
+        this.router.navigate(['/gestion-de-vehiculos/mis-vehiculos']);
+      },
+      error: (e) => {
+        this.asignando = false;
+        const st = e?.status;
+        const msg = e?.error?.message || e?.message || 'No se pudo asignar el vehículo';
+        if (st === 404) this.notify.warn('No encontrado', msg);
+        else if (st === 403) this.notify.warn('Sin permisos', msg);
+        else this.notify.error('Error', msg);
       }
     });
   }
@@ -206,7 +234,7 @@ export class VehiculosCrearComponent implements OnInit {
       next: (res) => {
         this.asignando = false;
         this.notify.success('Listo', res.message || 'Usuarios asociados al vehículo');
-        this.router.navigate(['/gestion-de-vehiculos/gestionar-vehiculo'], { queryParams: { id: v.id } });
+        this.router.navigate(['/gestion-de-vehiculos/mis-vehiculos']);
       },
       error: (e) => {
         this.asignando = false;

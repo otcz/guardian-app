@@ -23,6 +23,13 @@ export interface UserEntity {
   orgId?: string | null;
   fechaCreacion?: string | null;
   fechaActualizacion?: string | null;
+  // NUEVOS CAMPOS del listado del backend
+  telefono?: string | null;
+  seccionNombre?: string | null;
+  orgNombre?: string | null;
+  rolesOrganizacion?: { id: string; nombre: string }[] | null;
+  rolNombres?: string[] | null;
+  rolNombre?: string | null;
 }
 
 export interface CreateUserRequest {
@@ -86,7 +93,16 @@ export class UsersService {
       seccionPrincipalId: d?.seccionPrincipalId != null ? String(d?.seccionPrincipalId) : null,
       orgId: d?.orgId != null ? String(d?.orgId) : (d?.organizacionId != null ? String(d?.organizacionId) : null),
       fechaCreacion: d?.fechaCreacion ? String(d?.fechaCreacion) : null,
-      fechaActualizacion: d?.fechaActualizacion ? String(d?.fechaActualizacion) : null
+      fechaActualizacion: d?.fechaActualizacion ? String(d?.fechaActualizacion) : null,
+      // nuevos campos
+      telefono: d?.telefono != null ? String(d?.telefono) : null,
+      seccionNombre: d?.seccionNombre != null ? String(d?.seccionNombre) : null,
+      orgNombre: d?.orgNombre != null ? String(d?.orgNombre) : null,
+      rolesOrganizacion: Array.isArray(d?.rolesOrganizacion)
+        ? d.rolesOrganizacion.map((r: any) => ({ id: String(r?.id ?? r?._id ?? ''), nombre: String(r?.nombre ?? r?.name ?? '') }))
+        : (Array.isArray(d?.roles) ? d.roles.map((r: any) => ({ id: String(r?.id ?? r?._id ?? ''), nombre: String(r?.nombre ?? r?.name ?? '') })) : null),
+      rolNombres: Array.isArray(d?.rolNombres) ? d.rolNombres.map((x: any) => String(x)) : null,
+      rolNombre: d?.rolNombre != null ? String(d?.rolNombre) : null
     } as UserEntity;
   }
 

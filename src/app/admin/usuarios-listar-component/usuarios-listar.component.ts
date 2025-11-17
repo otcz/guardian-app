@@ -22,11 +22,12 @@ import { environment } from '../../config/environment';
 import { OrganizationService } from '../../service/organization.service';
 import { RoleLabelPipe } from '../../shared/pipes/role-label.pipe';
 import { RoleSeverityPipe } from '../../shared/pipes/role-severity.pipe';
+import { OverlayPanelModule } from 'primeng/overlaypanel';
 
 @Component({
   selector: 'app-usuarios-listar',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, CardModule, InputTextModule, ButtonModule, TableModule, TagModule, TooltipModule, AvatarModule, ChipModule, RoleLabelPipe, RoleSeverityPipe],
+  imports: [CommonModule, FormsModule, RouterModule, CardModule, InputTextModule, ButtonModule, TableModule, TagModule, TooltipModule, AvatarModule, ChipModule, OverlayPanelModule, RoleLabelPipe, RoleSeverityPipe],
   templateUrl: './usuarios-listar.component.html',
   styleUrls: ['./usuarios-listar.component.scss']
 })
@@ -253,7 +254,10 @@ export class UsuariosListarComponent implements OnInit {
     if (!this.orgId) return;
     this.loading = true;
     this.users.list(this.orgId).subscribe({
-      next: list => { this.usuarios = list; this.applyFilter(); this.loading = false; this.deferAdjustToViewport(); this.loadSectionRolesIfApplies(); },
+      next: list => {
+        try { console.log('[UsuariosListar] Usuarios cargados:', list); } catch {}
+        this.usuarios = list; this.applyFilter(); this.loading = false; this.deferAdjustToViewport(); this.loadSectionRolesIfApplies();
+      },
       error: e => { this.loading = false; this.notify.error('Error', e?.error?.message || 'No se pudieron listar usuarios'); }
     });
   }
@@ -336,5 +340,19 @@ export class UsuariosListarComponent implements OnInit {
     const sec = this.sectionName(u);
     if (sec && sec !== '-' ) return `${org}, ${sec}`;
     return org || '-';
+  }
+
+  // Consolidar roles con prioridad y sin duplicados
+  rolesFor(u: UserEntity): string[] {
+    const fromNames = Array.isArray((u as any).rolNombres) ? (u as any).rolNombres.map((x: any) => String(x)) : [];
+    const fromOrg = Array.isArray((u as any).rolesOrganizacion) ? (u as any).rolesOrganizacion.map((r: any) => String(r?.nombre || '')).filter(Boolean) : [];
+    const single = (u as any).rolNombre ? [String((u as any).rolNombre)] : [];
+    const fallbackCtx = this.roleByUserId[u.id] ? [this.roleByUserId[u.id]] : [];
+    const preferred = fromNames.length ? fromNames : (fromOrg.length ? fromOrg : (single.length ? single : fallbackCtx));
+    // dedupe conservando orden
+    const seen = new Set<string>();
+    const out: string[] = [];
+    preferred.forEach(r => { const k = r.trim(); if (k && !seen.has(k.toLowerCase())) { seen.add(k.toLowerCase()); out.push(k); } });
+    return out;
   }
 }

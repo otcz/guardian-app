@@ -31,7 +31,7 @@
 /* Celda de usuario con avatar */
 .user-cell { display: flex; align-items: center; gap: 10px; }
 .user-cell .meta { display: flex; flex-direction: column; }
-.user-cell .meta .top { font-weight: 800; }
+.user-cell .meta .top { font-weight: normal; }
 .user-cell .meta .sub { font-size: .88rem; color: var(--muted); }
 
 /* Chips y stack */

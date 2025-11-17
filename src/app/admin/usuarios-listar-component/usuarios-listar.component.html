@@ -21,9 +21,10 @@
                currentPageReportTemplate="Mostrando {first}-{last} de {totalRecords}">
         <ng-template pTemplate="header">
           <tr>
-            <th>Usuario</th>
-            <th>Alcance/Sección</th>
-            <th>ROL</th>
+            <th>Nombre</th>
+            <th>Organización/Sección</th>
+            <th>ROL(es)</th>
+            <th>Teléfono</th>
             <th>Estado</th>
             <th class="col-actions">Acciones</th>
           </tr>
@@ -34,19 +35,44 @@
               <div class="user-cell">
                 <p-avatar [label]="userInitial(u)" shape="circle" size="large" [style]="{ background: 'linear-gradient(135deg, var(--primary), var(--secondary))', color: '#fff' }"></p-avatar>
                 <div class="meta">
-                  <div class="top">{{ u.username }}</div>
-                  <div class="sub">{{ u.nombreCompleto || u.email || '—' }}</div>
+                  <div class="top">{{ u.nombreCompleto || u.username }}</div>
+                  <div class="sub">{{ u.username }}<span *ngIf="u.email"> · {{ u.email }}</span></div>
                 </div>
               </div>
             </td>
             <td>
               <div class="stack">
-                <p-chip icon="pi pi-sitemap" [label]="mandoNombre(u)" class="pill"></p-chip>
-                <!-- Eliminado chip de rol aquí para no duplicar -->
+                <p-chip icon="pi pi-building" [label]="u.orgNombre || orgName || '-'" class="pill"></p-chip>
+                <p-chip *ngIf="u.seccionNombre || u.seccionId" icon="pi pi-sitemap" [label]="u.seccionNombre || sectionName(u)" class="pill"></p-chip>
               </div>
             </td>
             <td>
-              <p-tag [value]="roleByUserId[u.id] | roleLabel" [severity]="roleByUserId[u.id] | roleSeverity"></p-tag>
+              <ng-container *ngIf="rolesFor(u) as rs">
+                <ng-container *ngIf="rs.length > 0; else noRoles">
+                  <p-tag [value]="rs[0] | roleLabel" [severity]="rs[0] | roleSeverity"></p-tag>
+                  <button *ngIf="rs.length > 1"
+                          pButton type="button"
+                          class="p-button-text p-button-sm ml-1"
+                          [label]="'+' + (rs.length - 1)"
+                          icon="pi pi-plus"
+                          iconPos="left"
+                          (click)="op.toggle($event)"></button>
+                  <p-overlayPanel #op [dismissable]="true" [showCloseIcon]="true">
+                    <div class="roles-overlay">
+                      <div class="roles-title">Roles del usuario</div>
+                      <div class="roles-list">
+                        <p-tag *ngFor="let r of rs" [value]="r | roleLabel" [severity]="r | roleSeverity" class="mr-1 mb-1"></p-tag>
+                      </div>
+                    </div>
+                  </p-overlayPanel>
+                </ng-container>
+                <ng-template #noRoles>
+                  <p-tag [value]="'-' | roleLabel" [severity]="'-' | roleSeverity"></p-tag>
+                </ng-template>
+              </ng-container>
+            </td>
+            <td>
+              {{ u.telefono || '—' }}
             </td>
             <td>
               <p-tag [value]="u.activo ? 'ACTIVO' : 'INACTIVO'" [severity]="u.activo ? 'success' : 'danger'"></p-tag>
@@ -63,7 +89,7 @@
         </ng-template>
         <ng-template pTemplate="emptymessage">
           <tr>
-            <td colspan="5" class="text-muted" style="text-align:center;">Sin usuarios para mostrar.</td>
+            <td colspan="6" class="text-muted" style="text-align:center;">Sin usuarios para mostrar.</td>
           </tr>
         </ng-template>
       </p-table>

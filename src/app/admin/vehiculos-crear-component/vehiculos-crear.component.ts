@@ -144,7 +144,8 @@ export class VehiculosCrearComponent implements OnInit {
         console.log('[VehiculosCrearComponent] POST /vehiculos respuesta:', res);
         this.saving = false;
         this.notify.success('Éxito', res?.message || 'Vehículo creado correctamente');
-        this.router.navigate(['/gestion-de-vehiculos/gestionar-vehiculo'], { queryParams: { id: res.vehicle.id } });
+        // Redirigir al listado para evitar errores de permisos en el detalle inmediatamente después de crear
+        this.router.navigate(['/gestion-de-vehiculos/mis-vehiculos']);
       },
       error: (e) => {
         console.error('[VehiculosCrearComponent] POST /vehiculos error:', e?.status, e?.error || e);

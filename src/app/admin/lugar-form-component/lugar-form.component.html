@@ -17,7 +17,7 @@
       </div>
       <div class="field" *ngIf="!seccionId">
         <label for="seccionSel">Sección</label>
-        <p-dropdown id="seccionSel" [options]="seccionOptions" [(ngModel)]="seccionId" [style.width.px]="260" placeholder="Selecciona sección"></p-dropdown>
+        <p-dropdown id="seccionSel" name="seccionId" [options]="seccionOptions" [(ngModel)]="seccionId" [ngModelOptions]="{standalone:true}" [style.width.px]="260" placeholder="Selecciona sección"></p-dropdown>
       </div>
       <div class="field" *ngIf="seccionId">
         <label>Sección</label>

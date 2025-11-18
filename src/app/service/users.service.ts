@@ -51,6 +51,7 @@ export interface UpdateUserRequest {
   email?: string | null;
   scopeNivel?: ScopeNivel;
   seccionPrincipalId?: string | null;
+  telefono?: string | null; // NUEVO: permitir actualizar teléfono
 }
 
 // Contrato de asignación de rol a usuario

@@ -129,7 +129,7 @@ export class UsuarioGestionarComponent implements OnInit {
   toggleEdit() {
     if (!this.user) return;
     this.editing = true;
-    this.draft = { username: this.user.username, nombreCompleto: this.user.nombreCompleto || '', email: this.user.email || '' };
+    this.draft = { username: this.user.username, nombreCompleto: this.user.nombreCompleto || '', email: this.user.email || '', telefono: this.user.telefono || '' } as UpdateUserRequest;
   }
 
   cancel() { this.editing = false; this.draft = {}; }
@@ -140,7 +140,8 @@ export class UsuarioGestionarComponent implements OnInit {
     const body: UpdateUserRequest = {
       username: (this.draft.username || '').toString().trim().toUpperCase() || undefined,
       nombreCompleto: (this.draft.nombreCompleto || '').toString().trim() || undefined,
-      email: (this.draft.email || '').toString().trim() || undefined
+      email: (this.draft.email || '').toString().trim() || undefined,
+      telefono: (this.draft as any).telefono ? String((this.draft as any).telefono).trim() : undefined
     };
     this.users.update(this.orgId, this.userId, body).subscribe({
       next: res => { this.user = res.user; this.saving = false; this.editing = false; this.notify.success('Éxito', res.message || 'USUARIO ACTUALIZADO CORRECTAMENTE.'); this.loadSeccionNombreIfNeeded(); },

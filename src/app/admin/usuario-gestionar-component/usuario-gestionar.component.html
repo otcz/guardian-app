@@ -12,6 +12,7 @@
           <p-chip icon="pi pi-id-card" [label]="user.username || '-'" class="pill"></p-chip>
           <p-chip *ngIf="lineaMando" icon="pi pi-building" [label]="lineaMando" class="pill muted"></p-chip>
           <p-chip *ngIf="roles && roles.length" icon="pi pi-user" [label]="roles[0].rol?.nombre || (user.rolNombre || '—')" class="pill" pTooltip="Rol principal"></p-chip>
+          <p-chip *ngIf="isPresent(user.email)" icon="pi pi-envelope" [label]="user.email || ''" class="pill muted"></p-chip>
         </div>
       </div>
       <div class="actions-toolbar">
@@ -26,22 +27,37 @@
     <!-- Formulario de edición -->
     <form class="edit-form" (ngSubmit)="save()" *ngIf="editing" novalidate>
       <div class="form-grid">
-        <div class="field">
-          <label>Username</label>
-          <div class="input-with-tools">
-            <input pInputText type="text" [(ngModel)]="draft.username" name="username" appUppercase placeholder="USUARIO" />
-            <button pButton type="button" icon="pi pi-copy" class="p-button p-button-text p-button-rounded" (click)="copy(draft.username)" pTooltip="Copiar" tooltipPosition="top"></button>
+        <div class="field-row">
+          <label class="fld-label">Username</label>
+          <div class="fld-control">
+            <div class="input-with-tools">
+              <input pInputText type="text" [(ngModel)]="draft.username" name="username" appUppercase placeholder="USUARIO" />
+              <button pButton type="button" icon="pi pi-copy" class="p-button p-button-text p-button-rounded" (click)="copy(draft.username)" pTooltip="Copiar" tooltipPosition="top"></button>
+            </div>
           </div>
         </div>
-        <div class="field">
-          <label>Nombre completo</label>
-          <input pInputText type="text" [(ngModel)]="draft.nombreCompleto" name="nombreCompleto" appUppercase placeholder="Nombre y Apellido" />
+
+        <div class="field-row">
+          <label class="fld-label">Nombre completo</label>
+          <div class="fld-control">
+            <input pInputText type="text" [(ngModel)]="draft.nombreCompleto" name="nombreCompleto" appUppercase placeholder="Nombre y Apellido" />
+          </div>
         </div>
-        <div class="field">
-          <label>Email</label>
-          <div class="input-with-tools">
-            <input pInputText type="email" [(ngModel)]="draft.email" name="email" placeholder="usuario@dominio.com" />
-            <button pButton type="button" icon="pi pi-envelope" class="p-button p-button-text p-button-rounded" (click)="openEmail(draft.email)" pTooltip="Enviar correo" tooltipPosition="top" [disabled]="!draft.email"></button>
+
+        <div class="field-row">
+          <label class="fld-label">Email</label>
+          <div class="fld-control">
+            <div class="input-with-tools">
+              <input pInputText type="email" [(ngModel)]="draft.email" name="email" placeholder="usuario@dominio.com" />
+              <button pButton type="button" icon="pi pi-envelope" class="p-button p-button-text p-button-rounded" (click)="openEmail(draft.email)" pTooltip="Enviar correo" tooltipPosition="top" [disabled]="!draft.email"></button>
+            </div>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <label class="fld-label">Teléfono</label>
+          <div class="fld-control">
+            <input pInputText type="tel" [(ngModel)]="draft.telefono" name="telefono" placeholder="Ej: +57 3135331533" />
           </div>
         </div>
       </div>
@@ -61,21 +77,21 @@
             <button pButton type="button" icon="pi pi-copy" class="p-button p-button-text p-button-rounded" (click)="copy(user.username)" pTooltip="Copiar" tooltipPosition="top"></button>
           </div>
         </div>
-        <div class="kv" *ngIf="user.nombreCompleto"><span>Nombre completo</span><b>{{ user.nombreCompleto }}</b></div>
-        <div class="kv" *ngIf="user.email"><span>Email</span>
+        <div class="kv" *ngIf="isPresent(user.nombreCompleto)"><span>Nombre completo</span><b>{{ user.nombreCompleto }}</b></div>
+        <div class="kv" *ngIf="isPresent(user.email)"><span>Email</span>
           <div class="value-row">
             <b>{{ user.email }}</b>
             <button pButton type="button" icon="pi pi-envelope" class="p-button p-button-text p-button-rounded" (click)="openEmail(user.email)" pTooltip="Enviar correo" tooltipPosition="top"></button>
             <button pButton type="button" icon="pi pi-copy" class="p-button p-button-text p-button-rounded" (click)="copy(user.email)" pTooltip="Copiar" tooltipPosition="top"></button>
           </div>
         </div>
-        <div class="kv" *ngIf="user.telefono"><span>Teléfono</span><b>{{ user.telefono }}</b></div>
+        <div class="kv" *ngIf="isPresent(user.telefono)"><span>Teléfono</span><b>{{ user.telefono }}</b></div>
       </div>
 
       <div class="section">
         <h3 class="section-title">Organización</h3>
         <div class="kv" *ngIf="lineaMando"><span>Línea de mando</span><b>{{ lineaMando }}</b></div>
-        <div class="kv" *ngIf="user.scopeNivel"><span>Alcance</span><b>{{ user.scopeNivel }}</b></div>
+        <div class="kv" *ngIf="isPresent(user.scopeNivel)"><span>Alcance</span><b>{{ user.scopeNivel }}</b></div>
         <div class="kv"><span>Estado</span>
           <b class="state-wrap"><p-tag [value]="user.activo ? 'ACTIVO' : 'INACTIVO'" [severity]="user.activo ? 'success' : 'danger'"></p-tag></b>
         </div>

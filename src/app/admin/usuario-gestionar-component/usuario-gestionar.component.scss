@@ -25,3 +25,80 @@
   .actions-toolbar { grid-column: 1 / -1; }
   .kv span { width: 140px; }
 }
+
+/* Grillas de contenido */
+.content-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; padding: 16px 8px 8px; align-items: stretch; }
+.section { background: color-mix(in srgb, var(--surface-alt) 92%, transparent); border: 1px solid color-mix(in srgb, var(--border) 70%, transparent); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; }
+.section-title { margin: 0 0 12px; font-size: 1rem; font-weight: 800; color: var(--text); letter-spacing: .25px; }
+
+/* Chips responsivos en cabecera */
+.chip-row { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; min-width: 0; }
+.chip-row .p-chip { max-width: 100%; }
+.chip-row .p-chip .p-chip-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-block; max-width: 38ch; }
+@media (max-width: 768px) { .chip-row .p-chip .p-chip-text { max-width: 28ch; } }
+
+/* Igualar altura de tarjetas en desktop */
+@media (min-width: 992px) {
+  .content-grid { grid-auto-rows: 1fr; }
+}
+
+/* Edit form layout: columnas y alineación de herramientas */
+.edit-form { padding: 16px 8px 8px; }
+.edit-form .form-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px 16px;
+}
+@media (min-width: 900px) {
+  .edit-form .form-grid {
+    grid-template-columns: repeat(2, minmax(320px, 1fr));
+  }
+}
+.edit-form .field { display: flex; flex-direction: column; gap: 6px; }
+.edit-form .field label { font-weight: 600; color: var(--muted); }
+.edit-form .field :is(input.p-inputtext, .p-inputtext, .p-dropdown) { width: 100%; }
+
+/* Input + tools en una misma línea y alturas iguales */
+.input-with-tools { display: grid; grid-template-columns: 1fr auto; align-items: center; column-gap: 8px; }
+.input-with-tools .p-button { width: 40px; height: 40px; min-width: 40px; min-height: 40px; padding: 0; display: inline-flex; align-items: center; justify-content: center; }
+.input-with-tools .p-button .p-button-label { display: none; }
+
+/* Botonera de pie del formulario */
+.footer-actions { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
+
+/* Field rows: label izquierda, control derecha */
+.field-row { display: grid; grid-template-columns: 180px 1fr; align-items: center; column-gap: 16px; }
+.fld-label { text-align: left; color: var(--muted); font-weight: 600; }
+.fld-control { display: flex; align-items: center; justify-content: flex-start; }
+.fld-control :is(input.p-inputtext, .p-inputtext, .p-dropdown) { width: 100%; }
+
+@media (max-width: 768px) {
+  .field-row { grid-template-columns: 1fr; align-items: start; }
+  .fld-label { padding-bottom: 4px; }
+}
+
+/* Alineación explícita a la izquierda en filas KV */
+.kv { justify-items: start; }
+.kv b { text-align: left; justify-self: start; }
+.kv .kv-tools { justify-self: start; }
+
+/* Alineación explícita en controles del formulario */
+.fld-control { justify-content: flex-start; }
+
+/* Override final: KV rows alineación pegada a etiqueta */
+.kv {
+  display: grid !important;
+  grid-template-columns: 180px 1fr auto;
+  align-items: start;
+  column-gap: 16px;
+  row-gap: 2px;
+  margin-bottom: .5rem;
+  justify-items: start;
+}
+.kv span { width: auto !important; text-align: left; }
+.kv b { text-align: left; justify-self: start; }
+.kv .kv-tools { justify-self: start; }
+
+@media (max-width: 768px) {
+  .kv { grid-template-columns: 1fr !important; }
+}

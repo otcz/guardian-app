@@ -26,6 +26,8 @@ import { GestionarOpcionComponent } from './admin/opciones-menu/gestionar-opcion
 import { AsignarMenuARolComponent } from './admin/opciones-menu/asignar-menu-a-rol/asignar-menu-a-rol.component';
 import { NoAutorizadoComponent } from './shared/no-autorizado/no-autorizado.component';
 import { AsignarMenuAUsuarioComponent } from './admin/opciones-menu/asignar-menu-a-usuario/asignar-menu-a-usuario.component';
+import { LugarFormComponent } from './admin/lugar-form-component/lugar-form.component';
+import { LugaresListComponent } from './admin/lugares-list-component/lugares-list.component';
 
 export const appRoutes: Routes = [
   // Rutas públicas para pruebas de gestión de opciones (sin guards)
@@ -100,6 +102,10 @@ export const appRoutes: Routes = [
       { path: 'gestion-de-roles/crear-rol', redirectTo: 'crear-rol', pathMatch: 'full' },
       { path: 'gestion-de-roles/listar-roles', redirectTo: 'listar-roles', pathMatch: 'full' },
       { path: 'gestion-de-roles/gestionar-rol', redirectTo: 'gestionar-rol', pathMatch: 'full' },
+
+      // Gestión de Lugares
+      { path: 'gestion-de-lugares/crear-lugar', redirectTo: 'crear-lugar', pathMatch: 'full' },
+      { path: 'gestion-de-lugares/listar-lugares', redirectTo: 'listar-lugares', pathMatch: 'full' },
 
       // --- Prefix placeholders keep catching everything else ---
       { path: 'gestion-de-organizacion', component: PagePlaceholderComponent, canActivate: [PermissionGuard] },

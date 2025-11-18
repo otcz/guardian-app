@@ -1,0 +1,74 @@
+<div class="page">
+  <div class="toolbar">
+    <div class="left">
+      <h2>Lugares <small *ngIf="orgName">/ {{ orgName }}</small></h2>
+    </div>
+    <div class="right">
+      <span class="p-input-icon-left">
+        <i class="pi pi-search"></i>
+        <input pInputText [(ngModel)]="filter" (ngModelChange)="applyFilter()" placeholder="Buscar por nombre" />
+      </span>
+      <button pButton label="Nuevo" icon="pi pi-plus" (click)="startAdd()" [disabled]="adding || !!editingId"></button>
+    </div>
+  </div>
+
+  <p-table [value]="filtered" [loading]="loading" [responsiveLayout]="'scroll'">
+    <ng-template pTemplate="header">
+      <tr>
+        <th style="width: 44px"></th>
+        <th>Nombre</th>
+        <th>Tipo</th>
+        <th style="width: 220px">Acciones</th>
+      </tr>
+      <tr *ngIf="adding" class="row-add">
+        <td></td>
+        <td>
+          <input pInputText [(ngModel)]="draft.nombre" placeholder="Nombre del lugar" />
+        </td>
+        <td>
+          <p-dropdown [options]="tiposOptions" [(ngModel)]="draft.tipoLugar" [style.width.px]="200"></p-dropdown>
+        </td>
+        <td class="row-actions">
+          <button pButton icon="pi pi-check" class="p-button-success" (click)="saveAdd()" [loading]="saving"></button>
+          <button pButton icon="pi pi-times" class="p-button-secondary" (click)="cancelAdd()" [disabled]="saving"></button>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-row>
+      <tr>
+        <td>
+          <i class="pi" [ngClass]="{'pi-map-marker': true}"></i>
+        </td>
+        <td>
+          <ng-container *ngIf="editingId !== row.id; else editNombre">
+            {{ row.nombre }}
+          </ng-container>
+          <ng-template #editNombre>
+            <input pInputText [(ngModel)]="editDraft.nombre" />
+          </ng-template>
+        </td>
+        <td>
+          <ng-container *ngIf="editingId !== row.id; else editTipo">
+            <span class="badge">{{ row.tipoLugar }}</span>
+          </ng-container>
+          <ng-template #editTipo>
+            <p-dropdown [options]="tiposOptions" [(ngModel)]="editDraft.tipoLugar" [style.width.px]="200"></p-dropdown>
+          </ng-template>
+        </td>
+        <td class="row-actions">
+          <ng-container *ngIf="editingId !== row.id; else editBtns">
+            <button pButton icon="pi pi-pencil" class="p-button-text" (click)="startEdit(row)"></button>
+            <button pButton icon="pi pi-trash" class="p-button-text p-button-danger" (click)="remove(row)"></button>
+          </ng-container>
+          <ng-template #editBtns>
+            <button pButton icon="pi pi-check" class="p-button-success" (click)="saveEdit()" [loading]="saving"></button>
+            <button pButton icon="pi pi-times" class="p-button-secondary" (click)="cancelEdit()" [disabled]="saving"></button>
+          </ng-template>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+
+  <p-confirmDialog></p-confirmDialog>
+</div>

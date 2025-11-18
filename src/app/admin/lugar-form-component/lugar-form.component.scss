@@ -1,0 +1,6 @@
+.lugar-card { display:block; }
+.edit-form { padding: 16px 8px 8px; }
+.edit-form .form-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px 16px; }
+.edit-form .field { display:flex; flex-direction:column; gap:6px; }
+.footer-actions { display:flex; align-items:center; gap:10px; margin-top:12px; }
+

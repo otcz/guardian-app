@@ -1,0 +1,25 @@
+<p-card class="lugar-card">
+  <ng-template pTemplate="header">
+    <div class="hdr">
+      <h2>Crear Lugar</h2>
+    </div>
+  </ng-template>
+
+  <form [formGroup]="form" (ngSubmit)="submit()" class="edit-form">
+    <div class="form-grid">
+      <div class="field">
+        <label for="nombre">Nombre</label>
+        <input id="nombre" pInputText formControlName="nombre" placeholder="Ej. Parque Central" />
+      </div>
+      <div class="field">
+        <label for="tipo">Tipo</label>
+        <p-dropdown id="tipo" formControlName="tipoLugar" [options]="tiposOptions"></p-dropdown>
+      </div>
+    </div>
+
+    <div class="footer-actions">
+      <button pButton type="submit" label="Crear" icon="pi pi-check" [loading]="loading"></button>
+      <button pButton type="button" label="Cancelar" class="p-button-secondary" icon="pi pi-times" (click)="cancel()" [disabled]="loading"></button>
+    </div>
+  </form>
+</p-card>

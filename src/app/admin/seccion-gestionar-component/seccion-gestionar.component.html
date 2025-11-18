@@ -1,0 +1,21 @@
+<p-card class="card">
+  <div class="user-hero">
+    <div class="user-meta">
+      <div class="title-row">
+        <h2 class="title">Gestionar Sección</h2>
+        <p-tag *ngIf="seccion" [value]="seccion.estado || 'ACTIVA'" [severity]="['ACTIVA','ACTIVO'].includes((seccion.estado||'').toUpperCase()) ? 'success' : 'danger'"></p-tag>
+      </div>
+      <div class="chip-row" *ngIf="seccion">
+        <span class="pill">{{ seccion.nombre }}</span>
+      </div>
+    </div>
+    <div class="actions-toolbar">
+      <button pButton type="button" icon="pi pi-arrow-left" class="p-button p-button-text" (click)="volver()" pTooltip="Volver" tooltipPosition="top"></button>
+    </div>
+  </div>
+
+  <div class="grid">
+    <button pButton label="Crear lugar" icon="pi pi-plus" class="p-button-success" (click)="crearLugar()" [disabled]="loading"></button>
+    <button pButton label="Listar lugares" class="p-button-secondary" icon="pi pi-list" (click)="listarLugares()" [disabled]="loading"></button>
+  </div>
+</p-card>

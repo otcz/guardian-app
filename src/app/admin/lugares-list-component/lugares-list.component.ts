@@ -90,8 +90,10 @@ export class LugaresListComponent implements OnInit, OnDestroy {
     if (!this.orgId) return;
     const nombre = (this.draft.nombre || '').trim();
     if (nombre.length < 3) { this.toastWarn('VALIDACIÓN', 'NOMBRE MÍN. 3 CARACTERES'); return; }
+    const seccionId = (typeof window !== 'undefined') ? new URLSearchParams(window.location.search).get('seccionId') : null;
+    if (!seccionId) { this.toastWarn('VALIDACIÓN', 'Selecciona una sección desde el hub antes de crear'); return; }
     this.saving = true;
-    this.svc.create(this.orgId, { nombre, tipoLugar: this.draft.tipoLugar }).subscribe({
+    this.svc.create(this.orgId, { nombre, tipoLugar: this.draft.tipoLugar, seccionId }).subscribe({
       next: (res) => { this.items.push(res.lugar); this.applyFilter(); this.saving = false; this.adding = false; this.toastSuccess('LUGAR CREADO', res.message || 'OK'); },
       error: (e) => { this.saving = false; this.toastError('ERROR', e?.error?.message || 'No se pudo crear'); }
     });

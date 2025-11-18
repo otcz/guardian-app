@@ -125,9 +125,9 @@
             <!-- Acciones normales -->
             <ng-container *ngIf="!adding && editingId !== row.id">
               <button pButton type="button" icon="pi pi-user" label="Usuarios" class="p-button-outlined p-button-sm" (click)="viewUsuarios(row)" [disabled]="saving" pTooltip="VER USUARIOS" tooltipPosition="top"></button>
-              <button *ngIf="canAssignAdmin" pButton type="button" icon="pi pi-user-plus" label="Asignar admin" class="p-button-outlined p-button-sm p-button-info" (click)="gotoAssignAdmin(row)" [disabled]="saving" pTooltip="ASIGNAR ADMINISTRADOR" tooltipPosition="top"></button>
               <button pButton type="button" icon="pi pi-pencil" class="p-button-rounded p-button-text" (click)="startEdit(row)" [disabled]="saving" pTooltip="EDITAR" tooltipPosition="top"></button>
               <button pButton type="button" icon="pi pi-trash" class="p-button-rounded p-button-text p-button-danger" (click)="remove(row)" [disabled]="saving" pTooltip="ELIMINAR (LÓGICA)" tooltipPosition="top"></button>
+              <button pButton type="button" icon="pi pi-cog" label="Gestionar" class="p-button-sm" [routerLink]="['/gestion-de-secciones/gestionar-seccion']" [queryParams]="{ id: orgId, seccionId: row.id }" pTooltip="GESTIONAR SECCIÓN" tooltipPosition="top"></button>
             </ng-container>
           </td>
         </tr>

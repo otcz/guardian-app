@@ -32,3 +32,9 @@ Códigos de permiso sugeridos
 UI
 - Listado: `LugaresListComponent` con alta inline, editar y eliminar.
 - Formulario: `LugarFormComponent` con validaciones y soporte claro/oscuro.
+
+Ejemplos
+- Crear (POST):
+  curl -X POST http://localhost:4200/api/orgs/{orgId}/lugares \
+    -H "Content-Type: application/json" \
+    -d '{"nombre":"Parque Central","tipoLugar":"PARQUE","seccionId":"UUID-SECCION"}'

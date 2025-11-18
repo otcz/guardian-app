@@ -28,6 +28,7 @@ import { NoAutorizadoComponent } from './shared/no-autorizado/no-autorizado.comp
 import { AsignarMenuAUsuarioComponent } from './admin/opciones-menu/asignar-menu-a-usuario/asignar-menu-a-usuario.component';
 import { LugarFormComponent } from './admin/lugar-form-component/lugar-form.component';
 import { LugaresListComponent } from './admin/lugares-list-component/lugares-list.component';
+import { SeccionGestionarComponent } from './admin/seccion-gestionar-component/seccion-gestionar.component';
 
 export const appRoutes: Routes = [
   // Rutas públicas para pruebas de gestión de opciones (sin guards)
@@ -60,6 +61,10 @@ export const appRoutes: Routes = [
       { path: 'crear-rol', component: RolesCreatePageComponent, canActivate: [PermissionGuard], data: { code: 'ROLE_CREATE' } },
       { path: 'gestionar-rol', component: RolesListComponent, canActivate: [PermissionGuard], data: { code: 'ROLE_MANAGE' } },
       { path: 'listar-roles', component: RolesListComponent, canActivate: [PermissionGuard], data: { code: 'ROLE_LIST' } },
+
+      // --- Gestión de lugares (rutas concretas) ---
+      { path: 'crear-lugar', component: LugarFormComponent },
+      { path: 'listar-lugares', component: LugaresListComponent },
 
       // --- Gestión de usuarios ---
       { path: 'gestion-de-usuarios/crear-usuario', component: UsuariosCrearComponent, canActivate: [PermissionGuard], data: { code: 'USER_CREATE' } },
@@ -97,6 +102,10 @@ export const appRoutes: Routes = [
       { path: 'gestion-de-secciones/crear-seccion', redirectTo: 'crear-seccion', pathMatch: 'full' },
       { path: 'gestion-de-secciones/listar-secciones', redirectTo: 'listar-secciones', pathMatch: 'full' },
       { path: 'gestion-de-secciones/asignar-administrador-de-seccion', redirectTo: 'asignar-administrador-de-seccion', pathMatch: 'full' },
+      { path: 'gestion-de-secciones/gestionar-seccion', component: SeccionGestionarComponent, canActivate: [PermissionGuard], data: { code: 'SECTION_REPORT_VIEW' } },
+      // Accesos a Lugares desde el prefijo de Secciones
+      { path: 'gestion-de-secciones/listar-lugares', redirectTo: 'listar-lugares', pathMatch: 'full' },
+      { path: 'gestion-de-secciones/crear-lugar', redirectTo: 'crear-lugar', pathMatch: 'full' },
 
       // Gestión de Roles
       { path: 'gestion-de-roles/crear-rol', redirectTo: 'crear-rol', pathMatch: 'full' },

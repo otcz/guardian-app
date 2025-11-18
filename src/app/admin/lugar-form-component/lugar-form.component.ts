@@ -6,21 +6,26 @@ import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { DropdownModule } from 'primeng/dropdown';
 import { ButtonModule } from 'primeng/button';
+import { FormsModule } from '@angular/forms';
 import { OrgContextService } from '../../service/org-context.service';
 import { NotificationService } from '../../service/notification.service';
 import { LugarService } from '../../service/lugar.service';
 import { LugarTipo } from '../../models/lugar.models';
+import { SeccionService, SeccionEntity } from '../../service/seccion.service';
 
 @Component({
   selector: 'app-lugar-form',
   standalone: true,
-  imports: [CommonModule, RouterModule, ReactiveFormsModule, CardModule, InputTextModule, DropdownModule, ButtonModule],
+  imports: [CommonModule, RouterModule, ReactiveFormsModule, FormsModule, CardModule, InputTextModule, DropdownModule, ButtonModule],
   templateUrl: './lugar-form.component.html',
   styleUrls: ['./lugar-form.component.scss']
 })
 export class LugarFormComponent {
   loading = false;
   orgId: string | null = null;
+  seccionId: string | null = null;
+  secciones: { id: string; nombre: string }[] = [];
+  seccionOptions: { label: string; value: string }[] = [];
   tipos: LugarTipo[] = ['APARTAMENTO', 'CASA', 'ALMACEN', 'AULA', 'BODEGA', 'DEPOSITO', 'LOCAL', 'OFICINA', 'SALON', 'OTRO'];
   tiposOptions = this.tipos.map(t => ({ label: t, value: t }));
 
@@ -32,7 +37,8 @@ export class LugarFormComponent {
     private router: Router,
     private orgCtx: OrgContextService,
     private notify: NotificationService,
-    private svc: LugarService
+    private svc: LugarService,
+    private seccionesSvc: SeccionService
   ) {
     this.form = this.fb.group({
       nombre: ['', [Validators.required, Validators.maxLength(200)]],
@@ -40,16 +46,31 @@ export class LugarFormComponent {
     });
     const byQuery = this.route.snapshot.queryParamMap.get('id');
     this.orgId = this.orgCtx.ensureFromQuery(byQuery);
+    this.seccionId = this.route.snapshot.queryParamMap.get('seccionId');
     if (!this.orgId) this.notify.warn('Falta organización', 'Selecciona una organización');
+    if (!this.seccionId) this.loadSecciones();
+  }
+
+  private loadSecciones() {
+    if (!this.orgId) return;
+    this.seccionesSvc.list(this.orgId).subscribe({
+      next: (arr: SeccionEntity[]) => {
+        this.secciones = (arr || []).map(s => ({ id: String((s as any).id), nombre: String((s as any).nombre) }));
+        this.seccionOptions = this.secciones.map(s => ({ label: s.nombre, value: s.id }));
+      },
+      error: () => { this.secciones = []; this.seccionOptions = []; }
+    });
   }
 
   submit() {
     if (!this.orgId) { this.notify.error('Sin organización', 'Selecciona una organización.'); return; }
     if (this.form.invalid) { this.form.markAllAsTouched(); this.notify.warn('Validación', 'Completa los campos.'); return; }
     const v = this.form.value as any;
+    const seccionId = this.seccionId;
+    if (!seccionId) { this.notify.warn('Validación', 'Selecciona una sección'); return; }
     this.loading = true;
-    this.svc.create(this.orgId, { nombre: String(v.nombre).trim(), tipoLugar: v.tipoLugar as any }).subscribe({
-      next: (res) => { this.loading = false; this.notify.success('LUGAR CREADO', res.message || 'OK'); this.router.navigate(['/listar-lugares'], { queryParams: { id: this.orgId } }); },
+    this.svc.create(this.orgId, { nombre: String(v.nombre).trim(), tipoLugar: v.tipoLugar as any, seccionId }).subscribe({
+      next: (res) => { this.loading = false; this.notify.success('LUGAR CREADO', res.message || 'OK'); this.router.navigate(['/gestion-de-secciones/gestionar-seccion'], { queryParams: { id: this.orgId, seccionId } }); },
       error: (e) => { this.loading = false; this.notify.error('ERROR', e?.error?.message || 'No se pudo crear'); }
     });
   }

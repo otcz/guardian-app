@@ -19,23 +19,28 @@ export class LugarService {
     return {
       id: String(d.id),
       nombre: String(d.nombre),
-      tipoLugar: (d.tipoLugar ?? 'CASA') as LugarTipo
+      tipoLugar: (d.tipoLugar ?? 'CASA') as LugarTipo,
+      seccionId: String(d.seccionId || ''),
+      orgId: d.orgId ? String(d.orgId) : undefined
     };
   }
 
   create(orgId: string, body: CreateLugarRequest): Observable<{ lugar: LugarEntity; message?: string }> {
     const url = `${this.base}/orgs/${orgId}/lugares`;
-    const payload = { nombre: (body.nombre || '').trim(), tipoLugar: (body.tipoLugar ?? 'CASA') as LugarTipo };
-    return this.http.post<ApiResponse<any>>(url, payload, { headers: this.json }).pipe(
+    const payload = {
+      nombre: (body.nombre || '').trim(),
+      tipoLugar: body.tipoLugar ?? ('CASA' as LugarTipo),
+      seccionId: body.seccionId
+    };
+    return this.http.post<any>(url, payload, { headers: this.json }).pipe(
       map((resp) => {
-        const ok = (resp && (resp as any).success !== false);
-        if (!ok) throw { status: 400, error: { message: resp?.message || 'No se pudo crear el lugar' } };
-        const d = (resp?.data ?? resp) as any;
+        const d = resp?.data ?? resp;
         return { lugar: this.mapLugar(d), message: resp?.message };
       }),
       catchError((err) => {
         const status = err?.status;
-        const msg = err?.error?.message || err?.message || (status === 409 ? 'NOMBRE DE LUGAR DUPLICADO' : 'No se pudo crear el lugar');
+        let msg = err?.error?.message || err?.message || 'No se pudo crear el lugar';
+        if (status === 409) msg = 'YA EXISTE UN LUGAR CON ESE NOMBRE';
         return throwError(() => ({ status, error: { message: msg } }));
       })
     );
@@ -54,31 +59,33 @@ export class LugarService {
     );
   }
 
+  listBySeccion(orgId: string, seccionId: string): Observable<LugarEntity[]> {
+    const url = `${this.base}/orgs/${orgId}/lugares?seccionId=${encodeURIComponent(seccionId)}`;
+    return this.http.get<any>(url, { headers: this.accept }).pipe(
+      map(resp => {
+        const arr = resp?.data ?? resp;
+        return Array.isArray(arr) ? arr.map(d => this.mapLugar(d)) : [];
+      }),
+      catchError(err => throwError(() => ({ status: err?.status, error: { message: err?.error?.message || 'No se pudieron listar lugares' } })))
+    );
+  }
+
   get(orgId: string, lugarId: string): Observable<LugarEntity> {
     const url = `${this.base}/orgs/${orgId}/lugares/${lugarId}`;
-    return this.http.get<ApiResponse<any>>(url, { headers: this.accept }).pipe(
-      map((resp) => {
-        const ok = (resp && (resp as any).success !== false);
-        if (!ok) throw { status: 404, error: { message: resp?.message || 'Lugar no encontrado' } };
-        const d = (resp?.data ?? resp) as any;
-        return this.mapLugar(d);
-      }),
-      catchError((err) => throwError(() => ({ status: err?.status, error: { message: err?.error?.message || err?.message || 'No se pudo obtener el lugar' } })))
+    return this.http.get<any>(url, { headers: this.accept }).pipe(
+      map(resp => this.mapLugar(resp?.data ?? resp)),
+      catchError(err => throwError(() => ({ status: err?.status, error: { message: err?.error?.message || 'No se pudo obtener el lugar' } })))
     );
   }
 
   update(orgId: string, lugarId: string, body: UpdateLugarRequest): Observable<{ lugar: LugarEntity; message?: string }> {
     const url = `${this.base}/orgs/${orgId}/lugares/${lugarId}`;
-    return this.http.patch<ApiResponse<any>>(url, body, { headers: this.json }).pipe(
-      map((resp) => {
-        const ok = (resp && (resp as any).success !== false);
-        if (!ok) throw { status: 400, error: { message: resp?.message || 'No se pudo actualizar el lugar' } };
-        const d = (resp?.data ?? resp) as any;
-        return { lugar: this.mapLugar(d), message: resp?.message };
-      }),
-      catchError((err) => {
+    return this.http.patch<any>(url, body, { headers: this.json }).pipe(
+      map(resp => ({ lugar: this.mapLugar(resp?.data ?? resp), message: resp?.message })),
+      catchError(err => {
         const status = err?.status;
-        const msg = err?.error?.message || err?.message || (status === 409 ? 'NOMBRE DE LUGAR DUPLICADO' : 'No se pudo actualizar el lugar');
+        let msg = err?.error?.message || err?.message || 'No se pudo actualizar el lugar';
+        if (status === 409) msg = 'YA EXISTE UN LUGAR CON ESE NOMBRE';
         return throwError(() => ({ status, error: { message: msg } }));
       })
     );
@@ -86,13 +93,9 @@ export class LugarService {
 
   delete(orgId: string, lugarId: string): Observable<{ message?: string }> {
     const url = `${this.base}/orgs/${orgId}/lugares/${lugarId}`;
-    return this.http.delete<ApiResponse<any>>(url, { headers: this.accept }).pipe(
-      map((resp) => {
-        const ok = (resp && (resp as any).success !== false);
-        if (!ok) throw { status: 400, error: { message: resp?.message || 'No se pudo eliminar el lugar' } };
-        return { message: resp?.message };
-      }),
-      catchError((err) => throwError(() => ({ status: err?.status, error: { message: err?.error?.message || err?.message || 'No se pudo eliminar el lugar' } })))
+    return this.http.delete<any>(url, { headers: this.accept }).pipe(
+      map(resp => ({ message: resp?.message })),
+      catchError(err => throwError(() => ({ status: err?.status, error: { message: err?.error?.message || 'No se pudo eliminar el lugar' } })))
     );
   }
 }

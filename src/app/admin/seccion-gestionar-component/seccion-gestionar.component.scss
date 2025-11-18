@@ -1,0 +1,10 @@
+.hdr { display:flex; align-items:center; gap:12px; }
+.muted { opacity: .7; font-weight: 500; }
+.grid { display:flex; gap:10px; align-items:center; margin-top:12px; }
+.spacer { flex:1; }
+.card { display:block; }
+.user-hero { display:flex; align-items:center; justify-content: space-between; gap:16px; }
+.user-meta { display:flex; flex-direction:column; gap:8px; }
+.title-row { display:flex; align-items:center; gap:8px; }
+.chip-row .pill { display:inline-block; padding:6px 10px; border-radius:999px; background: color-mix(in srgb, var(--surface-alt) 92%, transparent); border:1px solid color-mix(in srgb, var(--border) 70%, transparent); }
+.actions-toolbar { display:flex; gap:8px; }

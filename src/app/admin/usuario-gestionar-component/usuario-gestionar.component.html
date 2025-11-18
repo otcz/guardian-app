@@ -99,11 +99,11 @@
 
       <div class="section actions-quick">
         <h3 class="section-title">Acciones rápidas</h3>
-        <div class="quick-grid">
-          <button pButton type="button" icon="pi pi-user-edit" label="Editar datos" class="p-button p-button-outlined" (click)="toggleEdit()" [disabled]="editing"></button>
-          <button pButton type="button" [label]="user.activo ? 'Desactivar usuario' : 'Activar usuario'" [icon]="user.activo ? 'pi pi-ban' : 'pi pi-check'" [class]="user.activo ? 'p-button p-button-outlined p-button-danger' : 'p-button p-button-outlined p-button-success'" (click)="toggleActive()"></button>
-          <button pButton type="button" icon="pi pi-user-plus" label="Asignar roles" class="p-button p-button-text" [routerLink]="['/gestion-de-usuarios/asignar-roles']" [queryParams]="{ id: user.id }"></button>
-          <button pButton type="button" icon="pi pi-sitemap" label="Asignar sección" class="p-button p-button-text" [routerLink]="['/gestion-de-usuarios/asignar-usuario-a-seccion']" [queryParams]="{ id: user.id }"></button>
+        <div class="quick-icons">
+          <button pButton type="button" icon="pi pi-user-edit" class="p-button p-button-outlined p-button-rounded icon-btn" (click)="toggleEdit()" [disabled]="editing" pTooltip="Editar datos" tooltipPosition="top"></button>
+          <button pButton type="button" class="p-button p-button-outlined p-button-rounded icon-btn" [ngClass]="user.activo ? 'p-button-danger' : 'p-button-success'" [icon]="user.activo ? 'pi pi-ban' : 'pi pi-check'" (click)="toggleActive()" [pTooltip]="user.activo ? 'Desactivar usuario' : 'Activar usuario'" tooltipPosition="top"></button>
+          <button pButton type="button" icon="pi pi-user-plus" class="p-button p-button-text p-button-rounded icon-btn" [routerLink]="['/gestion-de-usuarios/asignar-roles']" [queryParams]="{ id: user.id }" pTooltip="Asignar roles" tooltipPosition="top"></button>
+          <button pButton type="button" icon="pi pi-sitemap" class="p-button p-button-text p-button-rounded icon-btn" [routerLink]="['/gestion-de-usuarios/asignar-usuario-a-seccion']" [queryParams]="{ id: user.id }" pTooltip="Asignar sección" tooltipPosition="top"></button>
         </div>
       </div>
     </div>

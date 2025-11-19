@@ -1,65 +1,271 @@
-<!-- filepath: c:\Users\OTCZ\WebstormProjects\guardian-app\src\app\shared\section-invite-dialog.component.html -->
-<p-dialog [(visible)]="visible" (visibleChange)="visibleChange.emit($event)" [modal]="true" [dismissableMask]="true" [draggable]="false" [resizable]="false" [style]="{ width: '560px' }" header="Invitar a la Sección">
-  <div class="content" *ngIf="!invite; else successTpl">
-    <div class="field" *ngIf="!seccionId">
-      <label>Sección</label>
-      <p-dropdown [options]="secciones" optionLabel="nombre" optionValue="id" [(ngModel)]="seccionId" placeholder="Selecciona la sección"></p-dropdown>
+<p-dialog
+  [(visible)]="visible"
+  (visibleChange)="visibleChange.emit($event)"
+  [modal]="true"
+  [dismissableMask]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [style]="{ width: '650px' }"
+  styleClass="modern-dialog">
+
+  <!-- Header personalizado -->
+  <ng-template pTemplate="header">
+    <div class="dialog-header">
+      <i class="pi pi-send header-icon"></i>
+      <div class="header-text">
+        <h3>Invitar a la Sección</h3>
+        <p class="subtitle">Genera un enlace de invitación para nuevos usuarios</p>
+      </div>
+    </div>
+  </ng-template>
+
+  <!-- Contenido del formulario -->
+  <div class="dialog-content" *ngIf="!invite; else successTpl">
+    <!-- Sección a invitar -->
+    <div class="form-section" *ngIf="!seccionId">
+      <h4 class="section-title">
+        <i class="pi pi-building"></i>
+        Seleccionar Sección
+      </h4>
+      <div class="field">
+        <label for="seccion" class="field-label">
+          <i class="pi pi-sitemap label-icon"></i>
+          Sección
+          <span class="required-mark">*</span>
+        </label>
+        <p-dropdown
+          id="seccion"
+          [options]="secciones"
+          optionLabel="nombre"
+          optionValue="id"
+          [(ngModel)]="seccionId"
+          placeholder="Selecciona la sección"
+          [filter]="true"
+          filterPlaceholder="Buscar sección..."
+          styleClass="w-100">
+        </p-dropdown>
+      </div>
     </div>
 
-    <div class="row">
-      <div class="field">
-        <label>TTL (minutos)</label>
-        <div class="chips">
-          <button pButton type="button" class="p-button p-button-sm p-button-text" *ngFor="let c of ttlChips" (click)="applyTtlChip(c)" [label]="c + ''"></button>
+    <!-- Configuración de la invitación -->
+    <div class="form-section">
+      <h4 class="section-title">
+        <i class="pi pi-cog"></i>
+        Configuración
+      </h4>
+
+      <div class="form-grid">
+        <!-- TTL -->
+        <div class="field">
+          <label for="ttl" class="field-label">
+            <i class="pi pi-clock label-icon"></i>
+            Tiempo de Validez (minutos)
+          </label>
+          <div class="ttl-chips">
+            <button
+              pButton
+              type="button"
+              class="p-button-sm chip-btn"
+              *ngFor="let c of ttlChips"
+              (click)="applyTtlChip(c)"
+              [label]="c + ' min'">
+            </button>
+          </div>
+          <input
+            id="ttl"
+            pInputText
+            type="number"
+            [(ngModel)]="ttlMinutes"
+            placeholder="Ej. 30 (vacío = 30 por defecto)"
+            class="input-field" />
+          <small class="info-message">
+            <i class="pi pi-info-circle"></i>
+            Si dejas vacío, se aplicarán 30 minutos por defecto
+          </small>
         </div>
-        <input pInputText type="number" [(ngModel)]="ttlMinutes" placeholder="Ej. 30 (vacío = 30 por defecto)" />
-        <small class="hint">Si dejas vacío, aplica 30 minutos por defecto.</small>
-      </div>
-      <div class="field">
-        <label>Rol contextual (opcional)</label>
-        <p-dropdown [options]="filteredRoles" optionLabel="nombre" optionValue="id" [(ngModel)]="rolContextualId" placeholder="Sin rol contextual"></p-dropdown>
+
+        <!-- Rol contextual -->
+        <div class="field">
+          <label for="rol" class="field-label">
+            <i class="pi pi-shield label-icon"></i>
+            Rol Contextual (opcional)
+          </label>
+          <p-dropdown
+            id="rol"
+            [options]="filteredRoles"
+            optionLabel="nombre"
+            optionValue="id"
+            [(ngModel)]="rolContextualId"
+            placeholder="Sin rol contextual"
+            [showClear]="true"
+            [filter]="true"
+            filterPlaceholder="Buscar rol..."
+            styleClass="w-100">
+          </p-dropdown>
+          <small class="info-message">
+            <i class="pi pi-info-circle"></i>
+            Rol que se asignará automáticamente al aceptar
+          </small>
+        </div>
       </div>
     </div>
 
-    <div class="row">
-      <div class="field">
-        <label>Email destino (opcional)</label>
-        <input pInputText type="email" [(ngModel)]="emailDestino" placeholder="usuario@dominio.com" />
-      </div>
-      <div class="field">
-        <label>Notas (opcional)</label>
-        <input pInputText type="text" [(ngModel)]="notas" placeholder="Texto informativo" />
-      </div>
-    </div>
+    <!-- Información adicional -->
+    <div class="form-section">
+      <h4 class="section-title">
+        <i class="pi pi-file-edit"></i>
+        Información Adicional
+      </h4>
 
-    <div class="actions">
-      <span class="spacer"></span>
-      <button pButton type="button" label="Cancelar" class="p-button p-button-text" (click)="close()" [disabled]="saving"></button>
-      <button pButton type="button" label="Crear invitación" (click)="create()" [disabled]="saving || !canSubmit"></button>
+      <div class="form-grid">
+        <!-- Email destino -->
+        <div class="field">
+          <label for="email" class="field-label">
+            <i class="pi pi-envelope label-icon"></i>
+            Email Destino (opcional)
+          </label>
+          <input
+            id="email"
+            pInputText
+            type="email"
+            [(ngModel)]="emailDestino"
+            placeholder="usuario@dominio.com"
+            class="input-field" />
+        </div>
+
+        <!-- Notas -->
+        <div class="field">
+          <label for="notas" class="field-label">
+            <i class="pi pi-comment label-icon"></i>
+            Notas (opcional)
+          </label>
+          <input
+            id="notas"
+            pInputText
+            type="text"
+            [(ngModel)]="notas"
+            placeholder="Texto informativo"
+            class="input-field" />
+        </div>
+      </div>
     </div>
   </div>
 
+  <!-- Resultado exitoso -->
   <ng-template #successTpl>
-    <div class="success">
-      <p-tag value="Invitación creada" severity="success"></p-tag>
-      <div class="kv"><span>Expira</span><b>{{ invite?.expiraEn || '—' }}</b></div>
-      <div class="kv"><span>Usos</span><b>{{ invite?.usosActuales || 0 }} / {{ invite?.usosMaximos || '∞' }}</b></div>
-      <div class="kv"><span>Código</span><b>{{ invite?.codigo }}</b></div>
-
-      <div class="share">
-        <label>Enlace de invitación</label>
-        <div class="row" style="gap:8px; align-items:center;">
-          <input pInputText type="text" [value]="shareUrl || ''" readonly style="flex:1;" />
-          <button pButton type="button" icon="pi pi-copy" class="p-button p-button-text" (click)="copyLink()" [disabled]="!shareUrl"></button>
-          <button pButton type="button" icon="pi pi-download" label="Descargar QR" (click)="downloadQr()" [disabled]="!shareUrl || generatingQr"></button>
+    <div class="success-content">
+      <!-- Tag de éxito -->
+      <div class="success-header">
+        <i class="pi pi-check-circle success-icon"></i>
+        <div>
+          <h4>¡Invitación Creada Exitosamente!</h4>
+          <p>Comparte el enlace o código QR con el nuevo usuario</p>
         </div>
-        <small class="hint">Copia o descarga el QR del enlace; otros podrán escanearlo para registrarse.</small>
       </div>
 
-      <div class="actions">
-        <span class="spacer"></span>
-        <button pButton type="button" label="Cerrar" (click)="close()"></button>
+      <!-- Información de la invitación -->
+      <div class="invite-info">
+        <div class="info-card">
+          <i class="pi pi-clock"></i>
+          <div class="info-content">
+            <span class="info-label">Expira en</span>
+            <strong>{{ invite?.expiraEn || '—' }}</strong>
+          </div>
+        </div>
+
+        <div class="info-card">
+          <i class="pi pi-users"></i>
+          <div class="info-content">
+            <span class="info-label">Usos</span>
+            <strong>{{ invite?.usosActuales || 0 }} / {{ invite?.usosMaximos || '∞' }}</strong>
+          </div>
+        </div>
+
+        <div class="info-card">
+          <i class="pi pi-key"></i>
+          <div class="info-content">
+            <span class="info-label">Código</span>
+            <strong>{{ invite?.codigo }}</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- Compartir enlace -->
+      <div class="share-section">
+        <label class="field-label">
+          <i class="pi pi-link label-icon"></i>
+          Enlace de Invitación
+        </label>
+        <div class="share-controls">
+          <input
+            pInputText
+            type="text"
+            [value]="shareUrl || ''"
+            readonly
+            class="share-input" />
+          <button
+            pButton
+            type="button"
+            icon="pi pi-copy"
+            class="p-button-outlined copy-btn"
+            pTooltip="Copiar enlace"
+            tooltipPosition="top"
+            (click)="copyLink()"
+            [disabled]="!shareUrl">
+          </button>
+        </div>
+        <button
+          pButton
+          type="button"
+          icon="pi pi-download"
+          label="Descargar Código QR"
+          class="p-button-outlined qr-btn"
+          (click)="downloadQr()"
+          [disabled]="!shareUrl || generatingQr"
+          [loading]="generatingQr">
+        </button>
+        <small class="info-message">
+          <i class="pi pi-info-circle"></i>
+          Copia el enlace o descarga el código QR para compartir la invitación
+        </small>
       </div>
     </div>
+  </ng-template>
+
+  <!-- Footer con acciones -->
+  <ng-template pTemplate="footer">
+    <div class="dialog-footer" *ngIf="!invite; else successFooter">
+      <button
+        pButton
+        type="button"
+        label="Cancelar"
+        icon="pi pi-times"
+        class="p-button-text"
+        (click)="close()"
+        [disabled]="saving">
+      </button>
+      <button
+        pButton
+        type="button"
+        label="Crear Invitación"
+        icon="pi pi-send"
+        class="p-button-success"
+        (click)="create()"
+        [disabled]="saving || !canSubmit"
+        [loading]="saving">
+      </button>
+    </div>
+    <ng-template #successFooter>
+      <div class="dialog-footer">
+        <button
+          pButton
+          type="button"
+          label="Cerrar"
+          icon="pi pi-check"
+          class="p-button-success"
+          (click)="close()">
+        </button>
+      </div>
+    </ng-template>
   </ng-template>
 </p-dialog>

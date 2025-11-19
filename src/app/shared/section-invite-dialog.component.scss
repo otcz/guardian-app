@@ -1,10 +1,469 @@
-/* estilos del diálogo de invitación (opcional) */
-.content { display: flex; flex-direction: column; gap: 12px; }
-.row { display: flex; gap: 12px; }
-.field { flex: 1; display: flex; flex-direction: column; gap: 6px; }
-.actions { display: flex; align-items: center; gap: 8px; }
-.spacer { flex: 1; }
-.success { display: flex; flex-direction: column; gap: 10px; }
-.kv { display: flex; justify-content: space-between; }
-.share .row { display: flex; gap: 8px; align-items: center; }
+/* Diálogo de Invitación a la Sección - Estilos Modernos */
+
+/* ============================================
+   DIALOG PERSONALIZADO
+   ============================================ */
+::ng-deep .modern-dialog {
+  .p-dialog-header {
+    background: linear-gradient(135deg, #4f8cff 0%, #2563eb 50%, #203a43 100%);
+    padding: 0;
+    border-bottom: none;
+  }
+
+  .p-dialog-content {
+    padding: 0;
+    background: var(--surface);
+  }
+
+  .p-dialog-footer {
+    background: var(--surface);
+    border-top: 2px solid var(--border);
+    padding: 1.25rem 1.5rem;
+  }
+}
+
+/* ============================================
+   HEADER DEL DIÁLOGO
+   ============================================ */
+.dialog-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem 1.75rem;
+  color: white;
+
+  .header-icon {
+    font-size: 2rem;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+  }
+
+  .header-text {
+    flex: 1;
+
+    h3 {
+      margin: 0 0 0.25rem 0;
+      font-size: 1.35rem;
+      font-weight: 600;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .subtitle {
+      margin: 0;
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.9);
+    }
+  }
+}
+
+/* ============================================
+   CONTENIDO DEL DIÁLOGO
+   ============================================ */
+.dialog-content {
+  padding: 1.5rem 1.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* ============================================
+   SECCIONES DEL FORMULARIO
+   ============================================ */
+.form-section {
+  .section-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0 0 1rem 0;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid rgba(79, 140, 255, 0.2);
+    color: var(--text);
+    font-size: 1rem;
+    font-weight: 600;
+
+    i {
+      color: var(--primary);
+      font-size: 1.1rem;
+    }
+  }
+}
+
+/* ============================================
+   GRID Y CAMPOS
+   ============================================ */
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  .field-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+    color: var(--text);
+    font-size: 0.9rem;
+
+    .label-icon {
+      color: var(--primary);
+      font-size: 0.95rem;
+    }
+
+    .required-mark {
+      color: var(--danger);
+      font-weight: bold;
+      margin-left: 2px;
+    }
+  }
+
+  .input-field {
+    width: 100%;
+    padding: 0.7rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--text);
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+
+    &::placeholder {
+      color: var(--muted);
+    }
+
+    &:focus {
+      border-color: var(--primary);
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(79, 140, 255, 0.1);
+    }
+  }
+
+  .info-message {
+    display: flex;
+    align-items: flex-start;
+    gap: 4px;
+    color: var(--primary);
+    font-size: 0.8rem;
+    line-height: 1.4;
+
+    i {
+      font-size: 0.85rem;
+      margin-top: 2px;
+    }
+  }
+}
+
+/* ============================================
+   TTL CHIPS
+   ============================================ */
+.ttl-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+
+  .chip-btn {
+    background: rgba(79, 140, 255, 0.1);
+    color: var(--primary);
+    border: 1px solid rgba(79, 140, 255, 0.3);
+    font-weight: 600;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: rgba(79, 140, 255, 0.2);
+      border-color: rgba(79, 140, 255, 0.5);
+      transform: translateY(-1px);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+  }
+}
+
+/* ============================================
+   CONTENIDO DE ÉXITO
+   ============================================ */
+.success-content {
+  padding: 1.5rem 1.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+
+  .success-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.25rem;
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(22, 163, 74, 0.05) 100%);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+    border-radius: 10px;
+
+    .success-icon {
+      font-size: 2.5rem;
+      color: var(--success);
+      flex-shrink: 0;
+    }
+
+    h4 {
+      margin: 0 0 0.25rem 0;
+      color: var(--text);
+      font-size: 1.15rem;
+      font-weight: 600;
+    }
+
+    p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+  }
+}
+
+/* ============================================
+   INFO CARDS
+   ============================================ */
+.invite-info {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+
+  .info-card {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem;
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    transition: all 0.2s ease;
+
+    &:hover {
+      border-color: var(--primary);
+      box-shadow: 0 2px 8px rgba(79, 140, 255, 0.1);
+      transform: translateY(-1px);
+    }
+
+    i {
+      font-size: 1.5rem;
+      color: var(--primary);
+      flex-shrink: 0;
+    }
+
+    .info-content {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      min-width: 0;
+
+      .info-label {
+        font-size: 0.75rem;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      strong {
+        font-size: 0.95rem;
+        color: var(--text);
+        font-weight: 600;
+        word-break: break-all;
+      }
+    }
+  }
+}
+
+/* ============================================
+   SECCIÓN DE COMPARTIR
+   ============================================ */
+.share-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1.25rem;
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+
+  .share-controls {
+    display: flex;
+    gap: 0.5rem;
+    align-items: stretch;
+
+    .share-input {
+      flex: 1;
+      font-family: monospace;
+      font-size: 0.85rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 0.7rem;
+      border-radius: 6px;
+      color: var(--text);
+    }
+
+    .copy-btn {
+      width: 42px;
+      height: 42px;
+      padding: 0;
+      border-radius: 6px;
+      transition: all 0.2s ease;
+
+      &:hover:not(:disabled) {
+        background: rgba(79, 140, 255, 0.1);
+        border-color: var(--primary);
+        transform: translateY(-1px);
+      }
+    }
+  }
+
+  .qr-btn {
+    width: 100%;
+    font-weight: 600;
+    padding: 0.75rem;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+
+    &:hover:not(:disabled) {
+      background: rgba(79, 140, 255, 0.05);
+      border-color: var(--primary);
+      transform: translateY(-1px);
+    }
+  }
+}
+
+/* ============================================
+   FOOTER DEL DIÁLOGO
+   ============================================ */
+.dialog-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+
+  button {
+    min-width: 120px;
+    font-weight: 600;
+    padding: 0.7rem 1.25rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+
+    &.p-button-success {
+      background: linear-gradient(135deg, var(--success) 0%, #16a34a 100%);
+      border: none;
+
+      &:hover:not(:disabled) {
+        background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
+      }
+    }
+
+    &.p-button-text {
+      color: var(--primary);
+
+      &:hover:not(:disabled) {
+        background: rgba(79, 140, 255, 0.1);
+      }
+    }
+
+    &:active:not(:disabled) {
+      transform: translateY(0);
+    }
+  }
+}
+
+/* ============================================
+   UTILIDADES
+   ============================================ */
+.w-100 {
+  width: 100%;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 768px) {
+  ::ng-deep .modern-dialog {
+    .p-dialog {
+      width: 95vw !important;
+      max-width: 95vw !important;
+    }
+  }
+
+  .dialog-header {
+    padding: 1.25rem 1.5rem;
+
+    .header-icon {
+      font-size: 1.75rem;
+    }
+
+    .header-text h3 {
+      font-size: 1.15rem;
+    }
+  }
+
+  .dialog-content,
+  .success-content {
+    padding: 1rem 1.25rem;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .invite-info {
+    grid-template-columns: 1fr;
+
+    .info-card {
+      padding: 0.85rem;
+    }
+  }
+
+  .ttl-chips {
+    .chip-btn {
+      flex: 1;
+      min-width: calc(33.333% - 0.5rem);
+    }
+  }
+
+  .dialog-footer {
+    flex-direction: column;
+
+    button {
+      width: 100%;
+    }
+  }
+}
+
+/* ============================================
+   TEMAS
+   ============================================ */
+:root.theme-dark {
+  .success-content .success-header {
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(22, 163, 74, 0.08) 100%);
+  }
+}
+
+:root.theme-black {
+  ::ng-deep .modern-dialog {
+    .p-dialog-header {
+      box-shadow: 0 4px 12px rgba(79, 140, 255, 0.3);
+    }
+  }
+
+  .success-content .success-header {
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.2) 0%, rgba(22, 163, 74, 0.1) 100%);
+    border-color: rgba(34, 197, 94, 0.4);
+  }
+
+  .share-section,
+  .info-card {
+    background: #161616;
+  }
+}
 

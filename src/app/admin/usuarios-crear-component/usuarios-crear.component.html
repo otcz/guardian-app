@@ -5,7 +5,13 @@
       <div class="card-header">
         <div class="header-content">
           <i class="pi pi-user-plus header-icon"></i>
-          <h2>Crear Usuario</h2>
+          <div class="header-text">
+            <h2>Crear / Invitar Usuario</h2>
+            <p class="subtitle">
+              <i class="pi pi-info-circle"></i>
+              Registra un nuevo usuario o envía una invitación por email
+            </p>
+          </div>
         </div>
         <button
           pButton
@@ -19,36 +25,50 @@
     </ng-template>
 
     <div class="card-body">
-      <!-- Preview chips -->
-      <div class="preview-chips" *ngIf="model.username || model.nombreCompleto || model.email">
-        <h4 class="preview-title">
+      <!-- Preview del usuario -->
+      <div class="preview-section" *ngIf="model.username || model.nombreCompleto || model.email">
+        <div class="preview-header">
           <i class="pi pi-eye"></i>
-          Vista Previa
-        </h4>
-        <div class="chips-grid">
-          <p-chip
-            icon="pi pi-id-card"
-            [label]="model.username || 'USUARIO'"
-            styleClass="preview-chip username-chip">
-          </p-chip>
-          <p-chip
-            *ngIf="model.nombreCompleto"
-            icon="pi pi-user"
-            [label]="model.nombreCompleto"
-            styleClass="preview-chip name-chip">
-          </p-chip>
-          <p-chip
-            *ngIf="model.email"
-            icon="pi pi-envelope"
-            [label]="model.email"
-            styleClass="preview-chip email-chip">
-          </p-chip>
-          <p-chip
-            *ngIf="isSeccionRequerida && model.seccionId"
-            icon="pi pi-sitemap"
-            [label]="'Sección: ' + (seccionNombre || model.seccionId)"
-            styleClass="preview-chip section-chip">
-          </p-chip>
+          <h4>Vista Previa del Usuario</h4>
+        </div>
+        <div class="preview-content">
+          <div class="user-avatar">
+            <p-avatar
+              icon="pi pi-user"
+              size="xlarge"
+              shape="circle"
+              [style]="{'background-color': '#4f8cff', 'color': '#fff'}">
+            </p-avatar>
+          </div>
+          <div class="user-info">
+            <div class="chips-row">
+              <p-chip
+                icon="pi pi-id-card"
+                [label]="model.username || 'USUARIO'"
+                styleClass="preview-chip username-chip">
+              </p-chip>
+              <p-chip
+                *ngIf="model.nombreCompleto"
+                icon="pi pi-user"
+                [label]="model.nombreCompleto"
+                styleClass="preview-chip name-chip">
+              </p-chip>
+            </div>
+            <div class="chips-row">
+              <p-chip
+                *ngIf="model.email"
+                icon="pi pi-envelope"
+                [label]="model.email"
+                styleClass="preview-chip email-chip">
+              </p-chip>
+              <p-chip
+                *ngIf="isSeccionRequerida && model.seccionId"
+                icon="pi pi-sitemap"
+                [label]="'Sección: ' + (seccionNombre || model.seccionId)"
+                styleClass="preview-chip section-chip">
+              </p-chip>
+            </div>
+          </div>
         </div>
       </div>
 

@@ -1,33 +1,120 @@
 <p-card class="lugar-card">
   <ng-template pTemplate="header">
-    <div class="hdr">
-      <h2>Crear Lugar</h2>
+    <div class="card-header">
+      <div class="header-content">
+        <i class="pi pi-map-marker header-icon"></i>
+        <h2>Crear Lugar</h2>
+      </div>
     </div>
   </ng-template>
 
   <form [formGroup]="form" (ngSubmit)="submit()" class="edit-form">
     <div class="form-grid">
-      <div class="field">
-        <label for="nombre">Nombre</label>
-        <input id="nombre" pInputText formControlName="nombre" placeholder="Ej. Parque Central" />
+      <!-- Campo Nombre -->
+      <div class="field" [ngClass]="{'field-error': form.get('nombre')?.invalid && form.get('nombre')?.touched}">
+        <label for="nombre" class="field-label">
+          <i class="pi pi-tag label-icon"></i>
+          Nombre
+          <span class="required-mark">*</span>
+        </label>
+        <input
+          id="nombre"
+          pInputText
+          formControlName="nombre"
+          placeholder="Ej. B-52, Parque Central, Oficina 301"
+          class="input-field"
+        />
+        <small class="error-message" *ngIf="form.get('nombre')?.hasError('required') && form.get('nombre')?.touched">
+          El nombre es obligatorio
+        </small>
+        <small class="error-message" *ngIf="form.get('nombre')?.hasError('maxlength') && form.get('nombre')?.touched">
+          Máximo 200 caracteres
+        </small>
       </div>
-      <div class="field">
-        <label for="tipo">Tipo</label>
-        <p-dropdown id="tipo" formControlName="tipoLugar" [options]="tiposOptions"></p-dropdown>
+
+      <!-- Campo Tipo -->
+      <div class="field" [ngClass]="{'field-error': form.get('tipoLugar')?.invalid && form.get('tipoLugar')?.touched}">
+        <label for="tipo" class="field-label">
+          <i class="pi pi-building label-icon"></i>
+          Tipo
+          <span class="required-mark">*</span>
+        </label>
+        <p-dropdown
+          id="tipo"
+          formControlName="tipoLugar"
+          [options]="tiposOptions"
+          placeholder="Selecciona el tipo de lugar"
+          [showClear]="false"
+          styleClass="dropdown-field"
+        ></p-dropdown>
       </div>
-      <div class="field" *ngIf="!seccionId">
-        <label for="seccionSel">Sección</label>
-        <p-dropdown id="seccionSel" name="seccionId" [options]="seccionOptions" [(ngModel)]="seccionId" [ngModelOptions]="{standalone:true}" [style.width.px]="260" placeholder="Selecciona sección"></p-dropdown>
-      </div>
-      <div class="field" *ngIf="seccionId">
-        <label>Sección</label>
-        <div class="hint">Se creará en la sección seleccionada.</div>
+
+      <!-- Campo Sección - Mejorado -->
+      <div class="field field-seccion" [ngClass]="{'field-error': !seccionId && showSeccionError}">
+        <label for="seccionSel" class="field-label">
+          <i class="pi pi-sitemap label-icon"></i>
+          Sección
+          <span class="required-mark">*</span>
+        </label>
+
+        <!-- Si ya hay una sección seleccionada (viene por parámetro) -->
+        <div *ngIf="seccionIdFixed" class="seccion-fixed-display">
+          <div class="seccion-badge">
+            <i class="pi pi-lock"></i>
+            <span>{{ getSeccionNombre(seccionIdFixed) || 'Sección seleccionada' }}</span>
+          </div>
+          <small class="info-message">
+            <i class="pi pi-info-circle"></i>
+            El lugar se creará en esta sección
+          </small>
+        </div>
+
+        <!-- Si no hay sección seleccionada, mostrar dropdown -->
+        <div *ngIf="!seccionIdFixed">
+          <p-dropdown
+            id="seccionSel"
+            name="seccionId"
+            [options]="seccionOptions"
+            [(ngModel)]="seccionId"
+            [ngModelOptions]="{standalone:true}"
+            placeholder="Selecciona una sección"
+            [showClear]="true"
+            [filter]="seccionOptions.length > 5"
+            filterBy="label"
+            styleClass="dropdown-field"
+            emptyMessage="No hay secciones disponibles"
+            emptyFilterMessage="No se encontraron secciones"
+          ></p-dropdown>
+          <small class="info-message" *ngIf="seccionId">
+            <i class="pi pi-check-circle"></i>
+            El lugar se creará en la sección seleccionada
+          </small>
+          <small class="error-message" *ngIf="!seccionId && showSeccionError">
+            Debes seleccionar una sección
+          </small>
+        </div>
       </div>
     </div>
 
+    <!-- Acciones del formulario -->
     <div class="footer-actions">
-      <button pButton type="submit" label="Crear" icon="pi pi-check" [loading]="loading"></button>
-      <button pButton type="button" label="Cancelar" class="p-button-secondary" icon="pi pi-times" (click)="cancel()" [disabled]="loading"></button>
+      <button
+        pButton
+        type="submit"
+        label="Crear"
+        icon="pi pi-check"
+        [loading]="loading"
+        class="p-button-success"
+      ></button>
+      <button
+        pButton
+        type="button"
+        label="Cancelar"
+        class="p-button-secondary"
+        icon="pi pi-times"
+        (click)="cancel()"
+        [disabled]="loading"
+      ></button>
     </div>
   </form>
 </p-card>

@@ -4,15 +4,68 @@
       <h2>Lugares <small *ngIf="orgName">/ {{ orgName }}</small></h2>
     </div>
     <div class="right">
-      <span class="p-input-icon-left">
-        <i class="pi pi-search"></i>
-        <input pInputText [(ngModel)]="filter" (ngModelChange)="applyFilter()" placeholder="Buscar por nombre" />
-      </span>
-      <button pButton label="Nuevo" icon="pi pi-plus" (click)="startAdd()" [disabled]="adding || !!editingId"></button>
+      <!-- Selector de Sección -->
+      <div class="control-container seccion-selector" *ngIf="seccionOptions.length > 0">
+        <label for="seccionSelect" class="control-label">
+          <i class="pi pi-sitemap"></i>
+          Sección:
+        </label>
+        <p-dropdown
+          id="seccionSelect"
+          [(ngModel)]="seccionId"
+          [options]="seccionOptions"
+          (onChange)="onSeccionChange()"
+          placeholder="Selecciona una sección"
+          [showClear]="false"
+          [filter]="seccionOptions.length > 5"
+          filterBy="label"
+          styleClass="control-dropdown"
+          [loading]="loadingSecciones"
+        ></p-dropdown>
+      </div>
+
+      <!-- Buscador -->
+      <div class="control-container search-container" *ngIf="seccionId">
+        <label for="searchInput" class="control-label">
+          <i class="pi pi-search"></i>
+          Buscar:
+        </label>
+        <input
+          id="searchInput"
+          pInputText
+          [(ngModel)]="filter"
+          (ngModelChange)="applyFilter()"
+          placeholder="Nombre del lugar"
+          class="search-input"
+        />
+      </div>
+
+      <div class="control-container button-container">
+        <button pButton label="Nuevo Lugar" icon="pi pi-plus" (click)="startAdd()" [disabled]="adding || !!editingId || !seccionId" class="btn-primary"></button>
+      </div>
+
+      <div class="control-container button-container">
+        <button pButton label="Importar Excel" icon="pi pi-upload" (click)="openImportDialog()" [disabled]="!seccionId" class="btn-secondary"></button>
+      </div>
     </div>
   </div>
 
-  <p-table [value]="filtered" [loading]="loading" [responsiveLayout]="'scroll'">
+  <!-- Mensaje cuando no hay sección seleccionada -->
+  <div *ngIf="!loadingSecciones && seccionOptions.length > 0 && !seccionId" class="empty-state">
+    <i class="pi pi-info-circle"></i>
+    <h3>Selecciona una sección</h3>
+    <p>Para ver y gestionar lugares, selecciona una sección del selector arriba.</p>
+  </div>
+
+  <!-- Mensaje cuando no hay secciones disponibles -->
+  <div *ngIf="!loadingSecciones && seccionOptions.length === 0" class="empty-state">
+    <i class="pi pi-exclamation-triangle"></i>
+    <h3>No hay secciones disponibles</h3>
+    <p>No tienes acceso a ninguna sección en esta organización.</p>
+    <p class="hint">Contacta con un administrador para que te asigne a una sección.</p>
+  </div>
+
+  <p-table *ngIf="seccionId" [value]="filtered" [loading]="loading" [responsiveLayout]="'scroll'">
     <ng-template pTemplate="header">
       <tr>
         <th style="width: 44px"></th>
@@ -71,4 +124,10 @@
   </p-table>
 
   <p-confirmDialog></p-confirmDialog>
+
+  <!-- Diálogo de importación desde Excel -->
+  <app-lugares-import-dialog
+    [(visible)]="showImportDialog"
+    (import)="onImportLugares($event)"
+  ></app-lugares-import-dialog>
 </div>

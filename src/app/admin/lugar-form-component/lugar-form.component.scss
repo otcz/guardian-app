@@ -1,6 +1,223 @@
-.lugar-card { display:block; }
-.edit-form { padding: 16px 8px 8px; }
-.edit-form .form-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px 16px; }
-.edit-form .field { display:flex; flex-direction:column; gap:6px; }
-.footer-actions { display:flex; align-items:center; gap:10px; margin-top:12px; }
+// Tarjeta principal
+.lugar-card {
+  display: block;
+  max-width: 1200px;
+  margin: 0 auto;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+}
+
+// Header personalizado
+.card-header {
+  background: linear-gradient(135deg, #4f8cff 0%, #2563eb 50%, #203a43 100%);
+  padding: 1.5rem 2rem;
+  border-radius: 8px 8px 0 0;
+  box-shadow: 0 4px 12px rgba(79, 140, 255, 0.2);
+
+  .header-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    h2 {
+      margin: 0;
+      color: white;
+      font-size: 1.5rem;
+      font-weight: 600;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .header-icon {
+      font-size: 1.8rem;
+      color: white;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+    }
+  }
+}
+
+// Formulario
+.edit-form {
+  padding: 2rem;
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  // Campos del formulario
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+
+    // Label con icono
+    .field-label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 600;
+      color: #495057;
+      font-size: 0.95rem;
+
+      .label-icon {
+        color: #4f8cff;
+        font-size: 1rem;
+      }
+
+      .required-mark {
+        color: #e53e3e;
+        font-weight: bold;
+        margin-left: 2px;
+      }
+    }
+
+    // Inputs y dropdowns
+    .input-field,
+    ::ng-deep .dropdown-field {
+      width: 100%;
+      transition: all 0.3s ease;
+
+      &:focus {
+        border-color: #4f8cff;
+        box-shadow: 0 0 0 0.2rem rgba(79, 140, 255, 0.25);
+      }
+    }
+
+    // Campo con error
+    &.field-error {
+      .input-field,
+      ::ng-deep .dropdown-field .p-dropdown {
+        border-color: #e74c3c;
+
+        &:focus {
+          box-shadow: 0 0 0 0.2rem rgba(231, 76, 60, 0.25);
+        }
+      }
+    }
+
+    // Mensajes de error
+    .error-message {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      color: #e74c3c;
+      font-size: 0.85rem;
+      margin-top: 0.25rem;
+      animation: slideDown 0.3s ease;
+    }
+
+    // Mensajes informativos
+    .info-message {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      color: #2563eb;
+      font-size: 0.85rem;
+      margin-top: 0.25rem;
+
+      i {
+        font-size: 0.9rem;
+      }
+    }
+  }
+
+  // Campo de sección especial
+  .field-seccion {
+    grid-column: 1 / -1;
+
+    // Display para sección fija
+    .seccion-fixed-display {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+
+      .seccion-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 0.75rem 1rem;
+        background: linear-gradient(135deg, rgba(79, 140, 255, 0.1) 0%, rgba(37, 99, 235, 0.15) 100%);
+        border: 2px solid #4f8cff;
+        border-radius: 8px;
+        color: #495057;
+        font-weight: 600;
+        width: fit-content;
+
+        i {
+          color: #4f8cff;
+          font-size: 1rem;
+        }
+      }
+    }
+  }
+}
+
+// Acciones del pie
+.footer-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e9ecef;
+
+  button {
+    min-width: 120px;
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+    transition: all 0.3s ease;
+
+    &:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    &:active:not(:disabled) {
+      transform: translateY(0);
+    }
+  }
+}
+
+// Animaciones
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .edit-form {
+    padding: 1.5rem;
+
+    .form-grid {
+      grid-template-columns: 1fr;
+      gap: 1.25rem;
+    }
+  }
+
+  .card-header {
+    padding: 1.25rem 1.5rem;
+
+    .header-content h2 {
+      font-size: 1.25rem;
+    }
+  }
+
+  .footer-actions {
+    flex-direction: column;
+
+    button {
+      width: 100%;
+    }
+  }
+}
 

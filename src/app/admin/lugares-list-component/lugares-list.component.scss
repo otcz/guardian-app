@@ -1,8 +1,201 @@
 .page { display: flex; flex-direction: column; gap: 12px; }
-.toolbar { display:flex; align-items:center; justify-content: space-between; gap: 12px; }
-.toolbar .right { display:flex; align-items:center; gap: 8px; }
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.toolbar .right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+// Contenedor común para controles (selector y buscador)
+.control-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--surface);
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: var(--primary);
+    box-shadow: 0 2px 8px rgba(79, 140, 255, 0.1);
+  }
+
+  .control-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+    color: var(--text);
+    font-size: 0.9rem;
+    white-space: nowrap;
+
+    i {
+      color: var(--primary);
+      font-size: 1rem;
+    }
+  }
+
+  // Dropdown del selector de sección
+  &.seccion-selector {
+    ::ng-deep .control-dropdown {
+      min-width: 200px;
+    }
+  }
+
+  // Input del buscador
+  &.search-container {
+    .search-input {
+      min-width: 220px;
+      border: none;
+      outline: none;
+      background: transparent;
+
+      &:focus {
+        outline: none;
+        box-shadow: none;
+      }
+    }
+  }
+
+  // Contenedor de botones
+  &.button-container {
+    padding: 4px;
+    border: none;
+    background: transparent;
+
+    &:hover {
+      border: none;
+      box-shadow: none;
+      background: transparent;
+    }
+
+    button {
+      min-width: 140px;
+      font-weight: 600;
+      border-radius: 8px;
+
+      &.btn-primary {
+        background: linear-gradient(135deg, var(--success) 0%, #16a34a 100%);
+        border: none;
+
+        &:hover:not(:disabled) {
+          background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
+        }
+      }
+
+      &.btn-secondary {
+        background: linear-gradient(135deg, var(--primary) 0%, #2563eb 100%);
+        border: none;
+
+        &:hover:not(:disabled) {
+          background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(79, 140, 255, 0.3);
+        }
+      }
+    }
+  }
+}
+
 .badge { display:inline-block; padding: 2px 8px; border-radius: 999px; font-size: .8rem; background: color-mix(in srgb, var(--surface-alt) 88%, transparent); border: 1px solid color-mix(in srgb, var(--border) 70%, transparent); color: var(--text); }
 .row-actions { display:flex; gap: 8px; align-items:center; }
 
 :host ::ng-deep .p-table { background: color-mix(in srgb, var(--surface-alt) 92%, transparent); border-radius: 12px; }
+
+// Estado vacío cuando no hay sección seleccionada
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+  background: var(--surface);
+  border-radius: 12px;
+  border: 2px dashed var(--border);
+
+  i {
+    font-size: 4rem;
+    margin-bottom: 1.5rem;
+    opacity: 0.7;
+
+    &.pi-info-circle {
+      color: var(--primary);
+    }
+
+    &.pi-exclamation-triangle {
+      color: #f59e0b; // Naranja de advertencia
+    }
+  }
+
+  h3 {
+    margin: 0 0 0.5rem 0;
+    color: var(--text);
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+
+  p {
+    margin: 0.25rem 0;
+    color: var(--muted);
+    font-size: 1rem;
+
+    &.hint {
+      font-size: 0.9rem;
+      font-style: italic;
+      margin-top: 1rem;
+    }
+  }
+}
+
+// Responsive para el toolbar
+@media (max-width: 768px) {
+  .toolbar {
+    flex-direction: column;
+    align-items: stretch;
+
+    .left, .right {
+      width: 100%;
+    }
+
+    .right {
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .control-container {
+      width: 100%;
+
+      &.seccion-selector {
+        ::ng-deep .control-dropdown {
+          flex: 1;
+          min-width: auto;
+        }
+      }
+
+      &.search-container {
+        .search-input {
+          flex: 1;
+          min-width: auto;
+          width: 100%;
+        }
+      }
+    }
+
+    button {
+      width: 100%;
+    }
+  }
+}
 

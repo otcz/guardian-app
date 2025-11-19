@@ -46,19 +46,11 @@ export class LugarService {
     );
   }
 
-  list(orgId: string): Observable<LugarEntity[]> {
-    const url = `${this.base}/orgs/${orgId}/lugares`;
-    return this.http.get<ApiResponse<any>>(url, { headers: this.accept }).pipe(
-      map((resp) => {
-        const ok = (resp && (resp as any).success !== false);
-        if (!ok) throw { status: 400, error: { message: resp?.message || 'No se pudieron obtener los lugares' } };
-        const arr = Array.isArray(resp.data) ? resp.data : (Array.isArray((resp as any)) ? (resp as any) : []);
-        return arr.map((d: any) => this.mapLugar(d));
-      }),
-      catchError((err) => throwError(() => ({ status: err?.status, error: { message: err?.error?.message || err?.message || 'No se pudieron obtener los lugares' } })))
-    );
-  }
-
+  /**
+   * Lista lugares de una sección específica
+   * @param orgId - ID de la organización
+   * @param seccionId - ID de la sección (requerido por el backend)
+   */
   listBySeccion(orgId: string, seccionId: string): Observable<LugarEntity[]> {
     const url = `${this.base}/orgs/${orgId}/lugares?seccionId=${encodeURIComponent(seccionId)}`;
     return this.http.get<any>(url, { headers: this.accept }).pipe(
@@ -68,6 +60,20 @@ export class LugarService {
       }),
       catchError(err => throwError(() => ({ status: err?.status, error: { message: err?.error?.message || 'No se pudieron listar lugares' } })))
     );
+  }
+
+  /**
+   * Lista TODOS los lugares de una organización (requiere obtener todas las secciones primero)
+   * Nota: El backend requiere seccionId, así que este método no se puede usar directamente
+   * @deprecated Usar listBySeccion() ya que el backend requiere seccionId obligatorio
+   */
+  list(orgId: string): Observable<LugarEntity[]> {
+    // El backend requiere seccionId obligatorio, este método no funciona
+    // Se mantiene por compatibilidad pero debería usarse listBySeccion
+    return throwError(() => ({
+      status: 400,
+      error: { message: 'El backend requiere seccionId. Usa listBySeccion() en su lugar.' }
+    }));
   }
 
   get(orgId: string, lugarId: string): Observable<LugarEntity> {

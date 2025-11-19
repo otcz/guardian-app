@@ -24,6 +24,8 @@ export class LugarFormComponent {
   loading = false;
   orgId: string | null = null;
   seccionId: string | null = null;
+  seccionIdFixed: string | null = null; // Sección fija desde parámetros
+  showSeccionError = false;
   secciones: { id: string; nombre: string }[] = [];
   seccionOptions: { label: string; value: string }[] = [];
   tipos: LugarTipo[] = ['APARTAMENTO', 'CASA', 'ALMACEN', 'AULA', 'BODEGA', 'DEPOSITO', 'LOCAL', 'OFICINA', 'SALON', 'OTRO'];
@@ -46,9 +48,24 @@ export class LugarFormComponent {
     });
     const byQuery = this.route.snapshot.queryParamMap.get('id');
     this.orgId = this.orgCtx.ensureFromQuery(byQuery);
-    this.seccionId = this.route.snapshot.queryParamMap.get('seccionId');
-    if (!this.orgId) this.notify.warn('Falta organización', 'Selecciona una organización');
-    if (!this.seccionId) this.loadSecciones();
+    const seccionParam = this.route.snapshot.queryParamMap.get('seccionId');
+
+    if (seccionParam) {
+      this.seccionId = seccionParam;
+      this.seccionIdFixed = seccionParam; // Marcar como fija
+    }
+
+    if (!this.orgId) {
+      this.notify.warn('Falta organización', 'Selecciona una organización');
+    }
+
+    // Cargar secciones solo si no hay una fija
+    if (!this.seccionIdFixed) {
+      this.loadSecciones();
+    } else {
+      // Cargar secciones de todas formas para mostrar el nombre
+      this.loadSecciones();
+    }
   }
 
   private loadSecciones() {
@@ -63,20 +80,79 @@ export class LugarFormComponent {
   }
 
   submit() {
-    if (!this.orgId) { this.notify.error('Sin organización', 'Selecciona una organización.'); return; }
-    if (this.form.invalid) { this.form.markAllAsTouched(); this.notify.warn('Validación', 'Completa los campos.'); return; }
-    const v = this.form.value as any;
+    // Validar organización
+    if (!this.orgId) {
+      this.notify.error('Sin organización', 'Selecciona una organización.');
+      return;
+    }
+
+    // Validar formulario
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      this.notify.warn('Validación', 'Por favor, completa todos los campos obligatorios correctamente.');
+      return;
+    }
+
+    // Validar sección
     const seccionId = this.seccionId;
-    if (!seccionId) { this.notify.warn('Validación', 'Selecciona una sección'); return; }
+    if (!seccionId) {
+      this.showSeccionError = true;
+      this.notify.warn('Validación', 'Debes seleccionar una sección para crear el lugar');
+      return;
+    }
+
+    this.showSeccionError = false;
+    const v = this.form.value as any;
     this.loading = true;
-    this.svc.create(this.orgId, { nombre: String(v.nombre).trim(), tipoLugar: v.tipoLugar as any, seccionId }).subscribe({
-      next: (res) => { this.loading = false; this.notify.success('LUGAR CREADO', res.message || 'OK'); this.router.navigate(['/gestion-de-secciones/gestionar-seccion'], { queryParams: { id: this.orgId, seccionId } }); },
-      error: (e) => { this.loading = false; this.notify.error('ERROR', e?.error?.message || 'No se pudo crear'); }
+
+    this.svc.create(this.orgId, {
+      nombre: String(v.nombre).trim(),
+      tipoLugar: v.tipoLugar as any,
+      seccionId
+    }).subscribe({
+      next: (res) => {
+        this.loading = false;
+        this.notify.success('¡Lugar creado!', res.message || 'El lugar se ha creado exitosamente');
+
+        // Navegar a gestionar sección si tenemos seccionId
+        if (this.seccionIdFixed) {
+          this.router.navigate(['/gestion-de-secciones/gestionar-seccion'], {
+            queryParams: { id: this.orgId, seccionId }
+          });
+        } else {
+          this.router.navigate(['/listar-lugares'], {
+            queryParams: { id: this.orgId }
+          });
+        }
+      },
+      error: (e) => {
+        this.loading = false;
+        const errorMsg = e?.error?.message || 'No se pudo crear el lugar. Intenta de nuevo.';
+        this.notify.error('Error al crear', errorMsg);
+      }
     });
   }
 
   cancel() {
     const id = this.orgId || localStorage.getItem('currentOrgId');
-    this.router.navigate(['/listar-lugares'], { queryParams: id ? { id } : undefined });
+
+    // Si venimos de una sección específica, volver a gestionar sección
+    if (this.seccionIdFixed) {
+      this.router.navigate(['/gestion-de-secciones/gestionar-seccion'], {
+        queryParams: { id, seccionId: this.seccionIdFixed }
+      });
+    } else {
+      this.router.navigate(['/listar-lugares'], {
+        queryParams: id ? { id } : undefined
+      });
+    }
+  }
+
+  /**
+   * Obtiene el nombre de una sección por su ID
+   */
+  getSeccionNombre(seccionId: string): string {
+    const seccion = this.secciones.find(s => s.id === seccionId);
+    return seccion?.nombre || 'Sección seleccionada';
   }
 }

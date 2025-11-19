@@ -1,42 +1,164 @@
-<div class="page-wrap">
-  <p-card class="card">
-    <div class="header">
-      <h2 class="title">Asignar administrador de sección</h2>
-      <p class="helper text-muted fs-sm" style="margin:0;">Seleccione una sección y un usuario, luego presione “Asignar”.</p>
-    </div>
-    <div class="body">
-      <div class="form-groups">
-        <div class="group">
-          <div class="group-title">Sección</div>
-          <div class="field">
-            <label>Sección</label>
-            <p-dropdown [options]="filteredSecciones" optionLabel="nombre" optionValue="id" [(ngModel)]="seccionId" name="seccionId" placeholder="Seleccione sección" [filter]="false" [showClear]="true" (onChange)="onSeccionChange()"></p-dropdown>
+<div class="page-container">
+  <p-card class="modern-card">
+    <!-- Header con gradiente -->
+    <ng-template pTemplate="header">
+      <div class="card-header">
+        <div class="header-content">
+          <i class="pi pi-user-edit header-icon"></i>
+          <div class="header-text">
+            <h2>Asignar Administrador de Sección</h2>
+            <p class="subtitle">
+              <i class="pi pi-info-circle"></i>
+              <span>Seleccione una sección y un usuario para asignar como administrador</span>
+            </p>
           </div>
         </div>
-        <div class="group" [class.group-disabled]="!seccionId">
-          <div class="group-title">Usuario</div>
+      </div>
+    </ng-template>
+
+    <div class="card-body">
+      <!-- Grid de selección -->
+      <div class="selection-grid">
+        <!-- Sección -->
+        <div class="selection-card">
+          <div class="card-header-section">
+            <i class="pi pi-th-large"></i>
+            <h3>Seleccionar Sección</h3>
+          </div>
           <div class="field">
-            <label>Usuario</label>
-            <p-dropdown [options]="filteredUsuarios" optionLabel="username" optionValue="id" [(ngModel)]="usuarioId" name="usuarioId" placeholder="Seleccione usuario" [filter]="false" [showClear]="true" [disabled]="!seccionId"></p-dropdown>
+            <label for="seccionSelect" class="field-label">
+              <i class="pi pi-bookmark label-icon"></i>
+              Sección
+              <span class="required-mark">*</span>
+            </label>
+            <p-dropdown
+              id="seccionSelect"
+              [options]="filteredSecciones"
+              optionLabel="nombre"
+              optionValue="id"
+              [(ngModel)]="seccionId"
+              name="seccionId"
+              placeholder="Seleccione una sección"
+              [filter]="true"
+              filterPlaceholder="Buscar sección..."
+              [showClear]="true"
+              (onChange)="onSeccionChange()"
+              styleClass="w-100">
+              <ng-template pTemplate="selectedItem" let-option>
+                <div class="selected-item" *ngIf="option">
+                  <i class="pi pi-th-large item-icon"></i>
+                  <span>{{ option.nombre }}</span>
+                </div>
+              </ng-template>
+              <ng-template pTemplate="item" let-option>
+                <div class="dropdown-item">
+                  <i class="pi pi-th-large item-icon"></i>
+                  <span>{{ option.nombre }}</span>
+                </div>
+              </ng-template>
+            </p-dropdown>
+          </div>
+        </div>
+
+        <!-- Usuario -->
+        <div class="selection-card" [class.disabled]="!seccionId">
+          <div class="card-header-section">
+            <i class="pi pi-user"></i>
+            <h3>Seleccionar Usuario</h3>
+          </div>
+          <div class="field">
+            <label for="usuarioSelect" class="field-label">
+              <i class="pi pi-user label-icon"></i>
+              Usuario
+              <span class="required-mark">*</span>
+            </label>
+            <p-dropdown
+              id="usuarioSelect"
+              [options]="filteredUsuarios"
+              optionLabel="username"
+              optionValue="id"
+              [(ngModel)]="usuarioId"
+              name="usuarioId"
+              placeholder="Seleccione un usuario"
+              [filter]="true"
+              filterPlaceholder="Buscar usuario..."
+              [showClear]="true"
+              [disabled]="!seccionId"
+              styleClass="w-100">
+              <ng-template pTemplate="selectedItem" let-option>
+                <div class="selected-item" *ngIf="option">
+                  <i class="pi pi-user item-icon"></i>
+                  <span>{{ option.username }}</span>
+                </div>
+              </ng-template>
+              <ng-template pTemplate="item" let-option>
+                <div class="dropdown-item">
+                  <i class="pi pi-user item-icon"></i>
+                  <div class="item-info">
+                    <span class="username">{{ option.username }}</span>
+                    <small *ngIf="option.nombreCompleto">{{ option.nombreCompleto }}</small>
+                  </div>
+                </div>
+              </ng-template>
+            </p-dropdown>
+            <small class="info-message" *ngIf="!seccionId">
+              <i class="pi pi-info-circle"></i>
+              Selecciona primero una sección
+            </small>
           </div>
         </div>
       </div>
 
-      <div class="preview" *ngIf="selectedSection || selectedUser">
-        <div class="preview-item" *ngIf="selectedSection">
-          <span class="label">Sección seleccionada</span>
-          <b>{{ selectedSection!.nombre }}</b>
+      <!-- Preview de selección -->
+      <div class="preview-section" *ngIf="selectedSection || selectedUser">
+        <div class="preview-header">
+          <i class="pi pi-eye"></i>
+          <h4>Vista Previa</h4>
         </div>
-        <div class="preview-item" *ngIf="selectedUser">
-          <span class="label">Usuario seleccionado</span>
-          <b>{{ selectedUser!.username }}</b>
+        <div class="preview-grid">
+          <div class="preview-card" *ngIf="selectedSection">
+            <div class="preview-icon">
+              <i class="pi pi-th-large"></i>
+            </div>
+            <div class="preview-content">
+              <span class="preview-label">Sección</span>
+              <strong>{{ selectedSection.nombre }}</strong>
+            </div>
+          </div>
+          <div class="preview-card" *ngIf="selectedUser">
+            <div class="preview-icon">
+              <i class="pi pi-user"></i>
+            </div>
+            <div class="preview-content">
+              <span class="preview-label">Usuario</span>
+              <strong>{{ selectedUser.username }}</strong>
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
-    <div class="actions">
-      <button pButton type="button" label="Asignar" icon="pi pi-check" (click)="assign()" [disabled]="!seccionId || !usuarioId || saving"></button>
-      <button pButton type="button" class="p-button-text" label="Volver" icon="pi pi-arrow-left" [routerLink]="['/listar-secciones']"></button>
+    <!-- Acciones del pie -->
+    <div class="footer-actions">
+      <button
+        pButton
+        type="button"
+        label="Asignar como Administrador"
+        icon="pi pi-check"
+        class="p-button-success"
+        (click)="assign()"
+        [loading]="saving"
+        [disabled]="!seccionId || !usuarioId || saving">
+      </button>
+      <button
+        pButton
+        type="button"
+        label="Volver"
+        icon="pi pi-arrow-left"
+        class="p-button-secondary"
+        [routerLink]="['/listar-secciones']">
+      </button>
     </div>
   </p-card>
 </div>
+

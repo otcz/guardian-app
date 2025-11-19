@@ -16,11 +16,12 @@ import {ConfirmDialogModule} from 'primeng/confirmdialog';
 import {ConfirmationService, MessageService} from 'primeng/api';
 import { SeccionUsuariosComponent } from '../seccion-usuarios-component/seccion-usuarios.component';
 import { MenuService } from '../../service/menu.service';
+import { CardModule } from 'primeng/card';
 
 @Component({
   selector: 'app-seccion-list',
   standalone: true,
-  imports: [CommonModule, RouterModule, TableModule, ButtonModule, InputTextModule, TagModule, FormsModule, TooltipModule, InputSwitchModule, ConfirmDialogModule, SeccionUsuariosComponent],
+  imports: [CommonModule, RouterModule, TableModule, ButtonModule, InputTextModule, TagModule, FormsModule, TooltipModule, InputSwitchModule, ConfirmDialogModule, SeccionUsuariosComponent, CardModule],
   templateUrl: './seccion-list.component.html',
   styleUrls: ['./seccion-list.component.scss']
 })

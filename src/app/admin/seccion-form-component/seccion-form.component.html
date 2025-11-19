@@ -1,65 +1,178 @@
-<div class="sec-wrapper">
-  <div class="page-header">
-    <div class="titles">
-      <h2>Crear Sección</h2>
-      <p class="subtitle" *ngIf="orgName">Organización seleccionada: <b>{{ orgName }}</b></p>
+<div class="page-container">
+  <p-card class="modern-card">
+    <!-- Header con gradiente -->
+    <ng-template pTemplate="header">
+      <div class="card-header">
+        <div class="header-content">
+          <i class="pi pi-plus-circle header-icon"></i>
+          <div class="header-text">
+            <h2>Crear Nueva Sección</h2>
+            <p class="subtitle" *ngIf="orgName">
+              <i class="pi pi-building"></i>
+              <span>{{ orgName }}</span>
+            </p>
+          </div>
+        </div>
+        <button
+          pButton
+          type="button"
+          icon="pi pi-arrow-left"
+          label="Volver"
+          class="back-button"
+          (click)="cancel()">
+        </button>
+      </div>
+    </ng-template>
+
+    <div class="card-body">
+      <form [formGroup]="form" (ngSubmit)="submit()">
+        <!-- Campos del formulario -->
+        <div class="form-section">
+          <h3 class="section-title">
+            <i class="pi pi-info-circle"></i>
+            Información Básica
+          </h3>
+
+          <div class="form-grid">
+            <!-- Nombre -->
+            <div class="field">
+              <label for="nombre" class="field-label">
+                <i class="pi pi-tag label-icon"></i>
+                Nombre
+                <span class="required-mark">*</span>
+              </label>
+              <input
+                pInputText
+                id="nombre"
+                formControlName="nombre"
+                placeholder="Ej: Sección de Administración"
+                class="input-field"
+              />
+              <small class="error-message" *ngIf="f['nombre'].touched && f['nombre'].errors?.['required']">
+                <i class="pi pi-exclamation-circle"></i>
+                El nombre es requerido
+              </small>
+              <small class="error-message" *ngIf="f['nombre'].touched && f['nombre'].errors?.['maxlength']">
+                <i class="pi pi-exclamation-circle"></i>
+                Máximo 150 caracteres
+              </small>
+            </div>
+
+            <!-- Descripción -->
+            <div class="field">
+              <label for="descripcion" class="field-label">
+                <i class="pi pi-align-left label-icon"></i>
+                Descripción
+              </label>
+              <input
+                pInputText
+                id="descripcion"
+                formControlName="descripcion"
+                placeholder="Descripción opcional (máx. 160 caracteres)"
+                class="input-field"
+              />
+              <small class="info-message">
+                <i class="pi pi-info-circle"></i>
+                Describe brevemente esta sección
+              </small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Configuración avanzada -->
+        <div class="form-section">
+          <h3 class="section-title">
+            <i class="pi pi-cog"></i>
+            Configuración Avanzada
+          </h3>
+
+          <div class="form-grid">
+            <!-- Sección Padre -->
+            <div class="field">
+              <label for="seccionPadreId" class="field-label">
+                <i class="pi pi-sitemap label-icon"></i>
+                Sección Padre
+              </label>
+              <p-dropdown
+                id="seccionPadreId"
+                [options]="secciones"
+                optionLabel="nombre"
+                optionValue="id"
+                [filter]="true"
+                filterBy="nombre,descripcion"
+                filterPlaceholder="Buscar sección..."
+                [showClear]="true"
+                placeholder="Seleccionar sección padre (opcional)"
+                formControlName="seccionPadreId"
+                styleClass="w-100">
+                <ng-template pTemplate="selectedItem" let-s>
+                  <div class="selected-item" *ngIf="s">
+                    <i class="pi pi-th-large item-icon"></i>
+                    <span>{{ s.nombre }}</span>
+                  </div>
+                </ng-template>
+                <ng-template pTemplate="item" let-s>
+                  <div class="dropdown-item">
+                    <i class="pi pi-th-large item-icon"></i>
+                    <div class="item-info">
+                      <span class="item-name">{{ s.nombre }}</span>
+                      <small *ngIf="s.descripcion">{{ s.descripcion }}</small>
+                    </div>
+                  </div>
+                </ng-template>
+              </p-dropdown>
+              <small class="info-message">
+                <i class="pi pi-info-circle"></i>
+                Si se especifica, esta sección será hija de la seleccionada
+              </small>
+            </div>
+
+            <!-- Autonomía Configurada -->
+            <div class="field">
+              <label for="autonomiaConfigurada" class="field-label">
+                <i class="pi pi-unlock label-icon"></i>
+                Autonomía Configurada
+              </label>
+              <div class="switch-container">
+                <p-inputSwitch
+                  id="autonomiaConfigurada"
+                  formControlName="autonomiaConfigurada">
+                </p-inputSwitch>
+                <span class="switch-label">
+                  {{ form.get('autonomiaConfigurada')?.value ? 'Configurada' : 'No configurada' }}
+                </span>
+              </div>
+              <small class="info-message">
+                <i class="pi pi-info-circle"></i>
+                Define si la sección tiene autonomía de configuración
+              </small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Acciones -->
+        <div class="footer-actions">
+          <button
+            pButton
+            type="submit"
+            label="Crear Sección"
+            icon="pi pi-save"
+            class="p-button-success"
+            [loading]="loading"
+            [disabled]="loading || form.invalid">
+          </button>
+          <button
+            pButton
+            type="button"
+            label="Cancelar"
+            icon="pi pi-times"
+            class="p-button-secondary"
+            (click)="cancel()"
+            [disabled]="loading">
+          </button>
+        </div>
+      </form>
     </div>
-    <span class="spacer"></span>
-    <button pButton type="button" class="p-button-text" icon="pi pi-arrow-left" label="Volver" (click)="cancel()"></button>
-  </div>
-
-  <p-card class="card">
-    <form [formGroup]="form" (ngSubmit)="submit()" class="form-grid">
-      <div class="field">
-        <label for="nombre">Nombre <span class="req">*</span></label>
-        <input pInputText id="nombre" formControlName="nombre" placeholder="Nombre de la sección"/>
-        <small class="error" *ngIf="f['nombre'].touched && f['nombre'].errors?.['required']">El nombre es requerido.</small>
-        <small class="error" *ngIf="f['nombre'].touched && f['nombre'].errors?.['maxlength']">Máximo 150 caracteres.</small>
-      </div>
-
-      <div class="field">
-        <label for="descripcion">Descripción</label>
-        <input pInputText id="descripcion" formControlName="descripcion" placeholder="Descripción (opcional)"/>
-      </div>
-
-      <div class="field">
-        <label for="seccionPadreId">Sección Padre</label>
-        <p-dropdown id="seccionPadreId"
-                    class="seccion-padre-control"
-                    [options]="secciones"
-                    optionLabel="nombre"
-                    optionValue="id"
-                    [filter]="true"
-                    [filterBy]="'nombre,descripcion'"
-                    [showClear]="true"
-                    [editable]="false"
-                    placeholder="Seleccionar sección padre"
-                    formControlName="seccionPadreId">
-          <ng-template pTemplate="selectedItem" let-s>
-            <div class="opt">
-              <span class="opt-name">{{ s?.nombre }}</span>
-            </div>
-          </ng-template>
-          <ng-template pTemplate="item" let-s>
-            <div class="opt">
-              <span class="opt-name">{{ s?.nombre }}</span>
-              <span class="opt-sep" *ngIf="s?.descripcion"> — </span>
-              <small class="opt-desc" *ngIf="s?.descripcion">{{ s?.descripcion }}</small>
-            </div>
-          </ng-template>
-        </p-dropdown>
-      </div>
-
-      <div class="field inline">
-        <label for="autonomiaConfigurada">Autonomía configurada</label>
-        <input type="checkbox" class="ui-switch-input" id="autonomiaConfigurada" formControlName="autonomiaConfigurada" />
-        <label class="ui-switch" for="autonomiaConfigurada"><span class="slider"></span></label>
-      </div>
-
-      <div class="actions">
-        <button pButton type="submit" label="Guardar" icon="pi pi-save" [disabled]="loading"></button>
-        <button pButton type="button" label="Cancelar" class="p-button-outlined" icon="pi pi-times" (click)="cancel()" [disabled]="loading"></button>
-      </div>
-    </form>
   </p-card>
 </div>
+

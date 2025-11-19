@@ -1,311 +1,604 @@
-/* Wrapper y cabecera */
-.orgcfg-wrapper { padding: 1.25rem clamp(.75rem, 2vw, 1.5rem); }
-.page-header { display: flex; align-items: center; gap: .75rem; margin-bottom: 1.25rem; }
-.page-header h2 { margin: 0; font-weight: 700; letter-spacing: .2px; font-size: 1.35rem; }
-.page-header .subtitle { margin: .15rem 0 0 0; opacity: .95; font-size: .85rem; }
-.page-header .spacer { flex: 1 1 auto; }
-
-/* Tarjetas y layout */
-.grid { display: grid; gap: 1.2rem; grid-template-columns: minmax(320px, 720px); }
-
-/* NUEVO: layout de dos columnas (izquierda flexible, derecha ancho fijo) */
-.grid.two-column { grid-template-columns: 1fr 420px; align-items: start; gap: 1.25rem; }
-.left-col { display: block; }
-.right-col { display: block; }
-
-@media (max-width: 980px) {
-  .grid.two-column { grid-template-columns: 1fr; }
-  :host ::ng-deep .p-dropdown { min-width: 100%; }
+/* ============================================
+   CONTENEDOR PRINCIPAL
+   ============================================ */
+.page-container {
+  padding: 0;
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
-.card ::ng-deep .p-card {
-  background: var(--surface-alt) !important;
-  border: 1px solid rgba(255,255,255,.06) !important;
+/* ============================================
+   HEADER MODERNO CON GRADIENTE
+   ============================================ */
+.page-header-modern {
+  margin-bottom: 2rem;
+}
+
+.header-gradient {
+  background: linear-gradient(135deg, #4f8cff 0%, #2563eb 50%, #203a43 100%);
+  padding: 2rem;
   border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(79, 140, 255, 0.2);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+
+  .header-content {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    flex: 1;
+
+    .header-icon {
+      font-size: 3rem;
+      color: white;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+    }
+
+    .header-text {
+      flex: 1;
+
+      h1 {
+        margin: 0 0 0.5rem 0;
+        color: white;
+        font-size: 2rem;
+        font-weight: 700;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        line-height: 1.2;
+      }
+
+      .subtitle {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin: 0;
+        flex-wrap: wrap;
+
+        .org-name {
+          color: rgba(255, 255, 255, 0.95);
+          font-size: 1.1rem;
+          font-weight: 500;
+        }
+
+        .status-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          padding: 0.4rem 0.875rem;
+          border-radius: 20px;
+          font-size: 0.85rem;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+
+          &.active {
+            background: rgba(22, 163, 74, 0.2);
+            color: #16a34a;
+            border: 1px solid rgba(22, 163, 74, 0.4);
+          }
+
+          &.inactive {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.4);
+          }
+
+          i {
+            font-size: 1rem;
+          }
+        }
+      }
+    }
+  }
+
+  .back-button {
+    background: rgba(255, 255, 255, 0.15) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    color: white !important;
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+    transition: all 0.2s ease;
+
+    &:hover:not(:disabled) {
+      background: rgba(255, 255, 255, 0.25) !important;
+      border-color: rgba(255, 255, 255, 0.5) !important;
+      transform: translateX(-4px);
+    }
+  }
 }
 
-/* Separación extra entre tarjetas en columna izquierda */
-.left-col .card { margin-bottom: 0.6rem; }
-
-/* Encabezado de tarjeta */
-.card-header { display: flex; align-items: center; gap: .5rem; margin-bottom: .75rem; }
-.card-header h3 { margin: 0; font-size: 1.05rem; font-weight: 800; letter-spacing: .2px; }
-
-/* Campos */
-.field { display: flex; flex-direction: column; gap: .5rem; margin-bottom: 1rem; }
-.field label { font-size: .9rem; font-weight: 600; letter-spacing: .2px; color: var(--text); }
-
-/* Acciones */
-.actions { display: flex; gap: .6rem; margin-top: .5rem; flex-wrap: wrap; align-items: center; }
-
-/* Chip de estado */
-.chip { display: inline-flex; align-items: center; padding: .2rem .65rem; border-radius: 999px; font-size: .74rem; font-weight: 800; color: #fff; background: #6b7280; }
-.chip-success { background: var(--success); }
-.chip-danger { background: #ef4444; }
-
-/* Vista previa */
-.strategy-preview { margin-top: .75rem; border-top: 1px dashed color-mix(in srgb, var(--border) 70%, transparent); padding-top: .75rem; display: grid; gap: .5rem; }
-.kv { display: flex; gap: .5rem; align-items: center; }
-.kv span { width: 180px; color: var(--muted); font-size: .82rem; }
-.kv b { font-weight: 800; color: var(--text); }
-.flags { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: .5rem; }
-.flag { display: flex; gap: .5rem; align-items: center; padding: .5rem .7rem; border: 1px solid color-mix(in srgb, var(--border) 70%, transparent); border-radius: 8px; background: color-mix(in srgb, var(--surface) 90%, #000); }
-.flag .good { color: var(--success); }
-.flag .bad { color: #ef4444; }
-.flag-text { color: var(--text); font-size: .86rem; font-weight: 600; }
-
-/* Tema oscuro: etiquetas y placeholders blancos */
-:host-context(.theme-dark) .field label,
-:host-context(.theme-black) .field label,
-:host-context(.theme-dark) .flag-text,
-:host-context(.theme-black) .flag-text,
-:host-context(.theme-dark) .page-header h2,
-:host-context(.theme-black) .page-header h2,
-:host-context(.theme-dark) .card-header h3,
-:host-context(.theme-black) .card-header h3 { color: #fff; }
-
-/* Dropdown y MultiSelect: tamaños y coherencia */
-:host ::ng-deep .p-dropdown,
-:host ::ng-deep .p-multiselect { min-width: 280px; }
-:host ::ng-deep .p-dropdown .p-dropdown-label,
-:host ::ng-deep .p-multiselect .p-multiselect-label { padding: .6rem .75rem; font-size: .95rem; }
-
-/* Paneles: especificar por tema */
-/* Tema claro: fondo claro y texto oscuro */
-:host-context(.theme-light) ::ng-deep .p-dropdown-panel,
-:host-context(.theme-light) ::ng-deep .p-multiselect-panel {
-  background: #ffffff;
-  color: #111;
-  border: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
-}
-:host-context(.theme-light) ::ng-deep .p-dropdown-panel .p-dropdown-header,
-:host-context(.theme-light) ::ng-deep .p-multiselect-panel .p-multiselect-header {
-  background: #ffffff;
-  color: #111;
-  border-bottom: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+/* ============================================
+   GRID DE CONTENIDO
+   ============================================ */
+.content-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-bottom: 2rem;
 }
 
-/* Tema oscuro/black: fondo oscuro */
-:host-context(.theme-dark) ::ng-deep .p-dropdown-panel,
-:host-context(.theme-black) ::ng-deep .p-dropdown-panel,
-:host-context(.theme-dark) ::ng-deep .p-multiselect-panel,
-:host-context(.theme-black) ::ng-deep .p-multiselect-panel {
-  background: color-mix(in srgb, var(--surface) 92%, #000);
-  border: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
-}
-:host-context(.theme-dark) ::ng-deep .p-dropdown-panel .p-dropdown-header,
-:host-context(.theme-black) ::ng-deep .p-dropdown-panel .p-dropdown-header,
-:host-context(.theme-dark) ::ng-deep .p-multiselect-panel .p-multiselect-header,
-:host-context(.theme-black) ::ng-deep .p-multiselect-panel .p-multiselect-header {
-  background: color-mix(in srgb, var(--surface) 92%, #000);
-  border-bottom: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
-}
-
-/* Filtro dentro de los paneles: por tema */
-/* Claro */
-:host-context(.theme-light) ::ng-deep .p-dropdown-panel .p-dropdown-filter-container .p-inputtext,
-:host-context(.theme-light) ::ng-deep .p-multiselect-panel .p-multiselect-filter-container .p-inputtext {
-  background: #fff;
-  color: #111;
-  border: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
-}
-:host-context(.theme-light) ::ng-deep .p-dropdown-panel .p-dropdown-filter-container .p-inputtext::placeholder,
-:host-context(.theme-light) ::ng-deep .p-multiselect-panel .p-multiselect-filter-container .p-inputtext::placeholder { color: #111; opacity: .6; }
-:host-context(.theme-light) ::ng-deep .p-dropdown-filter-icon { color: #111; opacity: .75; }
-
-/* Oscuro */
-:host-context(.theme-dark) ::ng-deep .p-dropdown-panel .p-dropdown-filter-container .p-inputtext,
-:host-context(.theme-black) ::ng-deep .p-dropdown-panel .p-dropdown-filter-container .p-inputtext,
-:host-context(.theme-dark) ::ng-deep .p-multiselect-panel .p-multiselect-filter-container .p-inputtext,
-:host-context(.theme-black) ::ng-deep .p-multiselect-panel .p-multiselect-filter-container .p-inputtext {
-  background: color-mix(in srgb, var(--surface) 88%, #000);
-  color: #fff;
-  border: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
-}
-:host-context(.theme-dark) ::ng-deep .p-dropdown-panel .p-dropdown-filter-container .p-inputtext::placeholder,
-:host-context(.theme-black) ::ng-deep .p-dropdown-panel .p-dropdown-filter-container .p-inputtext::placeholder,
-:host-context(.theme-dark) ::ng-deep .p-multiselect-panel .p-multiselect-filter-container .p-inputtext::placeholder,
-:host-context(.theme-black) ::ng-deep .p-multiselect-panel .p-multiselect-filter-container .p-inputtext::placeholder { color: #fff; opacity: .7; }
-
-/* Placeholder del control cuando no hay selección */
-:host-context(.theme-dark) ::ng-deep .p-dropdown .p-dropdown-label.p-placeholder,
-:host-context(.theme-black) ::ng-deep .p-dropdown .p-dropdown-label.p-placeholder,
-:host-context(.theme-dark) ::ng-deep .p-multiselect .p-multiselect-label.p-placeholder,
-:host-context(.theme-black) ::ng-deep .p-multiselect .p-multiselect-label.p-placeholder { color: #fff; opacity: .85; }
-
-/* Ítems del panel */
-:host ::ng-deep .p-dropdown-panel .p-dropdown-items,
-:host ::ng-deep .p-multiselect-panel .p-multiselect-items { padding: .25rem; }
-:host ::ng-deep .p-dropdown-panel .p-dropdown-item,
-:host ::ng-deep .p-multiselect-panel .p-multiselect-item { border-radius: 8px; color: var(--text); }
-:host ::ng-deep .p-dropdown-panel .p-dropdown-item:not(.p-highlight):hover,
-:host ::ng-deep .p-multiselect-panel .p-multiselect-item:not(.p-highlight):hover {
-  background: color-mix(in srgb, var(--primary) 14%, transparent);
-}
-:host ::ng-deep .p-dropdown-panel .p-dropdown-item.p-highlight,
-:host ::ng-deep .p-multiselect-panel .p-multiselect-item.p-highlight {
-  background: color-mix(in srgb, var(--primary) 18%, transparent);
-  color: var(--text);
-}
-
-/* Plantillas de opciones: tipografía */
-.opt-item, .opt-label { display: flex; align-items: center; gap: .35rem; }
-.opt-title { font-weight: 700; }
-.opt-desc { opacity: .85; }
-
-/* Hint debajo de multiselect */
-.hint { display: inline-block; margin-top: .35rem; color: var(--muted); font-size: .82rem; }
-
-/* En temas oscuros, forzar color blanco para títulos y hint solicitados */
-:host-context(.theme-dark) .opt-title,
-:host-context(.theme-black) .opt-title,
-:host-context(.theme-dark) .hint,
-:host-context(.theme-black) .hint { color: #fff; }
-
-/* También dentro de paneles de PrimeNG (overlay) */
-:host-context(.theme-dark) ::ng-deep .p-dropdown-panel .opt-title,
-:host-context(.theme-black) ::ng-deep .p-dropdown-panel .opt-title,
-:host-context(.theme-dark) ::ng-deep .p-multiselect-panel .opt-title,
-:host-context(.theme-black) ::ng-deep .p-multiselect-panel .opt-title { color: #fff; }
-
-/* Divider más visible */
-.divider { border: 0; height: 1px; background: color-mix(in srgb, var(--border) 70%, transparent); margin: 1rem 0; }
-
-/* Control p-dropdown en modo oscuro: fondo oscuro y texto blanco */
-:host-context(.theme-dark) ::ng-deep .p-dropdown,
-:host-context(.theme-black) ::ng-deep .p-dropdown {
-  background: color-mix(in srgb, var(--surface) 90%, #000) !important;
-  border: 1px solid color-mix(in srgb, var(--border) 70%, transparent) !important;
-}
-:host-context(.theme-dark) ::ng-deep .p-dropdown .p-dropdown-label,
-:host-context(.theme-black) ::ng-deep .p-dropdown .p-dropdown-label {
-  color: #fff !important;
-}
-:host-context(.theme-dark) ::ng-deep .p-dropdown .p-dropdown-trigger-icon,
-:host-context(.theme-black) ::ng-deep .p-dropdown .p-dropdown-trigger-icon,
-:host-context(.theme-dark) ::ng-deep .p-dropdown .p-dropdown-trigger .pi,
-:host-context(.theme-black) ::ng-deep .p-dropdown .p-dropdown-trigger .pi {
-  color: #fff !important;
-  opacity: .95;
-}
-/* Hover/focus sutil en oscuro */
-:host-context(.theme-dark) ::ng-deep .p-dropdown:hover,
-:host-context(.theme-black) ::ng-deep .p-dropdown:hover {
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 18%, transparent);
-}
-:host-context(.theme-dark) ::ng-deep .p-dropdown.p-focus,
-:host-context(.theme-black) ::ng-deep .p-dropdown.p-focus {
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 22%, transparent);
-}
-
-/* Descripción en blanco en tema oscuro (selección y panel) */
-:host-context(.theme-dark) .opt-desc,
-:host-context(.theme-black) .opt-desc { color: #fff !important; opacity: .9; }
-:host-context(.theme-dark) ::ng-deep .p-dropdown-panel .opt-desc,
-:host-context(.theme-black) ::ng-deep .p-dropdown-panel .opt-desc { color: #fff !important; opacity: .9; }
-
-/* Filtro en header del panel (PrimeNG 18) */
-:host ::ng-deep .p-dropdown-header .p-inputtext,
-:host ::ng-deep .p-dropdown-filter { background: color-mix(in srgb, var(--surface) 88%, #000) !important; color: #fff !important; border: 1px solid color-mix(in srgb, var(--border) 70%, transparent) !important; }
-:host ::ng-deep .p-dropdown-header .p-inputtext:focus,
-:host ::ng-deep .p-dropdown-filter:focus { box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 22%, transparent) !important; outline: none !important; }
-:host ::ng-deep .p-dropdown-filter-icon { color: #fff !important; opacity: .9; }
-
-/* Overrides para tema claro (theme-light): fondo claro y texto oscuro */
-:host-context(.theme-light) {
-  --surface: #ffffff;
-  --surface-alt: #f7f7f7;
-  --primary: #007bff;
-  --primary-hover: #0056b3;
-  --primary-content: #ffffff;
-  --accent: #17a2b8;
-  --accent-hover: #117a8b;
-  --accent-content: #ffffff;
-  --success: #28a745;
-  --success-hover: #218838;
-  --success-content: #ffffff;
-  --warning: #ffc107;
-  --warning-hover: #e0a800;
-  --warning-content: #212529;
-  --danger: #dc3545;
-  --danger-hover: #c82333;
-  --danger-content: #ffffff;
-  --text: #111;
-  --text-muted: #6c757d;
-  --text-success: #28a745;
-  --text-danger: #dc3545;
-  --text-warning: #ffc107;
-  --text-info: #17a2b8;
-  --heading: #111;
-  --border: #dee2e6;
-  --shadow: rgba(0, 0, 0, 0.1);
-}
-
-/* Overrides para tema oscuro (theme-dark) y negro (theme-black): fondo oscuro y texto blanco */
-:host-context(.theme-dark),
-:host-context(.theme-black) {
-  --surface: #121212;
-  --surface-alt: #1e1e1e;
-  --primary: #bb86fc;
-  --primary-hover: #9b59b6;
-  --primary-content: #121212;
-  --accent: #03dac6;
-  --accent-hover: #02a89f;
-  --accent-content: #121212;
-  --success: #03dac6;
-  --success-hover: #03a896;
-  --success-content: #121212;
-  --warning: #ffea00;
-  --warning-hover: #e6d600;
-  --warning-content: #121212;
-  --danger: #cf6679;
-  --danger-hover: #b85f7f;
-  --danger-content: #121212;
-  --text: #ffffff;
-  --text-muted: #a0a0a0;
-  --text-success: #03dac6;
-  --text-danger: #cf6679;
-  --text-warning: #ffea00;
-  --text-info: #03dac6;
-  --heading: #ffffff;
-  --border: #333333;
-  --shadow: rgba(0, 0, 0, 0.3);
-}
-
-/* Color de la etiqueta seleccionada (label del control) por tema */
-:host-context(.theme-light) ::ng-deep .p-dropdown .p-dropdown-label,
-:host-context(.theme-light) ::ng-deep .p-multiselect .p-multiselect-label,
-:host-context(.theme-light) ::ng-deep .p-select-label { color: #111 !important; }
-
-:host-context(.theme-dark) ::ng-deep .p-dropdown .p-dropdown-label,
-:host-context(.theme-black) ::ng-deep .p-dropdown .p-dropdown-label,
-:host-context(.theme-dark) ::ng-deep .p-multiselect .p-multiselect-label,
-:host-context(.theme-black) ::ng-deep .p-multiselect .p-multiselect-label,
-:host-context(.theme-dark) ::ng-deep .p-select-label,
-:host-context(.theme-black) ::ng-deep .p-select-label { color: #fff !important; }
-
-/* Ajustes específicos para la tarjeta de asignar administrador */
-.assign-admin-card {
-  padding: 1rem 1rem 1.1rem 1rem;
-  min-height: 160px;
+.left-column,
+.right-column {
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
+  gap: 2rem;
 }
-.assign-admin-card .field { margin-bottom: .9rem; }
-.assign-admin-card .actions { margin-top: .85rem; }
-.assign-admin-card .actions .p-button { min-width: 160px; }
-.assign-admin-card .inline-spinner { margin-left: .5rem; vertical-align: middle; }
 
-/* Forzar que el dropdown se adapte al ancho de la tarjeta (responsive) */
-.assign-admin-card :host ::ng-deep .p-dropdown,
-.assign-admin-card :host ::ng-deep .p-multiselect,
-.assign-admin-card ::ng-deep .p-dropdown,
-.assign-admin-card ::ng-deep .p-multiselect { min-width: 100% !important; width: 100% !important; }
+/* ============================================
+   TARJETAS MODERNAS
+   ============================================ */
+.modern-card {
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  background: var(--surface);
 
-/* Mejor separación entre label y control en pantallas pequeñas */
-@media (max-width: 980px) {
-  .assign-admin-card { padding: .85rem; }
-  .assign-admin-card .p-dropdown { min-width: 100% !important; }
-  .page-header { gap: .5rem; }
+  ::ng-deep .p-card-body {
+    padding: 0;
+  }
+
+  ::ng-deep .p-card-content {
+    padding: 2rem;
+  }
+
+  .card-header-section {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 1.25rem 2rem;
+    background: var(--surface-alt);
+    border-bottom: 2px solid var(--primary);
+
+    i {
+      font-size: 1.5rem;
+      color: var(--primary);
+    }
+
+    h3 {
+      margin: 0;
+      color: var(--text);
+      font-size: 1.2rem;
+      font-weight: 600;
+    }
+  }
 }
+
+/* ============================================
+   TARJETA DE INFORMACIÓN
+   ============================================ */
+.info-card {
+  .info-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .info-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 1rem;
+    background: var(--surface-alt);
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    transition: all 0.2s ease;
+
+    &:hover {
+      border-color: var(--primary);
+      transform: translateX(4px);
+      box-shadow: 0 2px 8px rgba(79, 140, 255, 0.1);
+    }
+
+    .info-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 0.9rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+
+      i {
+        color: var(--primary);
+        font-size: 1rem;
+      }
+    }
+
+    .info-value {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text);
+      text-align: right;
+
+      .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 0.4rem 0.875rem;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-transform: uppercase;
+
+        &.active {
+          background: var(--success-100);
+          color: var(--success);
+        }
+
+        &.inactive {
+          background: var(--danger-100);
+          color: var(--danger);
+        }
+      }
+    }
+  }
+}
+
+/* ============================================
+   TARJETA DE ADMINISTRADOR
+   ============================================ */
+.admin-card {
+  .admin-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+
+    .field-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 600;
+      color: var(--text);
+      font-size: 0.95rem;
+
+      .label-icon {
+        color: var(--primary);
+        font-size: 1rem;
+      }
+
+      .required-mark {
+        color: var(--danger);
+        font-weight: bold;
+        margin-left: 2px;
+      }
+    }
+
+    ::ng-deep .user-dropdown {
+      width: 100%;
+
+      .p-dropdown {
+        width: 100%;
+        border: 1px solid var(--border);
+        background: var(--surface);
+
+        &:focus {
+          border-color: var(--primary);
+          box-shadow: 0 0 0 0.2rem rgba(79, 140, 255, 0.25);
+        }
+      }
+    }
+
+    .info-message {
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+      color: var(--primary);
+      font-size: 0.85rem;
+      line-height: 1.4;
+
+      i {
+        font-size: 0.9rem;
+        margin-top: 2px;
+      }
+    }
+  }
+
+  .form-actions {
+    display: flex;
+    gap: 12px;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+
+    button {
+      flex: 1;
+      font-weight: 600;
+      padding: 0.875rem 1.5rem;
+      transition: all 0.3s ease;
+      border-radius: 8px;
+
+      &.p-button-success {
+        background: linear-gradient(135deg, var(--success) 0%, #16a34a 100%);
+        border: none;
+
+        &:hover:not(:disabled) {
+          background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
+        }
+
+        &:active:not(:disabled) {
+          transform: translateY(0);
+        }
+      }
+    }
+  }
+}
+
+/* ============================================
+   DROPDOWN DE USUARIOS
+   ============================================ */
+.user-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0.5rem 0;
+
+  .user-icon {
+    font-size: 1.2rem;
+    color: var(--primary);
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--surface-alt);
+    border-radius: 50%;
+  }
+
+  .user-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+
+    .username {
+      font-weight: 600;
+      color: var(--text);
+      font-size: 0.95rem;
+    }
+
+    .fullname {
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+  }
+
+  &.selected {
+    .user-icon {
+      background: rgba(79, 140, 255, 0.15);
+    }
+  }
+}
+
+/* ============================================
+   ALERTAS
+   ============================================ */
+.error-alert {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 1rem;
+  background: var(--danger-100);
+  border: 1px solid var(--danger);
+  border-radius: 8px;
+  margin-top: 1rem;
+
+  i {
+    font-size: 1.5rem;
+    color: var(--danger);
+  }
+
+  p {
+    margin: 0;
+    color: var(--danger);
+    font-weight: 500;
+  }
+}
+
+.warning-alert {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 1.5rem;
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  border-radius: 8px;
+  text-align: center;
+  margin-top: 1rem;
+
+  i {
+    font-size: 2rem;
+    color: #f59e0b;
+  }
+
+  p {
+    margin: 0;
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  small {
+    color: var(--muted);
+    font-size: 0.85rem;
+  }
+}
+
+/* ============================================
+   MENSAJE VACÍO DEL DROPDOWN
+   ============================================ */
+.empty-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 1.5rem;
+  color: var(--muted);
+
+  i {
+    font-size: 2rem;
+    opacity: 0.5;
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.9rem;
+  }
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 1024px) {
+  .content-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .header-gradient {
+    padding: 1.5rem;
+
+    .header-content {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+
+      .header-icon {
+        font-size: 2.5rem;
+      }
+
+      .header-text h1 {
+        font-size: 1.5rem;
+      }
+    }
+
+    .back-button {
+      width: 100%;
+    }
+  }
+
+  .modern-card {
+    .card-header-section {
+      padding: 1rem 1.5rem;
+
+      h3 {
+        font-size: 1.1rem;
+      }
+    }
+
+    ::ng-deep .p-card-content {
+      padding: 1.5rem;
+    }
+  }
+
+  .info-item {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 0.5rem;
+
+    .info-value {
+      text-align: left !important;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .header-gradient {
+    .header-content {
+      .header-icon {
+        font-size: 2rem;
+      }
+
+      .header-text {
+        h1 {
+          font-size: 1.25rem;
+        }
+
+        .subtitle {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+      }
+    }
+  }
+}
+
+/* ============================================
+   SOPORTE PARA TEMAS
+   ============================================ */
+
+/* Tema CLARO */
+:root.theme-light {
+  .modern-card {
+    background: var(--surface);
+  }
+
+  .info-item {
+    background: #f9fafb;
+    border-color: #e5e7eb;
+  }
+
+  .user-icon {
+    background: #f0f4f8;
+  }
+}
+
+/* Tema OSCURO */
+:root.theme-dark {
+  .modern-card {
+    background: var(--surface);
+  }
+
+  .info-item {
+    background: #1c1c2a;
+    border-color: #2e3445;
+  }
+
+  .user-icon {
+    background: #2a2a3e;
+  }
+
+  .card-header-section {
+    background: #1c1c2a;
+  }
+}
+
+/* Tema NEGRO */
+:root.theme-black {
+  .modern-card {
+    background: var(--surface);
+  }
+
+  .header-gradient {
+    box-shadow: 0 4px 12px rgba(79, 140, 255, 0.3);
+  }
+
+  .info-item {
+    background: #161616;
+    border-color: #262626;
+  }
+
+  .user-icon {
+    background: #1f1f1f;
+  }
+
+  .card-header-section {
+    background: #161616;
+  }
+
+  .form-actions {
+    border-top-color: #262626;
+  }
+}
+

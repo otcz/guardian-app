@@ -1,98 +1,200 @@
-<div class="orgcfg-wrapper">
-  <div class="page-header">
-    <div class="titles">
-      <h2>Gestionar Organización</h2>
-      <p class="subtitle" *ngIf="org">
-        {{ org.nombre }}
-        <span class="chip" [class.chip-success]="org.activa" [class.chip-danger]="!org.activa">{{ org.activa ? 'ACTIVA' : 'INACTIVA' }}</span>
-      </p>
+<div class="page-container">
+  <!-- Header con gradiente -->
+  <div class="page-header-modern">
+    <div class="header-gradient">
+      <div class="header-content">
+        <i class="pi pi-building header-icon"></i>
+        <div class="header-text">
+          <h1>Gestionar Organización</h1>
+          <p class="subtitle" *ngIf="org">
+            <span class="org-name">{{ org.nombre }}</span>
+            <span class="status-badge" [class.active]="org.activa" [class.inactive]="!org.activa">
+              <i class="pi" [ngClass]="org.activa ? 'pi-check-circle' : 'pi-times-circle'"></i>
+              {{ org.activa ? 'ACTIVA' : 'INACTIVA' }}
+            </span>
+          </p>
+        </div>
+      </div>
+      <button
+        pButton
+        type="button"
+        icon="pi pi-arrow-left"
+        label="Volver"
+        class="back-button"
+        (click)="back()">
+      </button>
     </div>
-
-    <span class="spacer"></span>
-    <button pButton type="button" icon="pi pi-arrow-left" label="Volver" class="p-button-text" (click)="back()"></button>
   </div>
 
-  <div class="grid two-column">
-    <div class="left-col">
-      <p-card class="card">
-        <div class="card-header"><h3>Organización</h3></div>
+  <!-- Grid de contenido -->
+  <div class="content-grid">
+    <!-- Columna izquierda - Información -->
+    <div class="left-column">
+      <p-card class="modern-card info-card">
+        <ng-template pTemplate="header">
+          <div class="card-header-section">
+            <i class="pi pi-info-circle"></i>
+            <h3>Información de la Organización</h3>
+          </div>
+        </ng-template>
 
-        <div *ngIf="org as o" class="org-summary">
-          <div class="kv"><span>ID</span><b>{{ o.id }}</b></div>
-          <div class="kv"><span>Nombre</span><b>{{ o.nombre }}</b></div>
-          <div class="kv"><span>Estado</span><b>{{ o.activa ? 'ACTIVA' : 'INACTIVA' }}</b></div>
-          <div class="kv" *ngIf="o.fecha_creacion"><span>Creación</span><b>{{ o.fecha_creacion | date:'yyyy-MM-dd HH:mm' }}</b></div>
-          <div class="kv" *ngIf="o.fecha_actualizacion"><span>Actualización</span><b>{{ o.fecha_actualizacion | date:'yyyy-MM-dd HH:mm' }}</b></div>
+        <div *ngIf="org as o" class="info-grid">
+          <div class="info-item">
+            <div class="info-label">
+              <i class="pi pi-hashtag"></i>
+              <span>ID</span>
+            </div>
+            <div class="info-value">{{ o.id }}</div>
+          </div>
+
+          <div class="info-item">
+            <div class="info-label">
+              <i class="pi pi-tag"></i>
+              <span>Nombre</span>
+            </div>
+            <div class="info-value">{{ o.nombre }}</div>
+          </div>
+
+          <div class="info-item">
+            <div class="info-label">
+              <i class="pi pi-power-off"></i>
+              <span>Estado</span>
+            </div>
+            <div class="info-value">
+              <span class="status-badge" [class.active]="o.activa" [class.inactive]="!o.activa">
+                <i class="pi" [ngClass]="o.activa ? 'pi-check-circle' : 'pi-times-circle'"></i>
+                {{ o.activa ? 'ACTIVA' : 'INACTIVA' }}
+              </span>
+            </div>
+          </div>
+
+          <div class="info-item" *ngIf="o.fecha_creacion">
+            <div class="info-label">
+              <i class="pi pi-calendar-plus"></i>
+              <span>Fecha de Creación</span>
+            </div>
+            <div class="info-value">{{ o.fecha_creacion | date:'dd/MM/yyyy HH:mm' }}</div>
+          </div>
+
+          <div class="info-item" *ngIf="o.fecha_actualizacion">
+            <div class="info-label">
+              <i class="pi pi-calendar"></i>
+              <span>Última Actualización</span>
+            </div>
+            <div class="info-value">{{ o.fecha_actualizacion | date:'dd/MM/yyyy HH:mm' }}</div>
+          </div>
         </div>
 
-        <p-message *ngIf="error" severity="error" [text]="error"></p-message>
+        <!-- Mensaje de error -->
+        <div class="error-alert" *ngIf="error">
+          <i class="pi pi-exclamation-triangle"></i>
+          <p>{{ error }}</p>
+        </div>
       </p-card>
-
-      <!-- Se pueden agregar más tarjetas informativas aquí si es necesario -->
     </div>
 
-    <div class="right-col">
-      <!-- Tarjeta: Asignar Administrador de la Organización -->
-      <p-card class="card assign-admin-card" id="assign-admin-section">
-        <div class="card-header"><h3>Administrador de la Organización</h3></div>
+    <!-- Columna derecha - Asignar Administrador -->
+    <div class="right-column">
+      <p-card class="modern-card admin-card" id="assign-admin-section">
+        <ng-template pTemplate="header">
+          <div class="card-header-section">
+            <i class="pi pi-user-edit"></i>
+            <h3>Administrador de la Organización</h3>
+          </div>
+        </ng-template>
 
-        <div class="field">
-          <label for="userSelect">Usuario</label>
-          <p-dropdown id="userSelect"
-                      [options]="usuarios"
-                      optionLabel="username"
-                      optionValue="id"
-                      [filter]="true"
-                      filterBy="nombreCompleto,username,email"
-                      [loading]="loadingUsers"
-                      [showClear]="true"
-                      appendTo="body"
-                      placeholder="Seleccione usuario"
-                      [(ngModel)]="selectedUserId"
-                      (onChange)="selectedUserId = $event.value"
-                      [disabled]="loadingUsers || !orgId"
-                      [ngModelOptions]="{standalone: true}"
-                      [virtualScroll]="true"
-                      [itemSize]="36"
-                      [autoDisplayFirst]="false"
-                      [panelStyle]="{maxHeight:'260px'}">
-            <ng-template let-opt pTemplate="selectedItem">
-              <div class="dd-item" *ngIf="opt as u">
-                <span class="name">{{ u.username }}</span>
-                <span class="sep" *ngIf="u.nombreCompleto"> - </span>
-                <span class="muted" *ngIf="u.nombreCompleto">{{ u.nombreCompleto }}</span>
-              </div>
-            </ng-template>
-            <ng-template let-opt pTemplate="item">
-              <div class="dd-item">
-                <span class="name">{{ opt.username }}</span>
-                <span class="sep" *ngIf="opt.nombreCompleto"> - </span>
-                <span class="muted" *ngIf="opt.nombreCompleto">{{ opt.nombreCompleto }}</span>
-              </div>
-            </ng-template>
-            <ng-template pTemplate="emptyfilter">
-              <div class="fs-xs p-2 text-muted">Sin coincidencias</div>
-            </ng-template>
-            <ng-template pTemplate="empty">
-              <div class="fs-xs p-2 text-muted">{{ loadingUsers ? 'Cargando usuarios…' : 'Sin usuarios' }}</div>
-            </ng-template>
-          </p-dropdown>
-          <div class="hint">También puedes crear usuarios desde el módulo Usuarios si no encuentras el candidato.</div>
+        <div class="admin-form">
+          <div class="field">
+            <label for="userSelect" class="field-label">
+              <i class="pi pi-users label-icon"></i>
+              Seleccionar Usuario
+              <span class="required-mark">*</span>
+            </label>
+
+            <p-dropdown
+              id="userSelect"
+              [options]="usuarios"
+              optionLabel="username"
+              optionValue="id"
+              [filter]="true"
+              filterBy="nombreCompleto,username,email"
+              filterPlaceholder="Buscar usuario..."
+              [loading]="loadingUsers"
+              [showClear]="true"
+              appendTo="body"
+              placeholder="Seleccione un usuario"
+              [(ngModel)]="selectedUserId"
+              (onChange)="selectedUserId = $event.value"
+              [disabled]="loadingUsers || !orgId"
+              [ngModelOptions]="{standalone: true}"
+              [virtualScroll]="true"
+              [itemSize]="36"
+              [autoDisplayFirst]="false"
+              styleClass="user-dropdown"
+              [panelStyle]="{maxHeight:'260px'}">
+
+              <ng-template let-opt pTemplate="selectedItem">
+                <div class="user-item selected" *ngIf="opt as u">
+                  <i class="pi pi-user user-icon"></i>
+                  <div class="user-info">
+                    <span class="username">{{ u.username }}</span>
+                    <small class="fullname" *ngIf="u.nombreCompleto">{{ u.nombreCompleto }}</small>
+                  </div>
+                </div>
+              </ng-template>
+
+              <ng-template let-opt pTemplate="item">
+                <div class="user-item">
+                  <i class="pi pi-user user-icon"></i>
+                  <div class="user-info">
+                    <span class="username">{{ opt.username }}</span>
+                    <small class="fullname" *ngIf="opt.nombreCompleto">{{ opt.nombreCompleto }}</small>
+                  </div>
+                </div>
+              </ng-template>
+
+              <ng-template pTemplate="emptyfilter">
+                <div class="empty-message">
+                  <i class="pi pi-search"></i>
+                  <p>Sin coincidencias</p>
+                </div>
+              </ng-template>
+
+              <ng-template pTemplate="empty">
+                <div class="empty-message">
+                  <i class="pi" [ngClass]="loadingUsers ? 'pi-spin pi-spinner' : 'pi-inbox'"></i>
+                  <p>{{ loadingUsers ? 'Cargando usuarios…' : 'Sin usuarios' }}</p>
+                </div>
+              </ng-template>
+            </p-dropdown>
+
+            <small class="info-message">
+              <i class="pi pi-info-circle"></i>
+              También puedes crear usuarios desde el módulo Usuarios si no encuentras el candidato
+            </small>
+          </div>
+
+          <!-- Acciones -->
+          <div class="form-actions">
+            <button
+              pButton
+              type="button"
+              label="Asignar como Administrador"
+              icon="pi pi-shield"
+              class="p-button-success"
+              (click)="assignAdmin()"
+              [loading]="savingAdmin"
+              [disabled]="savingAdmin || !selectedUserId || !orgId">
+            </button>
+          </div>
+
+          <!-- Advertencia de sin usuarios -->
+          <div class="warning-alert" *ngIf="!loadingUsers && usuarios.length===0">
+            <i class="pi pi-exclamation-triangle"></i>
+            <p>No hay usuarios disponibles en la organización</p>
+            <small>Crea usuarios primero desde el módulo de gestión de usuarios</small>
+          </div>
         </div>
-
-        <div class="actions">
-          <button pButton type="button"
-                  label="Asignar como admin"
-                  icon="pi pi-shield"
-                  class="p-button-success"
-                  (click)="assignAdmin()"
-                  [disabled]="savingAdmin || !selectedUserId || !orgId"></button>
-          <p-progressSpinner *ngIf="savingAdmin" styleClass="inline-spinner" strokeWidth="4" [style]="{width:'18px', height:'18px'}"></p-progressSpinner>
-        </div>
-
-        <p-message *ngIf="!loadingUsers && usuarios.length===0"
-                   severity="warn"
-                   text="No hay usuarios en la organización."></p-message>
       </p-card>
     </div>
   </div>

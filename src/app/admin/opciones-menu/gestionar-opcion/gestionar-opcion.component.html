@@ -1,38 +1,176 @@
-<div class="page-wrap">
-  <p-card class="card">
-    <div class="header"><h2 class="title">Gestionar opción</h2></div>
-    <div class="body">
-      <div class="form-grid">
-        <div class="field">
-          <label>Buscar opción</label>
-          <input pInputText type="text" [(ngModel)]="query" (ngModelChange)="applyFilter()" placeholder="Nombre o ruta" />
+<div class="page-container">
+  <p-card class="modern-card">
+    <!-- Header con gradiente -->
+    <ng-template pTemplate="header">
+      <div class="card-header">
+        <div class="header-content">
+          <i class="pi pi-cog header-icon"></i>
+          <h2>Gestionar Opción</h2>
         </div>
-        <div class="field">
-          <label>Seleccionar</label>
-          <p-dropdown [options]="filtered" optionLabel="label" optionValue="path" [(ngModel)]="selectedPath" name="selectedPath" placeholder="Elija opción" [filter]="true"></p-dropdown>
+      </div>
+    </ng-template>
+
+    <div class="card-body">
+      <!-- Toolbar de búsqueda y selección -->
+      <div class="search-toolbar">
+        <!-- Buscar opción -->
+        <div class="control-container search-container">
+          <label for="searchOption" class="control-label">
+            <i class="pi pi-search"></i>
+            Buscar:
+          </label>
+          <input
+            id="searchOption"
+            pInputText
+            type="text"
+            [(ngModel)]="query"
+            (ngModelChange)="applyFilter()"
+            placeholder="Nombre o ruta..."
+            class="search-input"
+          />
+        </div>
+
+        <!-- Seleccionar opción -->
+        <div class="control-container">
+          <label for="selectOption" class="control-label">
+            <i class="pi pi-list"></i>
+            Opción:
+          </label>
+          <p-dropdown
+            id="selectOption"
+            [options]="filtered"
+            optionLabel="label"
+            optionValue="path"
+            [(ngModel)]="selectedPath"
+            name="selectedPath"
+            placeholder="Seleccione una opción"
+            [filter]="true"
+            filterPlaceholder="Filtrar opciones..."
+            [showClear]="true"
+            styleClass="control-dropdown">
+            <ng-template pTemplate="selectedItem" let-option>
+              <div class="selected-option" *ngIf="option">
+                <i *ngIf="option.icon" [ngClass]="option.icon" class="option-icon"></i>
+                <span class="option-label">{{ option.label }}</span>
+              </div>
+            </ng-template>
+            <ng-template pTemplate="item" let-option>
+              <div class="dropdown-option">
+                <i *ngIf="option.icon" [ngClass]="option.icon" class="option-icon"></i>
+                <div class="option-info">
+                  <span class="option-label">{{ option.label }}</span>
+                  <small class="option-path">{{ option.path }}</small>
+                </div>
+              </div>
+            </ng-template>
+          </p-dropdown>
         </div>
       </div>
 
-      <form (ngSubmit)="save()" *ngIf="model">
-        <div class="form-grid">
-          <div class="field">
-            <label>Nombre</label>
-            <input pInputText type="text" [(ngModel)]="model.label" name="nombre" />
-          </div>
-          <div class="field">
-            <label>Ruta</label>
-            <input pInputText type="text" [(ngModel)]="model.path" name="ruta" />
-          </div>
-          <div class="field">
-            <label>Icono (referencial)</label>
-            <input pInputText type="text" [(ngModel)]="model.icon" name="icono" placeholder="pi pi-… / mdi mdi-…" />
+      <!-- Formulario de edición -->
+      <form (ngSubmit)="save()" *ngIf="model" class="edit-form">
+        <div class="form-section">
+          <h3 class="section-title">
+            <i class="pi pi-pencil"></i>
+            Editar Opción
+          </h3>
+
+          <div class="form-grid">
+            <!-- Nombre -->
+            <div class="field">
+              <label for="nombre" class="field-label">
+                <i class="pi pi-tag label-icon"></i>
+                Nombre
+                <span class="required-mark">*</span>
+              </label>
+              <input
+                id="nombre"
+                pInputText
+                type="text"
+                [(ngModel)]="model.label"
+                name="nombre"
+                placeholder="Ej: Gestión de Usuarios"
+                class="input-field"
+                required
+              />
+            </div>
+
+            <!-- Ruta -->
+            <div class="field">
+              <label for="ruta" class="field-label">
+                <i class="pi pi-link label-icon"></i>
+                Ruta
+              </label>
+              <input
+                id="ruta"
+                pInputText
+                type="text"
+                [(ngModel)]="model.path"
+                name="ruta"
+                placeholder="/admin/usuarios"
+                class="input-field"
+              />
+              <small class="info-message">
+                <i class="pi pi-info-circle"></i>
+                Ruta de navegación de la aplicación
+              </small>
+            </div>
+
+            <!-- Icono -->
+            <div class="field">
+              <label for="icono" class="field-label">
+                <i class="pi pi-star label-icon"></i>
+                Icono
+              </label>
+              <div class="icon-input-wrapper">
+                <i *ngIf="model.icon" [ngClass]="model.icon" class="icon-preview"></i>
+                <input
+                  id="icono"
+                  pInputText
+                  type="text"
+                  [(ngModel)]="model.icon"
+                  name="icono"
+                  placeholder="pi pi-users / mdi mdi-account"
+                  class="input-field"
+                />
+              </div>
+              <small class="info-message">
+                <i class="pi pi-info-circle"></i>
+                Usa iconos de PrimeIcons (pi pi-*) o Material Design Icons (mdi mdi-*)
+              </small>
+            </div>
           </div>
         </div>
-        <div class="actions">
-          <button pButton type="submit" label="Guardar" icon="pi pi-save" [disabled]="saving"></button>
-          <button pButton type="button" class="p-button-text" label="Cancelar" icon="pi pi-times" (click)="cancel()"></button>
+
+        <!-- Acciones -->
+        <div class="footer-actions">
+          <button
+            pButton
+            type="submit"
+            label="Guardar Cambios"
+            icon="pi pi-save"
+            class="p-button-success"
+            [loading]="saving"
+            [disabled]="saving || !model.label">
+          </button>
+          <button
+            pButton
+            type="button"
+            label="Cancelar"
+            icon="pi pi-times"
+            class="p-button-secondary"
+            (click)="cancel()"
+            [disabled]="saving">
+          </button>
         </div>
       </form>
+
+      <!-- Estado vacío cuando no hay opción seleccionada -->
+      <div class="empty-state" *ngIf="!model">
+        <i class="pi pi-inbox"></i>
+        <p>Selecciona una opción para editarla</p>
+        <small>Usa el buscador o el dropdown para encontrar y seleccionar una opción</small>
+      </div>
     </div>
   </p-card>
 </div>

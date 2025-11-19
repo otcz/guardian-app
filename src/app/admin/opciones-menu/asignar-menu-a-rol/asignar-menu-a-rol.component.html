@@ -1,15 +1,39 @@
-<div class="page-wrap">
-  <p-card class="card">
-    <div class="header"><h2 class="title">Asignar menú a un rol</h2></div>
-    <div class="body">
-      <div class="form-grid">
+<div class="page-container">
+  <p-card class="modern-card">
+    <!-- Header con gradiente -->
+    <ng-template pTemplate="header">
+      <div class="card-header">
+        <div class="header-content">
+          <i class="pi pi-user-edit header-icon"></i>
+          <h2>Asignar Menú a Rol</h2>
+        </div>
+      </div>
+    </ng-template>
+
+    <div class="card-body">
+      <!-- Toolbar de búsqueda -->
+      <div class="search-toolbar">
         <!-- Selector de rol -->
-        <div class="field">
-          <label>Selector de rol</label>
-          <p-dropdown [options]="roles" optionValue="id" [(ngModel)]="rolId" name="rolId" placeholder="Seleccione rol" [filter]="false" [showClear]="true" (onChange)="onRolChange()">
+        <div class="control-container">
+          <label for="rolSelector" class="control-label">
+            <i class="pi pi-users"></i>
+            Rol:
+          </label>
+          <p-dropdown
+            id="rolSelector"
+            [options]="roles"
+            optionValue="id"
+            [(ngModel)]="rolId"
+            name="rolId"
+            placeholder="Seleccione un rol"
+            [filter]="false"
+            [showClear]="true"
+            (onChange)="onRolChange()"
+            styleClass="control-dropdown">
             <ng-template pTemplate="selectedItem" let-value>
               <ng-container *ngIf="resolveSelectedRole(value) as r; else plainValue">
-                <span>{{ r.nombre }}<span class="text-muted" *ngIf="r.orgNombre">-{{ r.orgNombre }}</span></span>
+                <span class="role-name">{{ r.nombre }}</span>
+                <span class="org-badge" *ngIf="r.orgNombre">{{ r.orgNombre }}</span>
               </ng-container>
               <ng-template #plainValue>
                 <span *ngIf="value && value.nombre; else rawVal">{{ value.nombre }}</span>
@@ -17,47 +41,149 @@
               </ng-template>
             </ng-template>
             <ng-template pTemplate="item" let-r>
-              <span>{{ r.nombre }}<span class="text-muted" *ngIf="r.orgNombre">-{{ r.orgNombre }}</span></span>
+              <div class="role-item">
+                <span class="role-name">{{ r.nombre }}</span>
+                <span class="org-badge" *ngIf="r.orgNombre">{{ r.orgNombre }}</span>
+              </div>
             </ng-template>
           </p-dropdown>
         </div>
-        <!-- Buscar rol local -->
-        <div class="field">
-          <label>Buscar rol</label>
-          <input pInputText type="text" [(ngModel)]="roleQuery" (ngModelChange)="onRoleQueryChange()" placeholder="Buscar rol (local)" />
+
+        <!-- Buscar rol -->
+        <div class="control-container search-container">
+          <label for="searchRole" class="control-label">
+            <i class="pi pi-search"></i>
+            Buscar Rol:
+          </label>
+          <input
+            id="searchRole"
+            pInputText
+            type="text"
+            [(ngModel)]="roleQuery"
+            (ngModelChange)="onRoleQueryChange()"
+            placeholder="Filtrar roles..."
+            class="search-input"
+          />
         </div>
+
         <!-- Buscar opción -->
-        <div class="field">
-          <label>Buscar opción</label>
-          <input pInputText type="text" [(ngModel)]="query" (ngModelChange)="applyFilter()" placeholder="Filtrar por nombre o ruta" />
+        <div class="control-container search-container">
+          <label for="searchOption" class="control-label">
+            <i class="pi pi-filter"></i>
+            Buscar Opción:
+          </label>
+          <input
+            id="searchOption"
+            pInputText
+            type="text"
+            [(ngModel)]="query"
+            (ngModelChange)="applyFilter()"
+            placeholder="Filtrar por nombre o ruta..."
+            class="search-input"
+          />
         </div>
       </div>
 
-      <!-- Resumen y estados -->
-      <div class="meta-row fs-xs text-muted" *ngIf="orgId && rolId">
-        <p-tag value="Total: {{ allOptions.length }}" severity="secondary" class="mr-1"></p-tag>
-        <p-tag value="Filtradas: {{ filteredOptions.length }}" severity="info" class="mr-1"></p-tag>
-        <p-tag value="Asignadas: {{ totalAssigned }}" severity="success" class="mr-1"></p-tag>
-        <p-tag value="Seleccionadas: {{ totalSelected }}" severity="warn"></p-tag>
+      <!-- Resumen con estadísticas -->
+      <div class="stats-row" *ngIf="orgId && rolId">
+        <div class="stat-card">
+          <i class="pi pi-list stat-icon"></i>
+          <div class="stat-content">
+            <span class="stat-value">{{ allOptions.length }}</span>
+            <span class="stat-label">Total</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <i class="pi pi-filter stat-icon"></i>
+          <div class="stat-content">
+            <span class="stat-value">{{ filteredOptions.length }}</span>
+            <span class="stat-label">Filtradas</span>
+          </div>
+        </div>
+        <div class="stat-card success">
+          <i class="pi pi-check-circle stat-icon"></i>
+          <div class="stat-content">
+            <span class="stat-value">{{ totalAssigned }}</span>
+            <span class="stat-label">Asignadas</span>
+          </div>
+        </div>
+        <div class="stat-card primary">
+          <i class="pi pi-bookmark stat-icon"></i>
+          <div class="stat-content">
+            <span class="stat-value">{{ totalSelected }}</span>
+            <span class="stat-label">Seleccionadas</span>
+          </div>
+        </div>
       </div>
 
-      <p *ngIf="errorMsg" class="p-error mb-sm fs-sm">{{ errorMsg }}</p>
+      <!-- Mensaje de error -->
+      <div class="error-alert" *ngIf="errorMsg">
+        <i class="pi pi-exclamation-circle"></i>
+        <p>{{ errorMsg }}</p>
+      </div>
 
-      <div class="list-toolbar" *ngIf="tableRows.length">
-        <div class="left">
-          <p-checkbox [binary]="true" [ngModel]="allFilteredSelected()" (ngModelChange)="onToggleSelectAllFiltered($event)"></p-checkbox>
-          <span class="label">Seleccionar todo lo visible (solo activos)</span>
-          <span class="toolbar-divider"></span>
-          <button pButton type="button" class="p-button-text p-button-sm" icon="pi pi-plus"  (click)="expandAllVisible()" title="Expandir todos los menús"></button>
-          <button pButton type="button" class="p-button-text p-button-sm" icon="pi pi-minus"  (click)="collapseAllVisible()" title="Colapsar todos los menús"></button>
+      <!-- Toolbar de opciones -->
+      <div class="options-toolbar" *ngIf="tableRows.length">
+        <div class="toolbar-section left">
+          <div class="select-all-container">
+            <p-checkbox
+              [binary]="true"
+              [ngModel]="allFilteredSelected()"
+              (ngModelChange)="onToggleSelectAllFiltered($event)"
+              inputId="selectAll">
+            </p-checkbox>
+            <label for="selectAll" class="checkbox-label">
+              Seleccionar todo lo visible (solo activos)
+            </label>
+          </div>
+
+          <div class="expand-controls">
+            <button
+              pButton
+              type="button"
+              icon="pi pi-plus"
+              class="p-button-text p-button-sm"
+              (click)="expandAllVisible()"
+              pTooltip="Expandir todos los menús"
+              tooltipPosition="top">
+            </button>
+            <button
+              pButton
+              type="button"
+              icon="pi pi-minus"
+              class="p-button-text p-button-sm"
+              (click)="collapseAllVisible()"
+              pTooltip="Colapsar todos los menús"
+              tooltipPosition="top">
+            </button>
+          </div>
         </div>
-        <div class="right">
-          <span class="text-muted mr-1">{{ tableRows.length }} opciones visibles</span>
-          <span class="toolbar-divider"></span>
-          <span class="ml-2 mr-1">Solo activos</span>
-          <p-checkbox [binary]="true" [(ngModel)]="onlyActive" (ngModelChange)="applyFilter()"></p-checkbox>
-          <span class="ml-3 mr-1">Solo menús</span>
-          <p-checkbox [binary]="true" [(ngModel)]="onlyMenus" (ngModelChange)="applyFilter()"></p-checkbox>
+
+        <div class="toolbar-section right">
+          <div class="visible-count">
+            <i class="pi pi-eye"></i>
+            <span>{{ tableRows.length }} opciones visibles</span>
+          </div>
+
+          <div class="filter-option">
+            <p-checkbox
+              [binary]="true"
+              [(ngModel)]="onlyActive"
+              (ngModelChange)="applyFilter()"
+              inputId="onlyActive">
+            </p-checkbox>
+            <label for="onlyActive" class="checkbox-label">Solo activos</label>
+          </div>
+
+          <div class="filter-option">
+            <p-checkbox
+              [binary]="true"
+              [(ngModel)]="onlyMenus"
+              (ngModelChange)="applyFilter()"
+              inputId="onlyMenus">
+            </p-checkbox>
+            <label for="onlyMenus" class="checkbox-label">Solo menús</label>
+          </div>
         </div>
       </div>
 
@@ -105,18 +231,53 @@
           </div>
         </div>
         <ng-template #emptyState>
-          <div class="empty text-muted">
-            <div>Sin datos</div>
-            <button pButton type="button" icon="pi pi-database" label="Crear catálogo" class="p-button-text" (click)="seedNow()" *ngIf="orgId && !loading"></button>
+          <div class="empty-state">
+            <i class="pi pi-inbox"></i>
+            <p>Sin opciones disponibles</p>
+            <small>Selecciona un rol para ver las opciones disponibles</small>
+            <button
+              pButton
+              type="button"
+              icon="pi pi-database"
+              label="Crear Catálogo"
+              class="p-button-outlined"
+              (click)="seedNow()"
+              *ngIf="orgId && !loading">
+            </button>
           </div>
         </ng-template>
       </div>
     </div>
 
-    <div class="actions">
-      <button pButton type="button" label="Guardar" icon="pi pi-save" (click)="save()" [disabled]="!rolId || saving || !hasChanges"></button>
-      <button pButton type="button" class="p-button-text" label="Revertir cambios" icon="pi pi-refresh" (click)="revert()" [disabled]="!hasChanges"></button>
-      <button pButton type="button" class="p-button-text" label="Cancelar" icon="pi pi-times" (click)="resetData()"></button>
+    <!-- Acciones del pie -->
+    <div class="footer-actions">
+      <button
+        pButton
+        type="button"
+        label="Guardar Cambios"
+        icon="pi pi-save"
+        class="p-button-success"
+        (click)="save()"
+        [loading]="saving"
+        [disabled]="!rolId || saving || !hasChanges">
+      </button>
+      <button
+        pButton
+        type="button"
+        label="Revertir Cambios"
+        icon="pi pi-refresh"
+        class="p-button-secondary"
+        (click)="revert()"
+        [disabled]="!hasChanges">
+      </button>
+      <button
+        pButton
+        type="button"
+        label="Cancelar"
+        icon="pi pi-times"
+        class="p-button-text"
+        (click)="resetData()">
+      </button>
     </div>
   </p-card>
 </div>

@@ -1,24 +1,120 @@
-<div class="container">
-  <p-card class="card">
-    <div class="header"><h2 class="title">Listar opciones</h2></div>
-    <div class="body">
-      <div class="form-grid">
-        <div class="field">
-          <label>Buscar</label>
-          <input pInputText type="text" [(ngModel)]="query" (ngModelChange)="applyFilter()" placeholder="Nombre o ruta" />
+<div class="page-container">
+  <p-card class="modern-card">
+    <!-- Header con gradiente -->
+    <ng-template pTemplate="header">
+      <div class="card-header">
+        <div class="header-content">
+          <i class="pi pi-list header-icon"></i>
+          <h2>Opciones de Menú</h2>
         </div>
       </div>
-      <p-table [value]="filtered" [paginator]="true" [rows]="10">
+    </ng-template>
+
+    <!-- Toolbar con controles -->
+    <div class="toolbar">
+      <div class="toolbar-left">
+        <h3 class="section-title">Listado de Opciones</h3>
+      </div>
+      <div class="toolbar-right">
+        <!-- Buscador con estilo consistente -->
+        <div class="control-container search-container">
+          <label for="searchInput" class="control-label">
+            <i class="pi pi-search"></i>
+            Buscar:
+          </label>
+          <input
+            id="searchInput"
+            pInputText
+            type="text"
+            [(ngModel)]="query"
+            (ngModelChange)="applyFilter()"
+            placeholder="Nombre o ruta..."
+            class="search-input"
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabla con diseño moderno -->
+    <div class="table-container">
+      <p-table
+        [value]="filtered"
+        [paginator]="true"
+        [rows]="10"
+        [rowsPerPageOptions]="[10, 25, 50]"
+        styleClass="modern-table"
+        [tableStyle]="{'min-width': '50rem'}">
+
         <ng-template pTemplate="header">
           <tr>
-            <th>Opción</th>
-            <th>Ruta</th>
+            <th style="width: 50px">
+              <i class="pi pi-hashtag"></i>
+            </th>
+            <th>
+              <div class="th-content">
+                <i class="pi pi-tag"></i>
+                <span>Opción</span>
+              </div>
+            </th>
+            <th>
+              <div class="th-content">
+                <i class="pi pi-link"></i>
+                <span>Ruta</span>
+              </div>
+            </th>
+            <th style="width: 120px">
+              <div class="th-content">
+                <i class="pi pi-cog"></i>
+                <span>Acciones</span>
+              </div>
+            </th>
           </tr>
         </ng-template>
-        <ng-template pTemplate="body" let-row>
+
+        <ng-template pTemplate="body" let-row let-rowIndex="rowIndex">
+          <tr class="table-row">
+            <td class="text-center">
+              <span class="row-number">{{ rowIndex + 1 }}</span>
+            </td>
+            <td>
+              <div class="cell-content">
+                <i class="pi pi-circle-fill item-icon"></i>
+                <span class="item-label">{{ row.label }}</span>
+              </div>
+            </td>
+            <td>
+              <span class="path-badge">{{ row.path }}</span>
+            </td>
+            <td>
+              <div class="action-buttons">
+                <button
+                  pButton
+                  icon="pi pi-eye"
+                  class="p-button-text p-button-sm"
+                  pTooltip="Ver detalles"
+                  tooltipPosition="top">
+                </button>
+                <button
+                  pButton
+                  icon="pi pi-pencil"
+                  class="p-button-text p-button-sm"
+                  pTooltip="Editar"
+                  tooltipPosition="top">
+                </button>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage">
           <tr>
-            <td>{{ row.label }}</td>
-            <td>{{ row.path }}</td>
+            <td colspan="4" class="empty-message">
+              <div class="empty-state">
+                <i class="pi pi-inbox"></i>
+                <p>No se encontraron opciones</p>
+                <small>Intenta con otro término de búsqueda</small>
+              </div>
+            </td>
           </tr>
         </ng-template>
       </p-table>

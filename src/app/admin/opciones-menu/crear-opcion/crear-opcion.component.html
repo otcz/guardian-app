@@ -1,35 +1,149 @@
-<div class="page-wrap">
-  <p-card class="card">
-    <div class="header"><h2 class="title">Crear opción</h2></div>
-    <div class="body">
-      <form (ngSubmit)="save()">
-        <div class="form-grid">
-          <div class="field">
-            <label>Nombre</label>
-            <input pInputText type="text" [(ngModel)]="form.nombre" name="nombre" required />
-          </div>
-          <div class="field">
-            <label>Tipo</label>
-            <p-dropdown [options]="tipos" optionLabel="label" optionValue="value" [(ngModel)]="form.tipo" name="tipo" placeholder="Seleccione tipo"></p-dropdown>
-          </div>
-          <div class="field">
-            <label>Icono</label>
-            <input pInputText type="text" [(ngModel)]="form.icono" name="icono" placeholder="pi pi-… / mdi mdi-…" />
-          </div>
-          <div class="field" *ngIf="form.tipo === 'ITEM'">
-            <label>Ruta</label>
-            <input pInputText type="text" [(ngModel)]="form.ruta" name="ruta" placeholder="/ruta/del/item" />
-          </div>
-          <div class="field">
-            <label>Menú padre (nombre)</label>
-            <input pInputText type="text" [(ngModel)]="form.padreNombre" name="padreNombre" placeholder="Ej: GESTIÓN DE OPCIONES/MENÚ" />
-          </div>
+<div class="page-container">
+  <p-card class="modern-card">
+    <!-- Header con gradiente -->
+    <ng-template pTemplate="header">
+      <div class="card-header">
+        <div class="header-content">
+          <i class="pi pi-plus-circle header-icon"></i>
+          <h2>Crear Opción de Menú</h2>
         </div>
-        <div class="actions">
-          <button pButton type="submit" label="Guardar" icon="pi pi-save" [disabled]="saving || !form.nombre || !form.tipo"></button>
-          <button pButton type="button" class="p-button-text" label="Limpiar" icon="pi pi-undo" (click)="reset()"></button>
+      </div>
+    </ng-template>
+
+    <!-- Formulario -->
+    <form (ngSubmit)="save()" class="edit-form">
+      <div class="form-grid">
+        <!-- Nombre -->
+        <div class="field" [ngClass]="{'field-error': !form.nombre && submitted}">
+          <label for="nombre" class="field-label">
+            <i class="pi pi-tag label-icon"></i>
+            Nombre
+            <span class="required-mark">*</span>
+          </label>
+          <input
+            id="nombre"
+            pInputText
+            type="text"
+            [(ngModel)]="form.nombre"
+            name="nombre"
+            placeholder="Ej: Gestión de Usuarios"
+            class="input-field"
+            required
+          />
+          <small class="error-message" *ngIf="!form.nombre && submitted">
+            El nombre es obligatorio
+          </small>
         </div>
-      </form>
-    </div>
+
+        <!-- Tipo -->
+        <div class="field" [ngClass]="{'field-error': !form.tipo && submitted}">
+          <label for="tipo" class="field-label">
+            <i class="pi pi-sitemap label-icon"></i>
+            Tipo
+            <span class="required-mark">*</span>
+          </label>
+          <p-dropdown
+            id="tipo"
+            [options]="tipos"
+            optionLabel="label"
+            optionValue="value"
+            [(ngModel)]="form.tipo"
+            name="tipo"
+            placeholder="Seleccione el tipo"
+            styleClass="dropdown-field"
+            [showClear]="false"
+          ></p-dropdown>
+          <small class="error-message" *ngIf="!form.tipo && submitted">
+            El tipo es obligatorio
+          </small>
+        </div>
+
+        <!-- Icono -->
+        <div class="field">
+          <label for="icono" class="field-label">
+            <i class="pi pi-star label-icon"></i>
+            Icono
+          </label>
+          <input
+            id="icono"
+            pInputText
+            type="text"
+            [(ngModel)]="form.icono"
+            name="icono"
+            placeholder="pi pi-users / mdi mdi-account"
+            class="input-field"
+          />
+          <small class="info-message">
+            <i class="pi pi-info-circle"></i>
+            Usa iconos de PrimeIcons (pi pi-*) o Material Design Icons (mdi mdi-*)
+          </small>
+        </div>
+
+        <!-- Ruta (solo si es ITEM) -->
+        <div class="field" *ngIf="form.tipo === 'ITEM'">
+          <label for="ruta" class="field-label">
+            <i class="pi pi-link label-icon"></i>
+            Ruta
+            <span class="required-mark">*</span>
+          </label>
+          <input
+            id="ruta"
+            pInputText
+            type="text"
+            [(ngModel)]="form.ruta"
+            name="ruta"
+            placeholder="/admin/usuarios"
+            class="input-field"
+          />
+          <small class="info-message">
+            <i class="pi pi-info-circle"></i>
+            Ruta de navegación de la aplicación
+          </small>
+        </div>
+
+        <!-- Menú Padre -->
+        <div class="field field-full-width">
+          <label for="padreNombre" class="field-label">
+            <i class="pi pi-folder label-icon"></i>
+            Menú Padre (opcional)
+          </label>
+          <input
+            id="padreNombre"
+            pInputText
+            type="text"
+            [(ngModel)]="form.padreNombre"
+            name="padreNombre"
+            placeholder="Ej: GESTIÓN DE OPCIONES/MENÚ"
+            class="input-field"
+          />
+          <small class="info-message">
+            <i class="pi pi-info-circle"></i>
+            Deja vacío si es un menú de primer nivel
+          </small>
+        </div>
+      </div>
+
+      <!-- Acciones -->
+      <div class="footer-actions">
+        <button
+          pButton
+          type="submit"
+          label="Guardar Opción"
+          icon="pi pi-save"
+          class="p-button-success"
+          [loading]="saving"
+          [disabled]="saving || !form.nombre || !form.tipo">
+        </button>
+        <button
+          pButton
+          type="button"
+          label="Limpiar Formulario"
+          icon="pi pi-refresh"
+          class="p-button-secondary"
+          (click)="reset()"
+          [disabled]="saving">
+        </button>
+      </div>
+    </form>
   </p-card>
 </div>

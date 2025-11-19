@@ -1,139 +1,696 @@
-/* Asignar menú a un rol - estilos mínimos válidos */
-
-/* Hacer que el componente ocupe la altura disponible */
-:host {
-  display: flex;
-  flex-direction: column;
-  flex: 1 1 auto;
-  min-height: 0;
-  /* altura del header del layout (fallback 56px) */
-  --app-header-h: 56px;
+/* ============================================
+   CONTENEDOR PRINCIPAL
+   ============================================ */
+.page-container {
+  padding: 0;
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
-/* Contenedor y card a altura de pantalla (no exceder sidebar/viewport) */
-.page-wrap {
-  display: flex;
-  flex-direction: column;
-  padding: 0 16px 16px; /* sin padding arriba */
-  width: 100%;
-  flex: 1 1 auto;
-  min-height: 0;
+/* ============================================
+   TARJETA MODERNA
+   ============================================ */
+.modern-card {
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--border);
   overflow: hidden;
-  margin-top: -8px; /* deja ~8px de espacio respecto al header (main tiene 16px) */
-  height: calc(100vh - var(--app-header-h, 56px) - 24px); /* 8px arriba + 16px abajo */
+
+  ::ng-deep .p-card-body {
+    padding: 0;
+  }
+
+  ::ng-deep .p-card-content {
+    padding: 0;
+  }
 }
-.card { display: flex; flex-direction: column; /* height: 100%; */ flex: 1 1 auto; min-height: 0; max-height: 100%; overflow: hidden; }
-/* El p-card raíz tiene ambas clases (.p-card y .card); aplicar flex al mismo nodo */
-.p-card.card {
+
+/* ============================================
+   HEADER CON GRADIENTE
+   ============================================ */
+.card-header {
+  background: linear-gradient(135deg, #4f8cff 0%, #2563eb 50%, #203a43 100%);
+  padding: 1.5rem 2rem;
+  box-shadow: 0 4px 12px rgba(79, 140, 255, 0.2);
+
+  .header-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    h2 {
+      margin: 0;
+      color: white;
+      font-size: 1.5rem;
+      font-weight: 600;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .header-icon {
+      font-size: 1.8rem;
+      color: white;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+    }
+  }
+}
+
+/* ============================================
+   CUERPO DE LA TARJETA
+   ============================================ */
+.card-body {
+  padding: 1.5rem 2rem;
+  background: var(--surface);
+}
+
+/* ============================================
+   TOOLBAR DE BÚSQUEDA
+   ============================================ */
+.search-toolbar {
   display: flex;
-  flex-direction: column;
-  flex: 1 1 auto;
-  min-height: 0;
-  max-height: 100%;
-  overflow: hidden;
-  margin: 0; /* pegar al top */
-  height: 100%; /* ocupar todo el alto de page-wrap */
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border);
 }
-.card .p-card-body { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; overflow: hidden; height: 100%; }
-/* Asegurar que el contenido del card también sea flex para propagar la altura */
-.card .p-card-content { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; height: 100%; }
 
-/* Forzar que el contenedor interno real de PrimeNG rellene el alto */
-:host ::ng-deep p-card.card { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; height: 100%; }
-:host ::ng-deep p-card.card > .p-card { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; height: 100%; }
-:host ::ng-deep p-card.card .p-card-body { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; height: 100%; }
-:host ::ng-deep p-card.card .p-card-content { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; height: 100%; }
+/* ============================================
+   CONTROL CONTAINER
+   ============================================ */
+.control-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--surface-alt);
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  transition: all 0.2s ease;
+  flex: 1;
+  min-width: 250px;
 
-/* Asegurar que la barra de acciones no crezca y quede abajo */
-.actions { flex: 0 0 auto; }
+  &:hover {
+    border-color: var(--primary);
+    box-shadow: 0 2px 8px rgba(79, 140, 255, 0.1);
+  }
 
-/* La sección body debe crecer para entregar todo a scroll-area */
-.body { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; overflow: hidden; }
-.scroll-area { flex: 1 1 auto; min-height: 0; }
+  .control-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+    color: var(--text);
+    font-size: 0.9rem;
+    white-space: nowrap;
 
-/* Encabezado y grid */
-.header .title { margin: 0; font-weight: 800; }
-/* Más espacio para el selector de rol (columna 1) */
-.form-grid { display: grid; grid-template-columns: 1.6fr 1fr 1fr; gap: 12px; align-items: end; }
-.field label { display: block; font-weight: 700; margin-bottom: 4px; }
-.actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 12px; }
+    i {
+      color: var(--primary);
+      font-size: 1rem;
+    }
+  }
 
-/* Alinear input y p-dropdown */
-.form-grid input[pInputText] { width: 100%; height: 42px; }
-.form-grid .p-dropdown { width: 100%; min-height: 42px; display: flex; align-items: center; }
-.form-grid .p-dropdown .p-dropdown-label { line-height: 40px; }
-.form-grid .p-dropdown .p-dropdown-trigger { height: 100%; }
+  &.search-container {
+    .search-input {
+      flex: 1;
+      min-width: 150px;
+      border: none;
+      outline: none;
+      background: transparent;
+      color: var(--text);
 
-/* Cuerpo con scroll interno */
-.body { display: flex; flex-direction: column; gap: 12px; flex: 1 1 auto; min-height: 0; overflow: hidden; }
-/* Ajuste: el área de tabla ocupa todo el espacio restante y hace scroll vertical. */
+      &::placeholder {
+        color: var(--muted);
+      }
+
+      &:focus {
+        outline: none;
+        box-shadow: none;
+      }
+    }
+  }
+
+  ::ng-deep .control-dropdown {
+    flex: 1;
+    min-width: 150px;
+
+    .p-dropdown {
+      width: 100%;
+      border: none;
+      background: transparent;
+    }
+  }
+}
+
+/* ============================================
+   ROL SELECTOR - ITEMS
+   ============================================ */
+.role-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  .role-name {
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  .org-badge {
+    padding: 0.25rem 0.5rem;
+    background: var(--primary);
+    color: white;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+}
+
+/* ============================================
+   ESTADÍSTICAS
+   ============================================ */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.stat-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 1rem;
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  .stat-icon {
+    font-size: 2rem;
+    color: var(--muted);
+  }
+
+  .stat-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1;
+    }
+
+    .stat-label {
+      font-size: 0.85rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+  }
+
+  &.success {
+    border-color: var(--success);
+    background: var(--success-100);
+
+    .stat-icon {
+      color: var(--success);
+    }
+  }
+
+  &.primary {
+    border-color: var(--primary);
+    background: rgba(79, 140, 255, 0.1);
+
+    .stat-icon {
+      color: var(--primary);
+    }
+  }
+}
+
+/* ============================================
+   ALERTA DE ERROR
+   ============================================ */
+.error-alert {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 1rem;
+  background: var(--danger-100);
+  border: 1px solid var(--danger);
+  border-radius: 8px;
+  margin-bottom: 1rem;
+
+  i {
+    font-size: 1.5rem;
+    color: var(--danger);
+  }
+
+  p {
+    margin: 0;
+    color: var(--danger);
+    font-weight: 500;
+  }
+}
+
+/* ============================================
+   TOOLBAR DE OPCIONES
+   ============================================ */
+.options-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.toolbar-section {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+
+  &.left {
+    flex: 1;
+  }
+}
+
+.select-all-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  .checkbox-label {
+    font-weight: 500;
+    color: var(--text);
+    cursor: pointer;
+    user-select: none;
+  }
+}
+
+.expand-controls {
+  display: flex;
+  gap: 4px;
+  padding-left: 1rem;
+  border-left: 1px solid var(--border);
+}
+
+.visible-count {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 0.9rem;
+
+  i {
+    color: var(--primary);
+  }
+}
+
+.filter-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  .checkbox-label {
+    font-weight: 500;
+    color: var(--text);
+    cursor: pointer;
+    user-select: none;
+  }
+}
+
+/* ============================================
+   ÁREA DE SCROLL Y MENÚS
+   ============================================ */
 .scroll-area {
-  display: flex;
-  flex-direction: column;
-  flex: 1 1 0;
-  min-height: 160px;
-  max-height: 100%;
-  overflow: auto;            /* antes: hidden; ahora el contenedor también puede scrollear si hace falta */
-  padding: 0;                /* quitar padding para que no se vea como otra tarjeta */
-  border: none;              /* quitar borde: evitamos la sensación de "segundo card" */
-  border-radius: 0;          /* sin radios internos */
-  background: transparent;   /* transparente: la única tarjeta visible es la externa */
+  max-height: 60vh;
+  overflow-y: auto;
+  padding: 0.5rem 0;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 4px;
+
+    &:hover {
+      background: var(--primary);
+    }
+  }
 }
 
-/* Refuerzo: asegurar scroll vertical en p-table (PrimeNG) */
-:host ::ng-deep .full-height-table.p-datatable-scrollable .p-datatable-scrollable-body { overflow-y: auto; overflow-x: auto; }
+.menu-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
 
-/* Hacer que la tabla ocupe toda el área y scrollee internamente */
-:host ::ng-deep .full-height-table { display: flex; flex-direction: column; flex: 1 1 auto; height: 100%; width: 100%; }
-:host ::ng-deep .full-height-table .p-datatable-wrapper { flex: 1 1 auto; min-height: 0; overflow: auto; }
+.menu-group {
+  &.is-root {
+    .menu-header {
+      padding: 1rem;
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
 
-/* Compatibilidad PrimeNG: .p-datatable y .p-table */
-:host ::ng-deep .full-height-table.p-datatable,
-:host ::ng-deep .full-height-table.p-table { display: flex; flex-direction: column; height: 100%; min-height: 0; }
-:host ::ng-deep .full-height-table.p-datatable .p-datatable-wrapper,
-:host ::ng-deep .full-height-table.p-table .p-table-wrapper { flex: 1 1 auto; min-height: 0; height: 100%; overflow: auto; }
-:host ::ng-deep .full-height-table.p-datatable .p-datatable-scrollable-wrapper,
-:host ::ng-deep .full-height-table.p-table .p-table-scrollable-wrapper { display: flex; flex: 1 1 auto; min-height: 0; }
-:host ::ng-deep .full-height-table.p-datatable .p-datatable-scrollable-view,
-:host ::ng-deep .full-height-table.p-table .p-table-scrollable-view { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; }
-:host ::ng-deep .full-height-table.p-datatable .p-datatable-scrollable-body,
-:host ::ng-deep .full-height-table.p-table .p-table-scrollable-body { flex: 1 1 auto; min-height: 0; height: 100% !important; max-height: none !important; overflow: auto; }
-:host ::ng-deep .full-height-table.p-datatable .p-datatable-scrollable-header { background: var(--surface); }
+      &:hover {
+        background: var(--surface);
+        border-color: var(--primary);
+        transform: translateX(2px);
+      }
 
-/* Toolbar */
-.list-toolbar { margin: 8px 0 12px; padding: 10px 12px; display: flex; align-items: center; justify-content: space-between; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); }
-.list-toolbar .left { display: flex; align-items: center; gap: 10px; }
+      .left {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex: 1;
 
-/* Tabla: header sticky para tablas no scrollables */
-:host ::ng-deep .p-datatable:not(.p-datatable-scrollable) .p-datatable-thead > tr > th { position: sticky; top: 0; z-index: 2; background: var(--surface); }
+        i.pi-chevron-down,
+        i.pi-chevron-right {
+          color: var(--primary);
+          font-size: 0.9rem;
+          transition: transform 0.2s ease;
+        }
 
-/* Meta row y estado vacío */
-.meta-row { display: flex; align-items: center; gap: 6px; }
-.empty { text-align: center; padding: 24px 8px; }
+        i.pi-fw:not(.pi-chevron-down):not(.pi-chevron-right) {
+          color: var(--primary);
+          font-size: 1.2rem;
+        }
 
-/* Utilidades locales usadas por la plantilla (evita depender de globales) */
-.text-muted { color: var(--muted); }
-.mr-1 { margin-right: .5rem; }
-.ml-2 { margin-left: .5rem; }
-.ml-3 { margin-left: 1rem; }
-.mb-sm { margin-bottom: .5rem; }
-.fs-sm { font-size: .875rem; }
-.fs-xs { font-size: .75rem; }
-.w-90 { width: 90px; }
-.toolbar-divider { display: inline-block; width: 1px; height: 16px; background: var(--border); margin: 0 8px; }
-.truncate { display: inline-block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        span {
+          font-weight: 700;
+          color: var(--text);
+          font-size: 1rem;
+        }
+      }
 
-/* Lista (residuales si se usa agrupado) */
-.menu-groups { display: flex; flex-direction: column; gap: 12px; }
-.menu-group { border: none; border-radius: 8px; overflow: hidden; }
-.menu-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; border-bottom: none; }
-.menu-items { list-style: none; margin: 0; padding: 6px 0; }
-.menu-item { border-top: none; }
-.menu-item:first-child { border-top: none; }
-.item-row { display: flex; align-items: center; gap: 10px; padding: 10px 12px; }
+      .right {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+    }
+  }
+}
 
-/* Responsive */
-@media (max-width: 900px) { .form-grid { grid-template-columns: 1fr 1fr; } }
-@media (max-width: 600px) { .form-grid { grid-template-columns: 1fr; } }
+.menu-items {
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0 0 0;
+}
 
-/* (deprecado local) .container queda sin uso en esta plantilla */
+.menu-item {
+  &:not(.is-header) {
+    .item-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0.75rem 1rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      margin-bottom: 0.25rem;
+      transition: all 0.2s ease;
+
+      &:hover {
+        background: var(--surface-alt);
+        border-color: var(--primary);
+        transform: translateX(4px);
+      }
+
+      i.pi-fw {
+        color: var(--primary);
+      }
+
+      .truncate {
+        flex: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-family: 'Courier New', monospace;
+        font-size: 0.85rem;
+      }
+    }
+  }
+}
+
+/* ============================================
+   ESTADO VACÍO
+   ============================================ */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 2rem;
+  text-align: center;
+
+  i {
+    font-size: 4rem;
+    color: var(--muted);
+    opacity: 0.5;
+    margin-bottom: 1rem;
+  }
+
+  p {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text);
+    margin: 0 0 0.5rem 0;
+  }
+
+  small {
+    font-size: 0.9rem;
+    color: var(--muted);
+    margin-bottom: 1.5rem;
+  }
+}
+
+/* ============================================
+   ACCIONES DEL PIE
+   ============================================ */
+.footer-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 1.5rem 2rem;
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+
+  button {
+    min-width: 140px;
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+    transition: all 0.3s ease;
+    border-radius: 8px;
+
+    &.p-button-success {
+      background: linear-gradient(135deg, var(--success) 0%, #16a34a 100%);
+      border: none;
+
+      &:hover:not(:disabled) {
+        background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
+      }
+    }
+
+    &.p-button-secondary {
+      background: linear-gradient(135deg, var(--primary) 0%, #2563eb 100%);
+      border: none;
+
+      &:hover:not(:disabled) {
+        background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(79, 140, 255, 0.3);
+      }
+    }
+
+    &:active:not(:disabled) {
+      transform: translateY(0);
+    }
+  }
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 1024px) {
+  .stats-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .card-body {
+    padding: 1rem;
+  }
+
+  .card-header {
+    padding: 1.25rem 1.5rem;
+
+    .header-content h2 {
+      font-size: 1.25rem;
+    }
+  }
+
+  .search-toolbar {
+    flex-direction: column;
+  }
+
+  .control-container {
+    width: 100%;
+    min-width: auto;
+  }
+
+  .stats-row {
+    grid-template-columns: 1fr;
+  }
+
+  .options-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+
+    .toolbar-section {
+      flex-direction: column;
+      align-items: stretch;
+
+      &.left,
+      &.right {
+        width: 100%;
+      }
+    }
+
+    .expand-controls {
+      padding-left: 0;
+      border-left: none;
+      border-top: 1px solid var(--border);
+      padding-top: 0.75rem;
+    }
+  }
+
+  .footer-actions {
+    flex-direction: column;
+
+    button {
+      width: 100%;
+    }
+  }
+}
+
+/* ============================================
+   SOPORTE PARA TEMAS
+   ============================================ */
+
+/* Tema CLARO */
+:root.theme-light {
+  .modern-card {
+    background: var(--surface);
+  }
+
+  .stat-card {
+    background: #f9fafb;
+
+    &.success {
+      background: #e7f6ec;
+    }
+
+    &.primary {
+      background: rgba(79, 140, 255, 0.08);
+    }
+  }
+}
+
+/* Tema OSCURO */
+:root.theme-dark {
+  .modern-card {
+    background: var(--surface);
+  }
+
+  .stat-card {
+    background: #1c1c2a;
+
+    &.success {
+      background: #0b2d1c;
+    }
+
+    &.primary {
+      background: rgba(79, 140, 255, 0.15);
+    }
+  }
+
+  .menu-header {
+    &:hover {
+      background: #2a2a3e;
+    }
+  }
+}
+
+/* Tema NEGRO */
+:root.theme-black {
+  .modern-card {
+    background: var(--surface);
+  }
+
+  .card-header {
+    box-shadow: 0 4px 12px rgba(79, 140, 255, 0.3);
+  }
+
+  .stat-card {
+    background: #161616;
+
+    &.success {
+      background: #0d2218;
+    }
+
+    &.primary {
+      background: rgba(79, 140, 255, 0.12);
+    }
+  }
+
+  .menu-header {
+    background: #161616;
+
+    &:hover {
+      background: #1f1f1f;
+    }
+  }
+
+  .item-row {
+    background: #161616;
+
+    &:hover {
+      background: #1f1f1f;
+    }
+  }
+
+  .card-body,
+  .footer-actions {
+    background: var(--surface);
+  }
+}
+

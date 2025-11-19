@@ -1,57 +1,149 @@
-<div class="list-wrapper">
+<div class="page-container">
+  <p-card class="modern-card">
+    <!-- Header con gradiente -->
+    <ng-template pTemplate="header">
+      <div class="card-header">
+        <div class="header-content">
+          <i class="pi pi-shield header-icon"></i>
+          <h2>Gestión de Roles</h2>
+        </div>
+      </div>
+    </ng-template>
 
-  <div class="list-header flex ai-center gap-sm">
-    <div class="titles">
-      <h2>Roles</h2>
-    </div>
-    <span class="spacer"></span>
-    <div class="list-actions flex ai-center gap-sm flex-wrap">
-      <span class="p-input-icon-left">
-        <i class="pi pi-search"></i>
-        <input pInputText type="text" placeholder="Filtrar por nombre o descripción" [(ngModel)]="filter" (ngModelChange)="applyFilter()" class="w-260" />
-      </span>
-      <button pButton type="button" label="Nuevo" icon="pi pi-plus" (click)="startAdd()" [disabled]="adding || !!editingId" class="p-button-success"></button>
-      <button pButton type="button" label="Recargar" icon="pi pi-refresh" (click)="load()" [disabled]="loading"></button>
-    </div>
-  </div>
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <div class="toolbar-left">
+        <h3 class="section-title">Listado de Roles</h3>
+      </div>
+      <div class="toolbar-right">
+        <!-- Buscador -->
+        <div class="control-container search-container">
+          <label class="control-label">
+            <i class="pi pi-search"></i>
+            Buscar:
+          </label>
+          <input
+            pInputText
+            type="text"
+            placeholder="Filtrar por nombre o descripción..."
+            [(ngModel)]="filter"
+            (ngModelChange)="applyFilter()"
+            class="search-input"
+          />
+        </div>
 
-  <!-- Switch global de propagación de roles a hijos -->
-  <div class="org-roles-propagation" *ngIf="orgId">
-    <label class="flex ai-center gap-xs">
-      <span class="switch-wrap">
-        <p-inputSwitch
-          [ngModel]="propagarRolesAHijos"
-          [style.pointer-events]="'none'"
-          [attr.tabindex]="-1"
-          [pTooltip]="'Permitir que los roles de esta organización se hereden a organizaciones y secciones hijas'"
+        <!-- Botones de acción -->
+        <button
+          pButton
+          type="button"
+          label="Nuevo Rol"
+          icon="pi pi-plus"
+          class="p-button-success"
+          (click)="startAdd()"
+          [disabled]="adding || !!editingId">
+        </button>
+        <button
+          pButton
+          type="button"
+          icon="pi pi-refresh"
+          class="p-button-text"
+          (click)="load()"
+          [disabled]="loading"
+          pTooltip="Recargar"
           tooltipPosition="top">
-        </p-inputSwitch>
-        <button type="button" class="switch-overlay"
-                (click)="onTogglePropagarRolesAHijos(!propagarRolesAHijos)"
-                [disabled]="togglingPropagar || loading"
-                [pTooltip]="'Permitir que los roles de esta organización se hereden a organizaciones y secciones hijas'"
-                tooltipPosition="top"></button>
-      </span>
-      <span>Permitir que los roles de esta organización se hereden a organizaciones y secciones hijas</span>
-    </label>
-  </div>
+        </button>
+      </div>
+    </div>
 
-  <p *ngIf="error" class="p-error mb-sm fs-sm">{{error}}</p>
-  <p *ngIf="!loading && !error && filtered.length===0" class="mb-sm fs-sm text-muted">No hay roles.</p>
+    <!-- Switch de propagación -->
+    <div class="propagation-switch" *ngIf="orgId">
+      <div class="switch-container">
+        <span class="switch-wrapper">
+          <p-inputSwitch
+            [ngModel]="propagarRolesAHijos"
+            [style.pointer-events]="'none'"
+            [attr.tabindex]="-1">
+          </p-inputSwitch>
+          <button
+            type="button"
+            class="switch-overlay"
+            (click)="onTogglePropagarRolesAHijos(!propagarRolesAHijos)"
+            [disabled]="togglingPropagar || loading"
+            pTooltip="Click para cambiar"
+            tooltipPosition="top">
+          </button>
+        </span>
+        <label class="switch-label">
+          <i class="pi pi-sitemap"></i>
+          Permitir que los roles de esta organización se hereden a organizaciones y secciones hijas
+        </label>
+      </div>
+    </div>
 
-  <div *ngIf="rows.length>0" class="table-shell">
-    <div class="table-meta fs-xs text-muted mb-xs">Mostrando {{filtered.length}} de {{items.length}}</div>
-    <p-table [value]="rows" [loading]="loading" styleClass="p-datatable-sm table-hover" responsiveLayout="scroll">
-      <ng-template pTemplate="header">
-        <tr>
-          <th class="w-70">#</th>
-          <th>Nombre</th>
-          <th>Descripción</th>
-          <th class="w-120">Estado</th>
-          <th class="w-150">Visible Hijos</th>
-          <th class="w-220 text-center">Acciones</th>
-        </tr>
-      </ng-template>
+    <!-- Alertas -->
+    <div class="error-alert" *ngIf="error">
+      <i class="pi pi-exclamation-triangle"></i>
+      <p>{{ error }}</p>
+    </div>
+
+    <div class="empty-state" *ngIf="!loading && !error && filtered.length===0">
+      <i class="pi pi-inbox"></i>
+      <p>No hay roles registrados</p>
+      <small>Crea tu primer rol para comenzar</small>
+    </div>
+
+    <!-- Estadísticas -->
+    <div class="stats-bar" *ngIf="rows.length>0">
+      <div class="stat-item">
+        <i class="pi pi-list"></i>
+        <span>Mostrando <strong>{{ filtered.length }}</strong> de <strong>{{ items.length }}</strong></span>
+      </div>
+    </div>
+
+    <!-- Tabla moderna -->
+    <div class="table-container" *ngIf="rows.length>0">
+      <p-table
+        [value]="rows"
+        [loading]="loading"
+        styleClass="modern-table"
+        responsiveLayout="scroll">
+        <ng-template pTemplate="header">
+          <tr>
+            <th style="width: 60px">
+              <i class="pi pi-hashtag"></i>
+            </th>
+            <th>
+              <div class="th-content">
+                <i class="pi pi-shield"></i>
+                <span>Nombre del Rol</span>
+              </div>
+            </th>
+            <th>
+              <div class="th-content">
+                <i class="pi pi-info-circle"></i>
+                <span>Descripción</span>
+              </div>
+            </th>
+            <th style="width: 130px">
+              <div class="th-content">
+                <i class="pi pi-power-off"></i>
+                <span>Estado</span>
+              </div>
+            </th>
+            <th style="width: 150px">
+              <div class="th-content">
+                <i class="pi pi-eye"></i>
+                <span>Visible Hijos</span>
+              </div>
+            </th>
+            <th style="width: 240px">
+              <div class="th-content">
+                <i class="pi pi-cog"></i>
+                <span>Acciones</span>
+              </div>
+            </th>
+          </tr>
+        </ng-template>
       <ng-template pTemplate="body" let-row let-i="rowIndex">
         <tr [class.flash]="row.id === flashRowId">
           <td>{{ i + 1 }}</td>
@@ -123,40 +215,93 @@
           </td>
 
           <td>
-            <div class="flex ai-center gap-xs">
+            <div class="action-buttons">
+              <!-- Botones para modo creación -->
               <ng-container *ngIf="adding && row.id === ''">
-                <button pButton type="button" icon="pi pi-check" class="p-button-rounded p-button-success"
-                        (click)="saveAdd()"
-                        [disabled]="saving || !(newDraft.nombre && newDraft.nombre.trim().length >= 3)"
-                        pTooltip="Guardar rol" tooltipPosition="top"></button>
-                <button pButton type="button" icon="pi pi-times" class="p-button-rounded p-button-secondary"
-                        (click)="cancelAdd()"
-                        [disabled]="saving"
-                        pTooltip="Cancelar" tooltipPosition="top"></button>
+                <button
+                  pButton
+                  type="button"
+                  icon="pi pi-check"
+                  class="action-btn save-btn"
+                  (click)="saveAdd()"
+                  [disabled]="saving || !(newDraft.nombre && newDraft.nombre.trim().length >= 3)"
+                  pTooltip="Guardar rol"
+                  tooltipPosition="top">
+                </button>
+                <button
+                  pButton
+                  type="button"
+                  icon="pi pi-times"
+                  class="action-btn cancel-btn"
+                  (click)="cancelAdd()"
+                  [disabled]="saving"
+                  pTooltip="Cancelar"
+                  tooltipPosition="top">
+                </button>
               </ng-container>
 
+              <!-- Botones para modo edición -->
               <ng-container *ngIf="!adding && editingId === row.id">
-                <button pButton type="button" icon="pi pi-check" class="p-button-rounded p-button-success"
-                        (click)="saveEdit()"
-                        [disabled]="saving || !editDraft || !(editDraft.nombre && editDraft.nombre.trim().length >= 3)"
-                        pTooltip="Guardar cambios" tooltipPosition="top"></button>
-                <button pButton type="button" icon="pi pi-times" class="p-button-rounded p-button-secondary"
-                        (click)="cancelEdit()"
-                        [disabled]="saving"
-                        pTooltip="Cancelar edición" tooltipPosition="top"></button>
+                <button
+                  pButton
+                  type="button"
+                  icon="pi pi-check"
+                  class="action-btn save-btn"
+                  (click)="saveEdit()"
+                  [disabled]="saving || !editDraft || !(editDraft.nombre && editDraft.nombre.trim().length >= 3)"
+                  pTooltip="Guardar cambios"
+                  tooltipPosition="top">
+                </button>
+                <button
+                  pButton
+                  type="button"
+                  icon="pi pi-times"
+                  class="action-btn cancel-btn"
+                  (click)="cancelEdit()"
+                  [disabled]="saving"
+                  pTooltip="Cancelar edición"
+                  tooltipPosition="top">
+                </button>
               </ng-container>
 
+              <!-- Botones para modo vista -->
               <ng-container *ngIf="!adding && editingId !== row.id">
-                <button pButton type="button" icon="pi pi-pencil" class="p-button-rounded p-button-text" (click)="startEdit(row)" [disabled]="saving" pTooltip="EDITAR" tooltipPosition="top"></button>
-                <button pButton type="button" icon="pi pi-trash" class="p-button-rounded p-button-text p-button-danger" (click)="remove(row)" [disabled]="saving" pTooltip="ELIMINAR" tooltipPosition="top"></button>
+                <button
+                  pButton
+                  type="button"
+                  icon="pi pi-pencil"
+                  class="action-btn edit-btn"
+                  (click)="startEdit(row)"
+                  [disabled]="saving"
+                  pTooltip="Editar rol"
+                  tooltipPosition="top">
+                </button>
+                <button
+                  pButton
+                  type="button"
+                  icon="pi pi-trash"
+                  class="action-btn delete-btn"
+                  (click)="remove(row)"
+                  [disabled]="saving"
+                  pTooltip="Eliminar rol"
+                  tooltipPosition="top">
+                </button>
               </ng-container>
             </div>
           </td>
         </tr>
       </ng-template>
-      <ng-template pTemplate="emptymessage">
-        <tr><td colspan="6" class="text-center fs-sm text-muted">Sin datos</td></tr>
-      </ng-template>
-    </p-table>
-  </div>
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="6" class="empty-message">
+              <div class="empty-state-inline">
+                <i class="pi pi-inbox"></i>
+                <p>No hay datos para mostrar</p>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </p-card>
 </div>

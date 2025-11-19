@@ -1,65 +1,680 @@
-/* Utilidades compartidas (consistentes con seccion-list) */
-.flex { display: flex; }
-.ai-center { align-items: center; }
-.justify-center { justify-content: center; }
-.flex-wrap { flex-wrap: wrap; }
-.gap-xs { gap: 6px; }
-.gap-sm { gap: 10px; }
-.mb-xs { margin-bottom: 6px; }
-.mb-sm { margin-bottom: 10px; }
-.w-70 { width: 70px; }
-.w-100 { width: 100%; }
-.w-110 { width: 110px; }
-.w-120 { width: 120px; }
-.w-140 { width: 140px; }
-.w-160 { width: 160px; }
-.w-200 { width: 200px; }
-.w-220 { width: 220px; }
-.w-260 { width: 260px; }
-.spacer { flex: 1 1 auto; }
-.fs-xs { font-size: .8rem; }
-.fs-sm { font-size: .9rem; }
-.text-muted { opacity: .7; }
-.table-hover tbody tr:hover { background: color-mix(in srgb, var(--primary) 6%, transparent); }
+/* ============================================
+   CONTENEDOR PRINCIPAL
+   ============================================ */
+.page-container {
+  padding: 0;
+  max-width: 1600px;
+  margin: 0 auto;
+}
 
-/* Cabecera */
-.list-header { margin-bottom: 12px; }
-.list-header .titles h2 { margin: 0; font-size: 1.3rem; }
+/* ============================================
+   TARJETA MODERNA
+   ============================================ */
+.modern-card {
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--border);
+  overflow: hidden;
 
-/* Tabla */
-.table-shell { background: var(--surface); padding: 10px; border-radius: 10px; }
-:host ::ng-deep .p-datatable :where(th, td) { vertical-align: middle; }
+  ::ng-deep .p-card-body {
+    padding: 0;
+  }
 
-/* Fila destacada */
-@keyframes flashRow { 0% { background: color-mix(in srgb, var(--success) 16%, transparent); } 100% { background: transparent; } }
-.flash { animation: flashRow 1.2s ease-in-out 1; }
+  ::ng-deep .p-card-content {
+    padding: 0;
+  }
+}
 
-/* Inputs full-width */
-.p-inputtext.w-100 { width: 100%; }
-.org-muted { opacity: .55; font-weight: 500; }
+/* ============================================
+   HEADER CON GRADIENTE
+   ============================================ */
+.card-header {
+  background: linear-gradient(135deg, #4f8cff 0%, #2563eb 50%, #203a43 100%);
+  padding: 1.5rem 2rem;
+  box-shadow: 0 4px 12px rgba(79, 140, 255, 0.2);
 
-/* Switch overlay controlado */
-.switch-wrap {
+  .header-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    h2 {
+      margin: 0;
+      color: white;
+      font-size: 1.5rem;
+      font-weight: 600;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .header-icon {
+      font-size: 1.8rem;
+      color: white;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+    }
+  }
+}
+
+/* ============================================
+   TOOLBAR
+   ============================================ */
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid var(--border);
+  gap: 1rem;
+  flex-wrap: wrap;
+  background: var(--surface);
+}
+
+.toolbar-left {
+  flex: 1;
+
+  .section-title {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text);
+  }
+}
+
+.toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* ============================================
+   CONTROL CONTAINER
+   ============================================ */
+.control-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--surface-alt);
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: var(--primary);
+    box-shadow: 0 2px 8px rgba(79, 140, 255, 0.1);
+  }
+
+  .control-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+    color: var(--text);
+    font-size: 0.9rem;
+    white-space: nowrap;
+
+    i {
+      color: var(--primary);
+      font-size: 1rem;
+    }
+  }
+
+  &.search-container {
+    .search-input {
+      min-width: 280px;
+      border: none;
+      outline: none;
+      background: transparent;
+      color: var(--text);
+
+      &::placeholder {
+        color: var(--muted);
+      }
+
+      &:focus {
+        outline: none;
+        box-shadow: none;
+      }
+    }
+  }
+}
+
+/* ============================================
+   SWITCH DE PROPAGACIÓN
+   ============================================ */
+.propagation-switch {
+  padding: 1.25rem 2rem;
+  background: var(--surface-alt);
+  border-bottom: 1px solid var(--border);
+}
+
+.switch-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.switch-wrapper {
   position: relative;
   display: inline-block;
 }
-:host ::ng-deep .switch-wrap .p-inputswitch {
-  pointer-events: none !important; /* garantiza que el overlay capture el click */
-}
+
 .switch-overlay {
   position: absolute;
   inset: 0;
-  background: transparent;
-  border: 0;
-  padding: 0;
   cursor: pointer;
-  z-index: 3; /* por encima del contenido del switch */
+  background: transparent;
+  border: none;
+  opacity: 0;
+  z-index: 1;
+
+  &:disabled {
+    cursor: not-allowed;
+  }
 }
-.switch-overlay:disabled {
-  cursor: not-allowed;
+
+.switch-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text);
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  user-select: none;
+
+  i {
+    color: var(--primary);
+    font-size: 1rem;
+  }
 }
-.switch-overlay:not(:disabled):hover,
-.switch-overlay:not(:disabled):focus-visible {
-  outline: 2px solid var(--primary-color, #22c55e);
-  border-radius: 14px;
+
+/* ============================================
+   ALERTAS
+   ============================================ */
+.error-alert {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 1rem 2rem;
+  background: var(--danger-100);
+  border-bottom: 1px solid var(--danger);
+
+  i {
+    font-size: 1.5rem;
+    color: var(--danger);
+  }
+
+  p {
+    margin: 0;
+    color: var(--danger);
+    font-weight: 500;
+  }
 }
+
+/* ============================================
+   ESTADO VACÍO
+   ============================================ */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+  background: var(--surface);
+
+  i {
+    font-size: 5rem;
+    color: var(--muted);
+    opacity: 0.4;
+    margin-bottom: 1.5rem;
+  }
+
+  p {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--text);
+    margin: 0 0 0.75rem 0;
+  }
+
+  small {
+    font-size: 0.95rem;
+    color: var(--muted);
+  }
+}
+
+.empty-state-inline {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 2rem;
+
+  i {
+    font-size: 3rem;
+    color: var(--muted);
+    opacity: 0.5;
+  }
+
+  p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.95rem;
+  }
+}
+
+/* ============================================
+   BARRA DE ESTADÍSTICAS
+   ============================================ */
+.stats-bar {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1rem 2rem;
+  background: var(--surface-alt);
+  border-bottom: 1px solid var(--border);
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text);
+  font-size: 0.95rem;
+
+  i {
+    color: var(--primary);
+    font-size: 1.1rem;
+  }
+
+  strong {
+    color: var(--primary);
+    font-weight: 700;
+  }
+}
+
+/* ============================================
+   TABLA MODERNA
+   ============================================ */
+.table-container {
+  padding: 0;
+  background: var(--surface);
+}
+
+::ng-deep .modern-table {
+  .p-datatable-wrapper {
+    border-radius: 0;
+    overflow: hidden;
+  }
+
+  .p-datatable-thead > tr > th {
+    background: var(--surface-alt);
+    border-bottom: 2px solid var(--border);
+    padding: 1rem;
+    font-weight: 600;
+    color: var(--text);
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+
+    .th-content {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      i {
+        color: var(--primary);
+        font-size: 0.9rem;
+      }
+    }
+
+    i.pi-hashtag {
+      color: var(--primary);
+    }
+  }
+
+  .p-datatable-tbody > tr {
+    border-bottom: 1px solid var(--border);
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: var(--surface-alt);
+    }
+
+    &.flash {
+      animation: flash 1s ease;
+    }
+
+    > td {
+      padding: 1rem;
+      color: var(--text);
+      font-size: 0.9rem;
+      vertical-align: middle;
+
+      input.w-100 {
+        width: 100%;
+        padding: 0.5rem;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        background: var(--surface);
+        color: var(--text);
+
+        &:focus {
+          border-color: var(--primary);
+          outline: none;
+          box-shadow: 0 0 0 0.2rem rgba(79, 140, 255, 0.25);
+        }
+      }
+    }
+  }
+
+  // Contenedor de botones de acción
+  .action-buttons {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    justify-content: center;
+  }
+
+  // Botones de acción modernos
+  .action-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    &:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    &:active:not(:disabled) {
+      transform: translateY(0);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    // Botón Guardar (verde)
+    &.save-btn {
+      background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+      color: white;
+
+      &:hover:not(:disabled) {
+        background: linear-gradient(135deg, #15803d 0%, #166534 100%);
+        box-shadow: 0 4px 12px rgba(22, 163, 74, 0.4);
+      }
+    }
+
+    // Botón Cancelar (gris)
+    &.cancel-btn {
+      background: linear-gradient(135deg, #64748b 0%, #475569 100%);
+      color: white;
+
+      &:hover:not(:disabled) {
+        background: linear-gradient(135deg, #475569 0%, #334155 100%);
+        box-shadow: 0 4px 12px rgba(100, 116, 139, 0.4);
+      }
+    }
+
+    // Botón Editar (azul)
+    &.edit-btn {
+      background: linear-gradient(135deg, rgba(79, 140, 255, 0.15) 0%, rgba(37, 99, 235, 0.15) 100%);
+      color: var(--primary);
+      border: 1px solid var(--primary);
+
+      &:hover:not(:disabled) {
+        background: linear-gradient(135deg, var(--primary) 0%, #2563eb 100%);
+        color: white;
+        border-color: var(--primary);
+        box-shadow: 0 4px 12px rgba(79, 140, 255, 0.4);
+      }
+    }
+
+    // Botón Eliminar (rojo)
+    &.delete-btn {
+      background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(220, 38, 38, 0.15) 100%);
+      color: var(--danger);
+      border: 1px solid var(--danger);
+
+      &:hover:not(:disabled) {
+        background: linear-gradient(135deg, var(--danger) 0%, #dc2626 100%);
+        color: white;
+        border-color: var(--danger);
+        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+      }
+    }
+
+    i {
+      font-size: 1rem;
+    }
+  }
+
+  .flex.ai-center.gap-xs {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+
+  .switch-wrap {
+    position: relative;
+    display: inline-block;
+
+    .switch-overlay {
+      position: absolute;
+      inset: 0;
+      cursor: pointer;
+      background: transparent;
+      border: none;
+      opacity: 0;
+      z-index: 1;
+
+      &:disabled {
+        cursor: not-allowed;
+      }
+    }
+  }
+}
+
+/* ============================================
+   DETALLES DE ORGANIZACIÓN
+   ============================================ */
+.org-muted {
+  opacity: 0.6;
+  font-size: 0.9em;
+  color: var(--muted);
+}
+
+/* ============================================
+   ANIMACIÓN FLASH
+   ============================================ */
+@keyframes flash {
+  0%, 100% {
+    background: var(--surface);
+  }
+  50% {
+    background: rgba(79, 140, 255, 0.15);
+  }
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 768px) {
+  .toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 1rem;
+  }
+
+  .toolbar-right {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .control-container.search-container {
+    width: 100%;
+
+    .search-input {
+      flex: 1;
+      min-width: auto;
+      width: 100%;
+    }
+  }
+
+  .card-header {
+    padding: 1.25rem 1.5rem;
+
+    .header-content h2 {
+      font-size: 1.25rem;
+    }
+  }
+
+  .propagation-switch {
+    padding: 1rem;
+  }
+
+  .switch-container {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .stats-bar {
+    padding: 0.75rem 1rem;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+/* ============================================
+   SOPORTE PARA TEMAS
+   ============================================ */
+
+/* Tema CLARO */
+:root.theme-light {
+  .modern-card {
+    background: var(--surface);
+  }
+
+  .action-btn {
+    &.edit-btn {
+      background: rgba(79, 140, 255, 0.1);
+
+      &:hover:not(:disabled) {
+        background: linear-gradient(135deg, #4f8cff 0%, #2563eb 100%);
+      }
+    }
+
+    &.delete-btn {
+      background: rgba(239, 68, 68, 0.1);
+
+      &:hover:not(:disabled) {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      }
+    }
+  }
+}
+
+/* Tema OSCURO */
+:root.theme-dark {
+  .modern-card {
+    background: var(--surface);
+  }
+
+  .action-btn {
+    &.edit-btn {
+      background: rgba(107, 162, 255, 0.2);
+      color: #6ba2ff;
+      border-color: #6ba2ff;
+
+      &:hover:not(:disabled) {
+        background: linear-gradient(135deg, #6ba2ff 0%, #4f8cff 100%);
+        color: white;
+      }
+    }
+
+    &.delete-btn {
+      background: rgba(255, 107, 107, 0.2);
+      color: #ff6b6b;
+      border-color: #ff6b6b;
+
+      &:hover:not(:disabled) {
+        background: linear-gradient(135deg, #ff6b6b 0%, #ef4444 100%);
+        color: white;
+      }
+    }
+
+    &.cancel-btn {
+      background: linear-gradient(135deg, #475569 0%, #334155 100%);
+
+      &:hover:not(:disabled) {
+        background: linear-gradient(135deg, #334155 0%, #1e293b 100%);
+      }
+    }
+  }
+}
+
+/* Tema NEGRO */
+:root.theme-black {
+  .modern-card {
+    background: var(--surface);
+  }
+
+  .card-header {
+    box-shadow: 0 4px 12px rgba(79, 140, 255, 0.3);
+  }
+
+  .table-container {
+    background: var(--surface);
+  }
+
+  .action-btn {
+    &.edit-btn {
+      background: rgba(107, 162, 255, 0.15);
+      color: #6ba2ff;
+      border-color: #6ba2ff;
+
+      &:hover:not(:disabled) {
+        background: linear-gradient(135deg, #6ba2ff 0%, #4f8cff 100%);
+        color: white;
+        box-shadow: 0 4px 12px rgba(107, 162, 255, 0.5);
+      }
+    }
+
+    &.delete-btn {
+      background: rgba(255, 107, 107, 0.15);
+      color: #ff6b6b;
+      border-color: #ff6b6b;
+
+      &:hover:not(:disabled) {
+        background: linear-gradient(135deg, #ff6b6b 0%, #ef4444 100%);
+        color: white;
+        box-shadow: 0 4px 12px rgba(255, 107, 107, 0.5);
+      }
+    }
+
+    &.save-btn {
+      &:hover:not(:disabled) {
+        box-shadow: 0 4px 12px rgba(22, 163, 74, 0.5);
+      }
+    }
+
+    &.cancel-btn {
+      background: linear-gradient(135deg, #3f3f46 0%, #27272a 100%);
+
+      &:hover:not(:disabled) {
+        background: linear-gradient(135deg, #27272a 0%, #18181b 100%);
+        box-shadow: 0 4px 12px rgba(63, 63, 70, 0.5);
+      }
+    }
+  }
+}
+

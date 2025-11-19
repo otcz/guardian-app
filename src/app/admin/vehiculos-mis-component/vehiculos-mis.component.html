@@ -1,53 +1,155 @@
-<p-card header="Mis vehículos" styleClass="mb-3">
-  <div class="actions mb-2">
-    <button pButton label="Crear vehículo" icon="pi pi-plus" routerLink="/gestion-de-vehiculos/crear-vehiculo"></button>
-  </div>
+<div class="page-container">
+  <p-card styleClass="modern-card mb-3">
+    <!-- Header personalizado -->
+    <div class="card-header">
+      <div class="header-content">
+        <i class="pi pi-car header-icon"></i>
+        <div class="header-text">
+          <h2>Mis Vehículos</h2>
+          <p class="subtitle">
+            <i class="pi pi-info-circle"></i>
+            Gestiona y administra tus vehículos registrados
+          </p>
+        </div>
+      </div>
+    </div>
 
-  <p-table [value]="items" [loading]="loading" dataKey="id" [rows]="10" [paginator]="true" [rowsPerPageOptions]="[10,20,50]">
-    <ng-template pTemplate="header">
-      <tr>
-        <th style="width: 14rem">Placa</th>
-        <th style="width: 12rem">Estado</th>
-        <th>Sección</th>
-        <th style="width: 18rem">Bloqueado</th>
-        <th style="width: 10rem">Acciones</th>
-      </tr>
-    </ng-template>
-    <ng-template pTemplate="body" let-row>
-      <tr>
-        <td>{{ row.placa }}</td>
-        <td>
-          <p-inputSwitch [(ngModel)]="row.activo"
-                         (onChange)="toggle(row, $event.checked)"
-                         [disabled]="savingId === row.id"
-                         [ngModelOptions]="{standalone: true}"></p-inputSwitch>
-        </td>
-        <td>{{ seccionNombre(row.seccionAsignadaId) }}</td>
-        <td>
-          <div class="p-d-flex p-ai-center p-gap-2">
-            <p-tag [severity]="row.bloqueado ? 'danger' : 'success'"
-                   [value]="row.bloqueado ? 'BLOQUEADO' : 'LIBRE'"></p-tag>
-            <button *ngIf="canToggleBloqueado()"
-                    pButton type="button"
-                    class="p-button-text p-button-sm"
-                    [label]="row.bloqueado ? 'Desbloquear' : 'Bloquear'"
-                    [icon]="row.bloqueado ? 'pi pi-lock-open' : 'pi pi-lock'"
-                    (click)="toggleBloqueado(row)"
-                    [disabled]="savingId === row.id"
-                    pTooltip="{{ row.bloqueado ? 'Desbloquear vehículo' : 'Bloquear vehículo' }}"
-                    tooltipPosition="top"
-                    aria-label="Cambiar bloqueo"></button>
-          </div>
-        </td>
-        <td>
-          <div class="actions">
-            <button pButton type="button" class="p-button-text" icon="pi pi-pencil" (click)="gestionar(row)"
-                    pTooltip="Gestionar" tooltipPosition="top" aria-label="Gestionar"></button>
-            <button pButton type="button" class="p-button-text" icon="pi pi-sitemap" (click)="asignar(row)"
-                    pTooltip="Asignar sección" tooltipPosition="top" aria-label="Asignar sección"></button>
-          </div>
-        </td>
-      </tr>
-    </ng-template>
-  </p-table>
-</p-card>
+    <!-- Cuerpo de la tarjeta -->
+    <div class="card-body">
+      <!-- Acciones superiores -->
+      <div class="top-actions">
+        <div class="info-section">
+          <i class="pi pi-list"></i>
+          <span class="total-count">Total: <strong>{{ items.length || 0 }}</strong> vehículos</span>
+        </div>
+        <button pButton
+                label="Crear Vehículo"
+                icon="pi pi-plus"
+                class="create-btn"
+                routerLink="/gestion-de-vehiculos/crear-vehiculo"></button>
+      </div>
+
+      <!-- Tabla de vehículos -->
+      <p-table [value]="items"
+               [loading]="loading"
+               dataKey="id"
+               [rows]="10"
+               [paginator]="true"
+               [rowsPerPageOptions]="[10,20,50]"
+               styleClass="modern-table"
+               [showCurrentPageReport]="true"
+               currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} vehículos">
+        <ng-template pTemplate="header">
+          <tr>
+            <th>
+              <div class="th-content">
+                <i class="pi pi-id-card"></i>
+                <span>Placa</span>
+              </div>
+            </th>
+            <th style="width: 10rem">
+              <div class="th-content">
+                <i class="pi pi-power-off"></i>
+                <span>Estado</span>
+              </div>
+            </th>
+            <th>
+              <div class="th-content">
+                <i class="pi pi-building"></i>
+                <span>Sección</span>
+              </div>
+            </th>
+            <th style="width: 16rem">
+              <div class="th-content">
+                <i class="pi pi-lock"></i>
+                <span>Bloqueo</span>
+              </div>
+            </th>
+            <th style="width: 10rem">
+              <div class="th-content">
+                <i class="pi pi-cog"></i>
+                <span>Acciones</span>
+              </div>
+            </th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-row>
+          <tr>
+            <td>
+              <div class="placa-cell">
+                <i class="pi pi-car"></i>
+                <strong>{{ row.placa }}</strong>
+              </div>
+            </td>
+            <td>
+              <div class="estado-cell">
+                <p-inputSwitch [(ngModel)]="row.activo"
+                               (onChange)="toggle(row, $event.checked)"
+                               [disabled]="savingId === row.id"
+                               [ngModelOptions]="{standalone: true}"></p-inputSwitch>
+              </div>
+            </td>
+            <td>
+              <div class="seccion-cell">
+                <i class="pi pi-map-marker"></i>
+                <span>{{ seccionNombre(row.seccionAsignadaId) || 'Sin asignar' }}</span>
+              </div>
+            </td>
+            <td>
+              <div class="bloqueo-cell">
+                <p-tag [severity]="row.bloqueado ? 'danger' : 'success'"
+                       [value]="row.bloqueado ? 'BLOQUEADO' : 'LIBRE'"
+                       [icon]="row.bloqueado ? 'pi pi-lock' : 'pi pi-lock-open'"></p-tag>
+                <button *ngIf="canToggleBloqueado()"
+                        pButton type="button"
+                        class="p-button-text p-button-sm toggle-lock-btn"
+                        [label]="row.bloqueado ? 'Desbloquear' : 'Bloquear'"
+                        [icon]="row.bloqueado ? 'pi pi-unlock' : 'pi pi-lock'"
+                        (click)="toggleBloqueado(row)"
+                        [disabled]="savingId === row.id"
+                        pTooltip="{{ row.bloqueado ? 'Desbloquear vehículo' : 'Bloquear vehículo' }}"
+                        tooltipPosition="top"
+                        aria-label="Cambiar bloqueo"></button>
+              </div>
+            </td>
+            <td>
+              <div class="actions-cell">
+                <button pButton
+                        type="button"
+                        class="p-button-rounded p-button-text action-btn edit-btn"
+                        icon="pi pi-pencil"
+                        (click)="gestionar(row)"
+                        pTooltip="Gestionar vehículo"
+                        tooltipPosition="top"
+                        aria-label="Gestionar"></button>
+                <button pButton
+                        type="button"
+                        class="p-button-rounded p-button-text action-btn assign-btn"
+                        icon="pi pi-sitemap"
+                        (click)="asignar(row)"
+                        pTooltip="Asignar sección"
+                        tooltipPosition="top"
+                        aria-label="Asignar sección"></button>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="5">
+              <div class="empty-state">
+                <i class="pi pi-inbox"></i>
+                <p>No tienes vehículos registrados</p>
+                <button pButton
+                        label="Crear tu primer vehículo"
+                        icon="pi pi-plus"
+                        class="p-button-sm"
+                        routerLink="/gestion-de-vehiculos/crear-vehiculo"></button>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </p-card>
+</div>

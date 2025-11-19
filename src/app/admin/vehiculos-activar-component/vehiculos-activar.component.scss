@@ -1,3 +1,174 @@
-.actions { display: flex; gap: .5rem; align-items: center; }
+/* Activar/Desactivar Vehículos - Estilos Modernos */
+
+.page-container {
+  padding: 0;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Tarjeta moderna */
+::ng-deep .p-card {
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--border);
+  overflow: hidden;
+
+  .p-card-header {
+    background: linear-gradient(135deg, #4f8cff 0%, #2563eb 50%, #203a43 100%);
+    padding: 1.5rem 2rem;
+    color: white;
+    font-size: 1.5rem;
+    font-weight: 600;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(79, 140, 255, 0.2);
+  }
+
+  .p-card-body {
+    padding: 2rem;
+    background: var(--surface);
+  }
+}
+
+/* Acciones del header */
+.actions {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  flex-wrap: wrap;
+
+  ::ng-deep .p-button {
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+
+    &:not(.p-button-text) {
+      background: linear-gradient(135deg, var(--primary) 0%, #2563eb 100%);
+      border: none;
+
+      &:hover {
+        background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(79, 140, 255, 0.3);
+      }
+    }
+
+    &.p-button-text {
+      color: var(--primary);
+
+      &:hover {
+        background: rgba(79, 140, 255, 0.1);
+      }
+    }
+  }
+}
+
+/* Tabla moderna */
+::ng-deep .p-datatable {
+  .p-datatable-thead > tr > th {
+    background: var(--surface-alt);
+    color: var(--text);
+    font-weight: 600;
+    padding: 1rem;
+    border-bottom: 2px solid var(--border);
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+  }
+
+  .p-datatable-tbody > tr {
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: rgba(79, 140, 255, 0.05);
+    }
+
+    > td {
+      padding: 1rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+
+      &.actions {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+        justify-content: center;
+      }
+    }
+  }
+
+  .p-paginator {
+    background: var(--surface);
+    border-top: 2px solid var(--border);
+    padding: 1rem;
+  }
+}
+
+/* Estado toggle */
+.estado {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Tags de estado */
+::ng-deep .p-tag {
+  padding: 0.4rem 0.75rem;
+  font-weight: 600;
+  font-size: 0.85rem;
+  letter-spacing: 0.5px;
+  border-radius: 6px;
+}
+
+/* Botones de acción en la tabla */
+.actions {
+  ::ng-deep .p-button {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+
+    &.p-button-text {
+      color: var(--primary);
+
+      &:hover {
+        background: rgba(79, 140, 255, 0.1);
+        transform: translateY(-1px);
+      }
+    }
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  ::ng-deep .p-card {
+    .p-card-header {
+      padding: 1.25rem 1.5rem;
+      font-size: 1.25rem;
+    }
+
+    .p-card-body {
+      padding: 1rem;
+    }
+  }
+
+  ::ng-deep .p-datatable {
+    font-size: 0.9rem;
+
+    .p-datatable-thead > tr > th,
+    .p-datatable-tbody > tr > td {
+      padding: 0.75rem 0.5rem;
+    }
+  }
+}
+
+/* Temas */
+:root.theme-black {
+  ::ng-deep .p-card {
+    .p-card-header {
+      box-shadow: 0 4px 12px rgba(79, 140, 255, 0.3);
+    }
+  }
+}
 
 

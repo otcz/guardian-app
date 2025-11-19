@@ -1,102 +1,350 @@
-/* Estructura general */
-:host { display: block; }
-.form-grid { display: grid; gap: 1rem; max-width: 720px; }
-.form-row { display: grid; gap: .5rem; }
-.actions { display: flex; gap: .5rem; justify-content: flex-end; }
-.loading { display: flex; justify-content: center; padding: 1rem; }
+/* Crear Vehículo - Estilos Modernos */
 
-/* Card con acento superior según paleta */
-.vehiculos-crear-card { position: relative; overflow: hidden; }
-.vehiculos-crear-card::before {
-  content: '';
-  position: absolute; inset: 0 0 auto 0; height: 4px;
-  background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
-  opacity: .9;
+:host {
+  display: block;
+}
+
+.page-container {
+  padding: 0;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+/* Tarjeta moderna */
+.vehiculos-crear-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--border);
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+    opacity: 0.9;
+  }
+}
+
+::ng-deep .p-card {
+  .p-card-header {
+    background: linear-gradient(135deg, #4f8cff 0%, #2563eb 50%, #203a43 100%);
+    padding: 1.5rem 2rem;
+    color: white;
+    font-size: 1.5rem;
+    font-weight: 600;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(79, 140, 255, 0.2);
+  }
+
+  .p-card-body {
+    padding: 2rem;
+    background: var(--surface);
+  }
+}
+
+/* Grid del formulario */
+.form-grid {
+  display: grid;
+  gap: 1.5rem;
+  max-width: 100%;
+}
+
+.form-row {
+  display: grid;
+  gap: 0.5rem;
+
+  label {
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: 0.2px;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    i {
+      color: var(--primary);
+    }
+  }
+
+  ::ng-deep .p-inputtext,
+  ::ng-deep .p-dropdown,
+  ::ng-deep .p-multiselect {
+    width: 100%;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    transition: all 0.2s ease;
+
+    &:not(:disabled):hover {
+      border-color: var(--primary);
+    }
+
+    &:focus,
+    &.p-focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(79, 140, 255, 0.1);
+    }
+  }
+
+  small {
+    color: var(--muted);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+  }
 }
 
 /* Grids responsivas */
-.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1.5rem;
+}
+
 @media (max-width: 768px) {
-  .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  .grid-2,
+  .grid-3 {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* Etiquetas y textos */
-.form-row label { font-weight: 700; color: var(--text); letter-spacing: .2px; font-size: .9rem; }
-.text-muted { color: var(--muted); }
-.text-warn { color: #b45309; }
-.text-error { color: var(--danger); }
-.text-success { color: var(--success); }
+.text-muted {
+  color: var(--muted);
+}
+
+.text-warn {
+  color: #b45309;
+}
+
+.text-error {
+  color: var(--danger);
+}
+
+.text-success {
+  color: var(--success);
+}
 
 /* Fila con label y acciones a la derecha */
-.row-label-actions { display: flex; align-items: center; justify-content: space-between; gap: .75rem; }
+.row-label-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
 
 /* Ajustes de componentes */
-p-multiSelect, .p-multiselect { width: 100%; }
-.mt-2 { margin-top: .5rem; }
+p-multiSelect,
+.p-multiselect {
+  width: 100%;
+}
 
-/* Caja del resultado encontrado (look consistente claro/oscuro) */
+.mt-2 {
+  margin-top: 0.5rem;
+}
+
+/* Caja del resultado encontrado */
 .found-box {
-  background: color-mix(in srgb, var(--surface) 96%, var(--bg));
-  border: 1px solid var(--border);
-  border-left: 4px solid var(--primary-600);
+  background: linear-gradient(135deg, rgba(79, 140, 255, 0.05) 0%, rgba(37, 99, 235, 0.05) 100%);
+  border: 1px solid rgba(79, 140, 255, 0.2);
+  border-left: 4px solid var(--primary);
   border-radius: 12px;
-  box-shadow: 0 6px 18px rgba(0,0,0,.06);
-}
-.found-header {
-  font-weight: 800; padding: .75rem 1rem;
-  border-bottom: 1px solid var(--border);
-  background: linear-gradient(180deg, color-mix(in srgb, var(--surface) 90%, var(--primary) 10%), var(--surface));
-}
-.found-body { padding: 1rem; }
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
 
-/* Botón CTA de asignación (gradiente, dinámico y acorde a la paleta) */
+  &:hover {
+    box-shadow: 0 6px 18px rgba(79, 140, 255, 0.15);
+    border-color: rgba(79, 140, 255, 0.3);
+  }
+}
+
+.found-header {
+  font-weight: 600;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid rgba(79, 140, 255, 0.2);
+  background: linear-gradient(180deg, rgba(79, 140, 255, 0.08), transparent);
+  color: var(--text);
+}
+
+.found-body {
+  padding: 1.25rem;
+}
+
+/* Botón CTA de asignación */
 .asignar-cta {
-  background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+  background: linear-gradient(135deg, var(--primary) 0%, #2563eb 100%);
   color: #fff;
   border: 0;
-  border-radius: 10px; /* consistente con .p-button */
-  box-shadow: 0 8px 20px color-mix(in srgb, var(--primary) 24%, transparent);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(79, 140, 255, 0.3);
   transform: translateY(0);
-  transition: transform .15s ease, box-shadow .2s ease, background .3s ease, filter .2s ease;
+  transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
-}
-.asignar-cta:hover {
-  transform: translateY(-1px);
-  background: linear-gradient(90deg, var(--secondary) 0%, var(--primary) 100%);
-  box-shadow: 0 12px 28px color-mix(in srgb, var(--primary) 30%, transparent);
-}
-.asignar-cta:active { transform: translateY(0); }
-.asignar-cta:disabled,
-.p-button.p-disabled.asignar-cta { filter: grayscale(15%); box-shadow: none; }
-/* brillo diagonal sutil */
-.asignar-cta::after {
-  content: '';
-  position: absolute;
-  top: 0; left: -140%;
-  width: 120%; height: 100%;
-  background: linear-gradient(120deg, transparent 0%, color-mix(in srgb, #ffffff 72%, transparent) 16%, transparent 32%);
-  opacity: .35;
-  transform: skewX(-20deg);
-  transition: left .6s ease;
-}
-.asignar-cta:hover::after { left: 140%; }
+  font-weight: 600;
 
-/* Botón inline pequeño para acción rápida "Asignar" en la línea de sección */
+  &:hover:not(:disabled) {
+    transform: translateY(-1px);
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    box-shadow: 0 6px 20px rgba(79, 140, 255, 0.4);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
+  &:disabled,
+  &.p-disabled {
+    filter: grayscale(30%);
+    opacity: 0.6;
+    box-shadow: none;
+  }
+
+  /* brillo diagonal sutil */
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -140%;
+    width: 120%;
+    height: 100%;
+    background: linear-gradient(120deg, transparent 0%, rgba(255, 255, 255, 0.3) 16%, transparent 32%);
+    opacity: 0.5;
+    transform: skewX(-20deg);
+    transition: left 0.6s ease;
+  }
+
+  &:hover::after {
+    left: 140%;
+  }
+}
+
+/* Botón inline pequeño para acción rápida */
 .asignar-inline.p-button-sm {
-  background: color-mix(in srgb, var(--primary) 14%, transparent);
-  color: var(--primary-600);
-  border: 1px solid color-mix(in srgb, var(--primary) 36%, transparent);
-  box-shadow: 0 2px 8px color-mix(in srgb, var(--primary) 16%, transparent);
-  transition: box-shadow .15s ease, background .2s ease, transform .15s ease;
+  background: rgba(79, 140, 255, 0.1);
+  color: var(--primary);
+  border: 1px solid rgba(79, 140, 255, 0.3);
+  box-shadow: 0 2px 8px rgba(79, 140, 255, 0.15);
+  transition: all 0.2s ease;
+  border-radius: 6px;
+  font-weight: 600;
+
+  &:hover:not(:disabled) {
+    background: rgba(79, 140, 255, 0.15);
+    box-shadow: 0 0 0 3px rgba(79, 140, 255, 0.1) inset, 0 4px 12px rgba(79, 140, 255, 0.25);
+    transform: translateY(-1px);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
 }
-.asignar-inline.p-button-sm:hover {
-  background: color-mix(in srgb, var(--primary) 20%, transparent);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 18%, transparent) inset, 0 4px 12px color-mix(in srgb, var(--primary) 22%, transparent);
-  transform: translateY(-1px);
+
+/* Acciones del formulario */
+.actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+
+  ::ng-deep .p-button {
+    min-width: 150px;
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+    transition: all 0.3s ease;
+    border-radius: 8px;
+
+    &.p-button-success {
+      background: linear-gradient(135deg, var(--success) 0%, #16a34a 100%);
+      border: none;
+
+      &:hover:not(:disabled) {
+        background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
+      }
+    }
+
+    &.p-button-secondary {
+      background: linear-gradient(135deg, var(--primary) 0%, #2563eb 100%);
+      border: none;
+
+      &:hover:not(:disabled) {
+        background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(79, 140, 255, 0.3);
+      }
+    }
+
+    &:active:not(:disabled) {
+      transform: translateY(0);
+    }
+  }
 }
-.asignar-inline.p-button-sm:active { transform: translateY(0); }
+
+/* Estado de carga */
+.loading {
+  display: flex;
+  justify-content: center;
+  padding: 2rem;
+
+  ::ng-deep .p-progress-spinner {
+    width: 50px;
+    height: 50px;
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  ::ng-deep .p-card {
+    .p-card-header {
+      padding: 1.25rem 1.5rem;
+      font-size: 1.25rem;
+    }
+
+    .p-card-body {
+      padding: 1rem;
+    }
+  }
+
+  .actions {
+    flex-direction: column;
+
+    ::ng-deep .p-button {
+      width: 100%;
+    }
+  }
+}
+
+/* Temas */
+:root.theme-dark {
+  .found-box {
+    background: linear-gradient(135deg, rgba(79, 140, 255, 0.08) 0%, rgba(37, 99, 235, 0.08) 100%);
+  }
+}
+
+:root.theme-black {
+  ::ng-deep .p-card {
+    .p-card-header {
+      box-shadow: 0 4px 12px rgba(79, 140, 255, 0.3);
+    }
+  }
+
+  .found-box {
+    background: linear-gradient(135deg, rgba(79, 140, 255, 0.1) 0%, rgba(37, 99, 235, 0.1) 100%);
+    border-color: rgba(79, 140, 255, 0.3);
+  }
+}
 
 /* === Overlay del MultiSelect de este componente (scoped) === */
 :host ::ng-deep {

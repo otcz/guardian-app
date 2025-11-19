@@ -1,7 +1,331 @@
-.summary { display: grid; gap: .5rem; margin-bottom: 1rem; }
-.summary .row { display: flex; gap: .5rem; align-items: center; }
-.form-grid { display: grid; gap: 1rem; max-width: 560px; }
-.form-row { display: grid; gap: .5rem; }
-.actions { display: flex; gap: .5rem; justify-content: flex-end; }
-.loading { display: flex; justify-content: center; padding: 1rem; }
+/* Asignar Sección a Vehículo - Estilos Modernos */
+
+.page-container {
+  padding: 0;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* Tarjeta moderna */
+::ng-deep .p-card {
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--border);
+  overflow: hidden;
+
+  .p-card-header {
+    background: linear-gradient(135deg, #4f8cff 0%, #2563eb 50%, #203a43 100%);
+    padding: 1.5rem 2rem;
+    color: white;
+    font-size: 1.5rem;
+    font-weight: 600;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(79, 140, 255, 0.2);
+  }
+
+  .p-card-body {
+    padding: 2rem;
+    background: var(--surface);
+  }
+}
+
+/* Resumen del vehículo */
+.summary {
+  display: grid;
+  gap: 0.75rem;
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, rgba(79, 140, 255, 0.05) 0%, rgba(37, 99, 235, 0.05) 100%);
+  border: 1px solid rgba(79, 140, 255, 0.2);
+  border-radius: 12px;
+  transition: all 0.3s ease;
+
+  &:hover {
+    box-shadow: 0 4px 12px rgba(79, 140, 255, 0.15);
+    border-color: rgba(79, 140, 255, 0.3);
+  }
+
+  .row {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    font-size: 0.95rem;
+
+    strong {
+      color: var(--text);
+      font-weight: 600;
+      min-width: 120px;
+    }
+
+    span {
+      color: var(--muted);
+    }
+
+    ::ng-deep .p-tag {
+      padding: 0.4rem 0.75rem;
+      font-weight: 600;
+      font-size: 0.85rem;
+      letter-spacing: 0.5px;
+    }
+  }
+}
+
+/* Grid del formulario */
+.form-grid {
+  display: grid;
+  gap: 1.5rem;
+  max-width: 600px;
+}
+
+.form-row {
+  display: grid;
+  gap: 0.5rem;
+
+  label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+    color: var(--text);
+    font-size: 0.95rem;
+
+    i {
+      color: var(--primary);
+    }
+
+    .required-mark {
+      color: var(--danger);
+      font-weight: bold;
+    }
+  }
+
+  ::ng-deep .p-dropdown {
+    width: 100%;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    transition: all 0.2s ease;
+
+    &:not(.p-disabled):hover {
+      border-color: var(--primary);
+    }
+
+    &.p-focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(79, 140, 255, 0.1);
+    }
+  }
+
+  small {
+    color: var(--muted);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+
+    &.info-text {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      color: var(--primary);
+
+      i {
+        font-size: 0.9rem;
+      }
+    }
+  }
+}
+
+/* Items del dropdown */
+.dropdown-item,
+.selected-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0.5rem;
+
+  .item-icon {
+    color: var(--primary);
+    font-size: 1.1rem;
+  }
+
+  .item-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+
+    .item-name {
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    small {
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+  }
+}
+
+/* Tabla de selección de vehículos */
+::ng-deep .p-datatable {
+  .p-datatable-thead > tr > th {
+    background: var(--surface-alt);
+    color: var(--text);
+    font-weight: 600;
+    padding: 1rem;
+    border-bottom: 2px solid var(--border);
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+  }
+
+  .p-datatable-tbody > tr {
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: rgba(79, 140, 255, 0.05);
+    }
+
+    > td {
+      padding: 1rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+  }
+
+  .p-paginator {
+    background: var(--surface);
+    border-top: 2px solid var(--border);
+    padding: 1rem;
+  }
+}
+
+/* Tags de estado */
+::ng-deep .p-tag {
+  padding: 0.4rem 0.75rem;
+  font-weight: 600;
+  font-size: 0.85rem;
+  letter-spacing: 0.5px;
+  border-radius: 6px;
+}
+
+/* Acciones del formulario */
+.actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+
+  ::ng-deep .p-button {
+    min-width: 150px;
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+    transition: all 0.3s ease;
+    border-radius: 8px;
+
+    &.p-button-success {
+      background: linear-gradient(135deg, var(--success) 0%, #16a34a 100%);
+      border: none;
+
+      &:hover:not(:disabled) {
+        background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
+      }
+    }
+
+    &.p-button-secondary,
+    &:not(.p-button-text):not(.p-button-success) {
+      background: linear-gradient(135deg, var(--primary) 0%, #2563eb 100%);
+      border: none;
+
+      &:hover:not(:disabled) {
+        background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(79, 140, 255, 0.3);
+      }
+    }
+
+    &.p-button-text {
+      color: var(--primary);
+
+      &:hover:not(:disabled) {
+        background: rgba(79, 140, 255, 0.1);
+      }
+    }
+
+    &:active:not(:disabled) {
+      transform: translateY(0);
+    }
+  }
+}
+
+/* Estado de carga */
+.loading {
+  display: flex;
+  justify-content: center;
+  padding: 2rem;
+
+  ::ng-deep .p-progress-spinner {
+    width: 50px;
+    height: 50px;
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  ::ng-deep .p-card {
+    .p-card-header {
+      padding: 1.25rem 1.5rem;
+      font-size: 1.25rem;
+    }
+
+    .p-card-body {
+      padding: 1rem;
+    }
+  }
+
+  .form-grid {
+    max-width: 100%;
+  }
+
+  .actions {
+    flex-direction: column;
+
+    ::ng-deep .p-button {
+      width: 100%;
+    }
+  }
+
+  .summary {
+    .row {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.25rem;
+
+      strong {
+        min-width: auto;
+      }
+    }
+  }
+}
+
+/* Temas */
+:root.theme-dark {
+  .summary {
+    background: linear-gradient(135deg, rgba(79, 140, 255, 0.08) 0%, rgba(37, 99, 235, 0.08) 100%);
+  }
+}
+
+:root.theme-black {
+  ::ng-deep .p-card {
+    .p-card-header {
+      box-shadow: 0 4px 12px rgba(79, 140, 255, 0.3);
+    }
+  }
+
+  .summary {
+    background: linear-gradient(135deg, rgba(79, 140, 255, 0.1) 0%, rgba(37, 99, 235, 0.1) 100%);
+    border-color: rgba(79, 140, 255, 0.3);
+  }
+}
 

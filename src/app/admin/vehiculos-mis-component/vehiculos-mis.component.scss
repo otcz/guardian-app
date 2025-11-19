@@ -1,6 +1,498 @@
-.actions { display: flex; gap: .5rem; align-items: center; }
-:host ::ng-deep .p-table { font-size: 14px; }
+/* Mis Vehículos - Estilos Modernos y Organizados */
 
-/* Nota: no anular bordes en td.actions para conservar la línea continua del tbody */
+.page-container {
+  padding: 0;
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+/* ============================================
+   TARJETA MODERNA
+   ============================================ */
+.modern-card {
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--border);
+  overflow: hidden;
+
+  ::ng-deep .p-card-body {
+    padding: 0;
+  }
+
+  ::ng-deep .p-card-content {
+    padding: 0;
+  }
+}
+
+/* ============================================
+   HEADER CON GRADIENTE
+   ============================================ */
+.card-header {
+  background: linear-gradient(135deg, #4f8cff 0%, #2563eb 50%, #203a43 100%);
+  padding: 1.5rem 2rem;
+  box-shadow: 0 4px 12px rgba(79, 140, 255, 0.2);
+
+  .header-content {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+
+    .header-icon {
+      font-size: 2.5rem;
+      color: white;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+    }
+
+    .header-text {
+      flex: 1;
+
+      h2 {
+        margin: 0 0 0.5rem 0;
+        color: white;
+        font-size: 1.75rem;
+        font-weight: 600;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .subtitle {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 0;
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 0.95rem;
+
+        i {
+          font-size: 0.9rem;
+        }
+      }
+    }
+  }
+}
+
+/* ============================================
+   CUERPO DE LA TARJETA
+   ============================================ */
+.card-body {
+  padding: 2rem;
+  background: var(--surface);
+}
+
+/* ============================================
+   ACCIONES SUPERIORES
+   ============================================ */
+.top-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  padding: 1rem 1.5rem;
+  background: linear-gradient(135deg, rgba(79, 140, 255, 0.05) 0%, rgba(37, 99, 235, 0.05) 100%);
+  border: 1px solid rgba(79, 140, 255, 0.15);
+  border-radius: 10px;
+  transition: all 0.3s ease;
+
+  &:hover {
+    box-shadow: 0 4px 12px rgba(79, 140, 255, 0.1);
+    border-color: rgba(79, 140, 255, 0.25);
+  }
+
+  .info-section {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: var(--text);
+    font-size: 1rem;
+
+    i {
+      color: var(--primary);
+      font-size: 1.25rem;
+    }
+
+    .total-count {
+      strong {
+        color: var(--primary);
+        font-size: 1.1rem;
+      }
+    }
+  }
+
+  .create-btn {
+    background: linear-gradient(135deg, var(--success) 0%, #16a34a 100%);
+    border: none;
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+
+    &:hover:not(:disabled) {
+      background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
+    }
+
+    &:active:not(:disabled) {
+      transform: translateY(0);
+    }
+  }
+}
+
+/* ============================================
+   TABLA MODERNA
+   ============================================ */
+::ng-deep .modern-table {
+  font-size: 14px;
+  border-radius: 8px;
+  overflow: hidden;
+
+  .p-datatable-wrapper {
+    border-radius: 8px;
+  }
+
+  .p-datatable-thead > tr > th {
+    background: var(--surface-alt);
+    color: var(--text);
+    font-weight: 600;
+    padding: 1rem 1.25rem;
+    border-bottom: 2px solid var(--border);
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    letter-spacing: 0.5px;
+
+    .th-content {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+
+      i {
+        color: var(--primary);
+        font-size: 1rem;
+      }
+    }
+  }
+
+  .p-datatable-tbody > tr {
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: rgba(79, 140, 255, 0.05);
+      transform: scale(1.002);
+    }
+
+    > td {
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+  }
+
+  .p-paginator {
+    background: var(--surface);
+    border-top: 2px solid var(--border);
+    padding: 1rem;
+
+    .p-paginator-current {
+      color: var(--text);
+      font-weight: 600;
+    }
+  }
+}
+
+/* ============================================
+   CELDAS PERSONALIZADAS
+   ============================================ */
+
+/* Celda de Placa */
+.placa-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+
+  i {
+    color: var(--primary);
+    font-size: 1.25rem;
+  }
+
+  strong {
+    font-size: 1rem;
+    color: var(--text);
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+}
+
+/* Celda de Estado */
+.estado-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Celda de Sección */
+.seccion-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--muted);
+
+  i {
+    color: var(--primary);
+    font-size: 0.9rem;
+  }
+
+  span {
+    font-size: 0.95rem;
+  }
+}
+
+/* Celda de Bloqueo */
+.bloqueo-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+
+  .toggle-lock-btn {
+    font-size: 0.85rem;
+    padding: 0.4rem 0.75rem;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+
+    &:hover:not(:disabled) {
+      background: rgba(79, 140, 255, 0.1);
+      transform: translateY(-1px);
+    }
+  }
+}
+
+/* Celda de Acciones */
+.actions-cell {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: center;
+
+  .action-btn {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    transition: all 0.2s ease;
+
+    &.edit-btn {
+      color: var(--primary);
+
+      &:hover {
+        background: rgba(79, 140, 255, 0.15);
+        transform: translateY(-1px) scale(1.05);
+      }
+    }
+
+    &.assign-btn {
+      color: var(--success);
+
+      &:hover {
+        background: rgba(34, 197, 94, 0.15);
+        transform: translateY(-1px) scale(1.05);
+      }
+    }
+  }
+}
+
+/* ============================================
+   TAGS DE ESTADO
+   ============================================ */
+::ng-deep .p-tag {
+  padding: 0.5rem 0.85rem;
+  font-weight: 600;
+  font-size: 0.8rem;
+  letter-spacing: 0.5px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+
+  .p-tag-icon {
+    font-size: 0.9rem;
+  }
+}
+
+/* ============================================
+   INPUT SWITCH
+   ============================================ */
+::ng-deep .p-inputswitch {
+  &.p-inputswitch-checked .p-inputswitch-slider {
+    background: var(--success);
+  }
+
+  &:not(.p-disabled):hover .p-inputswitch-slider {
+    box-shadow: 0 0 0 4px rgba(79, 140, 255, 0.1);
+  }
+}
+
+/* ============================================
+   ESTADO VACÍO
+   ============================================ */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  gap: 1.5rem;
+  color: var(--muted);
+
+  i {
+    font-size: 4rem;
+    opacity: 0.4;
+    color: var(--primary);
+  }
+
+  p {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  button {
+    background: linear-gradient(135deg, var(--primary) 0%, #2563eb 100%);
+    border: none;
+    font-weight: 600;
+
+    &:hover {
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(79, 140, 255, 0.3);
+    }
+  }
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 992px) {
+  .top-actions {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+
+    .info-section {
+      justify-content: center;
+    }
+
+    .create-btn {
+      width: 100%;
+    }
+  }
+
+  ::ng-deep .modern-table {
+    .th-content span {
+      display: none;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .card-header {
+    padding: 1.25rem 1.5rem;
+
+    .header-content {
+      .header-icon {
+        font-size: 2rem;
+      }
+
+      .header-text h2 {
+        font-size: 1.35rem;
+      }
+    }
+  }
+
+  .card-body {
+    padding: 1rem;
+  }
+
+  .top-actions {
+    padding: 0.75rem 1rem;
+  }
+
+  ::ng-deep .modern-table {
+    font-size: 0.85rem;
+
+    .p-datatable-thead > tr > th,
+    .p-datatable-tbody > tr > td {
+      padding: 0.75rem 0.5rem;
+    }
+
+    .p-datatable-tbody > tr {
+      &:hover {
+        transform: none;
+      }
+    }
+  }
+
+  .placa-cell {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+
+    i {
+      font-size: 1rem;
+    }
+
+    strong {
+      font-size: 0.9rem;
+    }
+  }
+
+  .bloqueo-cell {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .actions-cell {
+    flex-direction: column;
+    gap: 0.25rem;
+
+    .action-btn {
+      width: 100%;
+      border-radius: 4px;
+    }
+  }
+}
+
+/* ============================================
+   TEMAS
+   ============================================ */
+:root.theme-light {
+  .modern-card {
+    background: var(--surface);
+  }
+}
+
+:root.theme-dark {
+  .modern-card {
+    background: var(--surface);
+  }
+
+  .top-actions {
+    background: linear-gradient(135deg, rgba(79, 140, 255, 0.08) 0%, rgba(37, 99, 235, 0.08) 100%);
+  }
+}
+
+:root.theme-black {
+  .modern-card {
+    background: var(--surface);
+  }
+
+  .card-header {
+    box-shadow: 0 4px 12px rgba(79, 140, 255, 0.3);
+  }
+
+  .top-actions {
+    background: linear-gradient(135deg, rgba(79, 140, 255, 0.1) 0%, rgba(37, 99, 235, 0.1) 100%);
+    border-color: rgba(79, 140, 255, 0.25);
+  }
+}
 
 

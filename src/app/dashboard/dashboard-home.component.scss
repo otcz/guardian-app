@@ -1,0 +1,606 @@
+/* Dashboard Home - Estilos Modernos por Rol */
+
+/* ============================================
+   CONTAINER PRINCIPAL
+   ============================================ */
+.dashboard-container {
+  padding: 0;
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+/* ============================================
+   CARD PRINCIPAL
+   ============================================ */
+::ng-deep .dashboard-card {
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--border);
+  overflow: hidden;
+
+  .p-card-body {
+    padding: 0;
+  }
+
+  .p-card-content {
+    padding: 0;
+  }
+}
+
+/* ============================================
+   HEADER DEL DASHBOARD
+   ============================================ */
+.dh-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  background: linear-gradient(135deg, #4f8cff 0%, #2563eb 50%, #203a43 100%);
+  padding: 1.5rem 2rem;
+  box-shadow: 0 4px 12px rgba(79, 140, 255, 0.2);
+
+  .title {
+    font-weight: 600;
+    font-size: 1.5rem;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+    ::ng-deep .p-tag {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      padding: 0.4rem 0.75rem;
+      font-weight: 600;
+      backdrop-filter: blur(10px);
+    }
+  }
+
+  .actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+
+    button {
+      min-width: 40px;
+      height: 40px;
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: white;
+      transition: all 0.2s ease;
+
+      &:hover:not(:disabled) {
+        background: rgba(255, 255, 255, 0.25);
+        border-color: rgba(255, 255, 255, 0.5);
+        transform: translateY(-1px);
+      }
+
+      &:disabled {
+        opacity: 0.4;
+      }
+    }
+  }
+}
+
+/* ============================================
+   BODY DEL DASHBOARD
+   ============================================ */
+.dashboard-body {
+  padding: 2rem;
+  background: var(--surface);
+}
+
+/* ============================================
+   SKELETON LOADING
+   ============================================ */
+.skeleton-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+
+  ::ng-deep .p-skeleton {
+    border-radius: 12px;
+  }
+}
+
+/* ============================================
+   GRID PRINCIPAL
+   ============================================ */
+.main-grid {
+  display: grid;
+  gap: 1.5rem;
+
+  &.layout-user {
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "identity kpis"
+      "qr-info qr-info";
+  }
+
+  &.layout-organization,
+  &.layout-section,
+  &.layout-guard {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  }
+}
+
+/* ============================================
+   PANEL BASE
+   ============================================ */
+.panel {
+  background: var(--surface);
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 1px solid var(--border);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+
+  &:hover {
+    box-shadow: 0 4px 16px rgba(79, 140, 255, 0.1);
+    border-color: rgba(79, 140, 255, 0.2);
+    transform: translateY(-2px);
+  }
+
+  &.panel-identity {
+    grid-area: identity;
+    display: flex;
+    gap: 1.5rem;
+    align-items: flex-start;
+  }
+
+  &.panel-kpis {
+    grid-area: kpis;
+  }
+
+  &.panel-qr-info {
+    grid-area: qr-info;
+  }
+
+  .panel-title {
+    font-weight: 600;
+    font-size: 1.1rem;
+    margin-bottom: 1.25rem;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid rgba(79, 140, 255, 0.15);
+
+    i {
+      color: var(--primary);
+      font-size: 1.2rem;
+    }
+  }
+}
+
+/* ============================================
+   QR WRAPPER
+   ============================================ */
+.qr-wrapper {
+  width: 220px;
+  height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(79, 140, 255, 0.05) 0%, rgba(37, 99, 235, 0.05) 100%);
+  border: 2px solid rgba(79, 140, 255, 0.2);
+  transition: all 0.3s ease;
+  cursor: default;
+  flex-shrink: 0;
+
+  &.clickable {
+    cursor: pointer;
+
+    &:hover {
+      box-shadow: 0 0 0 4px rgba(79, 140, 255, 0.15);
+      transform: scale(1.02);
+      border-color: rgba(79, 140, 255, 0.4);
+    }
+  }
+
+  img {
+    border-radius: 8px;
+  }
+
+  .qr-empty {
+    font-size: 0.9rem;
+    opacity: 0.6;
+    text-align: center;
+    padding: 1rem;
+    color: var(--muted);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+
+    &::before {
+      content: '🔳';
+      font-size: 2rem;
+    }
+  }
+}
+
+/* ============================================
+   USER INFO
+   ============================================ */
+.user-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding-top: 0.5rem;
+  flex: 1;
+
+  .name {
+    font-weight: 700;
+    font-size: 1.25rem;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    &::before {
+      content: '👤';
+      font-size: 1.3rem;
+    }
+  }
+
+  .doc,
+  .tokens {
+    font-size: 0.9rem;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    b, code {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    code {
+      background: rgba(79, 140, 255, 0.1);
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-family: monospace;
+      word-break: break-all;
+      max-width: 300px;
+    }
+  }
+
+  .doc::before {
+    content: '🆔';
+  }
+
+  .tokens::before {
+    content: '🔑';
+  }
+}
+
+/* ============================================
+   KPI GRID
+   ============================================ */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1rem;
+}
+
+.kpi-item {
+  background: linear-gradient(135deg, rgba(79, 140, 255, 0.05) 0%, rgba(37, 99, 235, 0.05) 100%);
+  padding: 1.25rem 1rem;
+  border-radius: 10px;
+  border: 1px solid rgba(79, 140, 255, 0.15);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+
+  &:hover {
+    border-color: rgba(79, 140, 255, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(79, 140, 255, 0.1);
+  }
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 60px;
+    height: 60px;
+    background: radial-gradient(circle, rgba(79, 140, 255, 0.1) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+
+  .kpi-label {
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    opacity: 0.7;
+    color: var(--text);
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+
+  .kpi-value {
+    font-size: 2.25rem;
+    font-weight: 700;
+    line-height: 1.1;
+    color: var(--primary);
+    position: relative;
+    z-index: 1;
+  }
+
+  .kpi-icon {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    font-size: 1.5rem;
+    opacity: 0.2;
+    color: var(--primary);
+  }
+}
+
+/* ============================================
+   STATS CARD (Para Organización/Sección)
+   ============================================ */
+.stats-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  transition: all 0.3s ease;
+
+  &:hover {
+    border-color: rgba(79, 140, 255, 0.3);
+    box-shadow: 0 4px 12px rgba(79, 140, 255, 0.1);
+    transform: translateY(-2px);
+  }
+
+  .stats-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    background: linear-gradient(135deg, var(--primary) 0%, #2563eb 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(79, 140, 255, 0.3);
+    flex-shrink: 0;
+  }
+
+  .stats-content {
+    flex: 1;
+
+    .stats-label {
+      font-size: 0.85rem;
+      color: var(--muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 0.35rem;
+    }
+
+    .stats-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1;
+    }
+
+    .stats-detail {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-top: 0.35rem;
+    }
+  }
+}
+
+/* ============================================
+   HINT MESSAGE
+   ============================================ */
+.hint {
+  margin-top: 1rem;
+  font-size: 0.8rem;
+  color: var(--muted);
+  padding: 0.75rem 1rem;
+  background: rgba(79, 140, 255, 0.05);
+  border: 1px solid rgba(79, 140, 255, 0.15);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  &::before {
+    content: 'ℹ️';
+    font-size: 1rem;
+  }
+}
+
+/* ============================================
+   QR DIALOG
+   ============================================ */
+::ng-deep .qr-dialog {
+  .p-dialog-header {
+    background: linear-gradient(135deg, #4f8cff 0%, #2563eb 50%, #203a43 100%);
+    color: white;
+    padding: 1.5rem;
+
+    .p-dialog-title {
+      font-weight: 600;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .p-dialog-header-icon {
+      color: white;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.15);
+      }
+    }
+  }
+}
+
+.qr-dialog-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 1rem;
+
+  img {
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  }
+
+  .dialog-tokens {
+    font-size: 0.75rem;
+    color: var(--muted);
+    max-width: 300px;
+    word-break: break-word;
+    text-align: center;
+    background: rgba(79, 140, 255, 0.05);
+    padding: 0.75rem;
+    border-radius: 8px;
+    font-family: monospace;
+  }
+
+  .dialog-actions {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 0.5rem;
+
+    button {
+      min-width: 100px;
+      font-weight: 600;
+      padding: 0.65rem 1.25rem;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+
+      &.p-button-secondary {
+        background: linear-gradient(135deg, var(--primary) 0%, #2563eb 100%);
+        border: none;
+
+        &:hover:not(:disabled) {
+          background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(79, 140, 255, 0.3);
+        }
+      }
+
+      &.p-button-text {
+        color: var(--primary);
+
+        &:hover:not(:disabled) {
+          background: rgba(79, 140, 255, 0.1);
+        }
+      }
+    }
+  }
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 992px) {
+  .main-grid.layout-user {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "identity"
+      "kpis"
+      "qr-info";
+  }
+}
+
+@media (max-width: 768px) {
+  .dh-header {
+    padding: 1.25rem 1.5rem;
+
+    .title {
+      font-size: 1.25rem;
+    }
+  }
+
+  .dashboard-body {
+    padding: 1rem;
+  }
+
+  .panel.panel-identity {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+
+    .user-info {
+      align-items: center;
+    }
+  }
+
+  .qr-wrapper {
+    width: 200px;
+    height: 200px;
+  }
+
+  .kpi-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .stats-card {
+    .stats-icon {
+      width: 50px;
+      height: 50px;
+      font-size: 1.5rem;
+    }
+
+    .stats-content .stats-value {
+      font-size: 1.75rem;
+    }
+  }
+}
+
+/* ============================================
+   TEMAS
+   ============================================ */
+:root.theme-dark {
+  .qr-wrapper {
+    background: linear-gradient(135deg, rgba(79, 140, 255, 0.08) 0%, rgba(37, 99, 235, 0.08) 100%);
+  }
+
+  .kpi-item {
+    background: linear-gradient(135deg, rgba(79, 140, 255, 0.08) 0%, rgba(37, 99, 235, 0.08) 100%);
+  }
+}
+
+:root.theme-black {
+  .dh-header {
+    box-shadow: 0 4px 12px rgba(79, 140, 255, 0.3);
+  }
+
+  .qr-wrapper {
+    background: linear-gradient(135deg, rgba(79, 140, 255, 0.1) 0%, rgba(37, 99, 235, 0.1) 100%);
+    border-color: rgba(79, 140, 255, 0.3);
+  }
+
+  .kpi-item {
+    background: linear-gradient(135deg, rgba(79, 140, 255, 0.1) 0%, rgba(37, 99, 235, 0.1) 100%);
+  }
+
+  .stats-card,
+  .panel {
+    background: #161616;
+  }
+}
+

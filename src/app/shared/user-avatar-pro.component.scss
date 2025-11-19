@@ -1,114 +1,582 @@
-:host { display: inline-block; }
+/* Avatar de Usuario PRO - Estilos Modernos */
 
-/* Chip compacto */
+:host {
+  display: inline-block;
+}
+
+/* ============================================
+   CHIP COMPACTO (Trigger)
+   ============================================ */
 .chip {
-  display:flex; align-items:center; gap:.6rem; padding:.46rem .7rem; border-radius: 999px; cursor: pointer;
-  transition: transform .15s ease, box-shadow .2s ease; background: var(--surface); color: var(--text);
-  box-shadow: 0 2px 6px rgba(0,0,0,.08); border: 1px solid var(--border);
-}
-.chip:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(0,0,0,.12); }
-.chip .initials { width: 34px; height: 34px; border-radius: 50%; display:flex; align-items:center; justify-content:center; font-weight: 900; background: color-mix(in srgb, var(--secondary) 30%, var(--surface-alt)); color: var(--text); }
-.chip .meta { display:flex; flex-direction:column; line-height:1.1; }
-.chip .name { font-weight: 900; font-size:.95rem; letter-spacing:.1px; }
-.chip .sub { font-size:.8rem; opacity:.85; }
-
-/* Panel del popover */
-.panel {
-  min-width: 360px; border-radius: 16px; overflow: hidden;
-  background: var(--surface); color: var(--text); border: none; // quitar borde blanco
-  box-shadow: 0 14px 32px rgba(0,0,0,0.12), 0 6px 18px rgba(0,0,0,0.08);
-}
-
-.hero {
-  display:flex; gap:1rem; align-items:center; padding: 1rem;
-  background: linear-gradient(135deg,
-    color-mix(in srgb, var(--primary) 10%, var(--surface-alt)),
-    color-mix(in srgb, var(--primary) 4%, var(--surface))
-  );
-}
-
-/* Avatar circular */
-.ring { width: 56px; height: 56px; border-radius: 50%; display:grid; place-items:center;
-  background: linear-gradient(135deg, color-mix(in srgb, var(--primary) 24%, var(--surface-alt)), color-mix(in srgb, var(--secondary) 18%, var(--surface)));
-  border: 2px solid color-mix(in srgb, var(--primary) 45%, var(--border));
-}
-.ring .inner { width: 44px; height: 44px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight: 900; color: #fff;
-  background: linear-gradient(135deg, var(--primary), color-mix(in srgb, var(--primary-600) 60%, #111));
-  box-shadow: 0 6px 18px rgba(0,0,0,.22);
-}
-
-.hero-meta { display:flex; flex-direction:column; gap:.15rem; line-height:1.12; }
-.hero-meta .title { font-weight: 900; font-size: 1.05rem; }
-.hero-meta .hint { font-size:.82rem; opacity:.9; }
-
-.body { padding: .9rem 1rem 1rem; display:flex; flex-direction:column; gap:.75rem; }
-
-/* Progreso de sesión */
-.session { display:flex; align-items:center; gap:.6rem; }
-.bar { position:relative; flex: 1 1 auto; height: 7px; border-radius: 999px; background: color-mix(in srgb, var(--border) 55%, transparent); overflow:hidden; }
-.bar .bar-fill { position:absolute; left:0; top:0; bottom:0; height:100%; background: linear-gradient(90deg, var(--primary), color-mix(in srgb, var(--primary) 20%, var(--secondary))); border-radius: 999px; width: 0; }
-.session .time { font-size:.8rem; font-weight: 800; min-width: 70px; text-align:right; }
-
-/* Línea de mando (jerarquía) */
-.chain { display:flex; align-items:center; gap:.45rem; flex-wrap:wrap; margin:.2rem 0 .4rem; font-size:.86rem; }
-.chain .scope { padding:.08rem .4rem; border-radius: 999px; font-weight: 800; letter-spacing:.15px; background: color-mix(in srgb, var(--primary) 14%, var(--surface-alt)); color: var(--text); border:1px solid color-mix(in srgb, var(--primary) 35%, var(--border)); }
-.chain .node { font-weight: 700; }
-.chain .node.muted { opacity: .7; font-style: italic; font-weight: 600; }
-.chain .sep { opacity:.6; }
-
-/* Lista de organizaciones */
-.orgs { display:flex; flex-direction:column; gap:.35rem; }
-.org-item {
-  display:flex; align-items:center; gap:.6rem; padding:.42rem .55rem; border-radius:12px; cursor:pointer;
-  background: var(--surface); color: var(--text); border:1px solid var(--border);
-}
-.org-item b { color: inherit; }
-.org-item .meta-col { display:flex; flex-direction:column; line-height:1.1; }
-.org-item .status { opacity:.82; }
-.org-item.active { outline: 2px solid color-mix(in srgb, var(--primary) 55%, var(--border)); background: color-mix(in srgb, var(--primary) 10%, var(--surface)); }
-.org-item .dot { width:8px; height:8px; border-radius:50%; background: var(--primary); box-shadow: 0 0 0 2px var(--surface); }
-
-.actions { display:flex; gap:.5rem; justify-content:flex-end; flex-wrap:wrap; margin-top:.2rem; }
-
-/* Tema claro/oscuro del chip (ajustes mínimos porque ya usamos tokens) */
-:host-context(.theme-dark) .chip,
-:host-context(.theme-black) .chip {
-  box-shadow: 0 8px 18px rgba(0,0,0,.25);
-}
-:host-context(.theme-dark) .chip .initials,
-:host-context(.theme-black) .chip .initials {
-  background: color-mix(in srgb, var(--surface-alt) 70%, #000);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0.85rem;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: var(--surface);
   color: var(--text);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--border);
+  position: relative;
+  overflow: hidden;
+
+  /* Efecto de hover con gradiente */
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(79, 140, 255, 0.05) 0%, rgba(37, 99, 235, 0.05) 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(79, 140, 255, 0.15);
+    border-color: rgba(79, 140, 255, 0.3);
+
+    &::before {
+      opacity: 1;
+    }
+
+    .initials {
+      transform: scale(1.05);
+      box-shadow: 0 4px 12px rgba(79, 140, 255, 0.3);
+    }
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  .initials {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.95rem;
+    letter-spacing: 0.5px;
+    background: linear-gradient(135deg, var(--primary) 0%, #2563eb 100%);
+    color: white;
+    box-shadow: 0 2px 8px rgba(79, 140, 255, 0.2);
+    transition: all 0.3s ease;
+    position: relative;
+    z-index: 1;
+
+    /* Borde animado */
+    &::before {
+      content: '';
+      position: absolute;
+      inset: -2px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      z-index: -1;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+  }
+
+  .meta {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2;
+    gap: 0.15rem;
+    position: relative;
+    z-index: 1;
+
+    .org {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--primary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      opacity: 0.9;
+    }
+
+    .name {
+      font-weight: 700;
+      font-size: 0.95rem;
+      letter-spacing: 0.1px;
+      color: var(--text);
+    }
+  }
 }
 
-/* Overrides del Popover (PrimeNG) - solo para este componente */
+/* ============================================
+   PANEL DEL POPOVER
+   ============================================ */
+.panel {
+  min-width: 400px;
+  border-radius: 16px;
+  overflow: hidden;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.15), 0 8px 24px rgba(0, 0, 0, 0.1);
+  animation: popIn 0.3s ease-out;
+}
+
+@keyframes popIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* ============================================
+   HERO SECTION
+   ============================================ */
+.hero {
+  display: flex;
+  gap: 1.25rem;
+  align-items: center;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #4f8cff 0%, #2563eb 50%, #203a43 100%);
+  position: relative;
+  overflow: hidden;
+
+  /* Decoración de fondo */
+  &::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 150px;
+    height: 150px;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+}
+
+/* ============================================
+   AVATAR CIRCULAR CON ANILLO
+   ============================================ */
+.ring {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.1) 100%);
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  position: relative;
+  z-index: 1;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+  }
+
+  .inner {
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.25rem;
+    letter-spacing: 1px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.85) 100%);
+    color: var(--primary);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+}
+
+/* ============================================
+   HERO META
+   ============================================ */
+.hero-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  line-height: 1.2;
+  flex: 1;
+  position: relative;
+  z-index: 1;
+
+  .title {
+    font-weight: 700;
+    font-size: 1.15rem;
+    color: white;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
+
+  .hint {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.85);
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+
+    &::before {
+      content: '📧';
+      font-size: 0.9rem;
+    }
+  }
+
+  .roles-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.25rem;
+    flex-wrap: wrap;
+
+    .label {
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    ::ng-deep .p-tag {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      padding: 0.3rem 0.6rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      backdrop-filter: blur(10px);
+    }
+
+    small {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 0.75rem;
+    }
+  }
+}
+
+/* ============================================
+   BODY SECTION
+   ============================================ */
+.body {
+  padding: 1.25rem 1.5rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  background: var(--surface);
+}
+
+/* ============================================
+   PROGRESO DE SESIÓN
+   ============================================ */
+.session {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: rgba(79, 140, 255, 0.3);
+    box-shadow: 0 2px 8px rgba(79, 140, 255, 0.1);
+  }
+}
+
+.bar {
+  position: relative;
+  flex: 1 1 auto;
+  height: 8px;
+  border-radius: 50px;
+  background: var(--border);
+  overflow: hidden;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+
+  .bar-fill {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary) 0%, #2563eb 100%);
+    border-radius: 50px;
+    width: 0;
+    transition: width 0.3s ease;
+    box-shadow: 0 0 8px rgba(79, 140, 255, 0.4);
+
+    /* Animación de pulso cuando está bajo */
+    &[style*="width: 0%"],
+    &[style*="width: 1"],
+    &[style*="width: 2"] {
+      animation: pulse 2s ease-in-out infinite;
+    }
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.session .time {
+  font-size: 0.85rem;
+  font-weight: 700;
+  min-width: 80px;
+  text-align: right;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+
+  &::before {
+    content: '⏱️';
+    font-size: 1rem;
+  }
+}
+
+/* ============================================
+   LÍNEA DE MANDO (Jerarquía)
+   ============================================ */
+.chain {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  padding: 0.85rem 1rem;
+  background: linear-gradient(135deg, rgba(79, 140, 255, 0.05) 0%, rgba(37, 99, 235, 0.05) 100%);
+  border: 1px solid rgba(79, 140, 255, 0.15);
+  border-radius: 10px;
+  font-size: 0.88rem;
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: rgba(79, 140, 255, 0.25);
+    box-shadow: 0 2px 8px rgba(79, 140, 255, 0.08);
+  }
+
+  .scope {
+    padding: 0.3rem 0.7rem;
+    border-radius: 20px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    background: linear-gradient(135deg, rgba(79, 140, 255, 0.15) 0%, rgba(37, 99, 235, 0.1) 100%);
+    color: var(--primary);
+    border: 1px solid rgba(79, 140, 255, 0.3);
+    box-shadow: 0 2px 4px rgba(79, 140, 255, 0.1);
+  }
+
+  .node {
+    font-weight: 600;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+
+    &::before {
+      content: '🏢';
+      font-size: 0.95rem;
+    }
+
+    &.sec::before {
+      content: '📍';
+    }
+
+    &.muted {
+      opacity: 0.65;
+      font-style: italic;
+      font-weight: 500;
+    }
+  }
+
+  .sep {
+    opacity: 0.4;
+    font-weight: 700;
+    color: var(--primary);
+  }
+}
+
+/* ============================================
+   ACCIONES
+   ============================================ */
+.actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--border);
+
+  ::ng-deep .p-button {
+    font-weight: 600;
+    padding: 0.65rem 1.25rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+
+    &.p-button-danger {
+      background: linear-gradient(135deg, var(--danger) 0%, #dc2626 100%);
+      border: none;
+      color: white;
+
+      &:hover {
+        background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+      }
+
+      &:active {
+        transform: translateY(0);
+      }
+    }
+
+    &.p-button-text {
+      color: var(--primary);
+
+      &:hover {
+        background: rgba(79, 140, 255, 0.1);
+      }
+    }
+  }
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 480px) {
+  .panel {
+    min-width: 320px;
+  }
+
+  .hero {
+    padding: 1.25rem;
+    gap: 1rem;
+  }
+
+  .ring {
+    width: 60px;
+    height: 60px;
+
+    .inner {
+      width: 48px;
+      height: 48px;
+      font-size: 1.1rem;
+    }
+  }
+
+  .hero-meta {
+    .title {
+      font-size: 1rem;
+    }
+  }
+
+  .body {
+    padding: 1rem 1.25rem 1.25rem;
+  }
+
+  .chain {
+    font-size: 0.82rem;
+  }
+}
+
+/* ============================================
+   TEMAS
+   ============================================ */
+:host-context(.theme-dark) {
+  .chip {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+
+    &:hover {
+      box-shadow: 0 8px 20px rgba(79, 140, 255, 0.25);
+    }
+  }
+
+  .panel {
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.3);
+  }
+}
+
+:host-context(.theme-black) {
+  .chip {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+    background: #1a1a1a;
+
+    &:hover {
+      box-shadow: 0 8px 24px rgba(79, 140, 255, 0.3);
+    }
+
+    .initials {
+      background: linear-gradient(135deg, #4f8cff 0%, #2563eb 100%);
+      box-shadow: 0 4px 12px rgba(79, 140, 255, 0.4);
+    }
+  }
+
+  .panel {
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.7), 0 8px 24px rgba(0, 0, 0, 0.5);
+    border-color: rgba(79, 140, 255, 0.2);
+  }
+
+  .hero {
+    box-shadow: 0 4px 12px rgba(79, 140, 255, 0.3);
+  }
+
+  .session {
+    background: #161616;
+  }
+
+  .chain {
+    background: linear-gradient(135deg, rgba(79, 140, 255, 0.08) 0%, rgba(37, 99, 235, 0.08) 100%);
+  }
+}
+
+/* ============================================
+   OVERRIDES DEL POPOVER (PrimeNG)
+   ============================================ */
 :host ::ng-deep .user-popover {
   background: transparent !important;
   border: none !important;
   padding: 0 !important;
   box-shadow: none !important;
   outline: none !important;
-}
-:host ::ng-deep .user-popover::before,
-:host ::ng-deep .user-popover::after {
-  /* por si el tema agrega fondos/bordes con pseudo-elementos */
-  display: none !important;
-}
 
-:host ::ng-deep .user-popover .p-popover-content {
-  background: transparent !important;
-  padding: 0 !important;
-  border: none !important;
-  box-shadow: none !important;
-}
+  &::before,
+  &::after {
+    display: none !important;
+  }
 
-/* Popover del usuario: flecha visible pero con mismo color del panel y sin bordes blancos */
-:host ::ng-deep .user-popover .p-popover-arrow {
-  display: none !important;
-}
-:host ::ng-deep .user-popover .p-popover-arrow::before,
-:host ::ng-deep .user-popover .p-popover-arrow::after {
-  display: none !important;
+  .p-popover-content {
+    background: transparent !important;
+    padding: 0 !important;
+    border: none !important;
+  }
+
+  .p-popover-close {
+    background: rgba(255, 255, 255, 0.2) !important;
+    color: white !important;
+    width: 28px !important;
+    height: 28px !important;
+    border-radius: 50% !important;
+    transition: all 0.2s ease !important;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.3) !important;
+      transform: rotate(90deg) !important;
+    }
+  }
+
+  /* Ocultar flecha del popover */
+  .p-popover-arrow {
+    display: none !important;
+  }
 }
 
 .panel { overflow: hidden !important; position: relative; }

@@ -17,7 +17,8 @@ import { SkeletonModule } from 'primeng/skeleton';
   selector: 'app-dashboard-home',
   standalone: true,
   imports: [CommonModule, TableModule, ButtonModule, CardModule, TagModule, ProgressSpinnerModule, DialogModule, TooltipModule, SkeletonModule],
-  templateUrl: './dashboard-home.component.html'
+  templateUrl: './dashboard-home.component.html',
+  styleUrls: ['./dashboard-home.component.scss']
 })
 export class DashboardHomeComponent implements OnInit, OnDestroy {
   loading = false;

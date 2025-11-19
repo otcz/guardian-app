@@ -52,49 +52,54 @@
   </div>
 </p-card>
 
-<p-dialog [(visible)]="showQrDialog" [modal]="true" [style]="{width:'340px'}" header="QR del usuario" (onHide)="closeQrDialog()">
+<!-- Diálogo QR -->
+<p-dialog
+  [(visible)]="showQrDialog"
+  [modal]="true"
+  [style]="{width:'400px'}"
+  styleClass="qr-dialog"
+  (onHide)="closeQrDialog()">
+
+  <ng-template pTemplate="header">
+    <div style="display: flex; align-items: center; gap: 0.5rem;">
+      <i class="pi pi-qrcode" style="font-size: 1.25rem;"></i>
+      <span>QR del Usuario</span>
+    </div>
+  </ng-template>
+
   <div class="qr-dialog-content">
-    <img *ngIf="qrDataUrl" [src]="qrDataUrl" alt="QR grande" style="width:300px; height:300px;" />
-    <div *ngIf="!qrDataUrl" class="qr-empty" style="height:300px;">QR no disponible</div>
+    <ng-container *ngIf="qrDataUrl; else qrNotAvailable">
+      <img [src]="qrDataUrl" alt="QR grande" width="300" height="300" />
+    </ng-container>
+    <ng-template #qrNotAvailable>
+      <div class="qr-empty" style="width: 300px; height: 300px; display: flex; align-items: center; justify-content: center;">
+        <div>QR no disponible</div>
+      </div>
+    </ng-template>
+
     <div class="dialog-tokens" *ngIf="lastQrString">{{ lastQrString }}</div>
+
     <div class="dialog-actions">
-      <button pButton label="Copiar" icon="pi pi-copy" (click)="copyQr()" [disabled]="!lastQrString"></button>
-      <button pButton label="Descargar" icon="pi pi-download" class="p-button-secondary" (click)="downloadQr()" [disabled]="!qrDataUrl"></button>
-      <button pButton label="Cerrar" icon="pi pi-times" class="p-button-text" (click)="closeQrDialog()"></button>
+      <button pButton
+              label="Copiar"
+              icon="pi pi-copy"
+              (click)="copyQr()"
+              [disabled]="!lastQrString">
+      </button>
+      <button pButton
+              label="Descargar"
+              icon="pi pi-download"
+              class="p-button-secondary"
+              (click)="downloadQr()"
+              [disabled]="!qrDataUrl">
+      </button>
+      <button pButton
+              label="Cerrar"
+              icon="pi pi-times"
+              class="p-button-text"
+              (click)="closeQrDialog()">
+      </button>
     </div>
   </div>
 </p-dialog>
 
-<style>
-.dh-header {display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;}
-.dh-header .title {font-weight:600; display:flex; align-items:center; gap:8px;}
-.dh-header .actions button {min-width:38px;}
-.main-grid {display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:20px;}
-.skeleton-grid {display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:20px;}
-.panel {background: var(--surface-0); border-radius:14px; padding:16px; box-shadow:0 2px 6px rgba(0,0,0,.08); display:flex; gap:16px; align-items:flex-start; position:relative;}
-.panel.identity {flex-direction:row;}
-.qr-wrapper {width:210px; height:210px; display:flex; align-items:center; justify-content:center; border-radius:12px; background: var(--surface-100); transition:box-shadow .25s, transform .25s; cursor:default;}
-.qr-wrapper.clickable {cursor:pointer;}
-.qr-wrapper.clickable:hover {box-shadow:0 0 0 3px var(--primary-300); transform:scale(1.02);}
-.qr-empty {font-size:.85rem; opacity:.6; text-align:center; padding:8px;}
-.user-info {display:flex; flex-direction:column; gap:6px; padding-top:4px;}
-.user-info .name {font-weight:600; font-size:1.15rem;}
-.user-info .doc {opacity:.85; font-size:.85rem;}
-.user-info .tokens {opacity:.75; font-size:.7rem; max-width:260px; word-break:break-all;}
-.panel.kpis {flex-direction:column;}
-.panel-title {font-weight:600; margin-bottom:12px;}
-.kpi-grid {display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:12px;}
-.kpi-item {background:var(--surface-50); padding:12px 10px; border-radius:10px; position:relative; overflow:hidden;}
-.kpi-label {font-size:.7rem; letter-spacing:.5px; text-transform:uppercase; opacity:.7;}
-.kpi-value {font-size:1.9rem; font-weight:700; line-height:1.1;}
-.hint {margin-top:10px; font-size:.65rem; opacity:.55;}
-.qr-dialog-content {display:flex; flex-direction:column; align-items:center; gap:12px;}
-.dialog-tokens {font-size:.65rem; opacity:.8; max-width:300px; word-break:break-word; text-align:center;}
-.dialog-actions {display:flex; gap:8px; flex-wrap:wrap; justify-content:center; margin-top:4px;}
-.skel-rounded { border-radius:12px; }
-@media (max-width: 640px){
-  .main-grid {grid-template-columns:1fr;}
-  .panel.identity {flex-direction:column; align-items:center; text-align:center;}
-  .user-info {align-items:center;}
-}
-</style>

@@ -1,33 +1,119 @@
-<div class="list-wrapper">
+<div class="page-container">
+  <p-card class="modern-card">
+    <!-- Header con gradiente -->
+    <ng-template pTemplate="header">
+      <div class="card-header">
+        <div class="header-content">
+          <i class="pi pi-building header-icon"></i>
+          <h2>Gestión de Organizaciones</h2>
+        </div>
+      </div>
+    </ng-template>
 
-  <div class="list-header org-toolbar">
-    <h2>Organizaciones</h2>
-    <span class="spacer"></span>
-    <div class="list-actions flex ai-center gap-sm flex-wrap">
-      <span class="p-input-icon-left">
-        <i class="pi pi-search"></i>
-        <input pInputText type="text" placeholder="Filtrar" [(ngModel)]="filter" (ngModelChange)="applyFilter()" class="w-200" />
-      </span>
-      <button *ngIf="isSysadmin" pButton type="button" label="Crear" icon="pi pi-plus" (click)="startAdd()" [disabled]="adding || !!editingId" class="p-button-success"></button>
-      <button pButton type="button" label="Recargar" icon="pi pi-refresh" (click)="load()" [disabled]="loading"></button>
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <div class="toolbar-left">
+        <h3 class="section-title">Listado de Organizaciones</h3>
+      </div>
+      <div class="toolbar-right">
+        <!-- Buscador -->
+        <div class="control-container search-container">
+          <label class="control-label">
+            <i class="pi pi-search"></i>
+            Buscar:
+          </label>
+          <input
+            pInputText
+            type="text"
+            placeholder="Filtrar organizaciones..."
+            [(ngModel)]="filter"
+            (ngModelChange)="applyFilter()"
+            class="search-input"
+          />
+        </div>
+
+        <!-- Botones de acción -->
+        <button
+          *ngIf="isSysadmin"
+          pButton
+          type="button"
+          label="Nueva Organización"
+          icon="pi pi-plus"
+          class="p-button-success"
+          (click)="startAdd()"
+          [disabled]="adding || !!editingId">
+        </button>
+        <button
+          pButton
+          type="button"
+          icon="pi pi-refresh"
+          class="p-button-text"
+          (click)="load()"
+          [disabled]="loading"
+          pTooltip="Recargar"
+          tooltipPosition="top">
+        </button>
+      </div>
     </div>
-  </div>
 
-  <p *ngIf="error" class="p-error mb-sm fs-sm">{{error}}</p>
-  <p *ngIf="!loading && !error && filtered.length===0 && !adding" class="mb-sm fs-sm text-muted">No hay organizaciones.</p>
+    <!-- Alertas -->
+    <div class="error-alert" *ngIf="error">
+      <i class="pi pi-exclamation-triangle"></i>
+      <p>{{ error }}</p>
+    </div>
 
-  <div *ngIf="filtered.length>0 || adding" class="table-shell">
-    <div class="table-meta fs-xs text-muted mb-xs">Mostrando {{filtered.length}} de {{orgs.length}}</div>
-    <p-table [value]="rows" [loading]="loading" styleClass="p-datatable-sm org-table table-hover" responsiveLayout="scroll">
-      <ng-template pTemplate="header">
-        <tr>
-          <th class="w-70">#</th>
-          <th>Nombre</th>
-          <th class="w-110">Activa</th>
-          <th class="w-160">Creación</th>
-          <th class="w-200 text-center">Acciones</th>
-        </tr>
-      </ng-template>
+    <div class="empty-state" *ngIf="!loading && !error && filtered.length===0 && !adding">
+      <i class="pi pi-inbox"></i>
+      <p>No hay organizaciones registradas</p>
+      <small>Crea tu primera organización para comenzar</small>
+    </div>
+
+    <!-- Estadísticas -->
+    <div class="stats-bar" *ngIf="filtered.length>0 || adding">
+      <div class="stat-item">
+        <i class="pi pi-list"></i>
+        <span>Mostrando <strong>{{ filtered.length }}</strong> de <strong>{{ orgs.length }}</strong></span>
+      </div>
+    </div>
+
+    <!-- Tabla moderna -->
+    <div class="table-container" *ngIf="filtered.length>0 || adding">
+      <p-table
+        [value]="rows"
+        [loading]="loading"
+        styleClass="modern-table"
+        responsiveLayout="scroll">
+        <ng-template pTemplate="header">
+          <tr>
+            <th style="width: 60px">
+              <i class="pi pi-hashtag"></i>
+            </th>
+            <th>
+              <div class="th-content">
+                <i class="pi pi-tag"></i>
+                <span>Nombre de la Organización</span>
+              </div>
+            </th>
+            <th style="width: 120px">
+              <div class="th-content">
+                <i class="pi pi-power-off"></i>
+                <span>Estado</span>
+              </div>
+            </th>
+            <th style="width: 180px">
+              <div class="th-content">
+                <i class="pi pi-calendar"></i>
+                <span>Fecha de Creación</span>
+              </div>
+            </th>
+            <th style="width: 280px">
+              <div class="th-content">
+                <i class="pi pi-cog"></i>
+                <span>Acciones</span>
+              </div>
+            </th>
+          </tr>
+        </ng-template>
 
       <ng-template pTemplate="body" let-row let-i="rowIndex">
         <tr [class.flash]="row.id && row.id === flashRowId" [class.row-editing]="(adding && row.id==='') || (editingId===row.id)">
@@ -85,11 +171,19 @@
         </tr>
       </ng-template>
 
-      <ng-template pTemplate="emptymessage">
-        <tr><td colspan="5" class="text-center fs-sm text-muted">Sin datos</td></tr>
-      </ng-template>
-    </p-table>
-  </div>
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="5" class="empty-message">
+              <div class="empty-state-inline">
+                <i class="pi pi-inbox"></i>
+                <p>No hay datos para mostrar</p>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </p-card>
 </div>
 
 <!-- Modal Asignar Administrador -->

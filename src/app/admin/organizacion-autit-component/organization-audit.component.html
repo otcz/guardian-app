@@ -1,55 +1,180 @@
-<div class="org-toolbar" *ngIf="!error; else errorTpl">
-  <!-- Removed Volver button -->
-  <h2>Auditoría de Organización</h2>
-  <span class="spacer"></span>
-</div>
+<div class="page-container">
+  <p-card class="modern-card" *ngIf="!error; else errorTpl">
+    <!-- Header con gradiente -->
+    <ng-template pTemplate="header">
+      <div class="card-header">
+        <div class="header-content">
+          <i class="pi pi-history header-icon"></i>
+          <h2>Auditoría de Organización</h2>
+        </div>
+      </div>
+    </ng-template>
 
-<div class="org-audit-wrapper" *ngIf="!error; else errorTpl">
-  <p-card class="audit-card" *ngIf="!loading; else loadingTpl">
-    <!-- Controles simplificados: solo refresh -->
-    <div class="audit-tools simple-tools">
-      <div class="flex ai-center w-100" style="justify-content:flex-end; gap:.5rem;">
-        <button pButton type="button" icon="pi pi-refresh" label="Recargar" (click)="load()" [disabled]="loading"></button>
+    <div *ngIf="!loading; else loadingTpl">
+      <!-- Toolbar -->
+      <div class="toolbar">
+        <div class="toolbar-left">
+          <h3 class="section-title">Registros de Auditoría</h3>
+        </div>
+        <div class="toolbar-right">
+          <button
+            pButton
+            type="button"
+            icon="pi pi-refresh"
+            label="Recargar"
+            class="p-button-text"
+            (click)="load()"
+            [disabled]="loading">
+          </button>
+        </div>
+      </div>
+
+      <!-- Estadísticas -->
+      <div class="stats-bar" *ngIf="filtered.length > 0">
+        <div class="stat-item">
+          <i class="pi pi-list"></i>
+          <span>Total de registros: <strong>{{ filtered.length }}</strong></span>
+        </div>
+      </div>
+
+      <!-- Tabla de auditoría -->
+      <div class="table-container">
+        <p-table
+          [value]="filtered"
+          [paginator]="true"
+          [rows]="15"
+          [rowsPerPageOptions]="[10,15,25,50]"
+          styleClass="modern-table"
+          [showCurrentPageReport]="true"
+          currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros">
+
+          <ng-template pTemplate="header">
+            <tr>
+              <th style="width: 180px">
+                <div class="th-content">
+                  <i class="pi pi-calendar"></i>
+                  <span>Fecha y Hora</span>
+                </div>
+              </th>
+              <th style="width: 130px">
+                <div class="th-content">
+                  <i class="pi pi-sitemap"></i>
+                  <span>Contexto</span>
+                </div>
+              </th>
+              <th style="width: 200px">
+                <div class="th-content">
+                  <i class="pi pi-bolt"></i>
+                  <span>Acción</span>
+                </div>
+              </th>
+              <th>
+                <div class="th-content">
+                  <i class="pi pi-info-circle"></i>
+                  <span>Detalle</span>
+                </div>
+              </th>
+              <th style="width: 140px">
+                <div class="th-content">
+                  <i class="pi pi-user"></i>
+                  <span>Usuario</span>
+                </div>
+              </th>
+              <th style="width: 140px">
+                <div class="th-content">
+                  <i class="pi pi-th-large"></i>
+                  <span>Sección</span>
+                </div>
+              </th>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="body" let-row>
+            <tr class="audit-row">
+              <td>
+                <div class="timestamp-cell">
+                  <i class="pi pi-clock"></i>
+                  <span>{{ row.fecha_creacion | date:'dd/MM/yyyy HH:mm:ss' }}</span>
+                </div>
+              </td>
+              <td>
+                <p-tag
+                  [value]="row.nivel_contexto || '-'"
+                  severity="info"
+                  styleClass="context-tag">
+                </p-tag>
+              </td>
+              <td>
+                <div class="action-cell">
+                  <i class="pi pi-arrow-right action-icon"></i>
+                  <span class="action-text">{{ row.accion }}</span>
+                </div>
+              </td>
+              <td>
+                <span class="detail-text">{{ row.detalle }}</span>
+              </td>
+              <td>
+                <div class="user-cell">
+                  <i class="pi pi-user user-icon"></i>
+                  <span>{{ row.id_usuario || '-' }}</span>
+                </div>
+              </td>
+              <td>
+                <div class="section-cell">
+                  <i class="pi pi-th-large section-icon"></i>
+                  <span>{{ row.id_seccion || '-' }}</span>
+                </div>
+              </td>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="emptymessage">
+            <tr>
+              <td colspan="6" class="empty-message">
+                <div class="empty-state-inline">
+                  <i class="pi pi-inbox"></i>
+                  <p>No hay registros de auditoría</p>
+                  <small>Los registros de actividad aparecerán aquí</small>
+                </div>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
       </div>
     </div>
-
-    <p-table [value]="filtered" [paginator]="true" [rows]="15" [rowsPerPageOptions]="[10,15,25,50]" styleClass="p-datatable-sm audit-table">
-      <ng-template pTemplate="header">
-        <tr>
-          <th class="w-160">Fecha</th>
-          <th class="w-110">Contexto</th>
-          <th>Acción</th>
-          <th>Detalle</th>
-          <th class="w-120">Usuario</th>
-          <th class="w-120">Sección</th>
-        </tr>
-      </ng-template>
-      <ng-template pTemplate="body" let-row>
-        <tr>
-          <td><span class="timestamp">{{ row.fecha_creacion | date:'yyyy-MM-dd HH:mm:ss' }}</span></td>
-          <td><p-tag [value]="row.nivel_contexto || '-'" severity="info"></p-tag></td>
-          <td>{{ row.accion }}</td>
-          <td><span class="detalle">{{ row.detalle }}</span></td>
-          <td><span class="fs-xs">{{ row.id_usuario || '-' }}</span></td>
-          <td><span class="fs-xs">{{ row.id_seccion || '-' }}</span></td>
-        </tr>
-      </ng-template>
-      <ng-template pTemplate="emptymessage">
-        <tr><td colspan="6" class="audit-empty">Sin registros</td></tr>
-      </ng-template>
-    </p-table>
   </p-card>
 </div>
 
+<!-- Template de carga -->
 <ng-template #loadingTpl>
-  <div class="flex flex-center" style="padding:2rem;">
-    <p-progressSpinner></p-progressSpinner>
+  <div class="loading-state">
+    <p-progressSpinner styleClass="custom-spinner"></p-progressSpinner>
+    <p>Cargando registros de auditoría...</p>
   </div>
 </ng-template>
 
+<!-- Template de error -->
 <ng-template #errorTpl>
-  <p-card header="Error" class="audit-card">
-    <div class="status-error">{{ error }}</div>
-    <!-- Removed Volver button -->
-  </p-card>
+  <div class="page-container">
+    <p-card class="modern-card error-card">
+      <ng-template pTemplate="header">
+        <div class="card-header error-header">
+          <div class="header-content">
+            <i class="pi pi-times-circle header-icon"></i>
+            <h2>Error al Cargar Auditoría</h2>
+          </div>
+        </div>
+      </ng-template>
+
+      <div class="error-content">
+        <div class="error-alert">
+          <i class="pi pi-exclamation-triangle"></i>
+          <div class="error-text">
+            <p>{{ error }}</p>
+            <small>Intenta recargar la página o contacta al administrador</small>
+          </div>
+        </div>
+      </div>
+    </p-card>
+  </div>
 </ng-template>

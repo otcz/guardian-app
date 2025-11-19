@@ -1,33 +1,457 @@
-/* Estilos específicos: Lista de Organizaciones */
-@use '../organizacion-shared/org-utils.scss';
-
-.list-wrapper { padding:1rem clamp(.75rem, 2vw, 1.25rem); }
-.org-toolbar { display:flex; align-items:center; flex-wrap:wrap; gap:.75rem; margin-bottom:1rem; }
-.org-toolbar h2 { margin:0; font-size:1.15rem; font-weight:600; letter-spacing:.5px; line-height:1.25; }
-.list-actions { display:flex; align-items:center; gap:.6rem; flex-wrap:wrap; }
-.list-actions .p-input-icon-left { position:relative; }
-.list-actions .p-input-icon-left > i { position:absolute; left:.55rem; top:50%; transform:translateY(-50%); font-size:.8rem; opacity:.55; }
-.list-actions .p-input-icon-left input { padding-left:1.75rem; font-size:.8rem; }
-
-/* Tabla */
-.table-shell { border:1px solid rgba(255,255,255,.05); border-radius:10px; padding:.65rem .85rem .85rem; background:var(--surface-alt); }
-.table-meta { font-size:.6rem; letter-spacing:.45px; text-transform:uppercase; opacity:.75; }
-
-:host ::ng-deep .org-table.p-datatable { border:none; background:transparent; }
-:host ::ng-deep .org-table .p-datatable-thead > tr > th { font-size:.66rem; letter-spacing:.55px; text-transform:uppercase; font-weight:600; background:transparent; border-bottom:1px solid rgba(255,255,255,.09); line-height:1.25; }
-:host ::ng-deep .org-table .p-datatable-tbody > tr > td { font-size:.76rem; border:0; border-top:1px solid rgba(255,255,255,.06); line-height:1.3; }
-:host ::ng-deep .org-table .p-datatable-tbody > tr { transition:background .15s ease; }
-:host ::ng-deep .org-table .p-datatable-tbody > tr:hover { background:color-mix(in srgb, var(--primary) 9%, transparent); }
-
-/* Utilidades locales */
-.text-success { color:var(--success); }
-.text-error { color:var(--danger); }
-
-.opacity-80 { opacity:.8; }
-
-@media (max-width:640px) {
-  .list-actions { width:100%; justify-content:flex-end; }
-  .list-actions .w-200 { width:100%; }
-  :host ::ng-deep .org-table .p-datatable-thead > tr > th { font-size:.62rem; }
-  :host ::ng-deep .org-table .p-datatable-tbody > tr > td { font-size:.74rem; }
+/* ============================================
+   CONTENEDOR PRINCIPAL
+   ============================================ */
+.page-container {
+  padding: 0;
+  max-width: 1600px;
+  margin: 0 auto;
 }
+
+/* ============================================
+   TARJETA MODERNA
+   ============================================ */
+.modern-card {
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--border);
+  overflow: hidden;
+
+  ::ng-deep .p-card-body {
+    padding: 0;
+  }
+
+  ::ng-deep .p-card-content {
+    padding: 0;
+  }
+}
+
+/* ============================================
+   HEADER CON GRADIENTE
+   ============================================ */
+.card-header {
+  background: linear-gradient(135deg, #4f8cff 0%, #2563eb 50%, #203a43 100%);
+  padding: 1.5rem 2rem;
+  box-shadow: 0 4px 12px rgba(79, 140, 255, 0.2);
+
+  .header-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    h2 {
+      margin: 0;
+      color: white;
+      font-size: 1.5rem;
+      font-weight: 600;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .header-icon {
+      font-size: 1.8rem;
+      color: white;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+    }
+  }
+}
+
+/* ============================================
+   TOOLBAR
+   ============================================ */
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid var(--border);
+  gap: 1rem;
+  flex-wrap: wrap;
+  background: var(--surface);
+}
+
+.toolbar-left {
+  flex: 1;
+
+  .section-title {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text);
+  }
+}
+
+.toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* ============================================
+   CONTROL CONTAINER
+   ============================================ */
+.control-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--surface-alt);
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: var(--primary);
+    box-shadow: 0 2px 8px rgba(79, 140, 255, 0.1);
+  }
+
+  .control-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+    color: var(--text);
+    font-size: 0.9rem;
+    white-space: nowrap;
+
+    i {
+      color: var(--primary);
+      font-size: 1rem;
+    }
+  }
+
+  &.search-container {
+    .search-input {
+      min-width: 250px;
+      border: none;
+      outline: none;
+      background: transparent;
+      color: var(--text);
+
+      &::placeholder {
+        color: var(--muted);
+      }
+
+      &:focus {
+        outline: none;
+        box-shadow: none;
+      }
+    }
+  }
+}
+
+/* ============================================
+   ALERTAS
+   ============================================ */
+.error-alert {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 1rem 2rem;
+  background: var(--danger-100);
+  border-bottom: 1px solid var(--danger);
+
+  i {
+    font-size: 1.5rem;
+    color: var(--danger);
+  }
+
+  p {
+    margin: 0;
+    color: var(--danger);
+    font-weight: 500;
+  }
+}
+
+/* ============================================
+   ESTADO VACÍO
+   ============================================ */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+  background: var(--surface);
+
+  i {
+    font-size: 5rem;
+    color: var(--muted);
+    opacity: 0.4;
+    margin-bottom: 1.5rem;
+  }
+
+  p {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--text);
+    margin: 0 0 0.75rem 0;
+  }
+
+  small {
+    font-size: 0.95rem;
+    color: var(--muted);
+  }
+}
+
+.empty-state-inline {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 2rem;
+
+  i {
+    font-size: 3rem;
+    color: var(--muted);
+    opacity: 0.5;
+  }
+
+  p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.95rem;
+  }
+}
+
+/* ============================================
+   BARRA DE ESTADÍSTICAS
+   ============================================ */
+.stats-bar {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1rem 2rem;
+  background: var(--surface-alt);
+  border-bottom: 1px solid var(--border);
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text);
+  font-size: 0.95rem;
+
+  i {
+    color: var(--primary);
+    font-size: 1.1rem;
+  }
+
+  strong {
+    color: var(--primary);
+    font-weight: 700;
+  }
+}
+
+/* ============================================
+   TABLA MODERNA
+   ============================================ */
+.table-container {
+  padding: 0;
+  background: var(--surface);
+}
+
+::ng-deep .modern-table {
+  .p-datatable-wrapper {
+    border-radius: 0;
+    overflow: hidden;
+  }
+
+  .p-datatable-thead > tr > th {
+    background: var(--surface-alt);
+    border-bottom: 2px solid var(--border);
+    padding: 1rem;
+    font-weight: 600;
+    color: var(--text);
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+
+    .th-content {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      i {
+        color: var(--primary);
+        font-size: 0.9rem;
+      }
+    }
+
+    i.pi-hashtag {
+      color: var(--primary);
+    }
+  }
+
+  .p-datatable-tbody > tr {
+    border-bottom: 1px solid var(--border);
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: var(--surface-alt);
+    }
+
+    &.row-editing {
+      background: rgba(79, 140, 255, 0.08);
+      border-left: 3px solid var(--primary);
+    }
+
+    &.flash {
+      animation: flash 1s ease;
+    }
+
+    > td {
+      padding: 1rem;
+      color: var(--text);
+      font-size: 0.9rem;
+      vertical-align: middle;
+
+      input.w-100 {
+        width: 100%;
+        padding: 0.5rem;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        background: var(--surface);
+        color: var(--text);
+
+        &:focus {
+          border-color: var(--primary);
+          outline: none;
+          box-shadow: 0 0 0 0.2rem rgba(79, 140, 255, 0.25);
+        }
+      }
+    }
+  }
+
+  // Botones de acción
+  .p-button-rounded {
+    width: 36px;
+    height: 36px;
+
+    &.p-button-text {
+      transition: all 0.2s ease;
+
+      &:hover {
+        transform: scale(1.1);
+      }
+    }
+  }
+
+  .flex.gap-xs {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+/* ============================================
+   ANIMACIÓN FLASH
+   ============================================ */
+@keyframes flash {
+  0%, 100% {
+    background: var(--surface);
+  }
+  50% {
+    background: rgba(79, 140, 255, 0.15);
+  }
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 768px) {
+  .toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 1rem;
+  }
+
+  .toolbar-right {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .control-container.search-container {
+    width: 100%;
+
+    .search-input {
+      flex: 1;
+      min-width: auto;
+      width: 100%;
+    }
+  }
+
+  .card-header {
+    padding: 1.25rem 1.5rem;
+
+    .header-content h2 {
+      font-size: 1.25rem;
+    }
+  }
+
+  .stats-bar {
+    padding: 0.75rem 1rem;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+/* ============================================
+   SOPORTE PARA TEMAS
+   ============================================ */
+
+/* Tema CLARO */
+:root.theme-light {
+  .modern-card {
+    background: var(--surface);
+  }
+
+  ::ng-deep .modern-table {
+    .p-datatable-tbody > tr {
+      &.row-editing {
+        background: rgba(79, 140, 255, 0.05);
+      }
+    }
+  }
+}
+
+/* Tema OSCURO */
+:root.theme-dark {
+  .modern-card {
+    background: var(--surface);
+  }
+
+  ::ng-deep .modern-table {
+    .p-datatable-tbody > tr {
+      &.row-editing {
+        background: rgba(79, 140, 255, 0.12);
+      }
+    }
+  }
+}
+
+/* Tema NEGRO */
+:root.theme-black {
+  .modern-card {
+    background: var(--surface);
+  }
+
+  .card-header {
+    box-shadow: 0 4px 12px rgba(79, 140, 255, 0.3);
+  }
+
+  ::ng-deep .modern-table {
+    .p-datatable-tbody > tr {
+      &.row-editing {
+        background: rgba(79, 140, 255, 0.1);
+      }
+    }
+  }
+
+  .table-container {
+    background: var(--surface);
+  }
+}
+

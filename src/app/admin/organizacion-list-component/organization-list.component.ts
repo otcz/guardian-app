@@ -16,11 +16,12 @@ import { AuthService } from '../../service/auth.service';
 import { DialogModule } from 'primeng/dialog';
 import { DropdownModule } from 'primeng/dropdown';
 import { UsersService, UserEntity } from '../../service/users.service';
+import { CardModule } from 'primeng/card';
 
 @Component({
   selector: 'app-organization-list',
   standalone: true,
-  imports: [CommonModule, RouterModule, TableModule, ButtonModule, InputTextModule, TagModule, FormsModule, TooltipModule, InputSwitchModule, DialogModule, DropdownModule],
+  imports: [CommonModule, RouterModule, TableModule, ButtonModule, InputTextModule, TagModule, FormsModule, TooltipModule, InputSwitchModule, DialogModule, DropdownModule, CardModule],
   templateUrl: './organization-list.component.html',
   styleUrls: ['./organization-list.component.scss']
 })

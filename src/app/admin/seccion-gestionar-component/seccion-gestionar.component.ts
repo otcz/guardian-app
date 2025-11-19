@@ -9,11 +9,12 @@ import { NotificationService } from '../../service/notification.service';
 import { Subscription } from 'rxjs';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
 
 @Component({
   selector: 'app-seccion-gestionar',
   standalone: true,
-  imports: [CommonModule, RouterModule, CardModule, ButtonModule, TagModule, TooltipModule],
+  imports: [CommonModule, RouterModule, CardModule, ButtonModule, TagModule, TooltipModule, ProgressSpinnerModule],
   templateUrl: './seccion-gestionar.component.html',
   styleUrls: ['./seccion-gestionar.component.scss']
 })

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { Router, RouterModule, NavigationEnd } from '@angular/router';
 import { ThemeService } from './service/theme.service';
 import { CommonModule } from '@angular/common';
@@ -12,24 +12,62 @@ import { FormsModule } from '@angular/forms';
 import { UserAvatarProComponent } from './shared/user-avatar-pro.component';
 import { FeedbackCenterComponent } from './shared/feedback-center.component';
 import { UppercaseGlobalService } from './shared/uppercase-global.service';
+import { TooltipModule } from 'primeng/tooltip';
+import { BadgeModule } from 'primeng/badge';
+import { trigger, transition, style, animate } from '@angular/animations';
 
 @Component({
   standalone: true,
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.css'],
-  imports: [RouterModule, CommonModule, ButtonModule, TableModule, ThemeToggleComponent, InputTextModule, FormsModule, UserAvatarProComponent, FeedbackCenterComponent]
+  imports: [
+    RouterModule,
+    CommonModule,
+    ButtonModule,
+    TableModule,
+    ThemeToggleComponent,
+    InputTextModule,
+    FormsModule,
+    UserAvatarProComponent,
+    FeedbackCenterComponent,
+    TooltipModule,
+    BadgeModule
+  ],
+  animations: [
+    trigger('fadeInOut', [
+      transition(':enter', [
+        style({ opacity: 0 }),
+        animate('200ms ease-in', style({ opacity: 1 }))
+      ]),
+      transition(':leave', [
+        animate('200ms ease-out', style({ opacity: 0 }))
+      ])
+    ]),
+    trigger('slideDown', [
+      transition(':enter', [
+        style({ height: 0, opacity: 0, overflow: 'hidden' }),
+        animate('250ms ease-out', style({ height: '*', opacity: 1 }))
+      ]),
+      transition(':leave', [
+        style({ height: '*', opacity: 1, overflow: 'hidden' }),
+        animate('200ms ease-in', style({ height: 0, opacity: 0 }))
+      ])
+    ])
+  ]
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   // Lógica migrada del antiguo DashboardComponent
   sidebarOpen = true;
-  menus$!: Observable<MenuOption[]>;   // menús raíz
+  isMobileView = false;
+  menus$!: Observable<MenuOption[]>;
   filteredMenus$!: Observable<MenuOption[]>;
   searchQuery = '';
   private searchTerm$ = new BehaviorSubject<string>('');
   private readonly LS_KEY = 'menuExpandedState';
+  private readonly LS_SIDEBAR_KEY = 'sidebarOpen';
   expanded: Record<string, boolean> = {};
-  isAuthScreen = false; // para ocultar layout en login/register
+  isAuthScreen = false;
 
   constructor(private theme: ThemeService, private menu: MenuService, private router: Router, _upper: UppercaseGlobalService) {
     this.menus$ = this.menu.treeObservable$.pipe(
@@ -45,6 +83,89 @@ export class AppComponent {
       const url = this.router.url.split('?')[0];
       this.isAuthScreen = url.startsWith('/login') || url.startsWith('/register');
     });
+  }
+
+  ngOnInit() {
+    this.checkScreenSize();
+    this.loadSidebarState();
+  }
+
+  @HostListener('window:resize', ['$event'])
+  onResize() {
+    this.checkScreenSize();
+  }
+
+  private checkScreenSize() {
+    const wasMobile = this.isMobileView;
+    this.isMobileView = window.innerWidth < 1024;
+
+    // Si cambiamos de móvil a desktop o viceversa
+    if (wasMobile !== this.isMobileView) {
+      if (this.isMobileView) {
+        // En móvil, cerrar por defecto
+        this.sidebarOpen = false;
+      } else {
+        // En desktop, restaurar estado guardado
+        this.loadSidebarState();
+      }
+    }
+  }
+
+  toggleSidebar() {
+    this.sidebarOpen = !this.sidebarOpen;
+    if (!this.isMobileView) {
+      this.saveSidebarState();
+    }
+  }
+
+  closeSidebar() {
+    if (this.isMobileView) {
+      this.sidebarOpen = false;
+    }
+  }
+
+  onMobileMenuClick() {
+    if (this.isMobileView) {
+      this.sidebarOpen = false;
+    }
+  }
+
+  private saveSidebarState() {
+    try {
+      localStorage.setItem(this.LS_SIDEBAR_KEY, JSON.stringify(this.sidebarOpen));
+    } catch {}
+  }
+
+  private loadSidebarState() {
+    try {
+      const saved = localStorage.getItem(this.LS_SIDEBAR_KEY);
+      if (saved !== null) {
+        this.sidebarOpen = JSON.parse(saved);
+      }
+    } catch {
+      this.sidebarOpen = true;
+    }
+  }
+
+  // Expandir sidebar y abrir un menú específico
+  expandSidebarAndOpenMenu(menuKey: string) {
+    this.sidebarOpen = true;
+    this.saveSidebarState();
+    // Pequeño delay para permitir que el sidebar se expanda antes de abrir el menú
+    setTimeout(() => {
+      if (!this.expanded[menuKey]) {
+        this.toggleMenu(menuKey);
+      }
+    }, 100);
+  }
+
+  // TrackBy functions para mejor performance
+  trackByMenuKey(index: number, menu: MenuOption): string {
+    return menu.key;
+  }
+
+  trackByChildLabel(index: number, child: MenuOption): string {
+    return child.label;
   }
 
   toggleMenu(key: string) {

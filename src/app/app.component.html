@@ -3,52 +3,189 @@
 </ng-container>
 
 <ng-template #mainLayout>
-  <div style="display:flex; height:100vh;">
-    <aside class="sidebar" [style.width.px]="sidebarOpen ? 260 : 60" style="transition:width .2s; padding:12px; background:#1e293b; color:#fff; overflow:auto;">
-      <button pButton type="button" class="p-button p-button-text" (click)="sidebarOpen = !sidebarOpen" aria-label="Colapsar sidebar">
-        <i class="pi" [ngClass]="sidebarOpen ? 'pi-angle-left' : 'pi-angle-right'"></i>
-      </button>
+  <div class="app-layout">
+    <!-- Overlay para cerrar sidebar en móvil -->
+    <div class="sidebar-overlay"
+         *ngIf="sidebarOpen && isMobileView"
+         (click)="closeSidebar()"
+         @fadeInOut>
+    </div>
 
-      <div *ngIf="sidebarOpen" style="margin-top:12px; display:flex; flex-direction:column; gap:14px;">
-        <div style="display:flex; gap:6px; align-items:center;">
-          <input pInputText type="text" placeholder="Buscar..." [(ngModel)]="searchQuery" (ngModelChange)="onSearchChange($event)" style="flex:1; padding:4px 8px; font-size:.8rem;"/>
-          <button pButton type="button" class="p-button p-button-text" (click)="expandAll()" title="Expandir todo"><i class="pi pi-plus"></i></button>
-          <button pButton type="button" class="p-button p-button-text" (click)="collapseAll()" title="Colapsar todo"><i class="pi pi-minus"></i></button>
+    <!-- Sidebar -->
+    <aside class="sidebar"
+           [class.sidebar-expanded]="sidebarOpen"
+           [class.sidebar-collapsed]="!sidebarOpen && !isMobileView"
+           [class.sidebar-hidden]="!sidebarOpen && isMobileView"
+           [class.sidebar-mobile]="isMobileView">
+
+      <!-- Header del Sidebar -->
+      <div class="sidebar-header">
+        <!-- Logo Expandido -->
+        <div class="sidebar-logo" *ngIf="sidebarOpen">
+          <img src="assets/logo_guardian_64px.png" alt="Guardian" class="logo-img" />
+          <span class="logo-text">Guardian</span>
         </div>
-        <a routerLink="/" class="menu-link" style="color:#fff; display:flex; align-items:center; gap:10px; font-weight:600; text-decoration:none;">
+
+        <!-- Logo Mini (Colapsado) -->
+        <div class="sidebar-logo-mini" *ngIf="!sidebarOpen && !isMobileView">
+          <img src="assets/logo_guardian_64px.png" alt="Guardian" class="logo-img-mini" />
+        </div>
+
+        <!-- Botón Toggle -->
+        <button pButton
+                type="button"
+                class="sidebar-toggle-btn"
+                (click)="toggleSidebar()"
+                [icon]="sidebarOpen ? 'pi pi-angle-left' : 'pi pi-angle-right'"
+                [pTooltip]="sidebarOpen ? 'Colapsar menú' : 'Expandir menú'"
+                tooltipPosition="right"
+                [ngClass]="{'collapsed-btn': !sidebarOpen}">
+        </button>
+      </div>
+
+      <!-- Content del Sidebar -->
+      <div class="sidebar-content">
+        <!-- Buscador (solo expandido) -->
+        <div class="sidebar-search" *ngIf="sidebarOpen">
+          <span class="p-input-icon-left">
+            <i class="pi pi-search"></i>
+            <input pInputText
+                   type="text"
+                   placeholder="Buscar en el menú..."
+                   [(ngModel)]="searchQuery"
+                   (ngModelChange)="onSearchChange($event)"
+                   class="search-input"/>
+          </span>
+          <div class="search-actions">
+            <button pButton
+                    type="button"
+                    icon="pi pi-plus"
+                    class="p-button-text p-button-sm"
+                    (click)="expandAll()"
+                    pTooltip="Expandir todo"
+                    tooltipPosition="bottom">
+            </button>
+            <button pButton
+                    type="button"
+                    icon="pi pi-minus"
+                    class="p-button-text p-button-sm"
+                    (click)="collapseAll()"
+                    pTooltip="Colapsar todo"
+                    tooltipPosition="bottom">
+            </button>
+          </div>
+        </div>
+
+        <!-- Link de Inicio -->
+        <a routerLink="/"
+           class="menu-link home-link"
+           routerLinkActive="active"
+           [routerLinkActiveOptions]="{exact: true}"
+           (click)="onMobileMenuClick()"
+           [pTooltip]="!sidebarOpen ? 'Inicio' : ''"
+           tooltipPosition="right">
           <i class="pi pi-home"></i>
-          <span>Inicio</span>
+          <span *ngIf="sidebarOpen">Inicio</span>
         </a>
 
-        <ng-container *ngIf="(filteredMenus$ | async) as menus">
-          <div *ngFor="let menu of menus" class="menu-group" style="display:flex; flex-direction:column; gap:4px;">
-            <div class="menu-header" (click)="toggleMenu(menu.key)">
-              <i class="pi" [ngClass]="isExpanded(menu.key) ? 'pi-chevron-down' : 'pi-chevron-right'"></i>
-              <i [ngClass]="menu.icon || 'pi pi-circle'"></i>
-              <span class="menu-title">{{ menu.label }}</span>
-              <span *ngIf="menu.children?.length" class="menu-badge">{{ menu.children?.length }}</span>
+        <div class="menu-divider"></div>
+
+        <!-- Menús -->
+        <div class="sidebar-menus">
+          <ng-container *ngIf="(filteredMenus$ | async) as menus">
+            <!-- Vista Expandida -->
+            <div *ngIf="sidebarOpen">
+              <div *ngFor="let menu of menus; trackBy: trackByMenuKey" class="menu-group">
+                <div class="menu-header"
+                     (click)="toggleMenu(menu.key)"
+                     [class.expanded]="isExpanded(menu.key)">
+                  <div class="menu-header-left">
+                    <i class="chevron-icon pi"
+                       [ngClass]="isExpanded(menu.key) ? 'pi-chevron-down' : 'pi-chevron-right'">
+                    </i>
+                    <i class="menu-icon" [ngClass]="menu.icon || 'pi pi-folder'"></i>
+                    <span class="menu-title">{{ menu.label }}</span>
+                  </div>
+                  <span *ngIf="menu.children?.length" class="menu-badge">
+                    {{ menu.children?.length }}
+                  </span>
+                </div>
+
+                <div class="menu-items"
+                     *ngIf="isExpanded(menu.key)"
+                     @slideDown>
+                  <a *ngFor="let child of menu.children; trackBy: trackByChildLabel"
+                     [routerLink]="(child.path || '').split('?')[0]"
+                     [queryParams]="parseQuery(child.path)"
+                     class="menu-item"
+                     routerLinkActive="active"
+                     (click)="onMobileMenuClick()">
+                    <i class="item-icon" [ngClass]="child.icon || 'pi pi-circle'"></i>
+                    <span class="item-label">{{ child.label }}</span>
+                  </a>
+                </div>
+              </div>
             </div>
-            <div class="menu-items" *ngIf="isExpanded(menu.key)">
-              <a *ngFor="let child of menu.children" [routerLink]="(child.path || '').split('?')[0]" [queryParams]="parseQuery(child.path)" class="menu-item">
-                <i [ngClass]="child.icon || 'pi pi-circle'"></i>
-                <span>{{ child.label }}</span>
-              </a>
+
+            <!-- Vista Colapsada (Solo Iconos) -->
+            <div *ngIf="!sidebarOpen && !isMobileView" class="menu-icons-only">
+              <div *ngFor="let menu of menus; trackBy: trackByMenuKey" class="menu-icon-group">
+                <div class="menu-icon-item"
+                     [pTooltip]="menu.label + ' (' + (menu.children?.length || 0) + ')'"
+                     tooltipPosition="right"
+                     (click)="expandSidebarAndOpenMenu(menu.key)">
+                  <i [ngClass]="menu.icon || 'pi pi-folder'"></i>
+                </div>
+              </div>
             </div>
-            <div class="menu-divider"></div>
-          </div>
-          <div *ngIf="menus.length === 0" style="font-size:.7rem; opacity:.6; padding:8px 4px;">Sin resultados</div>
-        </ng-container>
+
+            <div *ngIf="menus.length === 0" class="no-results">
+              <i class="pi pi-search"></i>
+              <p>Sin resultados</p>
+              <small>Intenta con otro término</small>
+            </div>
+          </ng-container>
+        </div>
+      </div>
+
+      <!-- Footer del Sidebar -->
+      <div class="sidebar-footer">
+        <div class="footer-info" *ngIf="sidebarOpen">
+          <i class="pi pi-info-circle"></i>
+          <span>Versión 1.0.0</span>
+        </div>
+        <div class="footer-info-mini" *ngIf="!sidebarOpen && !isMobileView"
+             pTooltip="Versión 1.0.0"
+             tooltipPosition="right">
+          <i class="pi pi-info-circle"></i>
+        </div>
       </div>
     </aside>
 
-    <div style="display:flex; flex-direction:column; flex:1; min-width:0;">
-      <header class="header">
-        <img src="assets/logo.png" alt="Logo" style="height:28px;" />
-        <div class="spacer"></div>
-        <button pButton type="button" class="p-button p-button-text" aria-label="Notificaciones"><i class="pi pi-bell"></i></button>
-        <app-user-avatar-pro></app-user-avatar-pro>
+    <!-- Main Content -->
+    <div class="main-container">
+      <!-- Header -->
+      <header class="app-header">
+        <div class="header-left">
+          <img src="assets/logo.png" alt="Guardian Logo" class="header-logo" />
+        </div>
+
+        <div class="header-right">
+          <button pButton
+                  type="button"
+                  icon="pi pi-bell"
+                  class="p-button-text p-button-rounded notification-btn"
+                  aria-label="Notificaciones"
+                  pBadge
+                  value="3"
+                  severity="danger">
+          </button>
+          <app-user-avatar-pro></app-user-avatar-pro>
+        </div>
       </header>
-      <main class="main" style="padding:16px;">
+
+      <!-- Main Content Area -->
+      <main class="app-main">
         <router-outlet></router-outlet>
       </main>
     </div>

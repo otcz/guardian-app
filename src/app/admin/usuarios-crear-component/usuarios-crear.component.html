@@ -1,107 +1,319 @@
-<div class="page-wrap">
-  <p-card class="card">
-    <div class="header">
-      <h2 class="title">Crear usuario</h2>
-    </div>
+<div class="page-container">
+  <p-card class="modern-card">
+    <!-- Header con gradiente -->
+    <ng-template pTemplate="header">
+      <div class="card-header">
+        <div class="header-content">
+          <i class="pi pi-user-plus header-icon"></i>
+          <h2>Crear Usuario</h2>
+        </div>
+        <button
+          pButton
+          type="button"
+          icon="pi pi-arrow-left"
+          label="Volver"
+          class="back-button"
+          [routerLink]="['/gestion-de-usuarios/listar-usuarios']">
+        </button>
+      </div>
+    </ng-template>
 
-    <div class="body">
-      <!-- Chips de preview, sin alterar orden de campos del formulario -->
-      <div class="meta-row" *ngIf="model.username || model.nombreCompleto || model.email">
-        <p-chip icon="pi pi-id-card" [label]="model.username || 'USUARIO'" class="pill"></p-chip>
-        <p-chip *ngIf="model.nombreCompleto" icon="pi pi-user" [label]="model.nombreCompleto" class="pill"></p-chip>
-        <p-chip *ngIf="model.email" icon="pi pi-envelope" [label]="model.email" class="pill"></p-chip>
-        <p-chip *ngIf="isSeccionRequerida && model.seccionId" icon="pi pi-sitemap" [label]="'Sección: ' + (seccionNombre || model.seccionId)" class="pill muted"></p-chip>
+    <div class="card-body">
+      <!-- Preview chips -->
+      <div class="preview-chips" *ngIf="model.username || model.nombreCompleto || model.email">
+        <h4 class="preview-title">
+          <i class="pi pi-eye"></i>
+          Vista Previa
+        </h4>
+        <div class="chips-grid">
+          <p-chip
+            icon="pi pi-id-card"
+            [label]="model.username || 'USUARIO'"
+            styleClass="preview-chip username-chip">
+          </p-chip>
+          <p-chip
+            *ngIf="model.nombreCompleto"
+            icon="pi pi-user"
+            [label]="model.nombreCompleto"
+            styleClass="preview-chip name-chip">
+          </p-chip>
+          <p-chip
+            *ngIf="model.email"
+            icon="pi pi-envelope"
+            [label]="model.email"
+            styleClass="preview-chip email-chip">
+          </p-chip>
+          <p-chip
+            *ngIf="isSeccionRequerida && model.seccionId"
+            icon="pi pi-sitemap"
+            [label]="'Sección: ' + (seccionNombre || model.seccionId)"
+            styleClass="preview-chip section-chip">
+          </p-chip>
+        </div>
       </div>
 
-      <form (ngSubmit)="onSubmit()" class="edit-form" novalidate>
-        <div class="form-grid">
-          <div class="field">
-            <label>Username *</label>
-            <input pInputText type="text" name="username" [(ngModel)]="model.username" required minlength="3" maxlength="64" appUppercase placeholder="USUARIO" />
-          </div>
+      <form (ngSubmit)="onSubmit()" novalidate>
+        <!-- Información Básica -->
+        <div class="form-section">
+          <h3 class="section-title">
+            <i class="pi pi-user"></i>
+            Información Básica
+          </h3>
 
-          <div class="field">
-            <label>Nombre completo</label>
-            <input pInputText type="text" name="nombreCompleto" [(ngModel)]="model.nombreCompleto" maxlength="120" appUppercase placeholder="Nombre y Apellido" />
-          </div>
+          <div class="form-grid">
+            <!-- Username -->
+            <div class="field">
+              <label for="username" class="field-label">
+                <i class="pi pi-id-card label-icon"></i>
+                Username
+                <span class="required-mark">*</span>
+              </label>
+              <input
+                pInputText
+                id="username"
+                type="text"
+                name="username"
+                [(ngModel)]="model.username"
+                required
+                minlength="3"
+                maxlength="64"
+                appUppercase
+                placeholder="USUARIO"
+                class="input-field"
+              />
+              <small class="info-message">
+                <i class="pi pi-info-circle"></i>
+                Mínimo 3 caracteres, se convertirá a mayúsculas
+              </small>
+            </div>
 
-          <div class="field">
-            <label>Email</label>
-            <input pInputText type="email" name="email" [(ngModel)]="model.email" maxlength="160" placeholder="usuario@dominio.com" />
-          </div>
+            <!-- Nombre Completo -->
+            <div class="field">
+              <label for="nombreCompleto" class="field-label">
+                <i class="pi pi-user label-icon"></i>
+                Nombre Completo
+              </label>
+              <input
+                pInputText
+                id="nombreCompleto"
+                type="text"
+                name="nombreCompleto"
+                [(ngModel)]="model.nombreCompleto"
+                maxlength="120"
+                appUppercase
+                placeholder="Nombre y Apellido"
+                class="input-field"
+              />
+            </div>
 
-          <div class="field">
-            <label>Alcance</label>
-            <p-dropdown [options]="scopeOptions" optionLabel="label" optionValue="value" [(ngModel)]="model.scopeNivel" name="scopeNivel" (onChange)="onScopeChange()"></p-dropdown>
-          </div>
+            <!-- Email -->
+            <div class="field">
+              <label for="email" class="field-label">
+                <i class="pi pi-envelope label-icon"></i>
+                Email
+              </label>
+              <input
+                pInputText
+                id="email"
+                type="email"
+                name="email"
+                [(ngModel)]="model.email"
+                maxlength="160"
+                placeholder="usuario@dominio.com"
+                class="input-field"
+              />
+            </div>
 
-          <!-- Organización que va a administrar cuando alcance sea ORGANIZACION -->
-          <div class="field" *ngIf="isAlcanceOrganizacion">
-            <label>Organización que administrará *</label>
-            <p-dropdown
-              [options]="organizaciones"
-              optionLabel="nombre"
-              optionValue="id"
-              [(ngModel)]="model.orgAdministradaId"
-              name="orgAdministradaId"
-              placeholder="Seleccione organización"
-              (onChange)="onOrganizacionAdministradaChange()">
-            </p-dropdown>
-          </div>
-
-          <!-- Selector de sección, solo cuando el alcance requiere sección -->
-          <div class="field" *ngIf="isSeccionRequerida">
-            <label>Sección</label>
-            <ng-container *ngIf="!loading; else sectionsLoading">
-              <p-dropdown [options]="secciones" optionLabel="nombre" optionValue="id" [(ngModel)]="model.seccionId" name="seccionId" placeholder="Seleccione sección"></p-dropdown>
-            </ng-container>
-          </div>
-
-          <!-- Selector de roles: para SECCION va después de la sección; para ORGANIZACION va después de la organización -->
-          <div class="field">
-            <label>Rol</label>
-            <p-dropdown
-              [options]="rolesDisponibles"
-              optionLabel="nombre"
-              optionValue="id"
-              [(ngModel)]="model.rolesIds"
-              name="rolesIds"
-              [showClear]="true"
-              placeholder="Seleccione rol">
-              <ng-template let-role pTemplate="item">
-                <div class="role-option">
-                  <span class="role-name">{{ role.nombre }}</span>
-                  <span class="role-org" *ngIf="role.orgNombre">-org {{ role.orgNombre }}</span>
-                </div>
-              </ng-template>
-              <ng-template let-role pTemplate="selectedItem">
-                <div class="role-option">
-                  <span class="role-name">{{ role?.nombre }}</span>
-                  <span class="role-org" *ngIf="role?.orgNombre">-org {{ role.orgNombre }}</span>
-                </div>
-              </ng-template>
-            </p-dropdown>
+            <!-- Alcance -->
+            <div class="field">
+              <label for="alcance" class="field-label">
+                <i class="pi pi-globe label-icon"></i>
+                Alcance
+                <span class="required-mark">*</span>
+              </label>
+              <p-dropdown
+                id="alcance"
+                [options]="scopeOptions"
+                optionLabel="label"
+                optionValue="value"
+                [(ngModel)]="model.scopeNivel"
+                name="scopeNivel"
+                (onChange)="onScopeChange()"
+                placeholder="Seleccione alcance"
+                styleClass="w-100">
+              </p-dropdown>
+              <small class="info-message">
+                <i class="pi pi-info-circle"></i>
+                Define el nivel de acceso del usuario
+              </small>
+            </div>
           </div>
         </div>
 
-        <div class="actions">
-          <button pButton type="submit" label="Crear" icon="pi pi-save" [disabled]="saving || (isSeccionRequerida && !model.seccionId) || (isAlcanceOrganizacion && !model.orgAdministradaId)"></button>
-          <button pButton type="button" class="p-button-text" label="Limpiar" icon="pi pi-refresh" (click)="reset()" [disabled]="saving"></button>
-          <button pButton type="button" class="p-button-text" label="Cancelar" icon="pi pi-times" [routerLink]="['/gestion-de-usuarios/listar-usuarios']" [disabled]="saving"></button>
-          <span class="spacer"></span>
-          <button pButton type="button" icon="pi pi-send" class="p-button-text" label="Invitar a la Sección" (click)="openInvite()"></button>
+        <!-- Configuración de Alcance -->
+        <div class="form-section" *ngIf="isAlcanceOrganizacion || isSeccionRequerida">
+          <h3 class="section-title">
+            <i class="pi pi-cog"></i>
+            Configuración de Alcance
+          </h3>
+
+          <div class="form-grid">
+            <!-- Organización a Administrar -->
+            <div class="field" *ngIf="isAlcanceOrganizacion">
+              <label for="orgAdministrada" class="field-label">
+                <i class="pi pi-building label-icon"></i>
+                Organización que Administrará
+                <span class="required-mark">*</span>
+              </label>
+              <p-dropdown
+                id="orgAdministrada"
+                [options]="organizaciones"
+                optionLabel="nombre"
+                optionValue="id"
+                [(ngModel)]="model.orgAdministradaId"
+                name="orgAdministradaId"
+                placeholder="Seleccione organización"
+                (onChange)="onOrganizacionAdministradaChange()"
+                [filter]="true"
+                filterPlaceholder="Buscar organización..."
+                styleClass="w-100">
+              </p-dropdown>
+            </div>
+
+            <!-- Sección -->
+            <div class="field" *ngIf="isSeccionRequerida">
+              <label for="seccion" class="field-label">
+                <i class="pi pi-sitemap label-icon"></i>
+                Sección
+                <span class="required-mark" *ngIf="isSeccionRequerida">*</span>
+              </label>
+              <ng-container *ngIf="!loading; else sectionsLoading">
+                <p-dropdown
+                  id="seccion"
+                  [options]="secciones"
+                  optionLabel="nombre"
+                  optionValue="id"
+                  [(ngModel)]="model.seccionId"
+                  name="seccionId"
+                  placeholder="Seleccione sección"
+                  [filter]="true"
+                  filterPlaceholder="Buscar sección..."
+                  styleClass="w-100">
+                </p-dropdown>
+              </ng-container>
+              <ng-template #sectionsLoading>
+                <p-skeleton width="100%" height="42px"></p-skeleton>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+
+        <!-- Roles -->
+        <div class="form-section">
+          <h3 class="section-title">
+            <i class="pi pi-shield"></i>
+            Asignación de Roles
+          </h3>
+
+          <div class="form-grid">
+            <div class="field">
+              <label for="roles" class="field-label">
+                <i class="pi pi-shield label-icon"></i>
+                Rol del Usuario
+              </label>
+              <p-dropdown
+                id="roles"
+                [options]="rolesDisponibles"
+                optionLabel="nombre"
+                optionValue="id"
+                [(ngModel)]="model.rolesIds"
+                name="rolesIds"
+                [showClear]="true"
+                placeholder="Seleccione rol"
+                [filter]="true"
+                filterPlaceholder="Buscar rol..."
+                styleClass="w-100">
+                <ng-template let-role pTemplate="item">
+                  <div class="role-option">
+                    <i class="pi pi-shield"></i>
+                    <div class="role-info">
+                      <span class="role-name">{{ role.nombre }}</span>
+                      <small *ngIf="role.orgNombre" class="role-org">{{ role.orgNombre }}</small>
+                    </div>
+                  </div>
+                </ng-template>
+                <ng-template let-role pTemplate="selectedItem">
+                  <div class="role-option" *ngIf="role">
+                    <i class="pi pi-shield"></i>
+                    <div class="role-info">
+                      <span class="role-name">{{ role.nombre }}</span>
+                      <small *ngIf="role.orgNombre" class="role-org">{{ role.orgNombre }}</small>
+                    </div>
+                  </div>
+                </ng-template>
+              </p-dropdown>
+              <small class="info-message">
+                <i class="pi pi-info-circle"></i>
+                Selecciona el rol principal del usuario
+              </small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Acciones -->
+        <div class="footer-actions">
+          <button
+            pButton
+            type="submit"
+            label="Crear Usuario"
+            icon="pi pi-save"
+            class="p-button-success"
+            [loading]="saving"
+            [disabled]="saving || (isSeccionRequerida && !model.seccionId) || (isAlcanceOrganizacion && !model.orgAdministradaId)">
+          </button>
+          <button
+            pButton
+            type="button"
+            label="Limpiar"
+            icon="pi pi-refresh"
+            class="p-button-secondary"
+            (click)="reset()"
+            [disabled]="saving">
+          </button>
+          <button
+            pButton
+            type="button"
+            label="Cancelar"
+            icon="pi pi-times"
+            class="p-button-secondary"
+            [routerLink]="['/gestion-de-usuarios/listar-usuarios']"
+            [disabled]="saving">
+          </button>
+          <div class="spacer"></div>
+          <button
+            pButton
+            type="button"
+            icon="pi pi-send"
+            label="Invitar a Sección"
+            class="p-button-outlined"
+            (click)="openInvite()">
+          </button>
         </div>
       </form>
-
-      <ng-template #sectionsLoading>
-        <div class="skeletons">
-          <p-skeleton width="100%" height="42px" [ngStyle]="{ 'margin-top': '4px' }"></p-skeleton>
-        </div>
-      </ng-template>
     </div>
   </p-card>
 
-  <p-progressSpinner *ngIf="loading" styleClass="overlay-spinner"></p-progressSpinner>
+  <!-- Loading overlay -->
+  <div class="loading-overlay" *ngIf="loading">
+    <p-progressSpinner></p-progressSpinner>
+    <p>Cargando información...</p>
+  </div>
 
-  <app-section-invite-dialog [(visible)]="showInvite" [orgId]="orgId" [seccionId]="seccionIdForInvite"></app-section-invite-dialog>
+  <!-- Dialog de invitación -->
+  <app-section-invite-dialog
+    [(visible)]="showInvite"
+    [orgId]="orgId"
+    [seccionId]="seccionIdForInvite">
+  </app-section-invite-dialog>
 </div>
+

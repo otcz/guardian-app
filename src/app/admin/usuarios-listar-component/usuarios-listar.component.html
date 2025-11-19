@@ -1,108 +1,251 @@
-<div class="page-wrap">
-  <p-card class="card">
-    <div class="page-header">
-      <h2>Usuarios</h2>
-      <div class="tools">
-        <input class="search-input" pInputText type="text" placeholder="Buscar por username, nombre, email o alcance..." [(ngModel)]="filter" (ngModelChange)="applyFilter()" />
-        <button pButton type="button" label="Crear usuario" icon="pi pi-plus" [routerLink]="['/gestion-de-usuarios/crear-usuario']"></button>
+<div class="page-container">
+  <p-card class="modern-card">
+    <!-- Header con gradiente -->
+    <ng-template pTemplate="header">
+      <div class="card-header">
+        <div class="header-content">
+          <i class="pi pi-users header-icon"></i>
+          <h2>Gestión de Usuarios</h2>
+        </div>
+      </div>
+    </ng-template>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <div class="toolbar-left">
+        <h3 class="section-title">Listado de Usuarios</h3>
+      </div>
+      <div class="toolbar-right">
+        <!-- Buscador -->
+        <div class="control-container search-container">
+          <label class="control-label">
+            <i class="pi pi-search"></i>
+            Buscar:
+          </label>
+          <input
+            pInputText
+            type="text"
+            placeholder="Buscar por username, nombre, email..."
+            [(ngModel)]="filter"
+            (ngModelChange)="applyFilter()"
+            class="search-input"
+          />
+        </div>
+
+        <!-- Botón crear -->
+        <button
+          pButton
+          type="button"
+          label="Nuevo Usuario"
+          icon="pi pi-plus"
+          class="p-button-success"
+          [routerLink]="['/gestion-de-usuarios/crear-usuario']">
+        </button>
       </div>
     </div>
 
-    <div class="body">
-      <p-table [value]="filtered"
-               styleClass="full-height-table"
-               [loading]="loading"
-               [paginator]="true"
-               [rows]="pageSize"
-               [rowsPerPageOptions]="rowsOptions"
-               [(first)]="first"
-               [responsiveLayout]="'scroll'"
-               [showCurrentPageReport]="true"
-               currentPageReportTemplate="Mostrando {first}-{last} de {totalRecords}">
+    <!-- Estadísticas -->
+    <div class="stats-bar" *ngIf="filtered.length > 0">
+      <div class="stat-item">
+        <i class="pi pi-users"></i>
+        <span>Mostrando <strong>{{ filtered.length }}</strong> usuario(s)</span>
+      </div>
+    </div>
+
+    <!-- Tabla moderna -->
+    <div class="table-container" *ngIf="filtered.length > 0">
+      <p-table
+        [value]="filtered"
+        styleClass="modern-table"
+        [loading]="loading"
+        [paginator]="true"
+        [rows]="pageSize"
+        [rowsPerPageOptions]="rowsOptions"
+        [(first)]="first"
+        responsiveLayout="scroll"
+        [showCurrentPageReport]="true"
+        currentPageReportTemplate="Mostrando {first}-{last} de {totalRecords}">
+
         <ng-template pTemplate="header">
           <tr>
-            <th class="col-username">Username</th>
-            <th class="col-org">Organización/Sección</th>
-            <th class="col-roles">ROL(es)</th>
-            <th class="col-phone">Teléfono</th>
-            <th class="col-status">Estado</th>
-            <th class="col-actions">Acciones</th>
+            <th style="width: 280px">
+              <div class="th-content">
+                <i class="pi pi-user"></i>
+                <span>Usuario</span>
+              </div>
+            </th>
+            <th style="width: 220px">
+              <div class="th-content">
+                <i class="pi pi-building"></i>
+                <span>Organización/Sección</span>
+              </div>
+            </th>
+            <th style="width: 200px">
+              <div class="th-content">
+                <i class="pi pi-shield"></i>
+                <span>Roles</span>
+              </div>
+            </th>
+            <th style="width: 150px">
+              <div class="th-content">
+                <i class="pi pi-phone"></i>
+                <span>Teléfono</span>
+              </div>
+            </th>
+            <th style="width: 120px">
+              <div class="th-content">
+                <i class="pi pi-power-off"></i>
+                <span>Estado</span>
+              </div>
+            </th>
+            <th style="width: 140px">
+              <div class="th-content">
+                <i class="pi pi-cog"></i>
+                <span>Acciones</span>
+              </div>
+            </th>
           </tr>
         </ng-template>
+
         <ng-template pTemplate="body" let-u>
           <tr>
-            <td class="col-username">
+            <!-- Usuario -->
+            <td>
               <div class="user-cell">
-                <p-avatar icon="pi pi-user" shape="circle" size="large" [style]="{ background: 'var(--surface-100)', color: 'var(--text-color)' }"></p-avatar>
-                <div class="meta">
-                  <div class="top">{{ u.nombreCompleto || u.username }}</div>
-                  <div class="sub">{{ u.username }}<span *ngIf="u.email"> · {{ u.email }}</span></div>
+                <p-avatar
+                  icon="pi pi-user"
+                  shape="circle"
+                  size="large"
+                  [style]="{ 'background-color': 'rgba(79, 140, 255, 0.1)', 'color': 'var(--primary)' }">
+                </p-avatar>
+                <div class="user-info">
+                  <div class="user-name">{{ u.nombreCompleto || u.username }}</div>
+                  <div class="user-details">
+                    <span class="username">{{ u.username }}</span>
+                    <span *ngIf="u.email" class="separator">·</span>
+                    <span *ngIf="u.email" class="email">{{ u.email }}</span>
+                  </div>
                 </div>
               </div>
             </td>
-            <td class="col-org">
-              <div class="stack">
-                <p-chip icon="pi pi-building" [label]="u.orgNombre || orgName || '-'" class="pill"></p-chip>
-                <p-chip *ngIf="u.seccionNombre || u.seccionId" icon="pi pi-sitemap" [label]="u.seccionNombre || sectionName(u)" class="pill"></p-chip>
+
+            <!-- Organización/Sección -->
+            <td>
+              <div class="org-stack">
+                <p-chip
+                  icon="pi pi-building"
+                  [label]="u.orgNombre || orgName || '-'"
+                  styleClass="org-chip">
+                </p-chip>
+                <p-chip
+                  *ngIf="u.seccionNombre || u.seccionId"
+                  icon="pi pi-sitemap"
+                  [label]="u.seccionNombre || sectionName(u)"
+                  styleClass="section-chip">
+                </p-chip>
               </div>
             </td>
-            <td class="col-roles">
+
+            <!-- Roles -->
+            <td>
               <ng-container *ngIf="rolesFor(u) as rs">
-                <ng-container *ngIf="rs.length > 0; else noRoles">
-                  <p-tag [value]="rs[0] | roleLabel" [severity]="rs[0] | roleSeverity"></p-tag>
-                  <button *ngIf="rs.length > 1"
-                          pButton type="button"
-                          class="p-button-text p-button-sm ml-1"
-                          [label]="'+' + (rs.length - 1)"
-                          icon="pi pi-plus"
-                          iconPos="left"
-                          (click)="op.toggle($event)"></button>
+                <div class="roles-container" *ngIf="rs.length > 0; else noRoles">
+                  <p-tag
+                    [value]="rs[0] | roleLabel"
+                    [severity]="rs[0] | roleSeverity">
+                  </p-tag>
+                  <button
+                    *ngIf="rs.length > 1"
+                    pButton
+                    type="button"
+                    class="p-button-text p-button-sm more-roles-btn"
+                    [label]="'+' + (rs.length - 1)"
+                    (click)="op.toggle($event)">
+                  </button>
                   <p-overlayPanel #op [dismissable]="true" [showCloseIcon]="true">
                     <div class="roles-overlay">
-                      <div class="roles-title">Roles del usuario</div>
-                      <div class="roles-list">
-                        <p-tag *ngFor="let r of rs" [value]="r | roleLabel" [severity]="r | roleSeverity" class="mr-1 mb-1"></p-tag>
+                      <h4>
+                        <i class="pi pi-shield"></i>
+                        Roles del usuario
+                      </h4>
+                      <div class="roles-grid">
+                        <p-tag
+                          *ngFor="let r of rs"
+                          [value]="r | roleLabel"
+                          [severity]="r | roleSeverity">
+                        </p-tag>
                       </div>
                     </div>
                   </p-overlayPanel>
-                </ng-container>
+                </div>
                 <ng-template #noRoles>
-                  <p-tag [value]="'-' | roleLabel" [severity]="'-' | roleSeverity"></p-tag>
+                  <p-tag value="Sin roles" severity="secondary"></p-tag>
                 </ng-template>
               </ng-container>
             </td>
-            <td class="col-phone">
-              {{ u.telefono || '—' }}
+
+            <!-- Teléfono -->
+            <td>
+              <div class="phone-cell">
+                <i class="pi pi-phone" *ngIf="u.telefono"></i>
+                <span>{{ u.telefono || '—' }}</span>
+              </div>
             </td>
-            <td class="col-status">
-              <p-tag [value]="u.activo ? 'ACTIVO' : 'INACTIVO'" [severity]="u.activo ? 'success' : 'danger'"></p-tag>
+
+            <!-- Estado -->
+            <td>
+              <p-tag
+                [value]="u.activo ? 'ACTIVO' : 'INACTIVO'"
+                [severity]="u.activo ? 'success' : 'danger'">
+              </p-tag>
             </td>
-            <td class="col-actions">
-              <div class="actions">
-                <!-- Gestionar usuario -->
-                <button pButton type="button"
-                        icon="pi pi-cog"
-                        class="p-button p-button-text p-button-sm p-button-rounded btn-icon"
-                        [routerLink]="['/gestion-de-usuarios/gestionar-usuario']"
-                        [queryParams]="{ id: u.id }"
-                        pTooltip="Gestionar" tooltipPosition="top"></button>
-                <!-- Cambiar estado (activar/desactivar) -->
-                <button pButton type="button"
-                        class="state-button p-button-sm p-button-rounded btn-icon"
-                        [ngClass]="u.activo ? 'p-button-outlined p-button-danger' : 'p-button-outlined p-button-success'"
-                        [icon]="u.activo ? 'pi pi-ban' : 'pi pi-check'"
-                        (click)="toggle(u)"
-                        pTooltip="Cambiar estado" tooltipPosition="top"></button>
+
+            <!-- Acciones -->
+            <td>
+              <div class="action-buttons">
+                <button
+                  pButton
+                  type="button"
+                  icon="pi pi-cog"
+                  class="action-btn manage-btn"
+                  [routerLink]="['/gestion-de-usuarios/gestionar-usuario']"
+                  [queryParams]="{ id: u.id }"
+                  pTooltip="Gestionar usuario"
+                  tooltipPosition="top">
+                </button>
+                <button
+                  pButton
+                  type="button"
+                  [icon]="u.activo ? 'pi pi-ban' : 'pi pi-check'"
+                  [class]="u.activo ? 'action-btn deactivate-btn' : 'action-btn activate-btn'"
+                  (click)="toggle(u)"
+                  [pTooltip]="u.activo ? 'Desactivar' : 'Activar'"
+                  tooltipPosition="top">
+                </button>
               </div>
             </td>
           </tr>
         </ng-template>
+
         <ng-template pTemplate="emptymessage">
           <tr>
-            <td colspan="6" class="text-muted" style="text-align:center;">Sin usuarios para mostrar.</td>
+            <td colspan="6" class="empty-message">
+              <div class="empty-state-inline">
+                <i class="pi pi-inbox"></i>
+                <p>No hay usuarios para mostrar</p>
+              </div>
+            </td>
           </tr>
         </ng-template>
       </p-table>
     </div>
+
+    <!-- Estado vacío -->
+    <div class="empty-state" *ngIf="!loading && filtered.length === 0">
+      <i class="pi pi-users"></i>
+      <p>No hay usuarios registrados</p>
+      <small>Crea tu primer usuario para comenzar</small>
+    </div>
   </p-card>
 </div>
+

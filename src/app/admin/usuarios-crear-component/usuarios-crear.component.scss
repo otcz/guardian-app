@@ -1,38 +1,457 @@
-/* Layout similar a gestión de menús: card a altura completa dentro de page-wrap */
-:host { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; --app-header-h: 56px; }
+/* Formulario de Creación de Sección - Estilos Modernos */
 
-.page-wrap { display: flex; flex-direction: column; padding: 0 16px 16px; width: 100%; flex: 1 1 auto; min-height: 0; overflow: hidden; margin-top: -8px; height: calc(100vh - var(--app-header-h, 56px) - 24px); }
+.page-container {
+  padding: 0;
+  max-width: 1200px;
+  margin: 0 auto;
+}
 
-.card { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; max-height: 100%; overflow: hidden; }
-.p-card.card { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; height: 100%; margin: 0; }
-.card .p-card-body { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; overflow: hidden; height: 100%; }
-.card .p-card-content { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; height: 100%; }
-:host ::ng-deep p-card.card { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; height: 100%; }
-:host ::ng-deep p-card.card > .p-card, :host ::ng-deep p-card.card .p-card-body, :host ::ng-deep p-card.card .p-card-content { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; height: 100%; }
+/* Tarjeta moderna */
+.modern-card {
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--border);
+  overflow: hidden;
 
-/* Encabezado y cuerpo */
-.header .title { margin: 0; font-weight: 800; }
-.body { display: flex; flex-direction: column; gap: 12px; flex: 1 1 auto; min-height: 0; overflow: hidden; }
+  ::ng-deep .p-card-body {
+    padding: 0;
+  }
 
-/* Chips resumen (preview de datos) */
-.meta-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-.pill .p-chip { background: var(--surface-alt); color: var(--text); border-radius: 999px; }
-.pill.muted .p-chip { opacity: .9; }
+  ::ng-deep .p-card-content {
+    padding: 0;
+  }
+}
 
-/* Formulario */
-.edit-form { display: flex; flex-direction: column; gap: 12px; }
-.form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px 16px; }
-.field { display: flex; flex-direction: column; gap: .5rem; }
-.hint { color: var(--muted); font-size: .86rem; }
+/* Header con gradiente */
+.card-header {
+  background: linear-gradient(135deg, #4f8cff 0%, #2563eb 50%, #203a43 100%);
+  padding: 1.5rem 2rem;
+  box-shadow: 0 4px 12px rgba(79, 140, 255, 0.2);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
 
-/* Barra de acciones */
-.actions { display: flex; gap: 8px; justify-content: flex-end; align-items: center; margin-top: 8px; }
-.actions .spacer { flex: 1; }
+  .header-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
 
-/* Loading */
-.overlay-spinner { position: fixed; inset: 0; margin: auto; }
+    .header-icon {
+      font-size: 2rem;
+      color: white;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+    }
 
-/* Estilos para el texto de la organización del rol en el dropdown */
-.role-option .role-org {
-  color: rgba(0, 0, 0, 0.50); /* negro más opaco */
+    .header-text {
+      flex: 1;
+
+      h2 {
+        margin: 0 0 0.5rem 0;
+        color: white;
+        font-size: 1.5rem;
+        font-weight: 600;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .subtitle {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 0;
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 0.95rem;
+
+        i {
+          font-size: 0.9rem;
+        }
+      }
+    }
+  }
+
+  .back-button {
+    background: rgba(255, 255, 255, 0.15) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    color: white !important;
+    font-weight: 600;
+    padding: 0.75rem 1.25rem;
+    transition: all 0.2s ease;
+
+    &:hover:not(:disabled) {
+      background: rgba(255, 255, 255, 0.25) !important;
+      border-color: rgba(255, 255, 255, 0.5) !important;
+      transform: translateX(-4px);
+    }
+  }
+}
+
+/* Cuerpo de la tarjeta */
+.card-body {
+  padding: 2rem;
+  background: var(--surface);
+}
+
+/* Secciones del formulario */
+.form-section {
+  margin-bottom: 2rem;
+
+  .section-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 1.5rem 0;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid var(--primary);
+    color: var(--text);
+    font-size: 1.1rem;
+    font-weight: 600;
+
+    i {
+      color: var(--primary);
+      font-size: 1.2rem;
+    }
+  }
+}
+
+/* Grid del formulario */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 1.5rem;
+}
+
+/* Campos del formulario */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  .field-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+    color: var(--text);
+    font-size: 0.95rem;
+
+    .label-icon {
+      color: var(--primary);
+      font-size: 1rem;
+    }
+
+    .required-mark {
+      color: var(--danger);
+      font-weight: bold;
+      margin-left: 2px;
+    }
+  }
+
+  .input-field {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--surface);
+    color: var(--text);
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+
+    &::placeholder {
+      color: var(--muted);
+    }
+
+    &:focus {
+      border-color: var(--primary);
+      outline: none;
+      box-shadow: 0 0 0 0.2rem rgba(79, 140, 255, 0.25);
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+
+  .error-message {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--danger);
+    font-size: 0.85rem;
+
+    i {
+      font-size: 0.9rem;
+    }
+  }
+
+  .info-message {
+    display: flex;
+    align-items: flex-start;
+    gap: 4px;
+    color: var(--primary);
+    font-size: 0.85rem;
+    line-height: 1.4;
+
+    i {
+      font-size: 0.9rem;
+      margin-top: 2px;
+    }
+  }
+}
+
+/* Items de dropdown */
+.selected-item,
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0.25rem 0;
+
+  .item-icon {
+    color: var(--primary);
+    font-size: 1.1rem;
+  }
+
+  .item-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+
+    .item-name {
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    small {
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+  }
+}
+
+/* Contenedor del switch */
+.switch-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 1rem;
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+
+  .switch-label {
+    font-weight: 500;
+    color: var(--text);
+  }
+}
+
+/* Acciones del pie */
+.footer-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 1.5rem 2rem;
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+
+  button {
+    min-width: 200px;
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+    transition: all 0.3s ease;
+    border-radius: 8px;
+
+    &.p-button-success {
+      background: linear-gradient(135deg, var(--success) 0%, #16a34a 100%);
+      border: none;
+
+      &:hover:not(:disabled) {
+        background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
+      }
+    }
+
+    &.p-button-secondary {
+      background: linear-gradient(135deg, var(--primary) 0%, #2563eb 100%);
+      border: none;
+
+      &:hover:not(:disabled) {
+        background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(79, 140, 255, 0.3);
+      }
+    }
+
+    &:active:not(:disabled) {
+      transform: translateY(0);
+    }
+  }
+
+  .spacer {
+    flex: 1;
+  }
+}
+
+/* Preview chips */
+.preview-chips {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+
+  .preview-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 1rem 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text);
+
+    i {
+      color: var(--primary);
+      font-size: 1.1rem;
+    }
+  }
+
+  .chips-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  ::ng-deep {
+    .preview-chip {
+      font-size: 0.9rem;
+      font-weight: 500;
+
+      &.username-chip {
+        background: rgba(79, 140, 255, 0.15);
+        color: var(--primary);
+
+        .p-chip-icon {
+          color: var(--primary);
+        }
+      }
+
+      &.name-chip {
+        background: rgba(168, 85, 247, 0.15);
+        color: #a855f7;
+
+        .p-chip-icon {
+          color: #a855f7;
+        }
+      }
+
+      &.email-chip {
+        background: rgba(34, 197, 94, 0.15);
+        color: #22c55e;
+
+        .p-chip-icon {
+          color: #22c55e;
+        }
+      }
+
+      &.section-chip {
+        background: rgba(249, 115, 22, 0.15);
+        color: #f97316;
+
+        .p-chip-icon {
+          color: #f97316;
+        }
+      }
+    }
+  }
+}
+
+/* Role options en dropdown */
+.role-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0.25rem 0;
+
+  i {
+    color: var(--primary);
+    font-size: 1rem;
+  }
+
+  .role-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+
+    .role-name {
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .role-org {
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .card-body {
+    padding: 1rem;
+  }
+
+  .card-header {
+    padding: 1.25rem 1.5rem;
+    flex-direction: column;
+    align-items: stretch;
+
+    .header-content .header-text h2 {
+      font-size: 1.25rem;
+    }
+
+    .back-button {
+      width: 100%;
+    }
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .switch-container {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .footer-actions {
+    flex-direction: column;
+
+    button {
+      width: 100%;
+    }
+  }
+}
+
+/* Temas */
+:root.theme-light {
+  .modern-card {
+    background: var(--surface);
+  }
+}
+
+:root.theme-dark {
+  .modern-card {
+    background: var(--surface);
+  }
+}
+
+:root.theme-black {
+  .modern-card {
+    background: var(--surface);
+  }
+
+  .card-header {
+    box-shadow: 0 4px 12px rgba(79, 140, 255, 0.3);
+  }
 }

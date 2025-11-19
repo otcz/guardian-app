@@ -1,36 +1,196 @@
-<div class="page-wrap">
-  <p-card class="card">
-    <div class="header">
-      <h2 class="title">Asignar usuario a sección</h2>
+<div class="page-container">
+  <p-card class="modern-card">
+    <!-- Header con gradiente -->
+    <ng-template pTemplate="header">
+      <div class="card-header">
+        <div class="header-content">
+          <i class="pi pi-sitemap header-icon"></i>
+          <div class="header-text">
+            <h2>Asignar Usuario a Sección</h2>
+            <p class="subtitle">
+              <i class="pi pi-info-circle"></i>
+              <span>Transfiere un usuario de una sección a otra</span>
+            </p>
+          </div>
+        </div>
+      </div>
+    </ng-template>
+
+    <div class="card-body">
+      <!-- Preview del usuario seleccionado -->
+      <div class="preview-section" *ngIf="selectedUser">
+        <div class="preview-header">
+          <i class="pi pi-user"></i>
+          <h4>Usuario Seleccionado</h4>
+        </div>
+        <div class="user-preview">
+          <div class="preview-avatar">
+            <p-avatar
+              icon="pi pi-user"
+              shape="circle"
+              size="xlarge"
+              [style]="{ 'background-color': 'rgba(79, 140, 255, 0.1)', 'color': 'var(--primary)' }">
+            </p-avatar>
+          </div>
+          <div class="preview-info">
+            <div class="info-row">
+              <p-tag
+                [value]="selectedUser.activo ? 'ACTIVO' : 'INACTIVO'"
+                [severity]="selectedUser.activo ? 'success' : 'danger'">
+              </p-tag>
+            </div>
+            <div class="info-row chips-row">
+              <p-chip
+                icon="pi pi-id-card"
+                [label]="selectedUser.username || '-'"
+                styleClass="user-chip">
+              </p-chip>
+              <p-chip
+                *ngIf="selectedUser.nombreCompleto"
+                icon="pi pi-user"
+                [label]="selectedUser.nombreCompleto"
+                styleClass="name-chip">
+              </p-chip>
+              <p-chip
+                *ngIf="selectedUser.email"
+                icon="pi pi-envelope"
+                [label]="selectedUser.email"
+                styleClass="email-chip">
+              </p-chip>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Grid de selección -->
+      <div class="selection-grid">
+        <!-- Usuario -->
+        <div class="selection-card">
+          <div class="card-header-section">
+            <i class="pi pi-user"></i>
+            <h3>Seleccionar Usuario</h3>
+          </div>
+          <div class="field">
+            <label for="usuarioSelect" class="field-label">
+              <i class="pi pi-users label-icon"></i>
+              Usuario
+              <span class="required-mark">*</span>
+            </label>
+            <p-dropdown
+              id="usuarioSelect"
+              [options]="usuarios"
+              optionLabel="username"
+              optionValue="id"
+              [(ngModel)]="usuarioId"
+              (ngModelChange)="onUserChange($event)"
+              name="usuarioId"
+              placeholder="Seleccione un usuario"
+              [filter]="true"
+              filterPlaceholder="Buscar usuario..."
+              [showClear]="true"
+              styleClass="w-100">
+              <ng-template pTemplate="selectedItem" let-user>
+                <div class="selected-item" *ngIf="user">
+                  <i class="pi pi-user item-icon"></i>
+                  <span>{{ user.username }}</span>
+                </div>
+              </ng-template>
+              <ng-template pTemplate="item" let-user>
+                <div class="dropdown-item">
+                  <i class="pi pi-user item-icon"></i>
+                  <div class="item-info">
+                    <span class="item-name">{{ user.username }}</span>
+                    <small *ngIf="user.nombreCompleto">{{ user.nombreCompleto }}</small>
+                  </div>
+                </div>
+              </ng-template>
+            </p-dropdown>
+          </div>
+        </div>
+
+        <!-- Sección Destino -->
+        <div class="selection-card" [class.disabled]="!selectedUser">
+          <div class="card-header-section">
+            <i class="pi pi-sitemap"></i>
+            <h3>Sección Destino</h3>
+          </div>
+          <div class="field">
+            <label for="seccionSelect" class="field-label">
+              <i class="pi pi-th-large label-icon"></i>
+              Sección
+              <span class="required-mark">*</span>
+            </label>
+            <p-dropdown
+              id="seccionSelect"
+              [options]="secciones"
+              optionLabel="nombre"
+              optionValue="id"
+              [(ngModel)]="seccionDestinoId"
+              name="seccionDestinoId"
+              placeholder="Seleccione sección destino"
+              [disabled]="!selectedUser"
+              [filter]="true"
+              filterPlaceholder="Buscar sección..."
+              [showClear]="true"
+              styleClass="w-100">
+              <ng-template pTemplate="selectedItem" let-seccion>
+                <div class="selected-item" *ngIf="seccion">
+                  <i class="pi pi-th-large item-icon"></i>
+                  <span>{{ seccion.nombre }}</span>
+                </div>
+              </ng-template>
+              <ng-template pTemplate="item" let-seccion>
+                <div class="dropdown-item">
+                  <i class="pi pi-th-large item-icon"></i>
+                  <span>{{ seccion.nombre }}</span>
+                </div>
+              </ng-template>
+            </p-dropdown>
+            <small class="info-message" *ngIf="!selectedUser">
+              <i class="pi pi-info-circle"></i>
+              Selecciona primero un usuario
+            </small>
+            <small class="info-message" *ngIf="selectedUser && selectedUser.seccionId === seccionDestinoId">
+              <i class="pi pi-exclamation-triangle"></i>
+              El usuario ya está en esta sección
+            </small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Información adicional -->
+      <div class="info-banner" *ngIf="selectedUser && seccionDestinoId">
+        <i class="pi pi-info-circle"></i>
+        <div class="banner-content">
+          <strong>Nota:</strong>
+          <span>El usuario mantendrá su rol contextual actual al ser transferido a la nueva sección.</span>
+        </div>
+      </div>
     </div>
 
-    <div class="body">
-      <!-- Resumen del usuario -->
-      <div class="meta-row" *ngIf="selectedUser">
-        <p-tag [value]="selectedUser.activo ? 'ACTIVO' : 'INACTIVO'" [severity]="selectedUser.activo ? 'success' : 'danger'"></p-tag>
-        <p-chip icon="pi pi-id-card" [label]="selectedUser.username || '-'" class="pill"></p-chip>
-        <p-chip *ngIf="selectedUser.nombreCompleto" icon="pi pi-user" [label]="selectedUser.nombreCompleto || ''" class="pill"></p-chip>
-        <p-chip *ngIf="selectedUser.email" icon="pi pi-envelope" [label]="selectedUser.email || ''" class="pill"></p-chip>
-      </div>
-
-      <div class="form-grid">
-        <div class="field">
-          <label>Usuario</label>
-          <p-dropdown [options]="usuarios" optionLabel="username" optionValue="id" [(ngModel)]="usuarioId" (ngModelChange)="onUserChange($event)" name="usuarioId" placeholder="Seleccione usuario"></p-dropdown>
-        </div>
-
-        <!-- Bloque de Transferencia de Usuario -->
-        <div class="field" *ngIf="selectedUser">
-          <label>Transferir a sección</label>
-          <p-dropdown [options]="secciones" optionLabel="nombre" optionValue="id" [(ngModel)]="seccionDestinoId" name="seccionDestinoId" placeholder="Seleccione sección destino" [disabled]="!selectedUser"></p-dropdown>
-        </div>
-      </div>
-
-      <!-- Acciones abajo de los componentes -->
-      <div class="actions">
-        <button pButton type="button" label="Transferir" class="p-button p-button-help" icon="pi pi-angle-double-right" (click)="transfer()" [disabled]="saving || !usuarioId || !seccionDestinoId || (selectedUser?.seccionId === seccionDestinoId)" pTooltip="Mover usuario a otra sección manteniendo el rol contextual actual"></button>
-        <button pButton type="button" class="p-button-text" icon="pi pi-arrow-left" [routerLink]="['/gestion-de-usuarios/listar-usuarios']" pTooltip="Volver"></button>
-      </div>
+    <!-- Acciones del pie -->
+    <div class="footer-actions">
+      <button
+        pButton
+        type="button"
+        label="Transferir Usuario"
+        icon="pi pi-angle-double-right"
+        class="p-button-help"
+        (click)="transfer()"
+        [loading]="saving"
+        [disabled]="saving || !usuarioId || !seccionDestinoId || (selectedUser?.seccionId === seccionDestinoId)"
+        pTooltip="Mover usuario a otra sección"
+        tooltipPosition="top">
+      </button>
+      <button
+        pButton
+        type="button"
+        label="Volver"
+        icon="pi pi-arrow-left"
+        class="p-button-secondary"
+        [routerLink]="['/gestion-de-usuarios/listar-usuarios']">
+      </button>
     </div>
   </p-card>
 </div>
+

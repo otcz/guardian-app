@@ -1,82 +1,263 @@
-<div class="page-wrap">
-  <p-card class="card">
-    <div class="header">
-      <h2 class="title">Asignar roles a usuario</h2>
+<div class="page-container">
+  <p-card class="modern-card">
+    <!-- Header con gradiente -->
+    <ng-template pTemplate="header">
+      <div class="card-header">
+        <div class="header-content">
+          <i class="pi pi-shield header-icon"></i>
+          <div class="header-text">
+            <h2>Asignar Roles a Usuario</h2>
+            <p class="subtitle">
+              <i class="pi pi-info-circle"></i>
+              <span>Gestiona los roles asignados a cada usuario</span>
+            </p>
+          </div>
+        </div>
+      </div>
+    </ng-template>
+
+    <div class="card-body">
+      <!-- Preview del usuario seleccionado -->
+      <div class="preview-section" *ngIf="selectedUser">
+        <div class="preview-header">
+          <i class="pi pi-user"></i>
+          <h4>Usuario Seleccionado</h4>
+        </div>
+        <div class="user-preview">
+          <div class="preview-avatar">
+            <p-avatar
+              icon="pi pi-user"
+              shape="circle"
+              size="xlarge"
+              [style]="{ 'background-color': 'rgba(79, 140, 255, 0.1)', 'color': 'var(--primary)' }">
+            </p-avatar>
+          </div>
+          <div class="preview-info">
+            <div class="info-row">
+              <p-tag
+                [value]="selectedUser.activo ? 'ACTIVO' : 'INACTIVO'"
+                [severity]="selectedUser.activo ? 'success' : 'danger'">
+              </p-tag>
+            </div>
+            <div class="info-row chips-row">
+              <p-chip
+                icon="pi pi-id-card"
+                [label]="selectedUser.username || '-'"
+                styleClass="user-chip">
+              </p-chip>
+              <p-chip
+                *ngIf="selectedUser.nombreCompleto"
+                icon="pi pi-user"
+                [label]="selectedUser.nombreCompleto"
+                styleClass="name-chip">
+              </p-chip>
+              <p-chip
+                *ngIf="selectedUser.email"
+                icon="pi pi-envelope"
+                [label]="selectedUser.email"
+                styleClass="email-chip">
+              </p-chip>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Controles de asignación -->
+      <div class="assignment-section">
+        <h3 class="section-title">
+          <i class="pi pi-plus-circle"></i>
+          Asignar Nuevo Rol
+        </h3>
+
+        <div class="assignment-grid">
+          <!-- Usuario -->
+          <div class="field">
+            <label for="usuarioSelect" class="field-label">
+              <i class="pi pi-user label-icon"></i>
+              Usuario
+              <span class="required-mark">*</span>
+            </label>
+            <p-dropdown
+              id="usuarioSelect"
+              [options]="usuarios"
+              optionLabel="username"
+              optionValue="id"
+              [(ngModel)]="usuarioId"
+              name="usuarioId"
+              placeholder="Seleccione usuario"
+              (onChange)="onUserChange()"
+              [filter]="true"
+              filterPlaceholder="Buscar usuario..."
+              styleClass="w-100">
+              <ng-template pTemplate="selectedItem" let-user>
+                <div class="selected-item" *ngIf="user">
+                  <i class="pi pi-user item-icon"></i>
+                  <span>{{ user.username }}</span>
+                </div>
+              </ng-template>
+              <ng-template pTemplate="item" let-user>
+                <div class="dropdown-item">
+                  <i class="pi pi-user item-icon"></i>
+                  <div class="item-info">
+                    <span class="item-name">{{ user.username }}</span>
+                    <small *ngIf="user.nombreCompleto">{{ user.nombreCompleto }}</small>
+                  </div>
+                </div>
+              </ng-template>
+            </p-dropdown>
+          </div>
+
+          <!-- Rol -->
+          <div class="field">
+            <label for="rolSelect" class="field-label">
+              <i class="pi pi-shield label-icon"></i>
+              Rol Disponible
+              <span class="required-mark">*</span>
+            </label>
+            <p-dropdown
+              id="rolSelect"
+              [options]="roles"
+              optionValue="id"
+              [(ngModel)]="rolSeleccionado"
+              name="rolId"
+              placeholder="Seleccione rol"
+              [filter]="true"
+              filterPlaceholder="Buscar rol..."
+              [disabled]="!usuarioId"
+              styleClass="w-100">
+              <ng-template let-r pTemplate="item">
+                <div class="role-item" *ngIf="r">
+                  <i class="pi pi-shield"></i>
+                  <div class="role-info">
+                    <span class="role-part">{{ splitDisplay(r).pre }}</span>
+                    <small *ngIf="splitDisplay(r).post" class="org-part">{{ splitDisplay(r).post }}</small>
+                  </div>
+                </div>
+              </ng-template>
+              <ng-template let-r pTemplate="selectedItem">
+                <div class="role-item" *ngIf="r">
+                  <i class="pi pi-shield"></i>
+                  <div class="role-info">
+                    <span class="role-part">{{ splitDisplay(r).pre }}</span>
+                    <small *ngIf="splitDisplay(r).post" class="org-part">{{ splitDisplay(r).post }}</small>
+                  </div>
+                </div>
+              </ng-template>
+            </p-dropdown>
+          </div>
+
+          <!-- Botón asignar -->
+          <div class="field action-field">
+            <label class="field-label">&nbsp;</label>
+            <button
+              pButton
+              type="button"
+              icon="pi pi-plus"
+              label="Asignar Rol"
+              class="p-button-success assign-btn"
+              (click)="assignRole()"
+              [loading]="saving"
+              [disabled]="!usuarioId || !rolSeleccionado || saving"
+              pTooltip="Asignar rol al usuario"
+              tooltipPosition="top">
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabla de roles asignados -->
+      <div class="roles-table-section" *ngIf="usuarioId">
+        <h3 class="section-title">
+          <i class="pi pi-list"></i>
+          Roles Asignados
+        </h3>
+
+        <div class="table-container">
+          <p-table
+            [value]="rolesUsuario"
+            styleClass="modern-table"
+            responsiveLayout="scroll">
+            <ng-template pTemplate="header">
+              <tr>
+                <th style="width: 60px">
+                  <i class="pi pi-hashtag"></i>
+                </th>
+                <th>
+                  <div class="th-content">
+                    <i class="pi pi-shield"></i>
+                    <span>Rol</span>
+                  </div>
+                </th>
+                <th>
+                  <div class="th-content">
+                    <i class="pi pi-info-circle"></i>
+                    <span>Descripción</span>
+                  </div>
+                </th>
+                <th style="width: 100px">
+                  <div class="th-content">
+                    <i class="pi pi-cog"></i>
+                    <span>Acciones</span>
+                  </div>
+                </th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-ru let-i="rowIndex">
+              <tr>
+                <td>{{ i + 1 }}</td>
+                <td>
+                  <div class="role-display">
+                    <i class="pi pi-shield role-icon"></i>
+                    <div class="role-text">
+                      <span class="role-name">{{ splitDisplay(ru?.rol).pre || getRoleName(ru) }}</span>
+                      <small *ngIf="splitDisplay(ru?.rol).post" class="org-label">{{ splitDisplay(ru?.rol).post }}</small>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <span class="description">{{ ru.rol?.descripcion || '—' }}</span>
+                </td>
+                <td>
+                  <div class="action-buttons">
+                    <button
+                      pButton
+                      type="button"
+                      icon="pi pi-trash"
+                      class="action-btn delete-btn"
+                      (click)="unassignRole(ru.id)"
+                      pTooltip="Quitar rol"
+                      tooltipPosition="top">
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+              <tr>
+                <td colspan="4" class="empty-message">
+                  <div class="empty-state-inline">
+                    <i class="pi pi-inbox"></i>
+                    <p>Este usuario no tiene roles asignados</p>
+                  </div>
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+      </div>
     </div>
 
-    <div class="body">
-      <!-- Resumen del usuario -->
-      <div class="meta-row" *ngIf="selectedUser">
-        <p-tag [value]="selectedUser.activo ? 'ACTIVO' : 'INACTIVO'" [severity]="selectedUser.activo ? 'success' : 'danger'"></p-tag>
-        <p-chip icon="pi pi-id-card" [label]="selectedUser.username || '-'" class="pill"></p-chip>
-        <p-chip *ngIf="selectedUser.nombreCompleto" icon="pi pi-user" [label]="selectedUser.nombreCompleto || ''" class="pill"></p-chip>
-        <p-chip *ngIf="selectedUser.email" icon="pi pi-envelope" [label]="selectedUser.email || ''" class="pill"></p-chip>
-      </div>
-
-      <!-- Filtros/controles principales -->
-      <div class="form-grid">
-        <div class="field">
-          <label>Usuario</label>
-          <p-dropdown [options]="usuarios" optionLabel="username" optionValue="id" [(ngModel)]="usuarioId" name="usuarioId" placeholder="Seleccione usuario" (onChange)="onUserChange()"></p-dropdown>
-        </div>
-
-        <div class="field">
-          <label>Roles disponibles</label>
-          <p-dropdown [options]="roles" optionValue="id" [(ngModel)]="rolSeleccionado" name="rolId" placeholder="Seleccione rol">
-            <ng-template let-r pTemplate="item">
-              <span class="role-item" *ngIf="r as rr">
-                <span class="role-part">{{ splitDisplay(rr).pre }}</span><span *ngIf="splitDisplay(rr).post" class="org-part">&nbsp;{{ splitDisplay(rr).post }}</span>
-              </span>
-            </ng-template>
-            <ng-template let-r pTemplate="selectedItem">
-              <ng-container *ngIf="r; else selPlaceholder">
-                <span class="role-item" *ngIf="r as rr">
-                  <span class="role-part">{{ splitDisplay(rr).pre }}</span><span *ngIf="splitDisplay(rr).post" class="org-part">&nbsp;{{ splitDisplay(rr).post }}</span>
-                </span>
-              </ng-container>
-              <ng-template #selPlaceholder><span class="text-muted">Seleccione rol</span></ng-template>
-            </ng-template>
-          </p-dropdown>
-        </div>
-
-        <div class="actions">
-          <button pButton type="button" icon="pi pi-plus" class="p-button-sm p-button-rounded p-button-success btn-icon" (click)="assignRole()" [disabled]="!usuarioId || !rolSeleccionado || saving" pTooltip="Asignar rol" tooltipPosition="top"></button>
-          <span class="spacer"></span>
-          <button pButton type="button" class="p-button-text" icon="pi pi-arrow-left" [routerLink]="['/gestion-de-usuarios/listar-usuarios']" pTooltip="Volver"></button>
-        </div>
-      </div>
-
-      <!-- Área de lista/tablas con scroll interno si hace falta -->
-      <div class="scroll-area" *ngIf="usuarioId">
-        <p-table [value]="rolesUsuario" [paginator]="false" [rows]="10" [responsiveLayout]="'scroll'" styleClass="p-datatable-sm">
-          <ng-template pTemplate="header">
-            <tr>
-              <th style="width:48px">#</th>
-              <th>Rol</th>
-              <th>Descripción</th>
-              <th style="width:80px; text-align:center;">Acciones</th>
-            </tr>
-          </ng-template>
-          <ng-template pTemplate="body" let-ru let-i="rowIndex">
-            <tr>
-              <td>{{ i + 1 }}</td>
-              <td>
-                <span class="role-item">
-                  <span class="role-part">{{ splitDisplay(ru?.rol).pre || getRoleName(ru) }}</span>
-                  <span *ngIf="splitDisplay(ru?.rol).post" class="org-part">&nbsp;{{ splitDisplay(ru?.rol).post }}</span>
-                </span>
-              </td>
-              <td>{{ ru.rol?.descripcion || '—' }}</td>
-              <td style="text-align:center;">
-                <button pButton type="button" icon="pi pi-trash" class="p-button-rounded p-button-danger p-button-text" (click)="unassignRole(ru.id)" pTooltip="Quitar rol"></button>
-              </td>
-            </tr>
-          </ng-template>
-          <ng-template pTemplate="emptymessage">
-            <tr><td colspan="4">Este usuario no tiene roles asignados.</td></tr>
-          </ng-template>
-        </p-table>
-      </div>
+    <!-- Acciones del pie -->
+    <div class="footer-actions">
+      <button
+        pButton
+        type="button"
+        label="Volver"
+        icon="pi pi-arrow-left"
+        class="p-button-secondary"
+        [routerLink]="['/gestion-de-usuarios/listar-usuarios']">
+      </button>
     </div>
   </p-card>
 </div>
+

@@ -5,6 +5,7 @@ import { RouterModule, Router } from '@angular/router';
 import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { DropdownModule } from 'primeng/dropdown';
+import { MultiSelectModule } from 'primeng/multiselect';
 import { ButtonModule } from 'primeng/button';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { UppercaseDirective } from '../../shared/formatting.directives';
@@ -26,7 +27,7 @@ import { LugarEntity } from '../../models/lugar.models';
 @Component({
   selector: 'app-usuarios-crear',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, CardModule, InputTextModule, DropdownModule, ButtonModule, ProgressSpinnerModule, UppercaseDirective, SkeletonModule, ChipModule, TagModule, TooltipModule, AvatarModule, SectionInviteDialogComponent],
+  imports: [CommonModule, FormsModule, RouterModule, CardModule, InputTextModule, DropdownModule, MultiSelectModule, ButtonModule, ProgressSpinnerModule, UppercaseDirective, SkeletonModule, ChipModule, TagModule, TooltipModule, AvatarModule, SectionInviteDialogComponent],
   templateUrl: './usuarios-crear.component.html',
   styleUrls: ['./usuarios-crear.component.scss']
 })
@@ -60,6 +61,7 @@ export class UsuariosCrearComponent implements OnInit {
     username: '',
     nombreCompleto: '',
     email: '',
+    telefono: '',
     // no default para scopeNivel
     scopeNivel: undefined as any,
     seccionId: null,
@@ -67,8 +69,8 @@ export class UsuariosCrearComponent implements OnInit {
     orgAdministradaId: null as any,
     // nuevo: roles seleccionados (single o multiple segun backend)
     rolesIds: [] as any,
-    // nuevo: lugar asignado
-    lugarId: null
+    // nuevo: lugares asignados (múltiples)
+    lugaresIds: []
   } as any;
 
   constructor(
@@ -201,15 +203,15 @@ export class UsuariosCrearComponent implements OnInit {
     }
     // limpiar selección de roles al cambiar alcance
     (this.model as any).rolesIds = Array.isArray((this.model as any).rolesIds) ? [] : null;
-    // limpiar lugar al cambiar alcance
-    this.model.lugarId = null;
+    // limpiar lugares al cambiar alcance
+    this.model.lugaresIds = [];
     this.lugaresDisponibles = [];
     this.cargarRolesPorContexto();
   }
 
   // Método para cargar lugares cuando cambia la sección
   onSeccionChange() {
-    this.model.lugarId = null;
+    this.model.lugaresIds = [];
     this.lugaresDisponibles = [];
     if (this.model.seccionId && this.orgId) {
       this.lugarService.listBySeccion(this.orgId, this.model.seccionId).subscribe({
@@ -290,11 +292,12 @@ export class UsuariosCrearComponent implements OnInit {
       username: '',
       nombreCompleto: '',
       email: '',
+      telefono: '',
       scopeNivel: undefined as any,
       seccionId: null,
       orgAdministradaId: null,
       rolesIds: [] as any,
-      lugarId: null
+      lugaresIds: []
     } as any;
     this.lugaresDisponibles = [];
   }
@@ -315,9 +318,10 @@ export class UsuariosCrearComponent implements OnInit {
       username: this.model.username.trim().toUpperCase(),
       nombreCompleto: (this.model.nombreCompleto || '').trim() || undefined,
       email: (this.model.email || '').trim() || undefined,
+      telefono: (this.model.telefono || '').trim() || undefined,
       scopeNivel: this.model.scopeNivel,
       seccionId: this.isSeccionRequerida ? (this.model.seccionId || null) : undefined,
-      lugarId: this.model.lugarId || undefined
+      lugaresIds: Array.isArray(this.model.lugaresIds) && this.model.lugaresIds.length > 0 ? this.model.lugaresIds : undefined
     };
     if (this.isAlcanceOrganizacion && (this.model as any).orgAdministradaId) {
       body.orgAdministradaId = (this.model as any).orgAdministradaId;

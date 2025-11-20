@@ -144,6 +144,28 @@
               />
             </div>
 
+            <!-- Teléfono -->
+            <div class="field">
+              <label for="telefono" class="field-label">
+                <i class="pi pi-phone label-icon"></i>
+                Teléfono
+              </label>
+              <input
+                pInputText
+                id="telefono"
+                type="tel"
+                name="telefono"
+                [(ngModel)]="model.telefono"
+                maxlength="20"
+                placeholder="+57 3001234567"
+                class="input-field"
+              />
+              <small class="info-message">
+                <i class="pi pi-info-circle"></i>
+                Formato: +CC NNNNNNNNN (Ej: +57 3001234567)
+              </small>
+            </div>
+
             <!-- Alcance -->
             <div class="field">
               <label for="alcance" class="field-label">
@@ -227,23 +249,36 @@
               </ng-template>
             </div>
 
-            <!-- Lugar -->
+            <!-- Lugares (Multi-selector) -->
             <div class="field" *ngIf="mostrarCampoLugar">
-              <label for="lugar" class="field-label">
+              <label for="lugares" class="field-label">
                 <i class="pi pi-map-marker label-icon"></i>
-                Lugar (opcional)
+                Lugares Asignados (opcional)
               </label>
-              <p-dropdown
-                id="lugar"
+
+              <div *ngIf="!model.seccionId" class="info-box">
+                <i class="pi pi-info-circle"></i>
+                Selecciona primero una sección para cargar lugares disponibles
+              </div>
+
+              <div *ngIf="model.seccionId && lugaresDisponibles.length === 0 && !loading" class="warning-box">
+                <i class="pi pi-exclamation-triangle"></i>
+                No hay lugares disponibles en esta sección
+              </div>
+
+              <p-multiSelect
+                *ngIf="model.seccionId && lugaresDisponibles.length > 0"
+                id="lugares"
                 [options]="lugaresDisponibles"
                 optionLabel="nombre"
                 optionValue="id"
-                [(ngModel)]="model.lugarId"
-                name="lugarId"
-                [showClear]="true"
-                placeholder="Seleccione lugar"
+                [(ngModel)]="model.lugaresIds"
+                name="lugaresIds"
+                placeholder="Selecciona uno o más lugares..."
                 [filter]="true"
                 filterPlaceholder="Buscar lugar..."
+                [showToggleAll]="false"
+                display="chip"
                 styleClass="w-100">
                 <ng-template let-lugar pTemplate="item">
                   <div class="lugar-option">
@@ -254,19 +289,11 @@
                     </div>
                   </div>
                 </ng-template>
-                <ng-template let-lugar pTemplate="selectedItem">
-                  <div class="lugar-option" *ngIf="lugar">
-                    <i class="pi pi-map-marker"></i>
-                    <div class="lugar-info">
-                      <span class="lugar-name">{{ lugar.nombre }}</span>
-                      <small class="lugar-tipo">{{ lugar.tipoLugar }}</small>
-                    </div>
-                  </div>
-                </ng-template>
-              </p-dropdown>
+              </p-multiSelect>
+
               <small class="info-message">
                 <i class="pi pi-info-circle"></i>
-                Selecciona el lugar donde reside el usuario en esta sección
+                Puedes asignar múltiples lugares al usuario
               </small>
             </div>
           </div>

@@ -46,6 +46,7 @@ export interface CreateUserRequest {
   username: string;
   nombreCompleto?: string | null;
   email?: string | null;
+  telefono?: string | null;
   scopeNivel?: ScopeNivel;
   // Nuevo: permitir setear pertenencia en alta
   seccionId?: string | null;
@@ -53,17 +54,20 @@ export interface CreateUserRequest {
   orgAdministradaId?: string | null;
   // NUEVO: lista de roles a asignar en la creación (ids)
   rolesIds?: string[] | string | null;
-  // NUEVO: lugar asignado al usuario
-  lugarId?: string | null;
+  // NUEVO: lugares asignados al usuario (múltiples)
+  lugaresIds?: string[] | null;
 }
 
 export interface UpdateUserRequest {
   username?: string; // opcional en PATCH
   nombreCompleto?: string | null;
   email?: string | null;
+  telefono?: string | null;
   scopeNivel?: ScopeNivel;
   seccionPrincipalId?: string | null;
-  telefono?: string | null; // NUEVO: permitir actualizar teléfono
+  seccionId?: string | null;
+  // NUEVO: lugares asignados (reemplaza completamente)
+  lugaresIds?: string[] | null;
 }
 
 // Contrato de asignación de rol a usuario
@@ -159,11 +163,12 @@ export class UsersService {
       username: body.username,
       nombreCompleto: body.nombreCompleto ?? undefined,
       email: body.email ?? undefined,
+      telefono: body.telefono ?? undefined,
       scopeNivel: body.scopeNivel ?? undefined,
       seccionId: body.seccionId ?? undefined,
       orgAdministradaId: body.orgAdministradaId ?? undefined,
       rolesIds: body.rolesIds ?? undefined,
-      lugarId: body.lugarId ?? undefined
+      lugaresIds: body.lugaresIds ?? undefined
     };
     return this.http.post<ApiResponse<any>>(url, payload, { headers: this.json }).pipe(
       map((resp) => {

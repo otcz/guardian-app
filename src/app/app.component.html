@@ -167,6 +167,17 @@
       <!-- Header -->
       <header class="app-header">
         <div class="header-left">
+          <!-- Botón hamburguesa para móvil -->
+          <button pButton
+                  type="button"
+                  icon="pi pi-bars"
+                  class="p-button-text p-button-rounded mobile-menu-btn"
+                  (click)="openSidebar()"
+                  *ngIf="isMobileView"
+                  aria-label="Abrir menú"
+                  pTooltip="Menú"
+                  tooltipPosition="bottom">
+          </button>
           <img src="assets/logo.png" alt="Guardian Logo" class="header-logo" />
         </div>
 

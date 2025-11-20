@@ -118,6 +118,10 @@ export class AppComponent implements OnInit {
     }
   }
 
+  openSidebar() {
+    this.sidebarOpen = true;
+  }
+
   closeSidebar() {
     if (this.isMobileView) {
       this.sidebarOpen = false;

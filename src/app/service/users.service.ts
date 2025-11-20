@@ -9,6 +9,14 @@ export interface ApiResponse<T> { success?: boolean; message?: string; data?: T;
 
 export type ScopeNivel = 'ORGANIZACION' | 'SECCION' | string;
 
+export interface LugarSimpleDto {
+  id: string;
+  nombre: string;
+  tipoLugar: string;
+  seccionId?: string | null;
+  seccionNombre?: string | null;
+}
+
 export interface UserEntity {
   id: string;
   username: string;
@@ -30,6 +38,8 @@ export interface UserEntity {
   rolesOrganizacion?: { id: string; nombre: string }[] | null;
   rolNombres?: string[] | null;
   rolNombre?: string | null;
+  // LUGARES ASIGNADOS
+  lugaresAsignados?: LugarSimpleDto[] | null;
 }
 
 export interface CreateUserRequest {
@@ -43,6 +53,8 @@ export interface CreateUserRequest {
   orgAdministradaId?: string | null;
   // NUEVO: lista de roles a asignar en la creación (ids)
   rolesIds?: string[] | string | null;
+  // NUEVO: lugar asignado al usuario
+  lugarId?: string | null;
 }
 
 export interface UpdateUserRequest {
@@ -103,7 +115,17 @@ export class UsersService {
         ? d.rolesOrganizacion.map((r: any) => ({ id: String(r?.id ?? r?._id ?? ''), nombre: String(r?.nombre ?? r?.name ?? '') }))
         : (Array.isArray(d?.roles) ? d.roles.map((r: any) => ({ id: String(r?.id ?? r?._id ?? ''), nombre: String(r?.nombre ?? r?.name ?? '') })) : null),
       rolNombres: Array.isArray(d?.rolNombres) ? d.rolNombres.map((x: any) => String(x)) : null,
-      rolNombre: d?.rolNombre != null ? String(d?.rolNombre) : null
+      rolNombre: d?.rolNombre != null ? String(d?.rolNombre) : null,
+      // lugares asignados
+      lugaresAsignados: Array.isArray(d?.lugaresAsignados)
+        ? d.lugaresAsignados.map((l: any) => ({
+            id: String(l?.id ?? ''),
+            nombre: String(l?.nombre ?? ''),
+            tipoLugar: String(l?.tipoLugar ?? 'CASA'),
+            seccionId: l?.seccionId != null ? String(l?.seccionId) : null,
+            seccionNombre: l?.seccionNombre != null ? String(l?.seccionNombre) : null
+          }))
+        : null
     } as UserEntity;
   }
 
@@ -140,7 +162,8 @@ export class UsersService {
       scopeNivel: body.scopeNivel ?? undefined,
       seccionId: body.seccionId ?? undefined,
       orgAdministradaId: body.orgAdministradaId ?? undefined,
-      rolesIds: body.rolesIds ?? undefined
+      rolesIds: body.rolesIds ?? undefined,
+      lugarId: body.lugarId ?? undefined
     };
     return this.http.post<ApiResponse<any>>(url, payload, { headers: this.json }).pipe(
       map((resp) => {
@@ -284,6 +307,65 @@ export class UsersService {
         return this.ensureUser(this.unwrap<any>(resp));
       }),
       catchError((err) => throwError(() => ({ error: { message: err?.error?.message || err?.message || 'No se pudo obtener el usuario' }, status: err?.status })))
+    );
+  }
+
+  // ===== GESTIÓN DE LUGARES DE USUARIOS =====
+
+  /**
+   * Asignar un lugar a un usuario
+   * POST /api/orgs/{orgId}/usuarios/{usuarioId}/lugares
+   */
+  asignarLugar(orgId: string, usuarioId: string, lugarId: string): Observable<{ lugar: LugarSimpleDto; message?: string }> {
+    const url = `${this.base}/orgs/${orgId}/usuarios/${usuarioId}/lugares`;
+    return this.http.post<ApiResponse<any>>(url, { lugarId }, { headers: this.json }).pipe(
+      map((resp) => {
+        const d = this.unwrap<any>(resp);
+        const lugar: LugarSimpleDto = {
+          id: String(d?.id ?? ''),
+          nombre: String(d?.nombre ?? ''),
+          tipoLugar: String(d?.tipoLugar ?? 'CASA'),
+          seccionId: d?.seccionId != null ? String(d?.seccionId) : null,
+          seccionNombre: d?.seccionNombre != null ? String(d?.seccionNombre) : null
+        };
+        return { lugar, message: (resp as any)?.message };
+      }),
+      catchError((err) => throwError(() => ({ error: { message: err?.error?.message || err?.message || 'No se pudo asignar el lugar' }, status: err?.status })))
+    );
+  }
+
+  /**
+   * Desasignar un lugar de un usuario
+   * DELETE /api/orgs/{orgId}/usuarios/{usuarioId}/lugares/{lugarId}
+   */
+  desasignarLugar(orgId: string, usuarioId: string, lugarId: string): Observable<{ message?: string }> {
+    const url = `${this.base}/orgs/${orgId}/usuarios/${usuarioId}/lugares/${lugarId}`;
+    return this.http.delete<ApiResponse<any>>(url, { headers: this.accept }).pipe(
+      map((resp) => ({ message: (resp as any)?.message })),
+      catchError((err) => throwError(() => ({ error: { message: err?.error?.message || err?.message || 'No se pudo desasignar el lugar' }, status: err?.status })))
+    );
+  }
+
+  /**
+   * Listar lugares de un usuario
+   * GET /api/orgs/{orgId}/usuarios/{usuarioId}/lugares
+   */
+  listarLugaresUsuario(orgId: string, usuarioId: string): Observable<LugarSimpleDto[]> {
+    const url = `${this.base}/orgs/${orgId}/usuarios/${usuarioId}/lugares`;
+    return this.http.get<any>(url, { headers: this.accept }).pipe(
+      map((payload: any) => this.toApiResponse(payload)),
+      map((resp) => {
+        const d = this.unwrap<any>(resp);
+        const arr = Array.isArray(d) ? d : [];
+        return arr.map((l: any) => ({
+          id: String(l?.id ?? ''),
+          nombre: String(l?.nombre ?? ''),
+          tipoLugar: String(l?.tipoLugar ?? 'CASA'),
+          seccionId: l?.seccionId != null ? String(l?.seccionId) : null,
+          seccionNombre: l?.seccionNombre != null ? String(l?.seccionNombre) : null
+        }));
+      }),
+      catchError((err) => throwError(() => ({ error: { message: err?.error?.message || err?.message || 'No se pudieron listar los lugares' }, status: err?.status })))
     );
   }
 }

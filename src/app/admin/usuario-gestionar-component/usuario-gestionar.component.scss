@@ -356,6 +356,99 @@
   }
 }
 
+/* Sección de acciones rápidas */
+.actions-quick {
+  margin-top: 1.5rem;
+
+  .quick-icons {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: center;
+
+    .icon-btn {
+      width: 56px;
+      height: 56px;
+      padding: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      background: var(--surface-alt);
+      transition: all 0.3s ease;
+
+      ::ng-deep {
+        .p-button-icon {
+          font-size: 1.3rem;
+          margin: 0;
+        }
+      }
+
+      &:hover:not(:disabled) {
+        transform: translateY(-4px) scale(1.05);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+      }
+
+      &:active:not(:disabled) {
+        transform: translateY(-2px) scale(1.02);
+      }
+
+      &.p-button-outlined {
+        border-width: 2px;
+
+        &:hover:not(:disabled) {
+          background: var(--primary);
+          border-color: var(--primary);
+          color: white;
+
+          ::ng-deep .p-button-icon {
+            color: white;
+          }
+        }
+
+        &.p-button-danger {
+          &:hover:not(:disabled) {
+            background: #ef4444;
+            border-color: #ef4444;
+          }
+        }
+
+        &.p-button-success {
+          &:hover:not(:disabled) {
+            background: #16a34a;
+            border-color: #16a34a;
+          }
+        }
+      }
+
+      &.p-button-text {
+        border: 2px solid transparent;
+        background: rgba(79, 140, 255, 0.1);
+
+        ::ng-deep .p-button-icon {
+          color: var(--primary);
+        }
+
+        &:hover:not(:disabled) {
+          background: var(--primary);
+          border-color: var(--primary);
+
+          ::ng-deep .p-button-icon {
+            color: white;
+          }
+        }
+      }
+
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+      }
+    }
+  }
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .card-body {
@@ -397,6 +490,21 @@
 
       .action-btn {
         width: 100%;
+      }
+    }
+  }
+
+  .actions-quick {
+    .quick-icons {
+      justify-content: center;
+
+      .icon-btn {
+        width: 52px;
+        height: 52px;
+
+        ::ng-deep .p-button-icon {
+          font-size: 1.2rem;
+        }
       }
     }
   }

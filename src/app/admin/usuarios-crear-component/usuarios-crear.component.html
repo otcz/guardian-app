@@ -215,6 +215,7 @@
                   optionValue="id"
                   [(ngModel)]="model.seccionId"
                   name="seccionId"
+                  (onChange)="onSeccionChange()"
                   placeholder="Seleccione sección"
                   [filter]="true"
                   filterPlaceholder="Buscar sección..."
@@ -224,6 +225,49 @@
               <ng-template #sectionsLoading>
                 <p-skeleton width="100%" height="42px"></p-skeleton>
               </ng-template>
+            </div>
+
+            <!-- Lugar -->
+            <div class="field" *ngIf="mostrarCampoLugar">
+              <label for="lugar" class="field-label">
+                <i class="pi pi-map-marker label-icon"></i>
+                Lugar (opcional)
+              </label>
+              <p-dropdown
+                id="lugar"
+                [options]="lugaresDisponibles"
+                optionLabel="nombre"
+                optionValue="id"
+                [(ngModel)]="model.lugarId"
+                name="lugarId"
+                [showClear]="true"
+                placeholder="Seleccione lugar"
+                [filter]="true"
+                filterPlaceholder="Buscar lugar..."
+                styleClass="w-100">
+                <ng-template let-lugar pTemplate="item">
+                  <div class="lugar-option">
+                    <i class="pi pi-map-marker"></i>
+                    <div class="lugar-info">
+                      <span class="lugar-name">{{ lugar.nombre }}</span>
+                      <small class="lugar-tipo">{{ lugar.tipoLugar }}</small>
+                    </div>
+                  </div>
+                </ng-template>
+                <ng-template let-lugar pTemplate="selectedItem">
+                  <div class="lugar-option" *ngIf="lugar">
+                    <i class="pi pi-map-marker"></i>
+                    <div class="lugar-info">
+                      <span class="lugar-name">{{ lugar.nombre }}</span>
+                      <small class="lugar-tipo">{{ lugar.tipoLugar }}</small>
+                    </div>
+                  </div>
+                </ng-template>
+              </p-dropdown>
+              <small class="info-message">
+                <i class="pi pi-info-circle"></i>
+                Selecciona el lugar donde reside el usuario en esta sección
+              </small>
             </div>
           </div>
         </div>

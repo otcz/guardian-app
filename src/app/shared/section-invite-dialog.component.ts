@@ -14,6 +14,8 @@ import { NotificationService } from '../service/notification.service';
 import { InvitacionesService, InvitationDto } from '../service/invitaciones.service';
 import { SeccionService, SeccionEntity } from '../service/seccion.service';
 import { RolesService, RoleEntity } from '../service/roles.service';
+import { LugarService } from '../service/lugar.service';
+import { LugarEntity } from '../models/lugar.models';
 import * as QRCode from 'qrcode';
 
 @Component({
@@ -33,11 +35,13 @@ export class SectionInviteDialogComponent implements OnChanges {
   secciones: SeccionEntity[] = [];
   roles: RoleEntity[] = [];
   filteredRoles: RoleEntity[] = [];
+  lugares: LugarEntity[] = [];
 
   // Form model
   ttlMinutes: number | null = null;
   // Eliminados: expiraEnDate y usosMaximos
   rolContextualId: string | null = null;
+  lugarId: string | null = null;
   emailDestino: string | null = null;
   notas: string | null = null;
 
@@ -51,13 +55,23 @@ export class SectionInviteDialogComponent implements OnChanges {
 
   ttlChips = [15, 30, 120, 1440];
 
-  constructor(private invites: InvitacionesService, private notify: NotificationService, private seccionesSvc: SeccionService, private rolesSvc: RolesService) { }
+  constructor(
+    private invites: InvitacionesService,
+    private notify: NotificationService,
+    private seccionesSvc: SeccionService,
+    private rolesSvc: RolesService,
+    private lugarService: LugarService
+  ) { }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['visible'] && this.visible) {
       this.reset();
       this.ensureSecciones();
       this.ensureRoles();
+      this.ensureLugares();
+    }
+    if (changes['seccionId'] && this.seccionId) {
+      this.ensureLugares();
     }
   }
 
@@ -88,8 +102,19 @@ export class SectionInviteDialogComponent implements OnChanges {
     }
   }
 
+  private ensureLugares() {
+    if (!this.orgId || !this.seccionId) {
+      this.lugares = [];
+      return;
+    }
+    this.lugarService.listBySeccion(this.orgId, this.seccionId).subscribe({
+      next: (list) => this.lugares = list || [],
+      error: () => this.lugares = []
+    });
+  }
+
   reset() {
-    this.ttlMinutes = null; this.rolContextualId = null; this.emailDestino = null; this.notas = null; this.invite = null; this.shareUrl = null;
+    this.ttlMinutes = null; this.rolContextualId = null; this.lugarId = null; this.emailDestino = null; this.notas = null; this.invite = null; this.shareUrl = null;
   }
 
   applyTtlChip(v: number) { this.ttlMinutes = v; }
@@ -143,12 +168,13 @@ export class SectionInviteDialogComponent implements OnChanges {
         const fromJoin = inv ? this.invites.buildShareUrl(inv.joinUrl) : '';
         const fromCode = inv?.codigo ? this.invites.buildFrontInviteUrlFromCode(inv.codigo) : '';
         this.shareUrl = (!isInvalid ? pref : '') || fromJoin || fromCode || '';
-        // Si hay rol seleccionado, adjuntarlo en la URL como rolId
+        // Si hay rol o lugar seleccionado, adjuntarlos en la URL
         try {
-          if (this.shareUrl && this.rolContextualId) {
+          if (this.shareUrl && (this.rolContextualId || this.lugarId)) {
             const base = (typeof window !== 'undefined' && window.location && window.location.origin) ? window.location.origin : '';
             const u = this.shareUrl.startsWith('http') ? new URL(this.shareUrl) : new URL(this.shareUrl, base || 'http://localhost');
-            u.searchParams.set('rolId', this.rolContextualId);
+            if (this.rolContextualId) u.searchParams.set('rolId', this.rolContextualId);
+            if (this.lugarId) u.searchParams.set('lugarId', this.lugarId);
             this.shareUrl = u.toString();
           }
         } catch {}

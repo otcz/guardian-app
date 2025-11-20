@@ -107,6 +107,48 @@
             Rol que se asignará automáticamente al aceptar
           </small>
         </div>
+
+        <!-- Lugar -->
+        <div class="field">
+          <label for="lugar" class="field-label">
+            <i class="pi pi-map-marker label-icon"></i>
+            Lugar (opcional)
+          </label>
+          <p-dropdown
+            id="lugar"
+            [options]="lugares"
+            optionLabel="nombre"
+            optionValue="id"
+            [(ngModel)]="lugarId"
+            placeholder="Sin lugar específico"
+            [showClear]="true"
+            [filter]="true"
+            filterPlaceholder="Buscar lugar..."
+            styleClass="w-100">
+            <ng-template let-lugar pTemplate="item">
+              <div class="lugar-option">
+                <i class="pi pi-map-marker"></i>
+                <div class="lugar-info">
+                  <span class="lugar-name">{{ lugar.nombre }}</span>
+                  <small class="lugar-tipo">{{ lugar.tipoLugar }}</small>
+                </div>
+              </div>
+            </ng-template>
+            <ng-template let-lugar pTemplate="selectedItem">
+              <div class="lugar-option" *ngIf="lugar">
+                <i class="pi pi-map-marker"></i>
+                <div class="lugar-info">
+                  <span class="lugar-name">{{ lugar.nombre }}</span>
+                  <small class="lugar-tipo">{{ lugar.tipoLugar }}</small>
+                </div>
+              </div>
+            </ng-template>
+          </p-dropdown>
+          <small class="info-message">
+            <i class="pi pi-info-circle"></i>
+            Lugar que se asignará automáticamente al aceptar
+          </small>
+        </div>
       </div>
     </div>
 

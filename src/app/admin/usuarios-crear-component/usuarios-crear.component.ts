@@ -20,6 +20,8 @@ import { AvatarModule } from 'primeng/avatar';
 import { SectionInviteDialogComponent } from '../../shared/section-invite-dialog.component';
 import { OrganizationService, Organization } from '../../service/organization.service';
 import { RolesService, RoleEntity } from '../../service/roles.service';
+import { LugarService } from '../../service/lugar.service';
+import { LugarEntity } from '../../models/lugar.models';
 
 @Component({
   selector: 'app-usuarios-crear',
@@ -38,6 +40,9 @@ export class UsuariosCrearComponent implements OnInit {
 
   // NUEVO: roles filtrados por contexto
   rolesDisponibles: RoleEntity[] = [];
+
+  // NUEVO: lugares disponibles según la sección seleccionada
+  lugaresDisponibles: LugarEntity[] = [];
 
   // Metadata de scope desde backend
   usuariosMeta: UsuariosMeta | null = null;
@@ -61,7 +66,9 @@ export class UsuariosCrearComponent implements OnInit {
     // organización que administrará cuando el alcance sea ORGANIZACION
     orgAdministradaId: null as any,
     // nuevo: roles seleccionados (single o multiple segun backend)
-    rolesIds: [] as any
+    rolesIds: [] as any,
+    // nuevo: lugar asignado
+    lugarId: null
   } as any;
 
   constructor(
@@ -71,7 +78,8 @@ export class UsuariosCrearComponent implements OnInit {
     private notify: NotificationService,
     private router: Router,
     private orgService: OrganizationService,
-    private rolesService: RolesService
+    private rolesService: RolesService,
+    private lugarService: LugarService
   ) {}
 
   ngOnInit(): void {
@@ -97,6 +105,10 @@ export class UsuariosCrearComponent implements OnInit {
 
           if (contextoSeccionId && allowed.includes('SECCION')) {
             defaultScope = meta.allowedScopeNiveles.find((x: any) => String(x).toUpperCase() === 'SECCION');
+            // Si hay contexto de sección, preseleccionarla
+            if (defaultScope && !this.model.seccionId) {
+              this.model.seccionId = contextoSeccionId;
+            }
           } else if (!contextoSeccionId && allowed.includes('ORGANIZACION')) {
             defaultScope = meta.allowedScopeNiveles.find((x: any) => String(x).toUpperCase() === 'ORGANIZACION');
           }
@@ -108,6 +120,11 @@ export class UsuariosCrearComponent implements OnInit {
 
         this.onScopeChange();
         this.cargarRolesPorContexto();
+
+        // Cargar lugares si hay sección preseleccionada
+        if (this.model.seccionId) {
+          this.onSeccionChange();
+        }
       },
       error: () => {
         this.onScopeChange();
@@ -170,6 +187,11 @@ export class UsuariosCrearComponent implements OnInit {
     return String(this.model.scopeNivel || '').toUpperCase() === 'SECCION';
   }
 
+  // Mostrar campo de lugar cuando hay sección seleccionada
+  get mostrarCampoLugar(): boolean {
+    return !!this.model.seccionId;
+  }
+
   onScopeChange() {
     if (!this.isSeccionRequerida) {
       this.model.seccionId = null;
@@ -179,7 +201,27 @@ export class UsuariosCrearComponent implements OnInit {
     }
     // limpiar selección de roles al cambiar alcance
     (this.model as any).rolesIds = Array.isArray((this.model as any).rolesIds) ? [] : null;
+    // limpiar lugar al cambiar alcance
+    this.model.lugarId = null;
+    this.lugaresDisponibles = [];
     this.cargarRolesPorContexto();
+  }
+
+  // Método para cargar lugares cuando cambia la sección
+  onSeccionChange() {
+    this.model.lugarId = null;
+    this.lugaresDisponibles = [];
+    if (this.model.seccionId && this.orgId) {
+      this.lugarService.listBySeccion(this.orgId, this.model.seccionId).subscribe({
+        next: (lugares) => {
+          this.lugaresDisponibles = lugares || [];
+        },
+        error: (e) => {
+          this.notify.error('Error', e?.error?.message || 'No se pudieron cargar los lugares');
+          this.lugaresDisponibles = [];
+        }
+      });
+    }
   }
 
   // nuevo: cuando cambia la organización administrada, recargar roles
@@ -251,8 +293,10 @@ export class UsuariosCrearComponent implements OnInit {
       scopeNivel: undefined as any,
       seccionId: null,
       orgAdministradaId: null,
-      rolesIds: [] as any
+      rolesIds: [] as any,
+      lugarId: null
     } as any;
+    this.lugaresDisponibles = [];
   }
 
   validate(): string | null {
@@ -272,7 +316,8 @@ export class UsuariosCrearComponent implements OnInit {
       nombreCompleto: (this.model.nombreCompleto || '').trim() || undefined,
       email: (this.model.email || '').trim() || undefined,
       scopeNivel: this.model.scopeNivel,
-      seccionId: this.isSeccionRequerida ? (this.model.seccionId || null) : undefined
+      seccionId: this.isSeccionRequerida ? (this.model.seccionId || null) : undefined,
+      lugarId: this.model.lugarId || undefined
     };
     if (this.isAlcanceOrganizacion && (this.model as any).orgAdministradaId) {
       body.orgAdministradaId = (this.model as any).orgAdministradaId;

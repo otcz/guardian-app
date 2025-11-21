@@ -23,6 +23,7 @@ import { OrganizationService, Organization } from '../../service/organization.se
 import { RolesService, RoleEntity } from '../../service/roles.service';
 import { LugarService } from '../../service/lugar.service';
 import { LugarEntity } from '../../models/lugar.models';
+import { AuthService } from '../../service/auth.service';
 
 @Component({
   selector: 'app-usuarios-crear',
@@ -320,7 +321,8 @@ export class UsuariosCrearComponent implements OnInit {
     private router: Router,
     private orgService: OrganizationService,
     private rolesService: RolesService,
-    private lugarService: LugarService
+    private lugarService: LugarService,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -337,21 +339,34 @@ export class UsuariosCrearComponent implements OnInit {
     this.users.getUsuarioMeta(this.orgId).subscribe({
       next: (meta) => {
         this.usuariosMeta = meta;
-        this.scopeOptions = (meta.allowedScopeNiveles || []).map((v) => ({ label: String(v), value: v }));
+
+        // FILTRAR OPCIONES DE ALCANCE: Solo SYSADMIN puede ver ORGANIZACION
+        let allowedScopes = meta.allowedScopeNiveles || [];
+        const isSysAdmin = this.authService.hasRole('SYSADMIN');
+
+        if (!isSysAdmin) {
+          // Filtrar ORGANIZACION para usuarios que no son SYSADMIN
+          allowedScopes = allowedScopes.filter((v: any) => String(v).toUpperCase() !== 'ORGANIZACION');
+        }
+
+        this.scopeOptions = allowedScopes.map((v) => ({ label: String(v), value: v }));
 
         // PRESELECCIÓN DE ALCANCE SEGÚN CONTEXTO (solo si el modelo aún no tiene valor)
-        if (!this.model.scopeNivel && Array.isArray(meta.allowedScopeNiveles) && meta.allowedScopeNiveles.length) {
-          const allowed = meta.allowedScopeNiveles.map((x: any) => String(x).toUpperCase());
+        if (!this.model.scopeNivel && Array.isArray(allowedScopes) && allowedScopes.length) {
+          const allowed = allowedScopes.map((x: any) => String(x).toUpperCase());
           let defaultScope: ScopeNivel | undefined;
 
           if (contextoSeccionId && allowed.includes('SECCION')) {
-            defaultScope = meta.allowedScopeNiveles.find((x: any) => String(x).toUpperCase() === 'SECCION');
+            defaultScope = allowedScopes.find((x: any) => String(x).toUpperCase() === 'SECCION');
             // Si hay contexto de sección, preseleccionarla
             if (defaultScope && !this.model.seccionId) {
               this.model.seccionId = contextoSeccionId;
             }
-          } else if (!contextoSeccionId && allowed.includes('ORGANIZACION')) {
-            defaultScope = meta.allowedScopeNiveles.find((x: any) => String(x).toUpperCase() === 'ORGANIZACION');
+          } else if (!contextoSeccionId && allowed.includes('ORGANIZACION') && isSysAdmin) {
+            defaultScope = allowedScopes.find((x: any) => String(x).toUpperCase() === 'ORGANIZACION');
+          } else if (allowed.includes('SECCION')) {
+            // Si no hay contexto de sección pero SECCION está permitida, usarla por defecto
+            defaultScope = allowedScopes.find((x: any) => String(x).toUpperCase() === 'SECCION');
           }
 
           if (defaultScope !== undefined) {

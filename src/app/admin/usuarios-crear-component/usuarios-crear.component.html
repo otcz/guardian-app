@@ -144,25 +144,47 @@
               />
             </div>
 
-            <!-- Teléfono -->
-            <div class="field">
-              <label for="telefono" class="field-label">
+            <!-- Teléfono (Dividido en código de país y número) -->
+            <div class="field field-full">
+              <label class="field-label">
                 <i class="pi pi-phone label-icon"></i>
                 Teléfono
               </label>
-              <input
-                pInputText
-                id="telefono"
-                type="tel"
-                name="telefono"
-                [(ngModel)]="model.telefono"
-                maxlength="20"
-                placeholder="+57 3001234567"
-                class="input-field"
-              />
+              <div class="phone-input-group">
+                <p-dropdown
+                  [options]="codigosPais"
+                  [(ngModel)]="codigoPais"
+                  name="codigoPais"
+                  optionLabel="label"
+                  optionValue="value"
+                  [filter]="true"
+                  filterPlaceholder="Buscar código..."
+                  placeholder="Código"
+                  styleClass="phone-country-code"
+                  appendTo="body">
+                  <ng-template let-item pTemplate="selectedItem">
+                    <span>{{ item.value }}</span>
+                  </ng-template>
+                  <ng-template let-item pTemplate="item">
+                    <div class="country-option">
+                      <span class="country-code">{{ item.value }}</span>
+                      <span class="country-name">{{ item.label.split(' ').slice(1).join(' ') }}</span>
+                    </div>
+                  </ng-template>
+                </p-dropdown>
+                <input
+                  pInputText
+                  type="tel"
+                  name="numeroTelefono"
+                  [(ngModel)]="numeroTelefono"
+                  maxlength="15"
+                  placeholder="3001234567"
+                  class="phone-number-input"
+                />
+              </div>
               <small class="info-message">
                 <i class="pi pi-info-circle"></i>
-                Formato: +CC NNNNNNNNN (Ej: +57 3001234567)
+                Solo escribe el número sin código de país. Resultado: {{ codigoPais }} {{ numeroTelefono || '___________' }}
               </small>
             </div>
 

@@ -57,6 +57,245 @@ export class UsuariosCrearComponent implements OnInit {
     SECCION: 'Sección'
   };
 
+  // Campos separados para teléfono
+  codigoPais: string = '+57';
+  numeroTelefono: string = '';
+
+  // Lista completa de códigos de país (ordenados alfabéticamente)
+  codigosPais = [
+    { label: '+93 (Afganistán)', value: '+93' },
+    { label: '+355 (Albania)', value: '+355' },
+    { label: '+49 (Alemania)', value: '+49' },
+    { label: '+376 (Andorra)', value: '+376' },
+    { label: '+244 (Angola)', value: '+244' },
+    { label: '+1264 (Anguila)', value: '+1264' },
+    { label: '+1268 (Antigua y Barbuda)', value: '+1268' },
+    { label: '+966 (Arabia Saudita)', value: '+966' },
+    { label: '+213 (Argelia)', value: '+213' },
+    { label: '+54 (Argentina)', value: '+54' },
+    { label: '+374 (Armenia)', value: '+374' },
+    { label: '+297 (Aruba)', value: '+297' },
+    { label: '+61 (Australia)', value: '+61' },
+    { label: '+43 (Austria)', value: '+43' },
+    { label: '+994 (Azerbaiyán)', value: '+994' },
+    { label: '+1242 (Bahamas)', value: '+1242' },
+    { label: '+880 (Bangladés)', value: '+880' },
+    { label: '+1246 (Barbados)', value: '+1246' },
+    { label: '+973 (Baréin)', value: '+973' },
+    { label: '+32 (Bélgica)', value: '+32' },
+    { label: '+501 (Belice)', value: '+501' },
+    { label: '+229 (Benín)', value: '+229' },
+    { label: '+1441 (Bermudas)', value: '+1441' },
+    { label: '+375 (Bielorrusia)', value: '+375' },
+    { label: '+95 (Birmania/Myanmar)', value: '+95' },
+    { label: '+591 (Bolivia)', value: '+591' },
+    { label: '+387 (Bosnia y Herzegovina)', value: '+387' },
+    { label: '+267 (Botsuana)', value: '+267' },
+    { label: '+55 (Brasil)', value: '+55' },
+    { label: '+673 (Brunéi)', value: '+673' },
+    { label: '+359 (Bulgaria)', value: '+359' },
+    { label: '+226 (Burkina Faso)', value: '+226' },
+    { label: '+257 (Burundi)', value: '+257' },
+    { label: '+975 (Bután)', value: '+975' },
+    { label: '+238 (Cabo Verde)', value: '+238' },
+    { label: '+855 (Camboya)', value: '+855' },
+    { label: '+237 (Camerún)', value: '+237' },
+    { label: '+1 (Canadá)', value: '+1' },
+    { label: '+974 (Catar)', value: '+974' },
+    { label: '+235 (Chad)', value: '+235' },
+    { label: '+420 (Chequia)', value: '+420' },
+    { label: '+56 (Chile)', value: '+56' },
+    { label: '+86 (China)', value: '+86' },
+    { label: '+357 (Chipre)', value: '+357' },
+    { label: '+57 (Colombia)', value: '+57' },
+    { label: '+269 (Comoras)', value: '+269' },
+    { label: '+242 (Congo)', value: '+242' },
+    { label: '+243 (Congo RD)', value: '+243' },
+    { label: '+850 (Corea del Norte)', value: '+850' },
+    { label: '+82 (Corea del Sur)', value: '+82' },
+    { label: '+225 (Costa de Marfil)', value: '+225' },
+    { label: '+506 (Costa Rica)', value: '+506' },
+    { label: '+385 (Croacia)', value: '+385' },
+    { label: '+53 (Cuba)', value: '+53' },
+    { label: '+599 (Curazao)', value: '+599' },
+    { label: '+45 (Dinamarca)', value: '+45' },
+    { label: '+1767 (Dominica)', value: '+1767' },
+    { label: '+593 (Ecuador)', value: '+593' },
+    { label: '+20 (Egipto)', value: '+20' },
+    { label: '+503 (El Salvador)', value: '+503' },
+    { label: '+971 (Emiratos Árabes)', value: '+971' },
+    { label: '+291 (Eritrea)', value: '+291' },
+    { label: '+421 (Eslovaquia)', value: '+421' },
+    { label: '+386 (Eslovenia)', value: '+386' },
+    { label: '+34 (España)', value: '+34' },
+    { label: '+1 (Estados Unidos)', value: '+1' },
+    { label: '+372 (Estonia)', value: '+372' },
+    { label: '+268 (Esuatini)', value: '+268' },
+    { label: '+251 (Etiopía)', value: '+251' },
+    { label: '+63 (Filipinas)', value: '+63' },
+    { label: '+358 (Finlandia)', value: '+358' },
+    { label: '+679 (Fiyi)', value: '+679' },
+    { label: '+33 (Francia)', value: '+33' },
+    { label: '+241 (Gabón)', value: '+241' },
+    { label: '+220 (Gambia)', value: '+220' },
+    { label: '+995 (Georgia)', value: '+995' },
+    { label: '+233 (Ghana)', value: '+233' },
+    { label: '+350 (Gibraltar)', value: '+350' },
+    { label: '+1473 (Granada)', value: '+1473' },
+    { label: '+30 (Grecia)', value: '+30' },
+    { label: '+299 (Groenlandia)', value: '+299' },
+    { label: '+590 (Guadalupe)', value: '+590' },
+    { label: '+1671 (Guam)', value: '+1671' },
+    { label: '+502 (Guatemala)', value: '+502' },
+    { label: '+594 (Guayana Francesa)', value: '+594' },
+    { label: '+44 (Guernsey)', value: '+44' },
+    { label: '+224 (Guinea)', value: '+224' },
+    { label: '+240 (Guinea Ecuatorial)', value: '+240' },
+    { label: '+245 (Guinea-Bisáu)', value: '+245' },
+    { label: '+592 (Guyana)', value: '+592' },
+    { label: '+509 (Haití)', value: '+509' },
+    { label: '+504 (Honduras)', value: '+504' },
+    { label: '+852 (Hong Kong)', value: '+852' },
+    { label: '+36 (Hungría)', value: '+36' },
+    { label: '+91 (India)', value: '+91' },
+    { label: '+62 (Indonesia)', value: '+62' },
+    { label: '+98 (Irán)', value: '+98' },
+    { label: '+964 (Irak)', value: '+964' },
+    { label: '+353 (Irlanda)', value: '+353' },
+    { label: '+354 (Islandia)', value: '+354' },
+    { label: '+1345 (Islas Caimán)', value: '+1345' },
+    { label: '+682 (Islas Cook)', value: '+682' },
+    { label: '+298 (Islas Feroe)', value: '+298' },
+    { label: '+500 (Islas Malvinas)', value: '+500' },
+    { label: '+1670 (Islas Marianas)', value: '+1670' },
+    { label: '+692 (Islas Marshall)', value: '+692' },
+    { label: '+677 (Islas Salomón)', value: '+677' },
+    { label: '+1649 (Islas Turcas)', value: '+1649' },
+    { label: '+1340 (Islas Vírgenes US)', value: '+1340' },
+    { label: '+1284 (Islas Vírgenes UK)', value: '+1284' },
+    { label: '+972 (Israel)', value: '+972' },
+    { label: '+39 (Italia)', value: '+39' },
+    { label: '+1876 (Jamaica)', value: '+1876' },
+    { label: '+81 (Japón)', value: '+81' },
+    { label: '+44 (Jersey)', value: '+44' },
+    { label: '+962 (Jordania)', value: '+962' },
+    { label: '+7 (Kazajistán)', value: '+7' },
+    { label: '+254 (Kenia)', value: '+254' },
+    { label: '+996 (Kirguistán)', value: '+996' },
+    { label: '+686 (Kiribati)', value: '+686' },
+    { label: '+965 (Kuwait)', value: '+965' },
+    { label: '+856 (Laos)', value: '+856' },
+    { label: '+266 (Lesoto)', value: '+266' },
+    { label: '+371 (Letonia)', value: '+371' },
+    { label: '+961 (Líbano)', value: '+961' },
+    { label: '+231 (Liberia)', value: '+231' },
+    { label: '+218 (Libia)', value: '+218' },
+    { label: '+423 (Liechtenstein)', value: '+423' },
+    { label: '+370 (Lituania)', value: '+370' },
+    { label: '+352 (Luxemburgo)', value: '+352' },
+    { label: '+853 (Macao)', value: '+853' },
+    { label: '+261 (Madagascar)', value: '+261' },
+    { label: '+60 (Malasia)', value: '+60' },
+    { label: '+265 (Malaui)', value: '+265' },
+    { label: '+960 (Maldivas)', value: '+960' },
+    { label: '+223 (Malí)', value: '+223' },
+    { label: '+356 (Malta)', value: '+356' },
+    { label: '+212 (Marruecos)', value: '+212' },
+    { label: '+596 (Martinica)', value: '+596' },
+    { label: '+230 (Mauricio)', value: '+230' },
+    { label: '+222 (Mauritania)', value: '+222' },
+    { label: '+262 (Mayotte)', value: '+262' },
+    { label: '+52 (México)', value: '+52' },
+    { label: '+691 (Micronesia)', value: '+691' },
+    { label: '+373 (Moldavia)', value: '+373' },
+    { label: '+377 (Mónaco)', value: '+377' },
+    { label: '+976 (Mongolia)', value: '+976' },
+    { label: '+382 (Montenegro)', value: '+382' },
+    { label: '+1664 (Montserrat)', value: '+1664' },
+    { label: '+258 (Mozambique)', value: '+258' },
+    { label: '+264 (Namibia)', value: '+264' },
+    { label: '+674 (Nauru)', value: '+674' },
+    { label: '+977 (Nepal)', value: '+977' },
+    { label: '+505 (Nicaragua)', value: '+505' },
+    { label: '+227 (Níger)', value: '+227' },
+    { label: '+234 (Nigeria)', value: '+234' },
+    { label: '+683 (Niue)', value: '+683' },
+    { label: '+672 (Norfolk)', value: '+672' },
+    { label: '+47 (Noruega)', value: '+47' },
+    { label: '+687 (Nueva Caledonia)', value: '+687' },
+    { label: '+64 (Nueva Zelanda)', value: '+64' },
+    { label: '+968 (Omán)', value: '+968' },
+    { label: '+31 (Países Bajos)', value: '+31' },
+    { label: '+92 (Pakistán)', value: '+92' },
+    { label: '+680 (Palaos)', value: '+680' },
+    { label: '+970 (Palestina)', value: '+970' },
+    { label: '+507 (Panamá)', value: '+507' },
+    { label: '+675 (Papúa Nueva Guinea)', value: '+675' },
+    { label: '+595 (Paraguay)', value: '+595' },
+    { label: '+51 (Perú)', value: '+51' },
+    { label: '+689 (Polinesia Francesa)', value: '+689' },
+    { label: '+48 (Polonia)', value: '+48' },
+    { label: '+351 (Portugal)', value: '+351' },
+    { label: '+1787 (Puerto Rico)', value: '+1787' },
+    { label: '+44 (Reino Unido)', value: '+44' },
+    { label: '+236 (República Centroafricana)', value: '+236' },
+    { label: '+1809 (República Dominicana)', value: '+1809' },
+    { label: '+262 (Reunión)', value: '+262' },
+    { label: '+250 (Ruanda)', value: '+250' },
+    { label: '+40 (Rumania)', value: '+40' },
+    { label: '+7 (Rusia)', value: '+7' },
+    { label: '+685 (Samoa)', value: '+685' },
+    { label: '+1684 (Samoa Americana)', value: '+1684' },
+    { label: '+1758 (Santa Lucía)', value: '+1758' },
+    { label: '+1869 (San Cristóbal y Nieves)', value: '+1869' },
+    { label: '+378 (San Marino)', value: '+378' },
+    { label: '+1784 (San Vicente)', value: '+1784' },
+    { label: '+239 (Santo Tomé y Príncipe)', value: '+239' },
+    { label: '+221 (Senegal)', value: '+221' },
+    { label: '+381 (Serbia)', value: '+381' },
+    { label: '+248 (Seychelles)', value: '+248' },
+    { label: '+232 (Sierra Leona)', value: '+232' },
+    { label: '+65 (Singapur)', value: '+65' },
+    { label: '+1721 (Sint Maarten)', value: '+1721' },
+    { label: '+963 (Siria)', value: '+963' },
+    { label: '+252 (Somalia)', value: '+252' },
+    { label: '+94 (Sri Lanka)', value: '+94' },
+    { label: '+268 (Suazilandia)', value: '+268' },
+    { label: '+27 (Sudáfrica)', value: '+27' },
+    { label: '+249 (Sudán)', value: '+249' },
+    { label: '+211 (Sudán del Sur)', value: '+211' },
+    { label: '+46 (Suecia)', value: '+46' },
+    { label: '+41 (Suiza)', value: '+41' },
+    { label: '+597 (Surinam)', value: '+597' },
+    { label: '+47 (Svalbard y Jan Mayen)', value: '+47' },
+    { label: '+66 (Tailandia)', value: '+66' },
+    { label: '+886 (Taiwán)', value: '+886' },
+    { label: '+255 (Tanzania)', value: '+255' },
+    { label: '+992 (Tayikistán)', value: '+992' },
+    { label: '+670 (Timor Oriental)', value: '+670' },
+    { label: '+228 (Togo)', value: '+228' },
+    { label: '+690 (Tokelau)', value: '+690' },
+    { label: '+676 (Tonga)', value: '+676' },
+    { label: '+1868 (Trinidad y Tobago)', value: '+1868' },
+    { label: '+216 (Túnez)', value: '+216' },
+    { label: '+993 (Turkmenistán)', value: '+993' },
+    { label: '+90 (Turquía)', value: '+90' },
+    { label: '+688 (Tuvalu)', value: '+688' },
+    { label: '+380 (Ucrania)', value: '+380' },
+    { label: '+256 (Uganda)', value: '+256' },
+    { label: '+598 (Uruguay)', value: '+598' },
+    { label: '+998 (Uzbekistán)', value: '+998' },
+    { label: '+678 (Vanuatu)', value: '+678' },
+    { label: '+379 (Vaticano)', value: '+379' },
+    { label: '+58 (Venezuela)', value: '+58' },
+    { label: '+84 (Vietnam)', value: '+84' },
+    { label: '+681 (Wallis y Futuna)', value: '+681' },
+    { label: '+967 (Yemen)', value: '+967' },
+    { label: '+253 (Yibuti)', value: '+253' },
+    { label: '+260 (Zambia)', value: '+260' },
+    { label: '+263 (Zimbabue)', value: '+263' }
+  ];
+
   model: CreateUserRequest = {
     username: '',
     nombreCompleto: '',
@@ -287,6 +526,39 @@ export class UsuariosCrearComponent implements OnInit {
     });
   }
 
+  // Método para combinar código de país y número
+  private combinarTelefono(): void {
+    if (this.numeroTelefono && this.numeroTelefono.trim()) {
+      // Eliminar espacios y caracteres no numéricos del número
+      const numeroLimpio = this.numeroTelefono.replace(/\D/g, '');
+      if (numeroLimpio) {
+        this.model.telefono = `${this.codigoPais} ${numeroLimpio}`;
+      } else {
+        this.model.telefono = '';
+      }
+    } else {
+      this.model.telefono = '';
+    }
+  }
+
+  // Método para separar teléfono existente (útil para edición futura)
+  private separarTelefono(telefono: string): void {
+    if (!telefono) {
+      this.codigoPais = '+57';
+      this.numeroTelefono = '';
+      return;
+    }
+
+    const match = telefono.match(/^(\+\d+)\s*(.*)$/);
+    if (match) {
+      this.codigoPais = match[1];
+      this.numeroTelefono = match[2];
+    } else {
+      this.codigoPais = '+57';
+      this.numeroTelefono = telefono;
+    }
+  }
+
   reset() {
     this.model = {
       username: '',
@@ -299,6 +571,8 @@ export class UsuariosCrearComponent implements OnInit {
       rolesIds: [] as any,
       lugaresIds: []
     } as any;
+    this.codigoPais = '+57';
+    this.numeroTelefono = '';
     this.lugaresDisponibles = [];
   }
 
@@ -313,6 +587,10 @@ export class UsuariosCrearComponent implements OnInit {
     const err = this.validate();
     if (err) { this.notify.warn('Validación', err); return; }
     if (!this.orgId) return;
+
+    // Combinar código de país y número de teléfono
+    this.combinarTelefono();
+
     this.saving = true;
     const body: any = {
       username: this.model.username.trim().toUpperCase(),

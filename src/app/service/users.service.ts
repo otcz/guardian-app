@@ -118,7 +118,13 @@ export class UsersService {
       rolesOrganizacion: Array.isArray(d?.rolesOrganizacion)
         ? d.rolesOrganizacion.map((r: any) => ({ id: String(r?.id ?? r?._id ?? ''), nombre: String(r?.nombre ?? r?.name ?? '') }))
         : (Array.isArray(d?.roles) ? d.roles.map((r: any) => ({ id: String(r?.id ?? r?._id ?? ''), nombre: String(r?.nombre ?? r?.name ?? '') })) : null),
-      rolNombres: Array.isArray(d?.rolNombres) ? d.rolNombres.map((x: any) => String(x)) : null,
+      rolNombres: Array.isArray(d?.rolNombres)
+        ? d.rolNombres.map((x: any) => String(x))
+        : (Array.isArray(d?.rolesOrganizacion)
+          ? d.rolesOrganizacion.map((r: any) => String(r?.nombre ?? r?.name ?? '')).filter(Boolean)
+          : (Array.isArray(d?.roles)
+            ? d.roles.map((r: any) => String(r?.nombre ?? r?.name ?? '')).filter(Boolean)
+            : null)),
       rolNombre: d?.rolNombre != null ? String(d?.rolNombre) : null,
       // lugares asignados
       lugaresAsignados: Array.isArray(d?.lugaresAsignados)

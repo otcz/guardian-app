@@ -23,6 +23,7 @@ import { OrganizationService } from '../../service/organization.service';
 import { RoleLabelPipe } from '../../shared/pipes/role-label.pipe';
 import { RoleSeverityPipe } from '../../shared/pipes/role-severity.pipe';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
+import { RolesService } from '../../service/roles.service';
 
 @Component({
   selector: 'app-usuarios-listar',
@@ -68,7 +69,8 @@ export class UsuariosListarComponent implements OnInit {
     private router: Router,
     private confirm: ConfirmationService,
     private seccionSvc: SeccionService,
-    private orgSvc: OrganizationService
+    private orgSvc: OrganizationService,
+    private rolesSvc: RolesService
   ) {}
 
   private calcRowsFromViewport(viewH: number): number {
@@ -286,6 +288,8 @@ export class UsuariosListarComponent implements OnInit {
         this.loading = false;
         this.deferAdjustToViewport();
         this.loadSectionRolesIfApplies();
+        // ✅ Cargar roles faltantes para usuarios sin roles (típicamente ORGANIZACION)
+        this.loadMissingRoles();
       },
       error: e => {
         this.loading = false;
@@ -375,6 +379,70 @@ export class UsuariosListarComponent implements OnInit {
     return org || '-';
   }
 
+  // ✅ Cargar roles faltantes para usuarios sin roles (workaround para bug del backend)
+  private loadMissingRoles() {
+    // Identificar usuarios sin roles
+    const usersWithoutRoles = this.usuarios.filter(u => {
+      const fromNames = Array.isArray((u as any).rolNombres) && (u as any).rolNombres.length > 0;
+      const fromOrg = Array.isArray((u as any).rolesOrganizacion) && (u as any).rolesOrganizacion.length > 0;
+      const single = !!(u as any).rolNombre;
+      const fallback = !!this.roleByUserId[u.id];
+      return !fromNames && !fromOrg && !single && !fallback;
+    });
+
+    if (usersWithoutRoles.length === 0) {
+      try {
+        console.log('[UsuariosListar] ✅ Todos los usuarios tienen roles asignados');
+      } catch {}
+      return;
+    }
+
+    try {
+      console.log('[UsuariosListar] 🔄 Cargando roles faltantes para', usersWithoutRoles.length, 'usuarios sin roles');
+      console.log('[UsuariosListar] 📋 Usuarios afectados:', usersWithoutRoles.map(u => ({ username: u.username, scopeNivel: u.scopeNivel })));
+    } catch {}
+
+    // Cargar roles de cada usuario sin roles
+    const requests = usersWithoutRoles.map(u =>
+      this.rolesSvc.listUserRoles(u.id).pipe(
+        catchError(err => {
+          console.error(`[UsuariosListar] ❌ Error cargando roles de ${u.username}:`, err);
+          return of([]);
+        })
+      )
+    );
+
+    forkJoin(requests).subscribe({
+      next: results => {
+        try {
+          console.log('[UsuariosListar] ✅ Roles cargados exitosamente');
+        } catch {}
+
+        // Actualizar usuarios con sus roles
+        results.forEach((roles, index) => {
+          const user = usersWithoutRoles[index];
+          if (roles && roles.length > 0) {
+            // Actualizar el usuario con sus roles
+            const rolesNombres = roles.map(r => r.rolNombre || r.rol?.nombre || '').filter(Boolean);
+            (user as any).rolNombres = rolesNombres;
+            (user as any).rolNombre = rolesNombres[0] || null;
+
+            try {
+              console.log(`[UsuariosListar] ✅ Usuario ${user.username} actualizado con roles:`, rolesNombres);
+            } catch {}
+          }
+        });
+
+        // Forzar actualización de la vista
+        this.usuarios = [...this.usuarios];
+        this.applyFilter();
+      },
+      error: err => {
+        console.error('[UsuariosListar] ❌ Error cargando roles faltantes:', err);
+      }
+    });
+  }
+
   // Consolidar roles con prioridad y sin duplicados
   rolesFor(u: UserEntity): string[] {
     const fromNames: string[] = Array.isArray((u as any).rolNombres)
@@ -385,6 +453,22 @@ export class UsuariosListarComponent implements OnInit {
       : [];
     const single: string[] = (u as any).rolNombre ? [String((u as any).rolNombre)] : [];
     const fallbackCtx: string[] = this.roleByUserId[u.id] ? [this.roleByUserId[u.id]] : [];
+
+    // DEBUG: Log para usuarios de ORGANIZACION sin roles
+    if (u.scopeNivel === 'ORGANIZACION' && !fromNames.length && !fromOrg.length && !single.length && !fallbackCtx.length) {
+      try {
+        console.log('[UsuariosListar] ⚠️ Usuario ORGANIZACION sin roles:', {
+          username: u.username,
+          scopeNivel: u.scopeNivel,
+          rolNombres: (u as any).rolNombres,
+          rolesOrganizacion: (u as any).rolesOrganizacion,
+          rolNombre: (u as any).rolNombre,
+          roleByUserId: this.roleByUserId[u.id],
+          todoElObjeto: u
+        });
+      } catch {}
+    }
+
     const preferred: string[] = fromNames.length
       ? fromNames
       : (fromOrg.length

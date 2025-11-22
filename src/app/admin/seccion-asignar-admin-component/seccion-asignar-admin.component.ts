@@ -171,35 +171,100 @@ export class SeccionAsignarAdminComponent implements OnInit {
       }
     }
     this.saving = true;
+
+    try {
+      console.log('[SeccionAsignarAdmin] 📡 Asignando administrador...', {
+        orgId: this.orgId,
+        seccionId: this.seccionId,
+        usuarioId: this.usuarioId,
+        usuario: this.selectedUser?.username,
+        seccion: this.selectedSection?.nombre
+      });
+    } catch {}
+
     this.seccionesSrv.assignAdministrador(this.orgId, this.seccionId, this.usuarioId).subscribe({
       next: _res => {
         this.saving = false;
-        this.notify.success('Éxito', 'Administrador asignado');
+        this.notify.success('Éxito', 'Administrador asignado correctamente');
+        try {
+          console.log('[SeccionAsignarAdmin] ✅ Asignación exitosa');
+        } catch {}
+        // Navegar de vuelta al listado de secciones
+        this.router.navigate(['/listar-secciones'], { queryParams: { id: this.orgId } });
       },
       error: e => {
         this.saving = false;
-        const raw = (e?.error?.message || '').toString().toUpperCase();
+        const raw = (e?.error?.message || '').toString();
+        const rawUpper = raw.toUpperCase();
+
+        try {
+          console.error('[SeccionAsignarAdmin] ❌ Error al asignar administrador:', {
+            status: e?.status,
+            message: raw,
+            error: e
+          });
+        } catch {}
+
+        // ⚠️ NUEVOS MENSAJES DE ERROR SEGÚN REQUERIMIENTO (2025-11-21)
         if (e?.status === 400) {
-          if ((raw.includes('DETERMINAR') || raw.includes('RESOLVER')) && raw.includes('ORGANIZ')) {
+          // Error: Usuario de otra organización
+          if (rawUpper.includes('ORGANIZACIÓN') && (rawUpper.includes('PERTENECE') || rawUpper.includes('DIFERENTE') || rawUpper.includes('FOREIGN'))) {
+            this.notify.error(
+              'No se puede asignar el administrador',
+              `El usuario seleccionado pertenece a una organización diferente a la de esta sección.\n\nPor favor, selecciona un usuario de la misma organización.`
+            );
+            return;
+          }
+
+          // Error: Usuario con scope ORGANIZACION
+          if (rawUpper.includes('ALCANCE') || rawUpper.includes('SCOPE') || rawUpper.includes('USER_SCOPE_RESTRICTED')) {
+            this.notify.error(
+              'No se puede asignar el administrador',
+              `El usuario seleccionado tiene un nivel de alcance (scope) que no le permite administrar secciones individuales.\n\nLos administradores de sección deben tener alcance de SECCION.`
+            );
+            return;
+          }
+
+          // Error: Determinar organización (legacy - menos común ahora)
+          if ((rawUpper.includes('DETERMINAR') || rawUpper.includes('RESOLVER')) && rawUpper.includes('ORGANIZ')) {
             this.notify.warn('Validación', 'No se pudo determinar la organización para resolver el rol por nombre. Verifique orgId y reintente');
             return;
           }
-          if (raw.includes('USER_SCOPE_RESTRICTED') || raw.includes('ALCANCE') && raw.includes('ORGANIZACIÓN')) {
-            this.notify.warn('Validación', 'El usuario con alcance ORGANIZACIÓN no puede ser administrador de sección');
-            return;
-          }
-          if (raw.includes('SECTION_ADMIN_FOREIGN_ORG')) {
-            this.notify.warn('Validación', 'El usuario pertenece a otra organización');
-            return;
-          }
-          if (raw.includes('SECTION_PARENT_INVALID_ORG')) {
+
+          // Error: Inconsistencia de organización en sección padre
+          if (rawUpper.includes('SECTION_PARENT_INVALID_ORG') || rawUpper.includes('INCONSISTENCIA')) {
             this.notify.warn('Validación', 'Inconsistencia de organización en la sección');
             return;
           }
+
+          // Error genérico 400
+          this.notify.error('Error de validación', raw || 'Los datos enviados no son válidos');
+          return;
         }
-        if (e?.status === 404) { this.notify.warn('Sección', 'Sección no encontrada'); return; }
-        if (e?.status === 401 || e?.status === 403) { this.notify.warn('No autorizado', 'Inicie sesión nuevamente'); return; }
-        this.notify.error('Error', e?.error?.message || 'No se pudo asignar el administrador');
+
+        // Error 403: Sin permisos
+        if (e?.status === 403) {
+          this.notify.error('Acceso prohibido', 'No tienes permisos para asignar administradores de sección');
+          return;
+        }
+
+        // Error 404: Sección no encontrada
+        if (e?.status === 404) {
+          this.notify.warn('Sección no encontrada', 'La sección seleccionada no existe o fue eliminada');
+          return;
+        }
+
+        // Error 401: No autenticado
+        if (e?.status === 401) {
+          this.notify.warn('Sesión expirada', 'Por favor, inicia sesión nuevamente');
+          return;
+        }
+
+        // Error genérico
+        this.notify.error(
+          'Error al asignar administrador',
+          raw || 'Ocurrió un error al procesar la solicitud. Por favor, intenta nuevamente o contacta al soporte.'
+        );
       }
     });
   }

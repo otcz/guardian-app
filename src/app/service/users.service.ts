@@ -284,17 +284,33 @@ export class UsersService {
     );
   }
 
+  /**
+   * Lista usuarios de una organización
+   *
+   * ⚠️ IMPORTANTE - CAMBIO DE COMPORTAMIENTO (2025-11-21):
+   * El backend ahora aplica FILTRADO AUTOMÁTICO basándose en el rol del usuario autenticado:
+   * - SYSADMIN: ve todos los usuarios del sistema
+   * - ORGADMIN: ve todos los usuarios de la organización
+   * - ADMIN (Sección): ve SOLO usuarios de su(s) sección(es) - el parámetro seccionId es IGNORADO
+   * - USUARIO: 403 Forbidden
+   *
+   * El parámetro params.seccionId se mantiene por compatibilidad pero será ignorado por el backend
+   * para administradores de sección.
+   *
+   * @param orgId ID de la organización
+   * @param params Parámetros opcionales (seccionId será ignorado para admins de sección)
+   */
   list(orgId: string, params?: { seccionId?: string; excludeAdmins?: boolean }): Observable<UserEntity[]> {
     const path = `/orgs/${orgId}/usuarios`;
     const url = `${this.base}${path}`;
     const urlFallback = `${environment.backendHost}${this.base}${path}`;
 
-    // ✅ Construir parámetros de query para filtrado
+    // ⚠️ Construir parámetros de query - NOTA: seccionId puede ser ignorado por el backend
     const queryParams: any = {};
     if (params?.seccionId) {
       queryParams.seccionId = params.seccionId;
       try {
-        console.log('[UsersService] 🔍 Agregando filtro seccionId:', params.seccionId);
+        console.log('[UsersService] ℹ️ Parámetro seccionId enviado:', params.seccionId, '(puede ser ignorado por backend para admins de sección)');
       } catch {}
     }
     if (params?.excludeAdmins !== undefined) {
@@ -313,14 +329,15 @@ export class UsersService {
     const httpOptions = {
       headers: this.accept,
       responseType: 'text' as 'json',
-      params: queryParams  // ✅ Enviar parámetros al backend
+      params: queryParams
     };
 
     try {
       const queryString = Object.keys(queryParams).length > 0
         ? '?' + Object.entries(queryParams).map(([k, v]) => `${k}=${v}`).join('&')
         : '';
-      console.log('[UsersService] 📡 Request URL:', `${path}${queryString}`);
+      console.log('[UsersService] 📡 GET', `${path}${queryString}`);
+      console.log('[UsersService] ℹ️ Backend aplicará filtrado automático según rol de usuario autenticado');
     } catch {}
 
     return this.http.get<any>(url, httpOptions).pipe(

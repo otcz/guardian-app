@@ -261,10 +261,39 @@ export class SeccionService {
     );
   }
 
+  /**
+   * Asigna un usuario como administrador principal de una sección
+   *
+   * ⚠️ CORRECCIÓN IMPLEMENTADA (2025-11-21):
+   * El backend corrigió un bug que impedía asignar administradores a secciones de
+   * organizaciones diferentes a DEFAULT_ORG. Ahora funciona correctamente para todas
+   * las organizaciones.
+   *
+   * VALIDACIONES DEL BACKEND:
+   * - El usuario debe pertenecer a la MISMA organización que la sección
+   * - El usuario NO debe tener scopeNivel = ORGANIZACION
+   * - El usuario debe tener permisos adecuados
+   *
+   * RESPUESTAS DE ERROR:
+   * - 400: Usuario de otra organización / Scope restringido
+   * - 403: Sin permisos
+   * - 404: Sección no encontrada
+   *
+   * @param orgId ID de la organización que contiene la sección
+   * @param seccionId ID de la sección a la que se asignará el administrador
+   * @param usuarioId ID del usuario que será administrador
+   * @returns Observable con la sección actualizada y mensaje de confirmación
+   */
   assignAdministrador(orgId: string, seccionId: string, usuarioId: string): Observable<{ seccion: SeccionEntity; message?: string }> {
     const url = `${this.base}/orgs/${orgId}/secciones/${seccionId}/administrador`;
     // Enviar orgId además de usuarioId: algunos backends requieren orgId para resolver rol por nombre cuando asigna SYSADMIN
     const body = { usuarioId, orgId } as any;
+
+    try {
+      console.log('[SeccionService] 📡 POST', url);
+      console.log('[SeccionService] 📦 Body:', { usuarioId, orgId });
+    } catch {}
+
     return this.http.post<any>(url, body, { headers: this.json }).pipe(
       map((payload) => {
         // Respuesta esperada: entidad plana SeccionEntity
@@ -279,9 +308,19 @@ export class SeccionService {
           adminId: (d.administradorId ?? d.administradorPrincipal ?? d.adminId ?? d?.administradorEntity?.id) != null ? String(d.administradorId ?? d.administradorPrincipal ?? d.adminId ?? d?.administradorEntity?.id) : String(usuarioId),
           adminNombre: (d.administradorNombre ?? d.administradorUsername ?? d?.administradorEntity?.nombre ?? d?.administradorEntity?.username) != null ? String(d.administradorNombre ?? d.administradorUsername ?? d?.administradorEntity?.nombre ?? d?.administradorEntity?.username) : undefined
         } as SeccionEntity;
+
+        try {
+          console.log('[SeccionService] ✅ Administrador asignado exitosamente');
+        } catch {}
+
         return { seccion, message: (payload as any)?.message };
       }),
-      catchError((err) => throwError(() => ({ error: { message: err?.error?.message || err?.message || 'No se pudo asignar el administrador' }, status: err?.status })))
+      catchError((err) => {
+        try {
+          console.error('[SeccionService] ❌ Error al asignar administrador:', err?.status, err?.error?.message);
+        } catch {}
+        return throwError(() => ({ error: { message: err?.error?.message || err?.message || 'No se pudo asignar el administrador' }, status: err?.status }));
+      })
     );
   }
 

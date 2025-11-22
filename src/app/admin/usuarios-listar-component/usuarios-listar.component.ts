@@ -256,33 +256,39 @@ export class UsuariosListarComponent implements OnInit {
     if (!this.orgId) return;
     this.loading = true;
 
-    // ✅ FILTRADO POR SECCIÓN: Si el contexto es SECCION, filtrar usuarios de esa sección
+    // ✅ NUEVO COMPORTAMIENTO: El backend ahora aplica automáticamente el filtrado por sección
+    // basándose en el rol del usuario autenticado (detectado vía token/headers)
+    // NO enviamos manualmente el parámetro seccionId - el backend lo maneja internamente
     const scope = String(this.orgCtx.scope || '').toUpperCase();
     const seccionId = this.orgCtx.seccion;
 
-    const params: { seccionId?: string; excludeAdmins?: boolean } = {};
+    try {
+      console.log('[UsuariosListar] 📡 Cargando usuarios...');
+      console.log('[UsuariosListar] 📊 Contexto Frontend:', { scope, seccionId, orgId: this.orgId });
+      console.log('[UsuariosListar] ℹ️ El backend aplicará filtrado automático según rol del usuario');
+    } catch {}
 
-    if (scope === 'SECCION' && seccionId) {
-      params.seccionId = String(seccionId);
-      try {
-        console.log('[UsuariosListar] 🔍 FILTRADO ACTIVO - Filtrando por sección:', seccionId);
-        console.log('[UsuariosListar] 📊 Contexto:', { scope, seccionId, orgId: this.orgId });
-      } catch {}
-    } else {
-      try {
-        console.log('[UsuariosListar] 🌐 SIN FILTRO - Mostrando todos los usuarios de la organización');
-        console.log('[UsuariosListar] 📊 Contexto:', { scope, seccionId: 'ninguna', orgId: this.orgId });
-      } catch {}
-    }
-
-    this.users.list(this.orgId, params).subscribe({
+    // ⚠️ NO enviar params.seccionId - el backend lo detecta automáticamente
+    // El backend ahora:
+    // - SYSADMIN → ve todos los usuarios del sistema
+    // - ORGADMIN → ve todos los usuarios de la organización
+    // - ADMIN (Sección) → SOLO ve usuarios de su(s) sección(es)
+    // - USUARIO → 403 Forbidden
+    this.users.list(this.orgId).subscribe({
       next: list => {
         try {
           console.log('[UsuariosListar] ✅ Usuarios cargados:', list.length, 'usuarios');
-          if (params.seccionId) {
-            console.log('[UsuariosListar] ✅ Filtrado aplicado para sección:', params.seccionId);
-          }
+          console.log('[UsuariosListar] ✅ Filtrado aplicado por el backend según rol de usuario autenticado');
+
+          // Verificar distribución por sección para debugging
+          const seccionesMap = new Map<string, number>();
+          list.forEach(u => {
+            const secNombre = u.seccionNombre || 'Sin sección';
+            seccionesMap.set(secNombre, (seccionesMap.get(secNombre) || 0) + 1);
+          });
+          console.log('[UsuariosListar] 📊 Distribución por sección:', Object.fromEntries(seccionesMap));
         } catch {}
+
         this.usuarios = list;
         this.applyFilter();
         this.loading = false;

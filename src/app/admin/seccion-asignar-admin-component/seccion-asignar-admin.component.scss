@@ -308,6 +308,83 @@
   }
 }
 
+/* Mensaje informativo */
+.info-message {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--primary);
+  font-size: 0.85rem;
+  margin-top: 0.25rem;
+
+  i {
+    font-size: 0.9rem;
+  }
+}
+
+/* Banner informativo de requisitos */
+.info-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 1rem 1.5rem;
+  background: linear-gradient(135deg, rgba(79, 140, 255, 0.08) 0%, rgba(37, 99, 235, 0.08) 100%);
+  border: 1px solid rgba(79, 140, 255, 0.2);
+  border-radius: 8px;
+  margin-top: 1.5rem;
+
+  > i {
+    font-size: 1.3rem;
+    color: var(--primary);
+    margin-top: 2px;
+  }
+
+  .info-content {
+    flex: 1;
+
+    strong {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: var(--text);
+      font-size: 0.95rem;
+    }
+
+    ul {
+      margin: 0;
+      padding-left: 1.2rem;
+      list-style-type: disc;
+
+      li {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        line-height: 1.6;
+        margin-bottom: 0.25rem;
+
+        &:last-child {
+          margin-bottom: 0;
+        }
+      }
+    }
+  }
+}
+
+/* Estilos adicionales para mensajes de estado */
+.info-message.success {
+  color: var(--success);
+
+  i {
+    color: var(--success);
+  }
+}
+
+.info-message.warning {
+  color: var(--warning);
+
+  i {
+    color: var(--warning);
+  }
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .card-body {
@@ -366,4 +443,3 @@
     background: #161616;
   }
 }
-

@@ -1,6 +1,7 @@
 // Configuración de entorno (development por defecto)
 // Si más adelante agregas build para producción, crea otro archivo environment.prod.ts y haz file replacements.
 export const environment = {
+  production: false, // ← Flag para determinar si es producción o desarrollo
   apiBase: '/api',          // Prefijo principal (si backend expone /api/...)
   apiFallbackBases: ['/api', ''], // Priorizar /api para evitar 404 en /auth/login
   // Base absoluta práctica para servicios que no usan proxy (recomendado por la guía)

@@ -189,7 +189,7 @@
             </div>
 
             <!-- Alcance -->
-            <div class="field">
+            <div class="field" *ngIf="!tieneContextoSeccion">
               <label for="alcance" class="field-label">
                 <i class="pi pi-globe label-icon"></i>
                 Alcance
@@ -215,7 +215,7 @@
         </div>
 
         <!-- Configuración de Alcance -->
-        <div class="form-section" *ngIf="isAlcanceOrganizacion || isSeccionRequerida">
+        <div class="form-section" *ngIf="isAlcanceOrganizacion || isSeccionRequerida || tieneContextoSeccion">
           <h3 class="section-title">
             <i class="pi pi-cog"></i>
             Configuración de Alcance
@@ -244,8 +244,8 @@
               </p-dropdown>
             </div>
 
-            <!-- Sección -->
-            <div class="field" *ngIf="isSeccionRequerida">
+            <!-- Sección - SIEMPRE SE MUESTRA cuando tieneContextoSeccion -->
+            <div class="field" *ngIf="isSeccionRequerida || tieneContextoSeccion">
               <label for="seccion" class="field-label">
                 <i class="pi pi-sitemap label-icon"></i>
                 Sección
@@ -454,4 +454,3 @@
     [seccionId]="seccionIdForInvite">
   </app-section-invite-dialog>
 </div>
-

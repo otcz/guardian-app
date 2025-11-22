@@ -117,6 +117,7 @@ export class AuthService {
         this.http.post<BackendLoginResponse>(url, data).subscribe({
           next: resp => {
             if (!resp?.token) { subscriber.error({ status: 400, error: { message: 'Respuesta sin token' } }); return; }
+
             // Persistir sesión mínima
             localStorage.setItem('token', resp.token);
             localStorage.setItem('username', resp.username || data.username);
@@ -146,8 +147,43 @@ export class AuthService {
                   localStorage.setItem('loginOrgImmutable', adminId);
                   localStorage.setItem('loginRolesImmutable', JSON.stringify(resp.roles || []));
                   localStorage.setItem('loginUsernameImmutable', resp.username || data.username);
+                  // Guardar sección como inmutable si viene del backend
+                  if (seccionId) {
+                    localStorage.setItem('loginSeccionImmutable', seccionId);
+                  }
+                  // Guardar scope como inmutable si viene del backend
+                  if (scope) {
+                    localStorage.setItem('loginScopeImmutable', scope);
+                  }
                 } catch {}
               } else {
+                // Si no hay adminId pero SÍ hay seccionId y scope, guardar datos de sección
+                if (seccionId || scope) {
+                  try {
+                    // Guardar datos básicos de sesión
+                    localStorage.setItem('loginRolesImmutable', JSON.stringify(resp.roles || []));
+                    localStorage.setItem('loginUsernameImmutable', resp.username || data.username);
+
+                    // Guardar sección como inmutable si viene del backend
+                    if (seccionId) {
+                      localStorage.setItem('loginSeccionImmutable', seccionId);
+                      localStorage.setItem('seccionPrincipalId', seccionId);
+
+                      // Intentar establecer en el contexto
+                      if (this.orgCtx.value) {
+                        this.orgCtx.lock({ orgId: this.orgCtx.value, scopeNivel: scope, seccionPrincipalId: seccionId });
+                      }
+                    }
+
+                    // Guardar scope como inmutable si viene del backend
+                    if (scope) {
+                      localStorage.setItem('loginScopeImmutable', scope);
+                      localStorage.setItem('scopeNivel', scope);
+                    }
+                  } catch (e) {
+                    console.error('Error al guardar datos de sección:', e);
+                  }
+                }
                 // No hay orgId: limpiar lock previo y dejar libre para selección posterior
                 this.orgCtx.clear();
               }

@@ -15,7 +15,6 @@ import { UsersService, UserEntity } from '../../service/users.service';
 import { NotificationService } from '../../service/notification.service';
 import { ConfirmationService } from 'primeng/api';
 import { SeccionService, SeccionEntity } from '../../service/seccion.service';
-// SectionInviteDialogComponent eliminado del listado
 import { forkJoin, of } from 'rxjs';
 import { catchError, finalize } from 'rxjs/operators';
 import { environment } from '../../config/environment';
@@ -25,6 +24,29 @@ import { RoleSeverityPipe } from '../../shared/pipes/role-severity.pipe';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
 import { RolesService } from '../../service/roles.service';
 
+/**
+ * Componente de Listado de Usuarios
+ *
+ * IMPLEMENTACIÓN SEGÚN REQUERIMIENTO TÉCNICO BACKEND v1.0 (2025-11-22)
+ *
+ * Funcionalidades:
+ * - Listado de usuarios con filtrado automático por backend según rol del usuario autenticado
+ * - Paginación adaptable al viewport
+ * - Carga de roles contextuales por sección
+ * - Visualización de línea de mando (Organización, Sección)
+ *
+ * Filtrado Automático por Rol (aplicado por el backend):
+ * - SYSADMIN: Ve todos los usuarios del sistema
+ * - ORGADMIN: Ve todos los usuarios de su organización
+ * - ADMIN (Sección): Ve SOLO usuarios de su(s) sección(es) - FILTRO FORZOSO
+ * - USUARIO: Sin acceso (403 Forbidden)
+ *
+ * Manejo de Errores HTTP:
+ * - 200 OK: Listado exitoso
+ * - 403 Forbidden: Sin permisos para listar usuarios
+ * - 404 Not Found: Organización no encontrada
+ * - 500 Internal Server Error: Error del servidor
+ */
 @Component({
   selector: 'app-usuarios-listar',
   standalone: true,
@@ -39,21 +61,19 @@ export class UsuariosListarComponent implements OnInit {
   filtered: UserEntity[] = [];
   filter = '';
   secciones: SeccionEntity[] = [];
-  // showInvite eliminado
-  // Nombre de la organización actual para construir la línea de mando
   orgName: string | null = null;
 
   // Paginación adaptable
   pageSize = 10;
   rowsOptions: number[] = [5, 8, 10, 12, 15, 20];
-  private _first = 0; // índice del primer registro de la página actual
+  private _first = 0;
   get first(): number { return this._first; }
   set first(v: number) { this._first = v || 0; this.loadSectionRolesIfApplies(); }
   private adjustTimer: any;
   private loadRolesTimer: any;
   private fetchedSecIds = new Set<string>();
   private roleCacheBySection = new Map<string, Record<string, string>>();
-  private failedSecIdsUntil: Map<string, number> = new Map(); // secId -> epoch ms hasta el que se evita reintento
+  private failedSecIdsUntil: Map<string, number> = new Map();
   private inFlightSecIds = new Set<string>();
 
   // Mapa de rol contextual por usuario (solo en scope SECCION)
@@ -61,6 +81,7 @@ export class UsuariosListarComponent implements OnInit {
 
   private sectionNameCache: Record<string, string> = {};
   private sectionFetchInFlight = new Set<string>();
+  private isDevelopment = !environment.production;
 
   constructor(
     private orgCtx: OrgContextService,
@@ -74,12 +95,10 @@ export class UsuariosListarComponent implements OnInit {
   ) {}
 
   private calcRowsFromViewport(viewH: number): number {
-    // Reserva aproximada para header, buscador, paddings y paginador
-    const reserved = 440; // px, margen extra para evitar scroll residual
-    const rowH = 82; // altura estimada de una fila (avatar + chips + separadores)
+    const reserved = 440;
+    const rowH = 82;
     const usable = Math.max(240, viewH - reserved);
     let rows = Math.floor(usable / rowH);
-    // Margen de seguridad: si queda muy justo, reducir una fila
     if (rows > 0 && (usable - rows * rowH) < 40) rows -= 1;
     return Math.min(25, Math.max(5, rows));
   }
@@ -88,7 +107,6 @@ export class UsuariosListarComponent implements OnInit {
     const h = typeof window !== 'undefined' ? window.innerHeight : 800;
     const next = this.calcRowsFromViewport(h);
     this.pageSize = next;
-    // Opciones sugeridas incluyendo la calculada
     const base = [5, 8, 10, 12, 15, 20, next].filter(n => n >= 5 && n <= 25);
     this.rowsOptions = Array.from(new Set(base)).sort((a, b) => a - b);
     this.deferAdjustToViewport();
@@ -100,14 +118,13 @@ export class UsuariosListarComponent implements OnInit {
   }
 
   private adjustRowsToFitViewport() {
-    // Reduce filas si aún hay desbordamiento vertical, con límite para evitar ciclos
     let guard = 0;
     const minRows = 5;
     while (guard < 4) {
       const doc = document?.documentElement as HTMLElement | null;
       const winH = typeof window !== 'undefined' ? window.innerHeight : 800;
       const scrollH = doc ? doc.scrollHeight : winH;
-      const overflow = scrollH > winH + 1; // tolerancia
+      const overflow = scrollH > winH + 1;
       if (overflow && this.pageSize > minRows) {
         this.pageSize -= 1;
         guard++;
@@ -127,14 +144,11 @@ export class UsuariosListarComponent implements OnInit {
       this.router.navigate(['/listar-organizaciones']);
       return;
     }
-    // Cargar lista de usuarios
     this.load();
-    // Cargar secciones para mostrar el nombre y luego roles contextuales si aplica
     this.seccionSvc.list(this.orgId).subscribe({
       next: list => { this.secciones = list || []; this.loadSectionRolesIfApplies(); },
       error: () => { this.secciones = []; this.loadSectionRolesIfApplies(); }
     });
-    // Cargar nombre de la organización para construir la línea de mando
     this.orgSvc.get(this.orgId).subscribe({
       next: org => { this.orgName = (org && org.nombre) ? String(org.nombre) : null; },
       error: () => { this.orgName = null; }
@@ -142,7 +156,6 @@ export class UsuariosListarComponent implements OnInit {
   }
 
   private loadSectionRolesIfApplies() {
-    // Debounce para evitar martilleo por cambios de paginador/filtro
     if (this.loadRolesTimer) { try { clearTimeout(this.loadRolesTimer); } catch {} this.loadRolesTimer = null; }
     this.loadRolesTimer = setTimeout(() => this._doLoadSectionRoles(), 200);
   }
@@ -181,23 +194,20 @@ export class UsuariosListarComponent implements OnInit {
       : (this.usuarios || []);
 
     const now = Date.now();
-    const TTL_ERROR_MS = 60_000; // 60s sin reintentar una sección que falla (500)
+    const TTL_ERROR_MS = 60_000;
 
     const secIdsAll = Array.from(new Set(baseArr
       .map(u => (u as any).seccionId)
       .filter((v): v is string => !!v)
       .map(s => String(s))));
 
-    // Si no hay secciones visibles, borrar mapa y salir
     if (secIdsAll.length === 0) { this.roleByUserId = {}; return; }
 
-    // Excluir secciones con error reciente
     const eligible = secIdsAll.filter(id => {
       const until = this.failedSecIdsUntil.get(id) || 0;
       return now >= until;
     });
 
-    // Agregar inmediatamente lo que ya esté en caché para mejorar UX
     const preMap: Record<string, string> = {};
     secIdsAll.forEach(id => {
       const cached = this.roleCacheBySection.get(id);
@@ -207,11 +217,9 @@ export class UsuariosListarComponent implements OnInit {
     });
     this.roleByUserId = preMap;
 
-    // Determinar cuáles faltan cargar realmente
     const toFetch = eligible.filter(id => !this.fetchedSecIds.has(id) && !this.inFlightSecIds.has(id));
-    if (toFetch.length === 0) return; // nada nuevo por cargar
+    if (toFetch.length === 0) return;
 
-    // Preparar llamadas tolerantes a errores (error -> lista vacía y marcar sección en fallo temporal)
     const calls = toFetch.map(id => {
       this.inFlightSecIds.add(id);
       return this.seccionSvc.getUsuariosPorSeccion(this.orgId!, id).pipe(
@@ -225,7 +233,6 @@ export class UsuariosListarComponent implements OnInit {
 
     forkJoin(calls).subscribe({
       next: (results) => {
-        // results[i] corresponde a toFetch[i]
         results.forEach((arr, idx) => {
           const sec = toFetch[idx];
           const map: Record<string, string> = {};
@@ -234,11 +241,9 @@ export class UsuariosListarComponent implements OnInit {
             const rn = (us?.rolEntityContextual?.nombre || '').toString().trim();
             if (uid && rn) map[uid] = rn;
           });
-          // Cachear y marcar como fetched si hubo datos (o incluso vacío para evitar refetch inmediato)
           this.roleCacheBySection.set(sec, map);
           this.fetchedSecIds.add(sec);
         });
-        // Reconstruir roleByUserId solo con secciones visibles
         const agg: Record<string, string> = { ...preMap };
         secIdsAll.forEach(id => {
           const cached = this.roleCacheBySection.get(id);
@@ -246,61 +251,84 @@ export class UsuariosListarComponent implements OnInit {
         });
         this.roleByUserId = agg;
       },
-      error: () => {
-        // En teoría no entra porque cada obs maneja su error
-      }
+      error: () => {}
     });
   }
 
+  /**
+   * Carga la lista de usuarios desde el backend
+   *
+   * BACKEND APLICA FILTRADO AUTOMÁTICO (implementado 2025-11-22):
+   * El backend lee el JWT del usuario autenticado y filtra automáticamente:
+   * - SYSADMIN: todos los usuarios del sistema
+   * - ORGADMIN: todos los usuarios de la organización
+   * - ADMIN (Sección): SOLO usuarios de su(s) sección(es) [FILTRO FORZOSO EN BACKEND]
+   * - USUARIO: 403 Forbidden
+   *
+   * ⚠️ NO se envía parámetro seccionId - el backend lo detecta automáticamente desde el JWT
+   */
   load() {
     if (!this.orgId) return;
     this.loading = true;
 
-    // ✅ NUEVO COMPORTAMIENTO: El backend ahora aplica automáticamente el filtrado por sección
-    // basándose en el rol del usuario autenticado (detectado vía token/headers)
-    // NO enviamos manualmente el parámetro seccionId - el backend lo maneja internamente
-    const scope = String(this.orgCtx.scope || '').toUpperCase();
-    const seccionId = this.orgCtx.seccion;
+    if (this.isDevelopment) {
+      console.log('[UsuariosListar] 📡 Cargando usuarios desde backend');
+      console.log('[UsuariosListar] ℹ️ Backend aplica filtrado automático desde JWT del usuario');
+    }
 
-    try {
-      console.log('[UsuariosListar] 📡 Cargando usuarios...');
-      console.log('[UsuariosListar] 📊 Contexto Frontend:', { scope, seccionId, orgId: this.orgId });
-      console.log('[UsuariosListar] ℹ️ El backend aplicará filtrado automático según rol del usuario');
-    } catch {}
-
-    // ⚠️ NO enviar params.seccionId - el backend lo detecta automáticamente
-    // El backend ahora:
-    // - SYSADMIN → ve todos los usuarios del sistema
-    // - ORGADMIN → ve todos los usuarios de la organización
-    // - ADMIN (Sección) → SOLO ve usuarios de su(s) sección(es)
-    // - USUARIO → 403 Forbidden
+    // ⚠️ NO enviar params.seccionId - el backend lo detecta automáticamente desde el JWT
     this.users.list(this.orgId).subscribe({
       next: list => {
-        try {
-          console.log('[UsuariosListar] ✅ Usuarios cargados:', list.length, 'usuarios');
-          console.log('[UsuariosListar] ✅ Filtrado aplicado por el backend según rol de usuario autenticado');
-
-          // Verificar distribución por sección para debugging
+        if (this.isDevelopment) {
+          console.log(`[UsuariosListar] ✅ Recibidos ${list.length} usuarios del backend (ya filtrados)`);
           const seccionesMap = new Map<string, number>();
           list.forEach(u => {
             const secNombre = u.seccionNombre || 'Sin sección';
             seccionesMap.set(secNombre, (seccionesMap.get(secNombre) || 0) + 1);
           });
           console.log('[UsuariosListar] 📊 Distribución por sección:', Object.fromEntries(seccionesMap));
-        } catch {}
+        }
 
+        // ✅ El backend YA retorna usuarios filtrados - NO aplicar filtro manual
         this.usuarios = list;
         this.applyFilter();
         this.loading = false;
         this.deferAdjustToViewport();
         this.loadSectionRolesIfApplies();
-        // ✅ Cargar roles faltantes para usuarios sin roles (típicamente ORGANIZACION)
         this.loadMissingRoles();
       },
       error: e => {
         this.loading = false;
+
+        // Manejo de errores según especificación del backend
+        const status = e?.status;
+        let errorMsg = 'No se pudieron listar usuarios';
+
+        switch (status) {
+          case 403:
+            errorMsg = 'No tiene permisos para listar usuarios';
+            if (this.isDevelopment) {
+              console.error('[UsuariosListar] ❌ 403 Forbidden - Sin permisos');
+            }
+            break;
+          case 404:
+            errorMsg = 'Organización no encontrada';
+            if (this.isDevelopment) {
+              console.error('[UsuariosListar] ❌ 404 Not Found - Organización inexistente');
+            }
+            break;
+          case 500:
+            errorMsg = 'Error del servidor. Intente nuevamente';
+            if (this.isDevelopment) {
+              console.error('[UsuariosListar] ❌ 500 Internal Server Error');
+            }
+            break;
+          default:
+            errorMsg = e?.error?.message || errorMsg;
+        }
+
         console.error('[UsuariosListar] ❌ Error al cargar usuarios:', e);
-        this.notify.error('Error', e?.error?.message || 'No se pudieron listar usuarios');
+        this.notify.error('Error', errorMsg);
       }
     });
   }
@@ -309,7 +337,7 @@ export class UsuariosListarComponent implements OnInit {
     const f = (this.filter || '').trim().toLowerCase();
     if (!f) { this.filtered = [...this.usuarios]; this.first = 0; this.deferAdjustToViewport(); return; }
     this.filtered = this.usuarios.filter(u => [u.username, u.nombreCompleto, u.email, u.scopeNivel].some(v => (v || '').toString().toLowerCase().includes(f)));
-    this.first = 0; // reset a primera página tras filtrar
+    this.first = 0;
     this.deferAdjustToViewport();
   }
 
@@ -347,18 +375,15 @@ export class UsuariosListarComponent implements OnInit {
     const sid = (u as any)?.seccionId;
     if (!sid) return '-';
 
-    // 1) Caché local
     const cached = this.sectionNameCache[String(sid)];
     if (cached) return cached;
 
-    // 2) Buscar en lista precargada
     const found = this.secciones.find(s => String(s.id) === String(sid));
     if (found) {
       this.sectionNameCache[String(sid)] = found.nombre;
       return found.nombre;
     }
 
-    // 3) Resolver bajo demanda (una sola vez por id)
     if (this.orgId && !this.sectionFetchInFlight.has(String(sid))) {
       this.sectionFetchInFlight.add(String(sid));
       this.seccionSvc.get(this.orgId, String(sid)).subscribe({
@@ -367,17 +392,14 @@ export class UsuariosListarComponent implements OnInit {
           this.sectionFetchInFlight.delete(String(sid));
         },
         error: () => {
-          // fallback: no cachear nombre inválido, permitir reintentos futuros tras TTL implícito (navegación/refresco)
           this.sectionFetchInFlight.delete(String(sid));
         }
       });
     }
 
-    // Mientras se resuelve, mostrar el id; se actualizará automáticamente cuando llegue el nombre
     return String(sid);
   }
 
-  // Devuelve solo los nombres: "ORG", o "ORG, SEC" si corresponde
   mandoNombre(u: UserEntity): string {
     const org = (this.orgName && this.orgName.trim()) ? this.orgName.trim() : (this.orgId || '-');
     const sec = this.sectionName(u);
@@ -385,9 +407,7 @@ export class UsuariosListarComponent implements OnInit {
     return org || '-';
   }
 
-  // ✅ Cargar roles faltantes para usuarios sin roles (workaround para bug del backend)
   private loadMissingRoles() {
-    // Identificar usuarios sin roles
     const usersWithoutRoles = this.usuarios.filter(u => {
       const fromNames = Array.isArray((u as any).rolNombres) && (u as any).rolNombres.length > 0;
       const fromOrg = Array.isArray((u as any).rolesOrganizacion) && (u as any).rolesOrganizacion.length > 0;
@@ -397,22 +417,22 @@ export class UsuariosListarComponent implements OnInit {
     });
 
     if (usersWithoutRoles.length === 0) {
-      try {
+      if (this.isDevelopment) {
         console.log('[UsuariosListar] ✅ Todos los usuarios tienen roles asignados');
-      } catch {}
+      }
       return;
     }
 
-    try {
-      console.log('[UsuariosListar] 🔄 Cargando roles faltantes para', usersWithoutRoles.length, 'usuarios sin roles');
-      console.log('[UsuariosListar] 📋 Usuarios afectados:', usersWithoutRoles.map(u => ({ username: u.username, scopeNivel: u.scopeNivel })));
-    } catch {}
+    if (this.isDevelopment) {
+      console.log(`[UsuariosListar] 🔄 Cargando roles para ${usersWithoutRoles.length} usuarios sin roles`);
+    }
 
-    // Cargar roles de cada usuario sin roles
     const requests = usersWithoutRoles.map(u =>
       this.rolesSvc.listUserRoles(u.id).pipe(
         catchError(err => {
-          console.error(`[UsuariosListar] ❌ Error cargando roles de ${u.username}:`, err);
+          if (this.isDevelopment) {
+            console.error(`[UsuariosListar] ❌ Error cargando roles de ${u.username}:`, err);
+          }
           return of([]);
         })
       )
@@ -420,26 +440,23 @@ export class UsuariosListarComponent implements OnInit {
 
     forkJoin(requests).subscribe({
       next: results => {
-        try {
+        if (this.isDevelopment) {
           console.log('[UsuariosListar] ✅ Roles cargados exitosamente');
-        } catch {}
+        }
 
-        // Actualizar usuarios con sus roles
         results.forEach((roles, index) => {
           const user = usersWithoutRoles[index];
           if (roles && roles.length > 0) {
-            // Actualizar el usuario con sus roles
             const rolesNombres = roles.map(r => r.rolNombre || r.rol?.nombre || '').filter(Boolean);
             (user as any).rolNombres = rolesNombres;
             (user as any).rolNombre = rolesNombres[0] || null;
 
-            try {
-              console.log(`[UsuariosListar] ✅ Usuario ${user.username} actualizado con roles:`, rolesNombres);
-            } catch {}
+            if (this.isDevelopment) {
+              console.log(`[UsuariosListar] ✅ ${user.username} → roles:`, rolesNombres);
+            }
           }
         });
 
-        // Forzar actualización de la vista
         this.usuarios = [...this.usuarios];
         this.applyFilter();
       },
@@ -449,7 +466,6 @@ export class UsuariosListarComponent implements OnInit {
     });
   }
 
-  // Consolidar roles con prioridad y sin duplicados
   rolesFor(u: UserEntity): string[] {
     const fromNames: string[] = Array.isArray((u as any).rolNombres)
       ? (u as any).rolNombres.map((x: any) => String(x))
@@ -460,19 +476,13 @@ export class UsuariosListarComponent implements OnInit {
     const single: string[] = (u as any).rolNombre ? [String((u as any).rolNombre)] : [];
     const fallbackCtx: string[] = this.roleByUserId[u.id] ? [this.roleByUserId[u.id]] : [];
 
-    // DEBUG: Log para usuarios de ORGANIZACION sin roles
-    if (u.scopeNivel === 'ORGANIZACION' && !fromNames.length && !fromOrg.length && !single.length && !fallbackCtx.length) {
-      try {
-        console.log('[UsuariosListar] ⚠️ Usuario ORGANIZACION sin roles:', {
-          username: u.username,
-          scopeNivel: u.scopeNivel,
-          rolNombres: (u as any).rolNombres,
-          rolesOrganizacion: (u as any).rolesOrganizacion,
-          rolNombre: (u as any).rolNombre,
-          roleByUserId: this.roleByUserId[u.id],
-          todoElObjeto: u
-        });
-      } catch {}
+    if (this.isDevelopment && u.scopeNivel === 'ORGANIZACION' && !fromNames.length && !fromOrg.length && !single.length && !fallbackCtx.length) {
+      console.warn('[UsuariosListar] ⚠️ Usuario ORGANIZACION sin roles:', {
+        username: u.username,
+        scopeNivel: u.scopeNivel,
+        rolNombres: (u as any).rolNombres,
+        rolesOrganizacion: (u as any).rolesOrganizacion
+      });
     }
 
     const preferred: string[] = fromNames.length
@@ -480,6 +490,7 @@ export class UsuariosListarComponent implements OnInit {
       : (fromOrg.length
         ? fromOrg
         : (single.length ? single : fallbackCtx));
+
     const seen = new Set<string>();
     const out: string[] = [];
     preferred.forEach((r: string) => {
@@ -492,3 +503,4 @@ export class UsuariosListarComponent implements OnInit {
     return out;
   }
 }
+

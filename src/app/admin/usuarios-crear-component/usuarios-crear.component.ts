@@ -305,7 +305,7 @@ export class UsuariosCrearComponent implements OnInit {
     // no default para scopeNivel
     scopeNivel: undefined as any,
     seccionId: null,
-    // organización que administrará cuando el alcance sea ORGANIZACION
+    // organizaci��n que administrará cuando el alcance sea ORGANIZACION
     orgAdministradaId: null as any,
     // nuevo: roles seleccionados (single o multiple segun backend)
     rolesIds: [] as any,
@@ -335,11 +335,23 @@ export class UsuariosCrearComponent implements OnInit {
 
     let contextoSeccionId = this.orgCtx.seccion || null;
 
-    // Intentar leer del localStorage si no está en el contexto
+    // Intentar leer del localStorage - PRIORIZAR datos inmutables del login
     if (!contextoSeccionId) {
       try {
-        contextoSeccionId = localStorage.getItem('seccionPrincipalId');
-      } catch {}
+        // Primero intentar con el dato inmutable del login
+        const loginSeccionImmutable = localStorage.getItem('loginSeccionImmutable');
+        const seccionPrincipalId = localStorage.getItem('seccionPrincipalId');
+
+        contextoSeccionId = loginSeccionImmutable || seccionPrincipalId;
+      } catch (e) {
+        console.error('Error al leer localStorage:', e);
+      }
+    }
+
+    // Si hay contexto de sección, establecer automáticamente alcance SECCION
+    if (contextoSeccionId) {
+      this.model.scopeNivel = 'SECCION' as ScopeNivel;
+      this.model.seccionId = contextoSeccionId;
     }
 
     // Cargar metadata de usuarios (scope) y derivar opciones/default
@@ -371,10 +383,7 @@ export class UsuariosCrearComponent implements OnInit {
 
           if (contextoSeccionId && allowed.includes('SECCION')) {
             defaultScope = allowedScopes.find((x: any) => String(x).toUpperCase() === 'SECCION');
-            // Si hay contexto de sección, preseleccionarla
-            if (defaultScope && !this.model.seccionId) {
-              this.model.seccionId = contextoSeccionId;
-            }
+            // Ya está asignada arriba
           } else if (!contextoSeccionId && allowed.includes('ORGANIZACION') && isSysAdmin) {
             defaultScope = allowedScopes.find((x: any) => String(x).toUpperCase() === 'ORGANIZACION');
           } else if (allowed.includes('SECCION')) {

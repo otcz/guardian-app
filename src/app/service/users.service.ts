@@ -278,10 +278,22 @@ export class UsersService {
     );
   }
 
-  list(orgId: string): Observable<UserEntity[]> {
+  list(orgId: string, params?: { seccionId?: string; excludeAdmins?: boolean }): Observable<UserEntity[]> {
     const path = `/orgs/${orgId}/usuarios`;
     const url = `${this.base}${path}`;
     const urlFallback = `${environment.backendHost}${this.base}${path}`;
+
+    // ✅ Construir parámetros de query para filtrado
+    const queryParams: any = {};
+    if (params?.seccionId) {
+      queryParams.seccionId = params.seccionId;
+      try {
+        console.log('[UsersService] 🔍 Agregando filtro seccionId:', params.seccionId);
+      } catch {}
+    }
+    if (params?.excludeAdmins !== undefined) {
+      queryParams.excludeAdmins = params.excludeAdmins;
+    }
 
     const mapResp = (resp: ApiResponse<any>) => {
       if (resp && resp.success === false) {
@@ -292,10 +304,23 @@ export class UsersService {
       return arr.map((d: any) => this.ensureUser(d));
     };
 
-    return this.http.get<any>(url, { headers: this.accept, responseType: 'text' as 'json' }).pipe(
+    const httpOptions = {
+      headers: this.accept,
+      responseType: 'text' as 'json',
+      params: queryParams  // ✅ Enviar parámetros al backend
+    };
+
+    try {
+      const queryString = Object.keys(queryParams).length > 0
+        ? '?' + Object.entries(queryParams).map(([k, v]) => `${k}=${v}`).join('&')
+        : '';
+      console.log('[UsersService] 📡 Request URL:', `${path}${queryString}`);
+    } catch {}
+
+    return this.http.get<any>(url, httpOptions).pipe(
       map((payload: any) => this.toApiResponse(payload)),
       map(mapResp),
-      catchError((_e1) => this.http.get<any>(urlFallback, { headers: this.accept, responseType: 'text' as 'json' }).pipe(
+      catchError((_e1) => this.http.get<any>(urlFallback, httpOptions).pipe(
         map((payload: any) => this.toApiResponse(payload)),
         map(mapResp),
         catchError((e2) => throwError(() => ({ error: { message: e2?.error?.message || e2?.message || 'No se pudieron listar usuarios' }, status: e2?.status })))

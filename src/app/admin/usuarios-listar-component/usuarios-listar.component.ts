@@ -253,12 +253,45 @@ export class UsuariosListarComponent implements OnInit {
   load() {
     if (!this.orgId) return;
     this.loading = true;
-    this.users.list(this.orgId).subscribe({
+
+    // ✅ FILTRADO POR SECCIÓN: Si el contexto es SECCION, filtrar usuarios de esa sección
+    const scope = String(this.orgCtx.scope || '').toUpperCase();
+    const seccionId = this.orgCtx.seccion;
+
+    const params: { seccionId?: string; excludeAdmins?: boolean } = {};
+
+    if (scope === 'SECCION' && seccionId) {
+      params.seccionId = String(seccionId);
+      try {
+        console.log('[UsuariosListar] 🔍 FILTRADO ACTIVO - Filtrando por sección:', seccionId);
+        console.log('[UsuariosListar] 📊 Contexto:', { scope, seccionId, orgId: this.orgId });
+      } catch {}
+    } else {
+      try {
+        console.log('[UsuariosListar] 🌐 SIN FILTRO - Mostrando todos los usuarios de la organización');
+        console.log('[UsuariosListar] 📊 Contexto:', { scope, seccionId: 'ninguna', orgId: this.orgId });
+      } catch {}
+    }
+
+    this.users.list(this.orgId, params).subscribe({
       next: list => {
-        try { console.log('[UsuariosListar] Usuarios cargados:', list); } catch {}
-        this.usuarios = list; this.applyFilter(); this.loading = false; this.deferAdjustToViewport(); this.loadSectionRolesIfApplies();
+        try {
+          console.log('[UsuariosListar] ✅ Usuarios cargados:', list.length, 'usuarios');
+          if (params.seccionId) {
+            console.log('[UsuariosListar] ✅ Filtrado aplicado para sección:', params.seccionId);
+          }
+        } catch {}
+        this.usuarios = list;
+        this.applyFilter();
+        this.loading = false;
+        this.deferAdjustToViewport();
+        this.loadSectionRolesIfApplies();
       },
-      error: e => { this.loading = false; this.notify.error('Error', e?.error?.message || 'No se pudieron listar usuarios'); }
+      error: e => {
+        this.loading = false;
+        console.error('[UsuariosListar] ❌ Error al cargar usuarios:', e);
+        this.notify.error('Error', e?.error?.message || 'No se pudieron listar usuarios');
+      }
     });
   }
 

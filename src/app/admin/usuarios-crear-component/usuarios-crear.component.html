@@ -251,23 +251,48 @@
                 Sección
                 <span class="required-mark" *ngIf="isSeccionRequerida">*</span>
               </label>
-              <ng-container *ngIf="!loading; else sectionsLoading">
-                <p-dropdown
+
+              <!-- Si hay contexto de sección, mostrar solo la sección actual (bloqueada) -->
+              <ng-container *ngIf="tieneContextoSeccion; else seccionDropdown">
+                <input
+                  pInputText
                   id="seccion"
-                  [options]="secciones"
-                  optionLabel="nombre"
-                  optionValue="id"
-                  [(ngModel)]="model.seccionId"
-                  name="seccionId"
-                  (onChange)="onSeccionChange()"
-                  placeholder="Seleccione sección"
-                  [filter]="true"
-                  filterPlaceholder="Buscar sección..."
-                  styleClass="w-100">
-                </p-dropdown>
+                  type="text"
+                  [value]="seccionContextoNombre"
+                  readonly
+                  class="input-field"
+                  style="background-color: #f5f5f5; cursor: not-allowed;"
+                />
+                <small class="info-message" style="color: #f59e0b;">
+                  <i class="pi pi-lock"></i>
+                  Solo puedes crear usuarios para tu sección actual
+                </small>
               </ng-container>
-              <ng-template #sectionsLoading>
-                <p-skeleton width="100%" height="42px"></p-skeleton>
+
+              <!-- Si no hay contexto de sección, mostrar dropdown completo -->
+              <ng-template #seccionDropdown>
+                <ng-container *ngIf="!loading; else sectionsLoading">
+                  <p-dropdown
+                    id="seccion"
+                    [options]="secciones"
+                    optionLabel="nombre"
+                    optionValue="id"
+                    [(ngModel)]="model.seccionId"
+                    name="seccionId"
+                    (onChange)="onSeccionChange()"
+                    placeholder="Seleccione sección"
+                    [filter]="true"
+                    filterPlaceholder="Buscar sección..."
+                    styleClass="w-100">
+                  </p-dropdown>
+                </ng-container>
+                <ng-template #sectionsLoading>
+                  <p-skeleton width="100%" height="42px"></p-skeleton>
+                </ng-template>
+                <small class="info-message">
+                  <i class="pi pi-info-circle"></i>
+                  Selecciona la sección a la que pertenecerá el usuario
+                </small>
               </ng-template>
             </div>
 

@@ -333,7 +333,14 @@ export class UsuariosCrearComponent implements OnInit {
       return;
     }
 
-    const contextoSeccionId = this.orgCtx.seccion || null;
+    let contextoSeccionId = this.orgCtx.seccion || null;
+
+    // Intentar leer del localStorage si no está en el contexto
+    if (!contextoSeccionId) {
+      try {
+        contextoSeccionId = localStorage.getItem('seccionPrincipalId');
+      } catch {}
+    }
 
     // Cargar metadata de usuarios (scope) y derivar opciones/default
     this.users.getUsuarioMeta(this.orgId).subscribe({
@@ -351,9 +358,15 @@ export class UsuariosCrearComponent implements OnInit {
 
         this.scopeOptions = allowedScopes.map((v) => ({ label: String(v), value: v }));
 
+        // Detectar si es usuario de sección (puede crear SECCION pero NO ORGANIZACION)
+        const allowed = allowedScopes.map((x: any) => String(x).toUpperCase());
+        const canCreateOrg = allowed.includes('ORGANIZACION');
+        const canCreateSeccion = allowed.includes('SECCION');
+        const esUsuarioSeccion = canCreateSeccion && !canCreateOrg;
+
+
         // PRESELECCIÓN DE ALCANCE SEGÚN CONTEXTO (solo si el modelo aún no tiene valor)
         if (!this.model.scopeNivel && Array.isArray(allowedScopes) && allowedScopes.length) {
-          const allowed = allowedScopes.map((x: any) => String(x).toUpperCase());
           let defaultScope: ScopeNivel | undefined;
 
           if (contextoSeccionId && allowed.includes('SECCION')) {
@@ -367,6 +380,17 @@ export class UsuariosCrearComponent implements OnInit {
           } else if (allowed.includes('SECCION')) {
             // Si no hay contexto de sección pero SECCION está permitida, usarla por defecto
             defaultScope = allowedScopes.find((x: any) => String(x).toUpperCase() === 'SECCION');
+
+            // Si es usuario de sección, intentar encontrar su sección automáticamente
+            if (esUsuarioSeccion && !this.model.seccionId && !contextoSeccionId) {
+              // Esperar a que las secciones se carguen y asignar la única disponible si solo hay una
+              setTimeout(() => {
+                if (this.secciones.length === 1) {
+                  this.model.seccionId = this.secciones[0].id;
+                  this.onSeccionChange();
+                }
+              }, 500);
+            }
           }
 
           if (defaultScope !== undefined) {
@@ -448,18 +472,89 @@ export class UsuariosCrearComponent implements OnInit {
     return !!this.model.seccionId;
   }
 
-  onScopeChange() {
-    if (!this.isSeccionRequerida) {
-      this.model.seccionId = null;
+  // Verificar si el usuario actual es de alcance SECCION (debe ver su sección bloqueada)
+  get tieneContextoSeccion(): boolean {
+    // Estrategia 1: Verificar del contexto o localStorage
+    let seccionId = this.orgCtx.seccion;
+    let scopeActual = this.orgCtx.scope;
+
+    if (!seccionId || !scopeActual) {
+      try {
+        seccionId = seccionId || localStorage.getItem('seccionPrincipalId');
+        scopeActual = scopeActual || localStorage.getItem('scopeNivel') as any;
+      } catch {}
     }
+
+    // Si encontramos scope SECCION con seccionId, definitivamente es usuario de sección
+    if (seccionId && String(scopeActual || '').toUpperCase() === 'SECCION') {
+      return true;
+    }
+
+    // Estrategia 2: Verificar por metadatos - si solo puede crear usuarios SECCION
+    // (no puede crear ORGANIZACION), entonces es usuario de sección
+    const allowedScopes = this.usuariosMeta?.allowedScopeNiveles || [];
+    const canCreateOrg = allowedScopes.some((s: any) => String(s).toUpperCase() === 'ORGANIZACION');
+    const canCreateSeccion = allowedScopes.some((s: any) => String(s).toUpperCase() === 'SECCION');
+
+    // Si puede crear SECCION pero NO ORGANIZACION, es usuario de sección
+    const esUsuarioSeccion = canCreateSeccion && !canCreateOrg;
+
+    // Si es usuario de sección, SIEMPRE mostrar campo bloqueado
+    return esUsuarioSeccion;
+  }
+
+  // Obtener el nombre de la sección del contexto actual o la asignada
+  get seccionContextoNombre(): string {
+    // Intentar obtener del contexto primero, luego del localStorage, finalmente del modelo
+    let secId: string | null = this.orgCtx.seccion;
+    if (!secId) {
+      try {
+        secId = localStorage.getItem('seccionPrincipalId');
+      } catch {}
+    }
+    if (!secId) {
+      secId = this.model.seccionId || null;
+    }
+
+    if (!secId) return 'Cargando...';
+    const found = this.secciones.find(s => String(s.id) === String(secId));
+    const nombre = found?.nombre || `Sección ${secId}`;
+    return nombre;
+  }
+
+  onScopeChange() {
+    let contextoSeccionId = this.orgCtx.seccion || null;
+
+    // Intentar leer del localStorage si no está en el contexto
+    if (!contextoSeccionId) {
+      try {
+        contextoSeccionId = localStorage.getItem('seccionPrincipalId');
+      } catch {}
+    }
+
+    if (!this.isSeccionRequerida) {
+      // Solo limpiar si no hay contexto de sección
+      if (!contextoSeccionId) {
+        this.model.seccionId = null;
+      }
+    } else if (contextoSeccionId) {
+      // Si hay contexto de sección, mantenerla bloqueada
+      this.model.seccionId = contextoSeccionId;
+    }
+
     if (!this.isAlcanceOrganizacion) {
       (this.model as any).orgAdministradaId = null;
     }
     // limpiar selección de roles al cambiar alcance
     (this.model as any).rolesIds = Array.isArray((this.model as any).rolesIds) ? [] : null;
-    // limpiar lugares al cambiar alcance
-    this.model.lugaresIds = [];
-    this.lugaresDisponibles = [];
+    // limpiar lugares al cambiar alcance solo si cambiamos de sección
+    if (!contextoSeccionId || !this.isSeccionRequerida) {
+      this.model.lugaresIds = [];
+      this.lugaresDisponibles = [];
+    } else if (this.model.seccionId) {
+      // Si mantenemos la sección del contexto, cargar sus lugares
+      this.onSeccionChange();
+    }
     this.cargarRolesPorContexto();
   }
 
@@ -492,9 +587,8 @@ export class UsuariosCrearComponent implements OnInit {
     this.rolesDisponibles = [];
     if (!this.orgId) return;
 
-    // Si el alcance es SECCION y hay una sección en contexto, usamos la org actual
-    const seccionContexto = this.orgCtx.seccion || null;
-    if (this.isAlcanceSeccion && seccionContexto) {
+    // Si el alcance es SECCION (ya sea con contexto o usuario de sección), usamos la org actual
+    if (this.isAlcanceSeccion) {
       this.rolesService.list(this.orgId).subscribe({
         next: (roles) => {
           this.rolesDisponibles = (roles || []).filter(r => r.estado === 'ACTIVO');
@@ -536,7 +630,31 @@ export class UsuariosCrearComponent implements OnInit {
     if (!this.orgId) return;
     this.loading = true;
     this.seccionService.list(this.orgId).subscribe({
-      next: (list) => { this.secciones = list; this.loading = false; },
+      next: (list) => {
+        this.secciones = list;
+        this.loading = false;
+
+        // Auto-asignar sección para usuarios de sección
+        if (!this.model.seccionId) {
+          // Intentar del contexto/localStorage primero
+          let seccionContexto = this.orgCtx.seccion;
+          if (!seccionContexto) {
+            try {
+              seccionContexto = localStorage.getItem('seccionPrincipalId');
+            } catch {}
+          }
+
+          if (seccionContexto) {
+            this.model.seccionId = seccionContexto;
+            this.onSeccionChange();
+          } else if (this.tieneContextoSeccion && this.secciones.length > 0) {
+            // Si es usuario de sección, asignar la primera sección disponible
+            // El backend validará que sea la correcta
+            this.model.seccionId = this.secciones[0].id;
+            this.onSeccionChange();
+          }
+        }
+      },
       error: (e) => { this.loading = false; this.notify.error('Error', e?.error?.message || 'No se pudieron cargar secciones'); }
     });
   }

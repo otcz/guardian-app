@@ -67,24 +67,85 @@ export class VehiculosCrearComponent implements OnInit {
       return;
     }
 
-    // ✅ MEJORADO: Intentar obtener userId ANTES de cargar secciones
+    // ���� MEJORADO: Intentar obtener userId ANTES de cargar secciones
     this.currentUserId = this.obtenerUserIdActual();
     console.log('[VehiculosCrear] 👤 Usuario actual:', this.currentUserId);
 
-    // ✅ MEJORADO: Auto-seleccionar sección ANTES de cargar secciones
-    // Intentar múltiples fuentes para obtener la sección del usuario
+    // ✅ CRÍTICO: Obtener sección desde loginSeccionImmutable (NO llamar al backend todavía)
     let seccionDelUsuario: string | null = null;
 
-    // ✅ Fuente 0 (PRIORIDAD): loginSeccionImmutable (sección inmutable del login)
+    // ✅ Fuente 0 (PRIORIDAD ABSOLUTA): loginSeccionImmutable (sección inmutable del login)
     try {
       const seccionImmutable = localStorage.getItem('loginSeccionImmutable');
       if (seccionImmutable) {
         seccionDelUsuario = seccionImmutable;
+        this.model.seccionId = seccionImmutable;
         console.log('[VehiculosCrear] ✅ Sección desde loginSeccionImmutable:', seccionImmutable);
+        console.log('[VehiculosCrear] 🔄 Cargando nombre de sección desde backend...');
+
+        // ✅ CRÍTICO: Cargar secciones desde backend para obtener el nombre real
+        // pero solo mostrar la sección inmutable del usuario
+        this.loading = true;
+        this.seccionService.list(this.orgId).subscribe({
+          next: (list) => {
+            // Filtrar solo la sección del usuario
+            const seccionUsuario = list.find(s => s.id === seccionImmutable);
+
+            if (seccionUsuario) {
+              this.secciones = [seccionUsuario];
+              console.log('[VehiculosCrear] ✅ Sección encontrada:', seccionUsuario.nombre);
+            } else {
+              // Si no se encuentra (caso excepcional), usar nombre genérico
+              this.secciones = [{
+                id: seccionImmutable,
+                nombre: 'Mi Sección',
+                organizacionId: this.orgId,
+                activo: true
+              } as SeccionEntity];
+              console.warn('[VehiculosCrear] ⚠️ Sección no encontrada en lista, usando nombre genérico');
+            }
+
+            this.loading = false;
+
+            // ✅ CRÍTICO: Solo cargar usuarios si ES ADMIN
+            // Los usuarios regulares ya tienen su userId auto-seleccionado
+            if (this.isAdmin && this.model.seccionId) {
+              this.loadUsuarios();
+              console.log('[VehiculosCrear] 📋 Cargando usuarios para sección:', this.model.seccionId);
+            } else if (!this.isAdmin) {
+              console.log('[VehiculosCrear] ⏭️ Usuario regular: saltando carga de usuarios (ya auto-seleccionado)');
+            }
+          },
+          error: (e) => {
+            this.loading = false;
+            console.error('[VehiculosCrear] ❌ Error al cargar nombre de sección:', e);
+            // Usar nombre genérico en caso de error
+            this.secciones = [{
+              id: seccionImmutable,
+              nombre: 'Mi Sección',
+              organizacionId: this.orgId,
+              activo: true
+            } as SeccionEntity];
+
+            // Continuar con la carga de usuarios si es admin
+            if (this.isAdmin && this.model.seccionId) {
+              this.loadUsuarios();
+            }
+          }
+        });
+
+        // ✅ CRÍTICO: Si NO es admin, auto-seleccionar usuario actual SIN cargar lista
+        if (!this.isAdmin && this.currentUserId) {
+          this.model.usuarioIds = [this.currentUserId];
+          console.log('[VehiculosCrear] ✅ Usuario regular auto-seleccionado:', this.currentUserId);
+        }
+
+        // Salir del ngOnInit después de configurar el flujo de sección inmutable
+        return;
       }
     } catch {}
 
-    // Fuente 1: OrgContext (scope SECCION)
+    // Fuente 1: OrgContext (scope SECCION) - SOLO si no hay loginSeccionImmutable
     if (!seccionDelUsuario) {
       const scope = String(this.orgCtx.scope || '').toUpperCase();
       if (scope === 'SECCION' && this.orgCtx.seccion) {
@@ -92,7 +153,7 @@ export class VehiculosCrearComponent implements OnInit {
       }
     }
 
-    // Fuente 2: localStorage directo (seccionPrincipalId)
+    // Fuente 2: localStorage directo (seccionPrincipalId) - SOLO si no hay loginSeccionImmutable
     if (!seccionDelUsuario) {
       try {
         const seccionLS = localStorage.getItem('seccionPrincipalId');
@@ -100,7 +161,7 @@ export class VehiculosCrearComponent implements OnInit {
       } catch {}
     }
 
-    // Fuente 3: localStorage (seccionId)
+    // Fuente 3: localStorage (seccionId) - SOLO si no hay loginSeccionImmutable
     if (!seccionDelUsuario) {
       try {
         const seccionLS = localStorage.getItem('seccionId');
@@ -108,8 +169,8 @@ export class VehiculosCrearComponent implements OnInit {
       } catch {}
     }
 
-    // Asignar sección encontrada
-    if (seccionDelUsuario) {
+    // Asignar sección encontrada si no se asignó desde loginSeccionImmutable
+    if (seccionDelUsuario && !this.model.seccionId) {
       this.model.seccionId = seccionDelUsuario;
       console.log('[VehiculosCrear] ✅ Sección auto-seleccionada:', seccionDelUsuario);
     }
@@ -120,21 +181,25 @@ export class VehiculosCrearComponent implements OnInit {
       console.log('[VehiculosCrear] ✅ Usuario regular auto-seleccionado:', this.currentUserId);
     }
 
-    // ✅ MEJORADO: Solo cargar secciones desde backend si ES ADMIN
-    // Usuario regular usa sección de localStorage
-    if (this.isAdmin) {
+    // ✅ CRÍTICO: SOLO cargar secciones desde backend si:
+    // 1. NO hay loginSeccionImmutable (es SYSADMIN o ORGADMIN global)
+    // 2. ES ADMIN de nivel superior
+    const haySeccionInmutable = !!localStorage.getItem('loginSeccionImmutable');
+
+    if (!haySeccionInmutable && this.isAdmin) {
+      console.log('[VehiculosCrear] 📋 Cargando secciones desde backend (usuario sin sección inmutable)');
       this.loadSecciones();
     } else {
-      console.log('[VehiculosCrear] ⏭️ Usuario regular: NO se cargan secciones (usa loginSeccionImmutable)');
-      // Para usuario regular, crear un array con solo su sección
-      if (seccionDelUsuario) {
-        // Crear objeto de sección básico para mostrar en UI si es necesario
-        this.secciones = [{
-          id: seccionDelUsuario,
-          nombre: 'Mi Sección',
-          organizacionId: this.orgId,
-          activo: true
-        } as SeccionEntity];
+      console.log('[VehiculosCrear] ⏭️ NO se cargan secciones desde backend');
+      console.log('[VehiculosCrear] ✅ Usando sección de localStorage:', this.model.seccionId);
+
+      // ✅ CRÍTICO: Cargar usuarios de la sección SOLO si es admin
+      // Usuario regular ya está auto-seleccionado arriba
+      if (this.isAdmin && this.model.seccionId) {
+        console.log('[VehiculosCrear] 📋 Cargando usuarios para sección:', this.model.seccionId);
+        this.loadUsuarios();
+      } else if (!this.isAdmin) {
+        console.log('[VehiculosCrear] ⏭️ Usuario regular: NO se cargan usuarios (ya auto-seleccionado)');
       }
     }
   }
@@ -190,6 +255,7 @@ export class VehiculosCrearComponent implements OnInit {
         if (userRole === 'SYSADMIN' || userRole === 'ORGADMIN') {
           // Ver todas las secciones de la organización
           this.secciones = list;
+          console.log('[VehiculosCrear] 📋 ORGADMIN: Cargadas', list.length, 'secciones de la organización');
         } else if (userRole === 'ADMIN' && scope === 'SECCION') {
           // Ver solo la sección que administra
           const seccionId = this.orgCtx.seccion;
@@ -207,7 +273,7 @@ export class VehiculosCrearComponent implements OnInit {
           const existeEnLista = this.secciones.some(s => s.id === seccionPreSeleccionada);
           if (existeEnLista) {
             this.model.seccionId = seccionPreSeleccionada;
-            console.log('[VehiculosCrear] ✅ Sección mantenida después de filtrar:', seccionPreSeleccionada);
+            console.log('[VehiculosCrear] ��� Sección mantenida después de filtrar:', seccionPreSeleccionada);
           } else {
             console.warn('[VehiculosCrear] ⚠️ Sección pre-seleccionada no está en lista filtrada');
             // Si solo hay 1 sección en la lista, auto-seleccionarla
@@ -224,11 +290,13 @@ export class VehiculosCrearComponent implements OnInit {
 
         this.loading = false;
 
-        // ✅ CRÍTICO: Solo cargar usuarios si ES ADMIN
-        // Los usuarios regulares ya tienen su userId auto-seleccionado en ngOnInit()
+        // ✅ MEJORADO: Cargar usuarios automáticamente si hay una sección seleccionada
+        // Esto cubre el caso cuando es ORGADMIN y se auto-selecciona o mantiene una sección
         if (this.isAdmin && this.model.seccionId) {
+          console.log('[VehiculosCrear] 📋 Cargando usuarios para sección:', this.model.seccionId);
           this.loadUsuarios();
-          console.log('[VehiculosCrear] 📋 Cargando usuarios para secci��n:', this.model.seccionId);
+        } else if (this.isAdmin && !this.model.seccionId) {
+          console.log('[VehiculosCrear] ⚠️ Admin sin sección seleccionada, esperando selección manual');
         } else if (!this.isAdmin) {
           console.log('[VehiculosCrear] ⏭️ Usuario regular: saltando carga de usuarios (ya auto-seleccionado)');
         }
@@ -248,17 +316,40 @@ export class VehiculosCrearComponent implements OnInit {
     if (!this.orgId) return;
 
     // ✅ Si ya hay una sección seleccionada, filtrar por ella
+    const seccionIdSeleccionada = this.model.seccionId;
     const params: any = {};
-    if (this.model.seccionId) {
-      params.seccionId = this.model.seccionId;
+    if (seccionIdSeleccionada) {
+      params.seccionId = seccionIdSeleccionada;
     }
+
+    console.log('[VehiculosCrear] 🔄 Solicitando usuarios, seccionId:', seccionIdSeleccionada);
 
     this.users.list(this.orgId, params).subscribe({
       next: (arr) => {
-        this.usuarios = arr;
+        console.log('[VehiculosCrear] 📦 Usuarios recibidos del backend:', arr.length);
+
+        // ✅ CRÍTICO: Filtrar usuarios en el frontend por seccionId
+        // El backend puede ignorar el parámetro si eres ORGADMIN, así que filtramos aquí
+        if (seccionIdSeleccionada && arr.length > 0) {
+          const usuariosFiltrados = arr.filter(u => {
+            const userSeccionId = (u as any).seccionId || (u as any).seccionPrincipalId;
+            const perteneceASeccion = userSeccionId === seccionIdSeleccionada;
+            if (!perteneceASeccion) {
+              console.log('[VehiculosCrear] 🚫 Usuario filtrado:', u.username, 'seccionId:', userSeccionId, '!==', seccionIdSeleccionada);
+            }
+            return perteneceASeccion;
+          });
+
+          this.usuarios = usuariosFiltrados;
+          console.log('[VehiculosCrear] ✅ Usuarios filtrados por sección:', usuariosFiltrados.length, 'de', arr.length);
+        } else {
+          this.usuarios = arr;
+          console.log('[VehiculosCrear] ℹ️ Sin filtrado de sección (mostrando todos)');
+        }
+
         // Intentar resolver currentUserId por username
         if (!this.currentUserId && this.currentUsername) {
-          const me = arr.find(u => (u.username || '').toLowerCase() === this.currentUsername!.toLowerCase());
+          const me = this.usuarios.find(u => (u.username || '').toLowerCase() === this.currentUsername!.toLowerCase());
           if (me) this.currentUserId = me.id;
         }
       },
@@ -342,12 +433,17 @@ export class VehiculosCrearComponent implements OnInit {
    * ✅ Cuando cambia la sección, recargar usuarios de esa sección
    */
   onSeccionChange() {
+    console.log('[VehiculosCrear] 🔄 Cambio de sección detectado:', this.model.seccionId);
+
     if (this.model.seccionId) {
       // Limpiar usuarios seleccionados al cambiar de sección
       this.model.usuarioIds = [];
+      console.log('[VehiculosCrear] 🧹 Usuarios limpiados, cargando usuarios de la sección:', this.model.seccionId);
+
       // Recargar usuarios de la nueva sección
       this.loadUsuarios();
     } else {
+      console.log('[VehiculosCrear] ⚠️ No hay sección seleccionada, limpiando usuarios');
       this.usuarios = [];
       this.model.usuarioIds = [];
     }

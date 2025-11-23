@@ -131,14 +131,75 @@ export class VehiculosMisComponent implements OnInit {
     if (!this.orgId) return;
     this.loading = true;
     this.emptyMessage = null;
-    this.vehiculos.list(this.orgId, { seccionId: this.selectedSeccionId || undefined, subtree: this.includeSubtree }).subscribe({
+
+    // 🔍 LOG: Información del usuario actual
+    console.log('=== DIAGNÓSTICO DE FILTRADO ===');
+    console.log('[VehiculosMis] 👤 Usuario actual:', localStorage.getItem('username'));
+    console.log('[VehiculosMis] 🏢 Sección en localStorage (loginSeccionImmutable):', localStorage.getItem('loginSeccionImmutable'));
+    console.log('[VehiculosMis] 🏢 Sección en OrgContext:', this.orgCtx.seccion);
+    console.log('[VehiculosMis] 🏢 Sección principal (seccionPrincipalId):', localStorage.getItem('seccionPrincipalId'));
+    console.log('[VehiculosMis] 🌐 Organización seleccionada:', this.orgId);
+    console.log('[VehiculosMis] 🔐 Token JWT presente:', !!localStorage.getItem('token')); // ✅ Corregido: 'token' no 'access_token'
+
+    // 🔍 LOG: Headers que el interceptor enviará
+    console.log('[VehiculosMis] 📤 Headers que se enviarán:');
+    console.log('  - Authorization:', localStorage.getItem('token') ? 'Bearer [PRESENTE]' : 'NO PRESENTE');
+    console.log('  - X-Org-Id:', this.orgId);
+    console.log('  - X-Seccion-Id:', this.orgCtx.seccion || localStorage.getItem('seccionPrincipalId') || 'NO PRESENTE');
+    console.log('  - X-Scope-Nivel:', this.orgCtx.scope || localStorage.getItem('scopeNivel') || 'NO PRESENTE');
+
+    // ✅ SOLUCIÓN DEFINITIVA: NO enviar parámetros de filtrado
+    // El backend filtra automáticamente según el rol y sección del usuario autenticado
+    this.vehiculos.list(this.orgId).subscribe({
       next: (items: VehicleEntity[]) => {
+        // ✅ Backend envía solo los vehículos que el usuario tiene permiso de ver
+        console.log('[VehiculosMis] ✅ Vehículos recibidos del backend:', items.length);
+        console.log('[VehiculosMis] 📋 Vehículos:', items.map(v => `${v.placa} -> ${v.seccionNombre || v.seccionId}`));
+
+        // 🔍 LOG: Detalles completos de cada vehículo
+        console.log('[VehiculosMis] 📊 Detalle completo:');
+        items.forEach(v => {
+          console.log(`  - ${v.placa}:`, {
+            seccionId: v.seccionId,
+            seccionNombre: v.seccionNombre,
+            usuariosAsignados: v.usuariosAsignados,
+            orgId: v.orgId || v.organizacionId
+          });
+        });
+
+        // 🔍 LOG: Comparación con sección esperada
+        const expectedSeccionId = localStorage.getItem('loginSeccionImmutable') ||
+                                   this.orgCtx.seccion ||
+                                   localStorage.getItem('seccionPrincipalId');
+        if (expectedSeccionId) {
+          const vehiculosIncorrectos = items.filter(v => v.seccionId !== expectedSeccionId);
+          if (vehiculosIncorrectos.length > 0) {
+            console.warn('⚠️ PROBLEMA DETECTADO: Vehículos de otras secciones:');
+            console.warn(`  Usuario debería ver solo: ${expectedSeccionId}`);
+            console.warn(`  Pero se recibieron vehículos de:`,
+              [...new Set(items.map(v => v.seccionId))].join(', '));
+            console.warn('  🔴 EL BACKEND NO ESTÁ FILTRANDO CORRECTAMENTE');
+          } else {
+            console.log('✅ Filtrado correcto: Todos los vehículos son de la sección esperada');
+          }
+        }
+
+        console.log('=== FIN DIAGNÓSTICO ===');
+
         this.items = items;
         this.loading = false;
-        if (!items || items.length === 0) this.emptyMessage = 'No hay vehículos visibles';
+
+        if (!items || items.length === 0) {
+          this.emptyMessage = 'No hay vehículos visibles para tu usuario';
+        }
       },
       error: (e: any) => {
+        console.error('[VehiculosMis] ❌ Error al cargar vehículos:', e);
+        console.error('[VehiculosMis] 📋 Status:', e?.status);
+        console.error('[VehiculosMis] 📋 Message:', e?.error?.message || e?.message);
+        console.log('=== FIN DIAGNÓSTICO (ERROR) ===');
         this.loading = false;
+
         if (e?.status === 403) {
           this.notify.warn('No autorizado', 'No tienes permiso para listar vehículos');
           this.router.navigate(['/dashboard']);

@@ -310,7 +310,7 @@ export class VehiculosCrearComponent implements OnInit {
 
   /**
    * ✅ Cargar usuarios de la sección seleccionada
-   * Solo muestra usuarios de la misma sección que el vehículo
+   * ACTUALIZADO: El backend ahora respeta el parámetro seccionId y devuelve los campos correctos
    */
   private loadUsuarios() {
     if (!this.orgId) return;
@@ -328,20 +328,43 @@ export class VehiculosCrearComponent implements OnInit {
       next: (arr) => {
         console.log('[VehiculosCrear] 📦 Usuarios recibidos del backend:', arr.length);
 
-        // ✅ CRÍTICO: Filtrar usuarios en el frontend por seccionId
-        // El backend puede ignorar el parámetro si eres ORGADMIN, así que filtramos aquí
+        // ✅ DEBUG: Mostrar información del primer usuario para verificar que el backend envía los campos
+        if (arr.length > 0) {
+          const sample = arr[0] as any;
+          console.log('[VehiculosCrear] 🔍 Muestra de usuario:', {
+            username: sample.username,
+            seccionId: sample.seccionId,
+            seccionNombre: sample.seccionNombre,
+            seccionPrincipalId: sample.seccionPrincipalId
+          });
+        }
+
+        // ✅ El backend AHORA filtra correctamente, pero aplicamos filtro adicional por seguridad
         if (seccionIdSeleccionada && arr.length > 0) {
-          const usuariosFiltrados = arr.filter(u => {
+          // Verificar si el backend ya filtró correctamente
+          const todosPertenecenASeccion = arr.every(u => {
             const userSeccionId = (u as any).seccionId || (u as any).seccionPrincipalId;
-            const perteneceASeccion = userSeccionId === seccionIdSeleccionada;
-            if (!perteneceASeccion) {
-              console.log('[VehiculosCrear] 🚫 Usuario filtrado:', u.username, 'seccionId:', userSeccionId, '!==', seccionIdSeleccionada);
-            }
-            return perteneceASeccion;
+            return userSeccionId === seccionIdSeleccionada;
           });
 
-          this.usuarios = usuariosFiltrados;
-          console.log('[VehiculosCrear] ✅ Usuarios filtrados por sección:', usuariosFiltrados.length, 'de', arr.length);
+          if (todosPertenecenASeccion) {
+            // ✅ Backend filtró correctamente
+            this.usuarios = arr;
+            console.log('[VehiculosCrear] ✅ Backend filtró correctamente:', arr.length, 'usuarios de la sección');
+          } else {
+            // ⚠️ Fallback: Filtrar en frontend si el backend no filtró
+            console.warn('[VehiculosCrear] ⚠️ Backend no filtró correctamente, aplicando filtro en frontend');
+            const usuariosFiltrados = arr.filter(u => {
+              const userSeccionId = (u as any).seccionId || (u as any).seccionPrincipalId;
+              const perteneceASeccion = userSeccionId === seccionIdSeleccionada;
+              if (!perteneceASeccion) {
+                console.log('[VehiculosCrear] 🚫 Usuario filtrado:', u.username, 'seccionId:', userSeccionId);
+              }
+              return perteneceASeccion;
+            });
+            this.usuarios = usuariosFiltrados;
+            console.log('[VehiculosCrear] ✅ Usuarios filtrados en frontend:', usuariosFiltrados.length, 'de', arr.length);
+          }
         } else {
           this.usuarios = arr;
           console.log('[VehiculosCrear] ℹ️ Sin filtrado de sección (mostrando todos)');
@@ -355,19 +378,15 @@ export class VehiculosCrearComponent implements OnInit {
       },
       error: (e) => {
         // ✅ Si es error 403 (sin permisos), manejarlo completamente en silencio
-        // El usuario puede no tener permisos para listar usuarios pero sí para crear vehículos
         if (e?.status === 403) {
-          // Solo log en modo debug, sin console.warn
           if (localStorage.getItem('debugMode') === 'true') {
-            console.log('[VehiculosCrear] Usuario sin permisos para listar usuarios de la sección (esperado para usuarios regulares)');
+            console.log('[VehiculosCrear] Usuario sin permisos para listar usuarios de la sección');
           }
           this.usuarios = [];
-          // Si no es admin, intentar auto-seleccionarse usando datos del localStorage
           if (!this.isAdmin) {
             this.autoSelectCurrentUser();
           }
         } else {
-          // Solo mostrar notificación para otros errores (no 403)
           console.error('[VehiculosCrear] Error al cargar usuarios:', e);
           this.notify.warn('Usuarios', e?.error?.message || 'No se pudieron cargar usuarios');
         }

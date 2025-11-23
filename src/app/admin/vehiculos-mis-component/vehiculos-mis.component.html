@@ -47,10 +47,10 @@
                 <span>Placa</span>
               </div>
             </th>
-            <th style="width: 10rem">
+            <th>
               <div class="th-content">
-                <i class="pi pi-power-off"></i>
-                <span>Estado</span>
+                <i class="pi pi-car"></i>
+                <span>Marca/Modelo</span>
               </div>
             </th>
             <th>
@@ -59,7 +59,19 @@
                 <span>Sección</span>
               </div>
             </th>
-            <th style="width: 16rem">
+            <th>
+              <div class="th-content">
+                <i class="pi pi-users"></i>
+                <span>Usuarios</span>
+              </div>
+            </th>
+            <th style="width: 10rem">
+              <div class="th-content">
+                <i class="pi pi-power-off"></i>
+                <span>Estado</span>
+              </div>
+            </th>
+            <th style="width: 12rem" *ngIf="canToggleBloqueado()">
               <div class="th-content">
                 <i class="pi pi-lock"></i>
                 <span>Bloqueo</span>
@@ -82,6 +94,35 @@
               </div>
             </td>
             <td>
+              <div class="marca-modelo-cell">
+                <span>{{ row.marca || '-' }}</span>
+                <span *ngIf="row.modelo"> / {{ row.modelo }}</span>
+              </div>
+            </td>
+            <td>
+              <div class="seccion-cell">
+                <p-tag *ngIf="row.seccionNombre"
+                       [value]="row.seccionNombre"
+                       severity="info"
+                       [pTooltip]="row.seccionNombre"></p-tag>
+                <span *ngIf="!row.seccionNombre" class="text-muted">Sin sección</span>
+              </div>
+            </td>
+            <td>
+              <div class="usuarios-cell">
+                <p-tag *ngFor="let usuario of (row.usuariosAsignados || []).slice(0, 3)"
+                       [value]="usuario"
+                       severity="success"
+                       styleClass="mr-1"
+                       [pTooltip]="usuario"></p-tag>
+                <p-tag *ngIf="(row.cantidadUsuarios || 0) > 3"
+                       [value]="'+' + ((row.cantidadUsuarios || 0) - 3) + ' más'"
+                       severity="warn"
+                       [pTooltip]="'Total: ' + (row.cantidadUsuarios || 0) + ' usuarios'"></p-tag>
+                <span *ngIf="!row.usuariosAsignados || row.usuariosAsignados.length === 0" class="text-muted">Sin usuarios</span>
+              </div>
+            </td>
+            <td>
               <div class="estado-cell">
                 <p-inputSwitch [(ngModel)]="row.activo"
                                (onChange)="toggle(row, $event.checked)"
@@ -89,47 +130,30 @@
                                [ngModelOptions]="{standalone: true}"></p-inputSwitch>
               </div>
             </td>
-            <td>
-              <div class="seccion-cell">
-                <i class="pi pi-map-marker"></i>
-                <span>{{ seccionNombre(row.seccionAsignadaId) || 'Sin asignar' }}</span>
-              </div>
-            </td>
-            <td>
+            <td *ngIf="canToggleBloqueado()">
               <div class="bloqueo-cell">
                 <p-tag [severity]="row.bloqueado ? 'danger' : 'success'"
                        [value]="row.bloqueado ? 'BLOQUEADO' : 'LIBRE'"
-                       [icon]="row.bloqueado ? 'pi pi-lock' : 'pi pi-lock-open'"></p-tag>
-                <button *ngIf="canToggleBloqueado()"
-                        pButton type="button"
-                        class="p-button-text p-button-sm toggle-lock-btn"
-                        [label]="row.bloqueado ? 'Desbloquear' : 'Bloquear'"
-                        [icon]="row.bloqueado ? 'pi pi-unlock' : 'pi pi-lock'"
-                        (click)="toggleBloqueado(row)"
-                        [disabled]="savingId === row.id"
-                        pTooltip="{{ row.bloqueado ? 'Desbloquear vehículo' : 'Bloquear vehículo' }}"
-                        tooltipPosition="top"
-                        aria-label="Cambiar bloqueo"></button>
+                       [icon]="row.bloqueado ? 'pi pi-lock' : 'pi pi-unlock'"
+                       (click)="toggleBloqueado(row)"
+                       [style.cursor]="'pointer'"
+                       [pTooltip]="'Click para ' + (row.bloqueado ? 'desbloquear' : 'bloquear')"></p-tag>
               </div>
             </td>
             <td>
-              <div class="actions-cell">
+              <div class="acciones-cell">
                 <button pButton
-                        type="button"
-                        class="p-button-rounded p-button-text action-btn edit-btn"
                         icon="pi pi-pencil"
-                        (click)="gestionar(row)"
-                        pTooltip="Gestionar vehículo"
-                        tooltipPosition="top"
-                        aria-label="Gestionar"></button>
+                        class="p-button-rounded p-button-text"
+                        pTooltip="Gestionar"
+                        tooltipPosition="left"
+                        (click)="gestionar(row)"></button>
                 <button pButton
-                        type="button"
-                        class="p-button-rounded p-button-text action-btn assign-btn"
                         icon="pi pi-sitemap"
-                        (click)="asignar(row)"
+                        class="p-button-rounded p-button-text"
                         pTooltip="Asignar sección"
-                        tooltipPosition="top"
-                        aria-label="Asignar sección"></button>
+                        tooltipPosition="left"
+                        (click)="asignar(row)"></button>
               </div>
             </td>
           </tr>

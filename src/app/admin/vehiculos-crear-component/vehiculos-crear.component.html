@@ -34,7 +34,33 @@
       </div>
     </div>
 
-    <!-- ÚNICO MultiSelect: crea o asocia según el estado -->
+    <!-- ✅ MEJORADO: Selección de Sección (oculta para usuarios regulares si solo hay 1 sección) -->
+    <div class="form-row" *ngIf="isAdmin || secciones.length > 1">
+      <label for="seccion">Sección *</label>
+      <p-dropdown id="seccion"
+                  [options]="secciones"
+                  [(ngModel)]="model.seccionId"
+                  (ngModelChange)="onSeccionChange()"
+                  optionLabel="nombre"
+                  optionValue="id"
+                  placeholder="Seleccione una sección"
+                  [filter]="true"
+                  [showClear]="false"
+                  [disabled]="saving || asignando || loading"
+                  styleClass="w-full">
+      </p-dropdown>
+      <small class="text-muted">La sección a la que pertenecerá el vehículo</small>
+    </div>
+
+    <!-- ✅ MEJORADO: Mensaje informativo para usuarios regulares -->
+    <div class="form-row" *ngIf="!isAdmin && model.seccionId">
+      <p-message severity="info"
+                 [text]="'El vehículo se creará en tu sección y se te asignará automáticamente'"
+                 styleClass="w-full">
+      </p-message>
+    </div>
+
+    <!-- ✅ CRÍTICO: MultiSelect solo visible para ADMIN -->
     <div class="form-row" *ngIf="isAdmin">
       <div class="row-label-actions">
         <label for="usuarios">{{ existente.status === 'found' ? 'Asociar usuarios a este vehículo' : 'Usuarios (1..N)' }}</label>

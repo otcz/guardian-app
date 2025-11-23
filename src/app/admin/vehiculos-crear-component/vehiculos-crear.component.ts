@@ -33,7 +33,7 @@ export class VehiculosCrearComponent implements OnInit {
   secciones: SeccionEntity[] = [];
   usuarios: UserEntity[] = [];
   isAdmin = false;
-  model: { placa: string; marca?: string | null; modelo?: string | null; linea?: string | null; anio?: number | null; color?: string | null; usuarioIds?: string[] } = { placa: '', marca: null, modelo: null, linea: null, anio: null, color: null, usuarioIds: [] };
+  model: { placa: string; marca?: string | null; modelo?: string | null; linea?: string | null; anio?: number | null; color?: string | null; usuarioIds?: string[]; seccionId?: string | null } = { placa: '', marca: null, modelo: null, linea: null, anio: null, color: null, usuarioIds: [], seccionId: null };
 
   // Usuario actual
   currentUsername: string | null = null;
@@ -60,32 +60,200 @@ export class VehiculosCrearComponent implements OnInit {
     this.currentUsername = this.readUsername();
     // Determinar si el usuario posee rol de admin (tolerante a variantes de nombre)
     this.isAdmin = this.auth.hasAnyRole('SYSADMIN', 'ORGADMIN', 'ORG_ADMIN', 'ADMIN_ORG', 'ADMIN');
+
     if (!this.orgId) {
       this.notify.warn('Atención', 'Seleccione una organización');
       this.router.navigate(['/listar-organizaciones']);
       return;
     }
-    this.loadSecciones();
-    // Cargar usuarios si es admin (para seleccionar usuarios y detectar currentUserId)
-    if (this.isAdmin) this.loadUsuarios();
+
+    // ✅ MEJORADO: Intentar obtener userId ANTES de cargar secciones
+    this.currentUserId = this.obtenerUserIdActual();
+    console.log('[VehiculosCrear] 👤 Usuario actual:', this.currentUserId);
+
+    // ✅ MEJORADO: Auto-seleccionar sección ANTES de cargar secciones
+    // Intentar múltiples fuentes para obtener la sección del usuario
+    let seccionDelUsuario: string | null = null;
+
+    // ✅ Fuente 0 (PRIORIDAD): loginSeccionImmutable (sección inmutable del login)
+    try {
+      const seccionImmutable = localStorage.getItem('loginSeccionImmutable');
+      if (seccionImmutable) {
+        seccionDelUsuario = seccionImmutable;
+        console.log('[VehiculosCrear] ✅ Sección desde loginSeccionImmutable:', seccionImmutable);
+      }
+    } catch {}
+
+    // Fuente 1: OrgContext (scope SECCION)
+    if (!seccionDelUsuario) {
+      const scope = String(this.orgCtx.scope || '').toUpperCase();
+      if (scope === 'SECCION' && this.orgCtx.seccion) {
+        seccionDelUsuario = this.orgCtx.seccion;
+      }
+    }
+
+    // Fuente 2: localStorage directo (seccionPrincipalId)
+    if (!seccionDelUsuario) {
+      try {
+        const seccionLS = localStorage.getItem('seccionPrincipalId');
+        if (seccionLS) seccionDelUsuario = seccionLS;
+      } catch {}
+    }
+
+    // Fuente 3: localStorage (seccionId)
+    if (!seccionDelUsuario) {
+      try {
+        const seccionLS = localStorage.getItem('seccionId');
+        if (seccionLS) seccionDelUsuario = seccionLS;
+      } catch {}
+    }
+
+    // Asignar sección encontrada
+    if (seccionDelUsuario) {
+      this.model.seccionId = seccionDelUsuario;
+      console.log('[VehiculosCrear] ✅ Sección auto-seleccionada:', seccionDelUsuario);
+    }
+
+    // ✅ CRÍTICO: Si NO es admin, auto-seleccionar usuario actual SIN cargar lista
+    if (!this.isAdmin && this.currentUserId) {
+      this.model.usuarioIds = [this.currentUserId];
+      console.log('[VehiculosCrear] ✅ Usuario regular auto-seleccionado:', this.currentUserId);
+    }
+
+    // ✅ MEJORADO: Solo cargar secciones desde backend si ES ADMIN
+    // Usuario regular usa sección de localStorage
+    if (this.isAdmin) {
+      this.loadSecciones();
+    } else {
+      console.log('[VehiculosCrear] ⏭️ Usuario regular: NO se cargan secciones (usa loginSeccionImmutable)');
+      // Para usuario regular, crear un array con solo su sección
+      if (seccionDelUsuario) {
+        // Crear objeto de sección básico para mostrar en UI si es necesario
+        this.secciones = [{
+          id: seccionDelUsuario,
+          nombre: 'Mi Sección',
+          organizacionId: this.orgId,
+          activo: true
+        } as SeccionEntity];
+      }
+    }
+  }
+
+  /**
+   * ✅ NUEVO: Obtener userId del usuario actual desde localStorage
+   */
+  private obtenerUserIdActual(): string | null {
+    try {
+      // Intentar desde diferentes fuentes
+      const userId = localStorage.getItem('userId')
+        || localStorage.getItem('currentUserId')
+        || localStorage.getItem('loginUserId');
+
+      if (userId) {
+        console.log('[VehiculosCrear] ✅ userId encontrado en localStorage:', userId);
+        return userId;
+      }
+    } catch {}
+
+    console.warn('[VehiculosCrear] ⚠️ No se pudo obtener userId del localStorage');
+    return null;
   }
 
   private readUsername(): string | null {
     try { const u = localStorage.getItem('username'); return u ? String(u) : null; } catch { return null; }
   }
 
+  /**
+   * ✅ Cargar secciones disponibles según el rol del usuario
+   *
+   * Reglas de visualización:
+   * - SYSADMIN/ORGADMIN: Todas las secciones de la organización
+   * - ADMIN (Sección): Solo las secciones que administra
+   * - USUARIO: Solo su sección (si la tiene)
+   */
   loadSecciones() {
     if (!this.orgId) return;
     this.loading = true;
+
+    const scope = String(this.orgCtx.scope || '').toUpperCase();
+    const userRole = this.auth.hasRole('SYSADMIN') ? 'SYSADMIN'
+      : this.auth.hasRole('ORGADMIN') ? 'ORGADMIN'
+      : this.auth.hasRole('ADMIN') ? 'ADMIN'
+      : 'USUARIO';
+
+    // ✅ Guardar la sección pre-seleccionada ANTES de filtrar
+    const seccionPreSeleccionada = this.model.seccionId;
+
     this.seccionService.list(this.orgId).subscribe({
-      next: (list) => { this.secciones = list; this.loading = false; },
-      error: (e) => { this.loading = false; this.notify.error('Error', e?.error?.message || 'No se pudieron cargar secciones'); }
+      next: (list) => {
+        // ✅ Filtrar secciones según el rol
+        if (userRole === 'SYSADMIN' || userRole === 'ORGADMIN') {
+          // Ver todas las secciones de la organización
+          this.secciones = list;
+        } else if (userRole === 'ADMIN' && scope === 'SECCION') {
+          // Ver solo la sección que administra
+          const seccionId = this.orgCtx.seccion;
+          this.secciones = list.filter(s => s.id === seccionId);
+        } else if (userRole === 'USUARIO' && scope === 'SECCION') {
+          // Usuario regular: solo su sección
+          const seccionId = this.orgCtx.seccion;
+          this.secciones = list.filter(s => s.id === seccionId);
+        } else {
+          this.secciones = list;
+        }
+
+        // ✅ MANTENER la sección pre-seleccionada si existe en la lista filtrada
+        if (seccionPreSeleccionada) {
+          const existeEnLista = this.secciones.some(s => s.id === seccionPreSeleccionada);
+          if (existeEnLista) {
+            this.model.seccionId = seccionPreSeleccionada;
+            console.log('[VehiculosCrear] ✅ Sección mantenida después de filtrar:', seccionPreSeleccionada);
+          } else {
+            console.warn('[VehiculosCrear] ⚠️ Sección pre-seleccionada no está en lista filtrada');
+            // Si solo hay 1 sección en la lista, auto-seleccionarla
+            if (this.secciones.length === 1) {
+              this.model.seccionId = this.secciones[0].id;
+              console.log('[VehiculosCrear] ✅ Auto-seleccionada única sección disponible:', this.secciones[0].id);
+            }
+          }
+        } else if (this.secciones.length === 1) {
+          // Si no había sección pre-seleccionada pero solo hay 1 disponible, auto-seleccionarla
+          this.model.seccionId = this.secciones[0].id;
+          console.log('[VehiculosCrear] ✅ Auto-seleccionada única sección disponible:', this.secciones[0].id);
+        }
+
+        this.loading = false;
+
+        // ✅ CRÍTICO: Solo cargar usuarios si ES ADMIN
+        // Los usuarios regulares ya tienen su userId auto-seleccionado en ngOnInit()
+        if (this.isAdmin && this.model.seccionId) {
+          this.loadUsuarios();
+          console.log('[VehiculosCrear] 📋 Cargando usuarios para secci��n:', this.model.seccionId);
+        } else if (!this.isAdmin) {
+          console.log('[VehiculosCrear] ⏭️ Usuario regular: saltando carga de usuarios (ya auto-seleccionado)');
+        }
+      },
+      error: (e) => {
+        this.loading = false;
+        this.notify.error('Error', e?.error?.message || 'No se pudieron cargar secciones');
+      }
     });
   }
 
+  /**
+   * ✅ Cargar usuarios de la sección seleccionada
+   * Solo muestra usuarios de la misma sección que el vehículo
+   */
   private loadUsuarios() {
     if (!this.orgId) return;
-    this.users.list(this.orgId).subscribe({
+
+    // ✅ Si ya hay una sección seleccionada, filtrar por ella
+    const params: any = {};
+    if (this.model.seccionId) {
+      params.seccionId = this.model.seccionId;
+    }
+
+    this.users.list(this.orgId, params).subscribe({
       next: (arr) => {
         this.usuarios = arr;
         // Intentar resolver currentUserId por username
@@ -94,8 +262,95 @@ export class VehiculosCrearComponent implements OnInit {
           if (me) this.currentUserId = me.id;
         }
       },
-      error: (e) => { this.notify.warn('Usuarios', e?.error?.message || 'No se pudieron cargar usuarios'); }
+      error: (e) => {
+        // ✅ Si es error 403 (sin permisos), manejarlo completamente en silencio
+        // El usuario puede no tener permisos para listar usuarios pero sí para crear vehículos
+        if (e?.status === 403) {
+          // Solo log en modo debug, sin console.warn
+          if (localStorage.getItem('debugMode') === 'true') {
+            console.log('[VehiculosCrear] Usuario sin permisos para listar usuarios de la sección (esperado para usuarios regulares)');
+          }
+          this.usuarios = [];
+          // Si no es admin, intentar auto-seleccionarse usando datos del localStorage
+          if (!this.isAdmin) {
+            this.autoSelectCurrentUser();
+          }
+        } else {
+          // Solo mostrar notificación para otros errores (no 403)
+          console.error('[VehiculosCrear] Error al cargar usuarios:', e);
+          this.notify.warn('Usuarios', e?.error?.message || 'No se pudieron cargar usuarios');
+        }
+      }
     });
+  }
+
+  /**
+   * ��� Intenta auto-seleccionar al usuario actual cuando no hay permisos para listar usuarios
+   */
+  private autoSelectCurrentUser() {
+    // Intentar obtener el ID del usuario actual desde diferentes fuentes
+    if (this.currentUserId) {
+      this.model.usuarioIds = [this.currentUserId];
+      console.log('[VehiculosCrear] ✅ Auto-seleccionado usuario actual:', this.currentUserId);
+      return;
+    }
+
+    // Intentar desde localStorage
+    try {
+      const userId = localStorage.getItem('userId') || localStorage.getItem('currentUserId');
+      if (userId) {
+        this.currentUserId = userId;
+        this.model.usuarioIds = [userId];
+        console.log('[VehiculosCrear] ✅ Auto-seleccionado usuario desde localStorage:', userId);
+        return;
+      }
+    } catch {}
+
+    // ✅ FALLBACK: Intentar buscar al usuario por username directamente con el backend
+    // Esto funciona incluso cuando el usuario no tiene permisos para listar todos los usuarios
+    if (this.currentUsername && this.orgId) {
+      console.log('[VehiculosCrear] 🔄 Intentando buscar usuario por username:', this.currentUsername);
+
+      // Hacer una petición al backend para buscar el usuario actual
+      this.users.list(this.orgId, {}).subscribe({
+        next: (arr) => {
+          const me = arr.find(u => (u.username || '').toLowerCase() === this.currentUsername!.toLowerCase());
+          if (me) {
+            this.currentUserId = me.id;
+            this.model.usuarioIds = [me.id];
+            // Guardar en localStorage para futuras ocasiones
+            try {
+              localStorage.setItem('userId', me.id);
+              localStorage.setItem('currentUserId', me.id);
+            } catch {}
+            console.log('[VehiculosCrear] ✅ Usuario encontrado y auto-seleccionado:', me.id);
+          } else {
+            console.warn('[VehiculosCrear] ⚠️ Usuario no encontrado en la lista del backend');
+          }
+        },
+        error: (err) => {
+          console.warn('[VehiculosCrear] ⚠️ No se pudo buscar usuario por username:', err);
+        }
+      });
+      return;
+    }
+
+    console.warn('[VehiculosCrear] ⚠️ No se pudo auto-seleccionar usuario actual');
+  }
+
+  /**
+   * ✅ Cuando cambia la sección, recargar usuarios de esa sección
+   */
+  onSeccionChange() {
+    if (this.model.seccionId) {
+      // Limpiar usuarios seleccionados al cambiar de sección
+      this.model.usuarioIds = [];
+      // Recargar usuarios de la nueva sección
+      this.loadUsuarios();
+    } else {
+      this.usuarios = [];
+      this.model.usuarioIds = [];
+    }
   }
 
   validate(): string | null {
@@ -107,9 +362,34 @@ export class VehiculosCrearComponent implements OnInit {
       const now = new Date().getFullYear();
       if (isNaN(year) || year < 1900 || year > now + 1) return `El año debe estar entre 1900 y ${now + 1}`;
     }
-    if (this.isAdmin) {
-      const ids = this.model.usuarioIds || [];
-      if (!ids.length) return 'Debe seleccionar al menos un usuario';
+
+    // ✅ VALIDACIÓN CRÍTICA: seccionId es REQUERIDO
+    if (!this.model.seccionId) {
+      return 'Debe seleccionar una sección para el vehículo';
+    }
+
+    // ✅ Validación de usuarios: requerido al menos 1
+    const ids = this.model.usuarioIds || [];
+    if (!ids.length) {
+      // Si es admin, es obligatorio seleccionar usuarios
+      if (this.isAdmin) {
+        return 'Debe seleccionar al menos un usuario';
+      }
+      // Si no es admin y no pudo auto-seleccionarse, mostrar mensaje informativo
+      return 'No se pudo identificar tu usuario. Por favor, contacta al administrador para crear el vehículo.';
+    }
+
+    // ✅ Validar que todos los usuarios sean de la misma sección (solo si es admin y hay usuarios cargados)
+    if (this.isAdmin && this.usuarios.length > 0) {
+      const usuariosSeleccionados = this.usuarios.filter(u => ids.includes(u.id));
+      const todosMismaSeccion = usuariosSeleccionados.every(u => {
+        const secId = (u as any).seccionId;
+        return secId === this.model.seccionId;
+      });
+
+      if (!todosMismaSeccion) {
+        return 'Todos los usuarios deben pertenecer a la misma sección que el vehículo';
+      }
     }
     return null;
   }
@@ -121,7 +401,13 @@ export class VehiculosCrearComponent implements OnInit {
 
     this.saving = true;
     const placa = this.model.placa.trim().toUpperCase();
-    const body: any = { placa };
+
+    // ✅ Construir body según especificación del backend
+    const body: any = {
+      placa,
+      seccionId: this.model.seccionId, // ✅ REQUERIDO por el backend
+      usuarioIds: this.model.usuarioIds || [] // ✅ REQUERIDO: al menos 1 usuario
+    };
 
     // Incluir opcionales solo si tienen valor
     const marca = (this.model.marca || '').trim();
@@ -129,31 +415,57 @@ export class VehiculosCrearComponent implements OnInit {
     const linea = (this.model.linea || '').trim();
     const color = (this.model.color || '').trim();
     const anio = this.model.anio != null ? Number(this.model.anio) : undefined;
+
     if (marca) body.marca = marca;
     if (modelo) body.modelo = modelo;
     if (linea) body.linea = linea;
     if (!isNaN(anio as any) && anio != null) body.anio = anio;
     if (color) body.color = color;
-    // usuarioIds (solo admins pueden enviar 1..N usuarios)
-    if (this.isAdmin && this.model.usuarioIds && this.model.usuarioIds.length) body.usuarioIds = this.model.usuarioIds;
 
-    console.log('[VehiculosCrearComponent] POST body:', body);
+    console.log('[VehiculosCrearComponent] 📡 POST body:', body);
 
     this.vehiculos.create(this.orgId, body).subscribe({
       next: (res) => {
-        console.log('[VehiculosCrearComponent] POST /vehiculos respuesta:', res);
+        console.log('[VehiculosCrearComponent] ✅ POST /vehiculos respuesta:', res);
         this.saving = false;
         this.notify.success('Éxito', res?.message || 'Vehículo creado correctamente');
-        // Redirigir al listado para evitar errores de permisos en el detalle inmediatamente después de crear
         this.router.navigate(['/gestion-de-vehiculos/mis-vehiculos']);
       },
       error: (e) => {
-        console.error('[VehiculosCrearComponent] POST /vehiculos error:', e?.status, e?.error || e);
+        console.error('[VehiculosCrearComponent] ❌ POST /vehiculos error:', e?.status, e?.error || e);
         this.saving = false;
-        if (e?.status === 409) {
-          this.notify.warn('Validación', 'Placa duplicada');
-        } else {
-          this.notify.error('Error', e?.error?.message || e?.message || 'No se pudo crear el vehículo');
+
+        // ✅ Manejo de errores según especificación del backend
+        const status = e?.status;
+        let errorMsg = 'No se pudo crear el vehículo';
+
+        switch (status) {
+          case 400:
+            const msg = e?.error?.message || '';
+            if (msg.includes('SECTION_NOT_FOUND')) {
+              errorMsg = 'La sección seleccionada no existe';
+            } else if (msg.includes('SECTION_PARENT_INVALID_ORG')) {
+              errorMsg = 'La sección no pertenece a esta organización';
+            } else if (msg.includes('VEHICLE_USERS_REQUIRED')) {
+              errorMsg = 'Debe asignar al menos 1 usuario';
+            } else if (msg.includes('VEHICLE_USER_FOREIGN_ORG')) {
+              errorMsg = 'Usuario de otra organización';
+            } else {
+              errorMsg = msg || errorMsg;
+            }
+            this.notify.warn('Validación', errorMsg);
+            break;
+          case 403:
+            this.notify.error('Sin permisos', 'No tiene permisos para crear vehículos');
+            break;
+          case 404:
+            this.notify.warn('No encontrado', 'Organización o sección no encontrada');
+            break;
+          case 409:
+            this.notify.warn('Duplicado', 'Ya existe un vehículo con esta placa');
+            break;
+          default:
+            this.notify.error('Error', e?.error?.message || e?.message || errorMsg);
         }
       }
     });

@@ -7,7 +7,7 @@ import { OrganizationService, Organization } from './organization.service';
 
 export interface ApiResponse<T> { success?: boolean; message?: string; data?: T; }
 
-// DTOs actualizados
+// DTOs actualizados según requerimiento backend 2025-11-22
 export interface VehiculoDto {
   id: string;
   placa: string;
@@ -18,25 +18,41 @@ export interface VehiculoDto {
   color?: string | null;
   activo: boolean;
   bloqueado?: boolean | null;
-  seccionId?: string | null; // id de sección (preferido)
+
+  // ✅ Información de sección (actualizado)
+  seccionId?: string | null;
+  seccionNombre?: string | null; // ✅ NUEVO: Nombre de la sección
   seccionAsignadaId?: string | null; // compatibilidad con vistas legacy
+
+  // ✅ Información de organización
   orgId?: string | null;
+  organizacionId?: string | null; // ✅ NUEVO: Alias para orgId
+  organizacionNombre?: string | null; // ✅ NUEVO: Nombre de la organización
+
+  // ✅ Usuarios asignados (NUEVO)
+  usuariosAsignados?: string[]; // ✅ NUEVO: Array de usernames
+  cantidadUsuarios?: number; // ✅ NUEVO: Cantidad de usuarios asignados
+
+  // Auditoría
   fechaCreacion?: string | null;
   fechaActualizacion?: string | null;
+  createdAt?: string | null; // ✅ NUEVO: Alias ISO
+  updatedAt?: string | null; // ✅ NUEVO: Alias ISO
+
   propietarioUsuarioId?: string | null;
-  // Nombre de sección provisto por backend (si está disponible)
-  seccionNombre?: string | null;
 }
 export type VehicleEntity = VehiculoDto; // alias para compatibilidad
 
 export interface VehiculoCreateReq {
-  placa: string;
+  placa: string; // Requerido
   marca?: string | null;
   modelo?: string | null;
   linea?: string | null;
   anio?: number | null;
   color?: string | null;
-  usuarioIds?: string[]; // nuevo opcional
+  seccionId: string; // ✅ NUEVO: Requerido - UUID de la sección
+  usuarioIds: string[]; // ✅ Requerido: al menos 1 usuario asociado
+  asociarSiExiste?: boolean; // ✅ NUEVO: Opcional - asociar si ya existe
 }
 export type CreateVehicleRequest = VehiculoCreateReq; // alias compatibilidad
 
@@ -113,14 +129,29 @@ export class VehiculosService {
       id: String(d?.id ?? d?._id ?? ''),
       placa: String(d?.placa ?? d?.plate ?? ''),
       activo: d?.activo != null ? !!d?.activo : (d?.active != null ? !!d?.active : false),
+
+      // ✅ Información de sección
       seccionId: seccion != null ? String(seccion) : null,
       seccionAsignadaId: seccion != null ? String(seccion) : null,
-      // Nombre de sección si el backend lo provee
       seccionNombre: (d?.seccionNombre != null ? String(d?.seccionNombre) : (d?.seccion?.nombre != null ? String(d?.seccion?.nombre) : (d?.seccionEntityAsignada?.nombre != null ? String(d?.seccionEntityAsignada?.nombre) : null))),
+
+      // ✅ Información de organización
       orgId: d?.orgId != null ? String(d?.orgId) : (d?.organizacionId != null ? String(d?.organizacionId) : null),
+      organizacionId: d?.organizacionId != null ? String(d?.organizacionId) : (d?.orgId != null ? String(d?.orgId) : null),
+      organizacionNombre: d?.organizacionNombre != null ? String(d?.organizacionNombre) : (d?.organizacion?.nombre != null ? String(d?.organizacion?.nombre) : null),
+
+      // ✅ Usuarios asignados
+      usuariosAsignados: Array.isArray(d?.usuariosAsignados) ? d.usuariosAsignados.map((u: any) => String(u)) : null,
+      cantidadUsuarios: d?.cantidadUsuarios != null ? Number(d?.cantidadUsuarios) : (Array.isArray(d?.usuariosAsignados) ? d.usuariosAsignados.length : null),
+
       propietarioUsuarioId: d?.usuarioId != null ? String(d?.usuarioId) : (d?.propietarioUsuarioId != null ? String(d?.propietarioUsuarioId) : null),
-      fechaCreacion: d?.fechaCreacion ? String(d?.fechaCreacion) : null,
-      fechaActualizacion: d?.fechaActualizacion ? String(d?.fechaActualizacion) : null,
+
+      // ✅ Auditoría (mapeo doble para compatibilidad)
+      fechaCreacion: d?.fechaCreacion ? String(d?.fechaCreacion) : (d?.createdAt ? String(d?.createdAt) : null),
+      fechaActualizacion: d?.fechaActualizacion ? String(d?.fechaActualizacion) : (d?.updatedAt ? String(d?.updatedAt) : null),
+      createdAt: d?.createdAt ? String(d?.createdAt) : (d?.fechaCreacion ? String(d?.fechaCreacion) : null),
+      updatedAt: d?.updatedAt ? String(d?.updatedAt) : (d?.fechaActualizacion ? String(d?.fechaActualizacion) : null),
+
       marca: d?.marca != null ? String(d?.marca) : null,
       modelo: d?.modelo != null ? String(d?.modelo) : null,
       linea: d?.linea != null ? String(d?.linea) : null,

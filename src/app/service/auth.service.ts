@@ -16,6 +16,9 @@ export interface BackendLoginResponse {
   // Nuevos campos multi-tenant
   orgCreadoraId?: string | number | null;
   orgAdministraId?: string | number | null;
+  // ✅ ID del usuario autenticado
+  userId?: string | number | null;
+  usuarioId?: string | number | null;
   // Compat (legacy)
   orgId?: string | number;
   organizacionId?: string | number;
@@ -124,6 +127,18 @@ export class AuthService {
             localStorage.setItem('roles', JSON.stringify(resp.roles || []));
             const expiresAt = Date.now() + (resp.expiresIn * 1000);
             localStorage.setItem('expiresAt', String(expiresAt));
+
+            // ✅ Guardar userId si viene del backend
+            try {
+              const userIdRaw = resp.userId ?? resp.usuarioId;
+              if (userIdRaw != null) {
+                localStorage.setItem('userId', String(userIdRaw));
+                localStorage.setItem('currentUserId', String(userIdRaw)); // alias para compatibilidad
+                console.log('[AuthService] ✅ Usuario ID guardado:', userIdRaw);
+              }
+            } catch (e) {
+              console.error('[AuthService] Error al guardar userId:', e);
+            }
 
             // Guardar capacidades si vienen
             try { if (resp.capabilities) localStorage.setItem('capabilities', JSON.stringify(resp.capabilities)); } catch {}
@@ -290,6 +305,8 @@ export class AuthService {
     localStorage.removeItem('expiresAt');
     localStorage.removeItem('username');
     localStorage.removeItem('roles');
+    localStorage.removeItem('userId');
+    localStorage.removeItem('currentUserId');
     try { localStorage.removeItem('currentOrgId'); } catch {}
     try { localStorage.removeItem('currentOrgName'); } catch {}
     try { localStorage.removeItem('orgAdministraId'); } catch {}
@@ -297,6 +314,11 @@ export class AuthService {
     try { localStorage.removeItem('scopeNivel'); } catch {}
     try { localStorage.removeItem('seccionPrincipalId'); } catch {}
     try { localStorage.removeItem('capabilities'); } catch {}
+    try { localStorage.removeItem('loginOrgImmutable'); } catch {}
+    try { localStorage.removeItem('loginRolesImmutable'); } catch {}
+    try { localStorage.removeItem('loginUsernameImmutable'); } catch {}
+    try { localStorage.removeItem('loginSeccionImmutable'); } catch {}
+    try { localStorage.removeItem('loginScopeImmutable'); } catch {}
     this.orgCtx.clear();
     this.menu.clear();
   }

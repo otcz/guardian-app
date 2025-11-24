@@ -63,8 +63,8 @@
     <!-- ✅ CRÍTICO: MultiSelect solo visible para ADMIN -->
     <div class="form-row" *ngIf="isAdmin">
       <div class="row-label-actions">
-        <label for="usuarios">{{ existente.status === 'found' ? 'Asociar usuarios a este vehículo' : 'Usuarios (1..N)' }}</label>
-            </div>
+        <label for="usuarios">{{ existente.status === 'found' ? 'Asociar usuarios a este vehículo' : 'Usuarios asignados *' }}</label>
+      </div>
       <p-multiSelect id="usuarios"
                      class="user-multiselect"
                      [options]="usuarios"
@@ -72,12 +72,25 @@
                      optionValue="id"
                      [ngModel]="existente.status === 'found' ? usuariosParaExistente : model.usuarioIds"
                      (ngModelChange)="existente.status === 'found' ? (usuariosParaExistente = $event) : (model.usuarioIds = $event)"
-                     defaultLabel="Seleccione usuarios"
+                     placeholder="Selecciona uno o más usuarios..."
                      [filter]="true"
                      [appendTo]="'body'"
                      panelStyleClass="vehiculos-users-panel"
-                     [disabled]="existente.status === 'found' ? asignando : (saving || asignando)">
+                     [disabled]="existente.status === 'found' ? asignando : (saving || asignando)"
+                     [showClear]="true">
+        <ng-template let-value pTemplate="selectedItems">
+          <div *ngIf="value && value.length > 0" class="selected-users-display">
+            <span class="selected-count">{{ value.length }} usuario(s) seleccionado(s)</span>
+          </div>
+          <div *ngIf="!value || value.length === 0" class="placeholder-text">
+            Selecciona uno o más usuarios...
+          </div>
+        </ng-template>
       </p-multiSelect>
+      <small class="text-muted" *ngIf="existente.status !== 'found'">
+        <i class="pi pi-info-circle"></i>
+        {{ getUserCountMessage() }}
+      </small>
       <div class="mt-2" *ngIf="existente.status === 'found'">
         <button pButton type="button" label="Asociar a existente" icon="pi pi-user-plus"
                 class="asignar-cta"

@@ -303,4 +303,46 @@ export class VehiculosMisComponent implements OnInit {
     // Permitido solo para SYSADMIN, ORGADMIN, ADMIN
     return this.auth.hasAnyRole('SYSADMIN', 'ORGADMIN', 'ADMIN');
   }
+
+  /**
+   * ✅ NUEVO: Obtiene los usuarios visibles (máximo 2)
+   */
+  getVisibleUsers(row: VehicleEntity): string[] {
+    const usuarios = row.usuariosAsignados || [];
+    return usuarios.slice(0, 2);
+  }
+
+  /**
+   * ✅ NUEVO: Obtiene la cantidad de usuarios restantes (después de los 2 primeros)
+   */
+  getRemainingUsersCount(row: VehicleEntity): number {
+    const usuarios = row.usuariosAsignados || [];
+    const total = usuarios.length;
+    return total > 2 ? total - 2 : 0;
+  }
+
+  /**
+   * ✅ NUEVO: Genera el tooltip HTML con todos los usuarios
+   */
+  getAllUsersTooltip(row: VehicleEntity): string {
+    const usuarios = row.usuariosAsignados || [];
+
+    if (usuarios.length === 0) {
+      return 'Sin usuarios asignados';
+    }
+
+    // Generar HTML para el tooltip
+    let html = `<div style="text-align: left; max-width: 300px;">`;
+    html += `<strong>👥 Todos los usuarios (${usuarios.length}):</strong><br/><br/>`;
+
+    usuarios.forEach((usuario, index) => {
+      html += `<div style="margin-bottom: 6px;">`;
+      html += `<i class="pi pi-user" style="color: #22c55e; margin-right: 6px;"></i>`;
+      html += `<span style="font-weight: 500;">${usuario}</span>`;
+      html += `</div>`;
+    });
+
+    html += `</div>`;
+    return html;
+  }
 }

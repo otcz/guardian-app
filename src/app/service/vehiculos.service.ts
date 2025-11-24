@@ -392,10 +392,26 @@ export class VehiculosService {
     );
   }
 
-  /** Buscar vehículo por placa. Devuelve null si no existe. 403 si pertenece a otra org o sin permisos. */
-  buscarPorPlaca(orgId: string, placa: string): Observable<VehiculoDto | null> {
+  /**
+   * Buscar vehículo por placa. Devuelve null si no existe. 403 si pertenece a otra org o sin permisos.
+   *
+   * @param orgId - ID de la organización
+   * @param placa - Placa del vehículo a buscar
+   * @param seccionId - (Opcional) ID de la sección para filtrar la búsqueda
+   *
+   * NUEVO (2025-11-23): Soporte para filtrado por sección
+   * - Si seccionId se proporciona: busca solo en esa sección
+   * - Si seccionId es null/undefined: busca en toda la organización
+   */
+  buscarPorPlaca(orgId: string, placa: string, seccionId?: string | null): Observable<VehiculoDto | null> {
     const url = `${this.base}/orgs/${orgId}/vehiculos/buscar`;
-    const params = { placa: (placa || '').trim().toUpperCase() } as any;
+    const params: any = { placa: (placa || '').trim().toUpperCase() };
+
+    // Agregar filtro de sección si se proporciona
+    if (seccionId) {
+      params.seccionId = seccionId;
+    }
+
     return this.http.get<any>(url, { headers: this.accept, params, responseType: 'text' as 'json' }).pipe(
       map((payload: any) => this.toApiResponse(payload)),
       map((resp) => {

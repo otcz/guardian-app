@@ -543,7 +543,15 @@ export class VehiculosCrearComponent implements OnInit {
       next: (res) => {
         console.log('[VehiculosCrearComponent] ✅ POST /vehiculos respuesta:', res);
         this.saving = false;
-        this.notify.success('Éxito', res?.message || 'Vehículo creado correctamente');
+
+        // ✅ NUEVO: Mensaje personalizado con cantidad de usuarios
+        const cantidadUsuarios = body.usuarioIds?.length || 0;
+        let mensaje = res?.message || 'Vehículo creado correctamente';
+        if (cantidadUsuarios > 0) {
+          mensaje = `✅ Vehículo ${placa} creado y asignado a ${cantidadUsuarios} usuario(s)`;
+        }
+
+        this.notify.success('Éxito', mensaje);
         this.router.navigate(['/gestion-de-vehiculos/mis-vehiculos']);
       },
       error: (e) => {
@@ -599,13 +607,29 @@ export class VehiculosCrearComponent implements OnInit {
     this.buscando = true;
     this.existente = { status: 'idle', vehiculo: null };
 
-    this.vehiculos.buscarPorPlaca(this.orgId, placa).subscribe({
+    // ✅ NUEVO (2025-11-23): Usar filtro de sección si el usuario está en contexto de sección
+    const seccionId = this.model.seccionId || null;
+    const usarFiltroSeccion = this.shouldUseSeccionFilter();
+
+    console.log('[VehiculosCrear] 🔍 Buscando vehículo:', {
+      placa,
+      seccionId: usarFiltroSeccion ? seccionId : 'N/A (búsqueda global)',
+      isAdmin: this.isAdmin,
+      usarFiltro: usarFiltroSeccion
+    });
+
+    this.vehiculos.buscarPorPlaca(this.orgId, placa, usarFiltroSeccion ? seccionId : null).subscribe({
       next: (v) => {
         if (v == null) {
-          this.existente = { status: 'notfound', vehiculo: null, message: 'No se encontró un vehículo con esa placa en la organización' };
+          const mensaje = usarFiltroSeccion
+            ? `No se encontró un vehículo con esa placa en la sección actual`
+            : `No se encontró un vehículo con esa placa en la organización`;
+          this.existente = { status: 'notfound', vehiculo: null, message: mensaje };
+          console.log('[VehiculosCrear] ℹ️ Vehículo no encontrado');
         } else {
           this.existente = { status: 'found', vehiculo: v };
           this.fillFromVehiculo(v);
+          console.log('[VehiculosCrear] ✅ Vehículo encontrado:', v.placa);
         }
         this.buscando = false;
       },
@@ -614,9 +638,32 @@ export class VehiculosCrearComponent implements OnInit {
         const st = e?.status;
         const msg = e?.error?.message || e?.message || (st === 403 ? 'PROHIBIDO' : 'Error buscando vehículo');
         this.existente = { status: 'error', vehiculo: null, message: msg } as any;
+        console.error('[VehiculosCrear] ❌ Error al buscar vehículo:', e);
         if (st === 403) this.notify.warn('Sin permisos', msg); else this.notify.error('Error', msg);
       }
     });
+  }
+
+  /**
+   * ✅ NUEVO: Determina si se debe usar filtro de sección según el contexto
+   *
+   * Reglas:
+   * - Usuario en vista de sección específica → Usar filtro
+   * - ORGADMIN/SYSADMIN en vista general → NO usar filtro
+   * - Usuario regular siempre → Usar filtro (su sección)
+   */
+  private shouldUseSeccionFilter(): boolean {
+    // Si el usuario tiene una sección asignada y no es ORGADMIN ni SYSADMIN
+    const esOrgAdmin = this.auth.hasAnyRole('SYSADMIN', 'ORGADMIN');
+
+    if (esOrgAdmin) {
+      // ORGADMIN/SYSADMIN: Solo usar filtro si está explícitamente en una sección
+      // (puede estar en vista general sin sección)
+      return !!this.model.seccionId;
+    }
+
+    // Usuario regular o ADMIN de sección: Siempre usar filtro de su sección
+    return !!this.model.seccionId;
   }
 
   private fillFromVehiculo(v: VehicleEntity) {
@@ -715,6 +762,20 @@ export class VehiculosCrearComponent implements OnInit {
     if (!id) return '-';
     const sec = this.secciones.find(s => s.id === id);
     return sec?.nombre || '-';
+  }
+
+  /**
+   * ✅ NUEVO: Mensaje dinámico del contador de usuarios
+   */
+  getUserCountMessage(): string {
+    const count = this.model.usuarioIds?.length || 0;
+    if (count === 0) {
+      return 'Debe seleccionar al menos un usuario';
+    } else if (count === 1) {
+      return '1 usuario seleccionado';
+    } else {
+      return `${count} usuarios seleccionados`;
+    }
   }
 
   private existenteVehiculo(): VehicleEntity | null {

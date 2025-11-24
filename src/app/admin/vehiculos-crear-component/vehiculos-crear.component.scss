@@ -304,6 +304,65 @@ p-multiSelect,
   }
 }
 
+/* ============================================
+   MULTISELECT DE USUARIOS - CONTADOR
+   ============================================ */
+.selected-users-display {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0.25rem 0;
+
+  .selected-count {
+    font-weight: 600;
+    color: var(--primary);
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    &::before {
+      content: '👥';
+      font-size: 1.1rem;
+    }
+  }
+}
+
+.placeholder-text {
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+::ng-deep .user-multiselect {
+  .p-multiselect-label {
+    padding: 0.75rem 1rem;
+    font-size: 0.95rem;
+  }
+
+  .p-multiselect-trigger {
+    width: 3rem;
+    color: var(--primary);
+  }
+
+  &.p-multiselect-open {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(79, 140, 255, 0.15);
+  }
+}
+
+/* Texto informativo debajo del multiselect */
+small.text-muted {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 0.5rem;
+
+  i.pi-info-circle {
+    font-size: 0.9rem;
+    color: var(--primary);
+  }
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   ::ng-deep .p-card {

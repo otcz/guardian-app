@@ -110,16 +110,29 @@
             </td>
             <td>
               <div class="usuarios-cell">
-                <p-tag *ngFor="let usuario of (row.usuariosAsignados || []).slice(0, 3)"
-                       [value]="usuario"
-                       severity="success"
-                       styleClass="mr-1"
-                       [pTooltip]="usuario"></p-tag>
-                <p-tag *ngIf="(row.cantidadUsuarios || 0) > 3"
-                       [value]="'+' + ((row.cantidadUsuarios || 0) - 3) + ' más'"
-                       severity="warn"
-                       [pTooltip]="'Total: ' + (row.cantidadUsuarios || 0) + ' usuarios'"></p-tag>
-                <span *ngIf="!row.usuariosAsignados || row.usuariosAsignados.length === 0" class="text-muted">Sin usuarios</span>
+                <!-- Mostrar primeros 2 usuarios -->
+                <ng-container *ngIf="row.usuariosAsignados && row.usuariosAsignados.length > 0">
+                  <p-tag *ngFor="let usuario of getVisibleUsers(row)"
+                         [value]="usuario"
+                         severity="success"
+                         styleClass="user-tag"
+                         [pTooltip]="usuario"
+                         tooltipPosition="top"></p-tag>
+
+                  <!-- Badge "+N más" con tooltip de todos los usuarios -->
+                  <p-tag *ngIf="getRemainingUsersCount(row) > 0"
+                         [value]="'+' + getRemainingUsersCount(row) + ' más'"
+                         severity="info"
+                         styleClass="more-users-tag"
+                         [pTooltip]="getAllUsersTooltip(row)"
+                         [escape]="false"
+                         tooltipPosition="top"></p-tag>
+                </ng-container>
+
+                <!-- Sin usuarios -->
+                <span *ngIf="!row.usuariosAsignados || row.usuariosAsignados.length === 0" class="text-muted">
+                  <i class="pi pi-user-minus"></i> Sin usuarios
+                </span>
               </div>
             </td>
             <td>

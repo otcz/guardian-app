@@ -255,7 +255,12 @@
 ::ng-deep .modern-table {
   .p-datatable-wrapper {
     border-radius: 0;
-    overflow: hidden;
+    overflow: visible;
+  }
+
+  .p-datatable-table {
+    border-collapse: separate;
+    border-spacing: 0;
   }
 
   .p-datatable-thead > tr > th {
@@ -287,6 +292,7 @@
   .p-datatable-tbody > tr {
     border-bottom: 1px solid var(--border);
     transition: all 0.2s ease;
+    min-height: 70px;
 
     &:hover {
       background: var(--surface-alt);
@@ -306,6 +312,7 @@
       color: var(--text);
       font-size: 0.9rem;
       vertical-align: middle;
+      border-bottom: none;
 
       input.w-100 {
         width: 100%;
@@ -344,6 +351,55 @@
     align-items: center;
     justify-content: center;
   }
+}
+
+/* ============================================
+   COLUMNA DE ADMINISTRADOR
+   ============================================ */
+.admin-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0.25rem 0;
+
+  .flex-column {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    line-height: 1.3;
+    flex: 1;
+  }
+
+  .fw-600 {
+    font-weight: 600;
+    color: var(--text);
+    font-size: 0.9rem;
+    line-height: 1.2;
+  }
+
+  .text-muted {
+    color: var(--muted);
+    font-size: 0.8rem;
+    line-height: 1.2;
+  }
+
+  .text-primary {
+    color: var(--primary);
+  }
+
+  i.pi-user {
+    font-size: 1rem;
+    flex-shrink: 0;
+    align-self: flex-start;
+  }
+}
+
+.text-muted {
+  color: var(--muted);
+}
+
+.fs-xs {
+  font-size: 0.8rem;
 }
 
 /* ============================================

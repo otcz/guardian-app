@@ -272,6 +272,8 @@ export class OrganizationListComponent implements OnInit {
         const m = (res && (res as any).message) || 'Administrador asignado a la organización';
         this.messages.add({ severity: 'success', summary: 'Asignado', detail: m, life: 3000 });
         this.closeAdminDialog();
+        // Recargar la lista para mostrar el administrador asignado
+        this.load(true);
       },
       error: (e) => {
         this.adminSaving = false;
@@ -295,6 +297,8 @@ export class OrganizationListComponent implements OnInit {
         const m = (res && (res as any).message) || 'Administrador removido de la organización';
         this.messages.add({ severity: 'success', summary: 'Removido', detail: m, life: 3000 });
         this.closeAdminDialog();
+        // Recargar la lista para reflejar el cambio
+        this.load(true);
       },
       error: (e) => {
         this.adminSaving = false;
@@ -306,6 +310,8 @@ export class OrganizationListComponent implements OnInit {
           // Idempotente: si ya no existía, tratar como éxito suave
           this.messages.add({ severity: 'info', summary: 'Sin cambios', detail: 'La organización no tiene administrador asignado', life: 3500 });
           this.closeAdminDialog();
+          // Recargar para asegurarnos que está actualizado
+          this.load(true);
           return;
         }
         this.messages.add({ severity: 'error', summary: 'Error', detail: msg || 'No se pudo remover el administrador', life: 5000 });

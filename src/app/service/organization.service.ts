@@ -10,6 +10,9 @@ export interface Organization {
   activa: boolean;
   fecha_creacion?: string;
   fecha_actualizacion?: string;
+  administradorUsername?: string;
+  administradorNombreCompleto?: string;
+  administradorId?: string;
 }
 
 export interface CreateOrganizationDTO {
@@ -18,6 +21,19 @@ export interface CreateOrganizationDTO {
 }
 
 export interface UpdateOrganizationDTO extends Partial<CreateOrganizationDTO> {}
+
+// Tipo para información del administrador
+export interface AdminInfo {
+  id: string;
+  username: string;
+  nombreCompleto: string;
+  email: string;
+}
+
+export interface AdminResponse {
+  message: string;
+  data: AdminInfo | null;
+}
 
 // Tipos de Parámetros por organización
 export interface OrgParam {
@@ -80,12 +96,19 @@ export class OrganizationService {
       const s = estadoRaw.toString().toUpperCase();
       activaBool = ['ACTIVO', 'ACTIVE', 'HABILITADO', 'ENABLED', 'SI', 'SÍ'].includes(s);
     } else activaBool = false;
+
+    // Mapear información del administrador si está disponible
+    const adminUser = d?.administradorUser ?? d?.administrador ?? d?.adminUser ?? null;
+
     return {
       id: d?.id != null ? String(d?.id ?? d?._id ?? d?.uuid ?? d?.idOrganizacion ?? d?.organizacionId) : undefined,
       nombre: String(d?.nombre ?? d?.name ?? d?.razonSocial ?? ''),
       activa: activaBool,
       fecha_creacion: (d?.fecha_creacion ?? d?.fechaCreacion ?? d?.createdAt ?? d?.fechaRegistro ?? undefined) ? String(d?.fecha_creacion ?? d?.fechaCreacion ?? d?.createdAt ?? d?.fechaRegistro) : undefined,
-      fecha_actualizacion: (d?.fecha_actualizacion ?? d?.fechaActualizacion ?? d?.updatedAt ?? undefined) ? String(d?.fecha_actualizacion ?? d?.fechaActualizacion ?? d?.updatedAt) : undefined
+      fecha_actualizacion: (d?.fecha_actualizacion ?? d?.fechaActualizacion ?? d?.updatedAt ?? undefined) ? String(d?.fecha_actualizacion ?? d?.fechaActualizacion ?? d?.updatedAt) : undefined,
+      administradorUsername: adminUser?.username ?? adminUser?.userName ?? d?.administradorUsername ?? undefined,
+      administradorNombreCompleto: adminUser?.nombreCompleto ?? adminUser?.fullName ?? d?.administradorNombreCompleto ?? undefined,
+      administradorId: adminUser?.id ? String(adminUser.id) : (d?.administradorId ? String(d.administradorId) : undefined)
     } as Organization;
   }
 
@@ -375,6 +398,27 @@ export class OrganizationService {
         if (resp && resp.success === false) { throw { error: { message: resp.message } }; }
         const message = (resp && typeof resp === 'object' && 'message' in resp) ? (resp.message as string) : undefined;
         return { message, orgId: String(orgId) };
+      }),
+      catchError(err => throwError(() => ({ error: { message: (err?.error?.message ?? err?.message) as string | undefined }, status: err?.status })))
+    );
+  }
+
+  /**
+   * Obtener el administrador actual de una organización.
+   * Endpoint: GET /{orgId}/administrador
+   * Auth: SYSADMIN o ORGADMIN de la organización
+   *
+   * @param orgId - ID de la organización
+   * @returns Observable con AdminResponse que contiene el administrador o null si no hay
+   */
+  getOrgAdmin(orgId: string | number): Observable<AdminResponse> {
+    const url = `${this.collectionUrl()}/${orgId}/administrador`;
+    return this.http.get<any>(url, { headers: this.acceptJsonHeaders() }).pipe(
+      map((resp: any) => {
+        if (resp && resp.success === false) { throw { error: { message: resp.message } }; }
+        const message = resp?.message || 'OK';
+        const data = resp?.data || null;
+        return { message, data } as AdminResponse;
       }),
       catchError(err => throwError(() => ({ error: { message: (err?.error?.message ?? err?.message) as string | undefined }, status: err?.status })))
     );

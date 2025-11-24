@@ -4,6 +4,7 @@ import { Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { environment } from '../config/environment';
 import type { UserEntity } from './users.service';
+import type { AdminInfo } from './organization.service';
 
 export interface SeccionEntity {
   id: string;
@@ -262,6 +263,35 @@ export class SeccionService {
   }
 
   /**
+   * Obtener el administrador actual de una sección.
+   * Endpoint: GET /orgs/{orgId}/secciones/{seccionId}/administrador
+   * Auth: SYSADMIN o ORGADMIN de la organización
+   *
+   * @param orgId - ID de la organización que contiene la sección
+   * @param seccionId - ID de la sección
+   * @returns Observable con AdminResponse que contiene el administrador o null si no hay
+   */
+  getSectionAdmin(orgId: string, seccionId: string): Observable<{ message: string; data: AdminInfo | null }> {
+    const url = `${this.base}/orgs/${orgId}/secciones/${seccionId}/administrador`;
+    return this.http.get<any>(url, { headers: this.accept }).pipe(
+      map((resp: any) => {
+        if (resp && resp.success === false) {
+          throw { error: { message: resp.message }, status: 400 };
+        }
+        const message = resp?.message || 'OK';
+        const data = resp?.data || null;
+        return { message, data };
+      }),
+      catchError((err) => {
+        return throwError(() => ({
+          error: { message: err?.error?.message || err?.message || 'Error al obtener administrador' },
+          status: err?.status
+        }));
+      })
+    );
+  }
+
+  /**
    * Asigna un usuario como administrador principal de una sección
    *
    * ⚠️ CORRECCIÓN IMPLEMENTADA (2025-11-21):
@@ -289,11 +319,6 @@ export class SeccionService {
     // Enviar orgId además de usuarioId: algunos backends requieren orgId para resolver rol por nombre cuando asigna SYSADMIN
     const body = { usuarioId, orgId } as any;
 
-    try {
-      console.log('[SeccionService] 📡 POST', url);
-      console.log('[SeccionService] 📦 Body:', { usuarioId, orgId });
-    } catch {}
-
     return this.http.post<any>(url, body, { headers: this.json }).pipe(
       map((payload) => {
         // Respuesta esperada: entidad plana SeccionEntity
@@ -309,16 +334,9 @@ export class SeccionService {
           adminNombre: (d.administradorNombre ?? d.administradorUsername ?? d?.administradorEntity?.nombre ?? d?.administradorEntity?.username) != null ? String(d.administradorNombre ?? d.administradorUsername ?? d?.administradorEntity?.nombre ?? d?.administradorEntity?.username) : undefined
         } as SeccionEntity;
 
-        try {
-          console.log('[SeccionService] ✅ Administrador asignado exitosamente');
-        } catch {}
-
         return { seccion, message: (payload as any)?.message };
       }),
       catchError((err) => {
-        try {
-          console.error('[SeccionService] ❌ Error al asignar administrador:', err?.status, err?.error?.message);
-        } catch {}
         return throwError(() => ({ error: { message: err?.error?.message || err?.message || 'No se pudo asignar el administrador' }, status: err?.status }));
       })
     );

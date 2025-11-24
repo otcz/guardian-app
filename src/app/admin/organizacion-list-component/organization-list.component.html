@@ -88,25 +88,31 @@
             <th style="width: 60px">
               <i class="pi pi-hashtag"></i>
             </th>
-            <th>
+            <th style="width: 250px">
               <div class="th-content">
                 <i class="pi pi-tag"></i>
                 <span>Nombre de la Organización</span>
               </div>
             </th>
-            <th style="width: 120px">
+            <th style="width: 280px">
+              <div class="th-content">
+                <i class="pi pi-user"></i>
+                <span>Administrador</span>
+              </div>
+            </th>
+            <th style="width: 110px">
               <div class="th-content">
                 <i class="pi pi-power-off"></i>
                 <span>Estado</span>
               </div>
             </th>
-            <th style="width: 180px">
+            <th style="width: 160px">
               <div class="th-content">
                 <i class="pi pi-calendar"></i>
                 <span>Fecha de Creación</span>
               </div>
             </th>
-            <th style="width: 280px">
+            <th style="width: 150px">
               <div class="th-content">
                 <i class="pi pi-cog"></i>
                 <span>Acciones</span>
@@ -134,6 +140,29 @@
           </td>
 
           <td>
+            <ng-container *ngIf="adding && row.id === ''">
+              <span class="text-muted fs-xs">-</span>
+            </ng-container>
+            <ng-container *ngIf="!adding && editingId === row.id">
+              <span class="text-muted fs-xs">-</span>
+            </ng-container>
+            <ng-container *ngIf="!adding && editingId !== row.id">
+              <div *ngIf="row.administradorUsername || row.administradorNombreCompleto; else noAdmin" class="admin-info">
+                <div class="flex ai-center gap-xs">
+                  <i class="pi pi-user text-primary"></i>
+                  <div class="flex-column">
+                    <span class="fw-600">{{ row.administradorUsername }}</span>
+                    <small *ngIf="row.administradorNombreCompleto" class="text-muted">{{ row.administradorNombreCompleto }}</small>
+                  </div>
+                </div>
+              </div>
+              <ng-template #noAdmin>
+                <span class="text-muted fs-xs">Sin asignar</span>
+              </ng-template>
+            </ng-container>
+          </td>
+
+          <td>
             <ng-container *ngIf="adding && row.id === ''; else notAddingActiva">
               <p-inputSwitch [(ngModel)]="newDraft.activa" [trueValue]="true" [falseValue]="false" (onChange)="newDraft.activa = $event.checked"></p-inputSwitch>
             </ng-container>
@@ -142,7 +171,7 @@
                 <p-inputSwitch [(ngModel)]="editDraft!.activa" [trueValue]="true" [falseValue]="false" (onChange)="onEditChange('activa', $event.checked)"></p-inputSwitch>
               </ng-container>
               <ng-template #viewActiva>
-                <p-tag [severity]="row.activa ? 'success' : 'danger'" [value]="row.activa ? 'SÍ' : 'NO'"></p-tag>
+                <p-tag [severity]="row.activa ? 'success' : 'danger'" [value]="row.activa ? 'ACTIVA' : 'INACTIVA'"></p-tag>
               </ng-template>
             </ng-template>
           </td>
@@ -173,7 +202,7 @@
 
         <ng-template pTemplate="emptymessage">
           <tr>
-            <td colspan="5" class="empty-message">
+            <td colspan="6" class="empty-message">
               <div class="empty-state-inline">
                 <i class="pi pi-inbox"></i>
                 <p>No hay datos para mostrar</p>

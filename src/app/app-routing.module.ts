@@ -90,6 +90,12 @@ export const appRoutes: Routes = [
       // Redirects canónicos para gestión de vehículos
       { path: 'gestion-de-vehiculos/listar-vehiculos', redirectTo: 'gestion-de-vehiculos/mis-vehiculos', pathMatch: 'full' },
 
+      // --- Módulo Guardia (Control de Ingreso y Salida) ---
+      {
+        path: 'guardia',
+        loadChildren: () => import('./guardia/guardia.routes').then(m => m.GUARDIA_ROUTES)
+      },
+
       // --- Redirects from literal backend routes to canonical app routes ---
       // Gestión de Organización
       { path: 'gestion-de-organizacion/listar-organizaciones', redirectTo: 'listar-organizaciones', pathMatch: 'full' },

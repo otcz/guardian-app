@@ -1,0 +1,63 @@
+.card {
+  padding: 1.5rem;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.card-header h2 {
+  margin: 0;
+  color: #495057;
+}
+
+.filtros-container {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background-color: #f8f9fa;
+  border-radius: 6px;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 0.25rem;
+  justify-content: center;
+}
+
+.text-success {
+  color: #22c55e;
+}
+
+.text-danger {
+  color: #ef4444;
+}
+
+::ng-deep {
+  .p-datatable .p-datatable-thead > tr > th {
+    background-color: #f8f9fa;
+    color: #495057;
+    font-weight: 600;
+  }
+
+  .p-button-rounded {
+    width: 2rem;
+    height: 2rem;
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .action-buttons {
+    flex-wrap: wrap;
+  }
+}
+

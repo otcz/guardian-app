@@ -1,0 +1,169 @@
+<div class="form-container">
+  <p-card>
+    <ng-template pTemplate="header">
+      <div class="card-header">
+        <h2>{{ modoEdicion ? 'Editar Guardia' : 'Nueva Guardia' }}</h2>
+      </div>
+    </ng-template>
+
+    <div *ngIf="loading" class="loading-overlay">
+      <p-progressSpinner></p-progressSpinner>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="guardar()" *ngIf="!loading">
+      <!-- Información no editable en modo edición -->
+      <div *ngIf="modoEdicion && guardiaActual" class="info-readonly">
+        <div class="p-field">
+          <label><strong>Código:</strong></label>
+          <p>{{ guardiaActual.codigo }}</p>
+        </div>
+        <div class="p-field">
+          <label><strong>Estado:</strong></label>
+          <p>{{ guardiaActual.activa ? 'Activa' : 'Inactiva' }}</p>
+        </div>
+      </div>
+
+      <!-- Sección (solo en creación) -->
+      <div class="p-field" *ngIf="!modoEdicion">
+        <label for="seccionId">{{ LABELS.SECCION }} *</label>
+        <p-dropdown
+          id="seccionId"
+          formControlName="seccionId"
+          [options]="secciones"
+          optionLabel="nombre"
+          optionValue="id"
+          placeholder="Seleccione una sección"
+          [styleClass]="isFieldInvalid('seccionId') ? 'ng-invalid ng-dirty' : ''"
+        ></p-dropdown>
+        <small class="p-text-secondary">{{ AYUDA.SECCION }}</small>
+        <small *ngIf="isFieldInvalid('seccionId')" class="p-error">
+          {{ getFieldError('seccionId') }}
+        </small>
+      </div>
+
+      <!-- Código (solo en creación) -->
+      <div class="p-field" *ngIf="!modoEdicion">
+        <label for="codigo">{{ LABELS.CODIGO }} *</label>
+        <div class="p-inputgroup">
+          <input
+            id="codigo"
+            type="text"
+            pInputText
+            formControlName="codigo"
+            [placeholder]="'GUARDIA-ENTRADA-PRINCIPAL'"
+            (input)="onCodigoInput($event)"
+            [class.ng-invalid]="isFieldInvalid('codigo')"
+            [class.ng-dirty]="isFieldInvalid('codigo')"
+          />
+          <span class="p-inputgroup-addon" *ngIf="codigoVerificando">
+            <i class="pi pi-spin pi-spinner"></i>
+          </span>
+          <span class="p-inputgroup-addon" *ngIf="!codigoVerificando && codigoValido && form.get('codigo')?.value">
+            <i class="pi pi-check" style="color: green"></i>
+          </span>
+          <span class="p-inputgroup-addon" *ngIf="!codigoVerificando && !codigoValido">
+            <i class="pi pi-times" style="color: red"></i>
+          </span>
+        </div>
+        <small class="p-text-secondary">{{ AYUDA.CODIGO }}</small>
+        <small *ngIf="isFieldInvalid('codigo')" class="p-error">
+          {{ getFieldError('codigo') }}
+        </small>
+      </div>
+
+      <!-- Nombre -->
+      <div class="p-field">
+        <label for="nombre">{{ LABELS.NOMBRE }} *</label>
+        <input
+          id="nombre"
+          type="text"
+          pInputText
+          formControlName="nombre"
+          placeholder="Guardia Entrada Principal"
+          [class.ng-invalid]="isFieldInvalid('nombre')"
+          [class.ng-dirty]="isFieldInvalid('nombre')"
+        />
+        <small *ngIf="isFieldInvalid('nombre')" class="p-error">
+          {{ getFieldError('nombre') }}
+        </small>
+      </div>
+
+      <!-- Descripción -->
+      <div class="p-field">
+        <label for="descripcion">{{ LABELS.DESCRIPCION }}</label>
+        <textarea
+          id="descripcion"
+          pInputTextarea
+          formControlName="descripcion"
+          [rows]="3"
+          placeholder="Descripción detallada de la guardia"
+          [class.ng-invalid]="isFieldInvalid('descripcion')"
+          [class.ng-dirty]="isFieldInvalid('descripcion')"
+        ></textarea>
+        <small *ngIf="isFieldInvalid('descripcion')" class="p-error">
+          {{ getFieldError('descripcion') }}
+        </small>
+      </div>
+
+      <!-- Ubicación -->
+      <div class="p-field">
+        <label for="ubicacion">{{ LABELS.UBICACION }}</label>
+        <input
+          id="ubicacion"
+          type="text"
+          pInputText
+          formControlName="ubicacion"
+          placeholder="Edificio A, Piso 1"
+          [class.ng-invalid]="isFieldInvalid('ubicacion')"
+          [class.ng-dirty]="isFieldInvalid('ubicacion')"
+        />
+        <small *ngIf="isFieldInvalid('ubicacion')" class="p-error">
+          {{ getFieldError('ubicacion') }}
+        </small>
+      </div>
+
+      <!-- Permisos (solo en edición) -->
+      <div *ngIf="modoEdicion" class="permisos-section">
+        <h3>Permisos de Operación</h3>
+        <div class="p-field-checkbox">
+          <p-checkbox
+            id="permiteEntrada"
+            formControlName="permiteEntrada"
+            [binary]="true"
+            inputId="permiteEntrada"
+          ></p-checkbox>
+          <label for="permiteEntrada">{{ LABELS.PERMITE_ENTRADA }}</label>
+        </div>
+
+        <div class="p-field-checkbox">
+          <p-checkbox
+            id="permiteSalida"
+            formControlName="permiteSalida"
+            [binary]="true"
+            inputId="permiteSalida"
+          ></p-checkbox>
+          <label for="permiteSalida">{{ LABELS.PERMITE_SALIDA }}</label>
+        </div>
+      </div>
+
+      <!-- Botones -->
+      <div class="form-actions">
+        <p-button
+          [label]="LABELS.BTN_CANCELAR"
+          icon="pi pi-times"
+          styleClass="p-button-secondary"
+          type="button"
+          (onClick)="volver()"
+        ></p-button>
+        <p-button
+          [label]="LABELS.BTN_GUARDAR"
+          icon="pi pi-check"
+          styleClass="p-button-success"
+          type="submit"
+          [disabled]="form.invalid || codigoVerificando || (!codigoValido && !modoEdicion)"
+        ></p-button>
+      </div>
+    </form>
+  </p-card>
+</div>
+

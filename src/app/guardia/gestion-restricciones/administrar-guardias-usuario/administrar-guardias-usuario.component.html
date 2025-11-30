@@ -1,0 +1,129 @@
+<div class="admin-container">
+  <p-card>
+    <ng-template pTemplate="header">
+      <div class="card-header">
+        <h2>Administrar Guardias por Usuario</h2>
+      </div>
+    </ng-template>
+
+    <div class="layout-cols">
+      <!-- Columna Izquierda: Selector de Usuario -->
+      <div class="col-usuario">
+        <div class="p-field">
+          <label for="usuario">Buscar Usuario *</label>
+          <p-autoComplete
+            [(ngModel)]="usuarioSeleccionado"
+            [suggestions]="usuariosFiltrados"
+            (completeMethod)="buscarUsuario($event)"
+            field="nombreCompleto"
+            [dropdown]="true"
+            placeholder="Nombre, documento o username"
+            (onSelect)="onUsuarioSeleccionado($event.value)"
+            [style]="{ width: '100%' }"
+          >
+            <ng-template let-usuario pTemplate="item">
+              <div class="usuario-item">
+                <strong>{{ usuario.nombreCompleto }}</strong>
+                <small>{{ usuario.username }} - {{ usuario.email }}</small>
+              </div>
+            </ng-template>
+          </p-autoComplete>
+        </div>
+
+        <div *ngIf="usuarioSeleccionado" class="usuario-selected">
+          <h3>Usuario Seleccionado</h3>
+          <div class="info-box">
+            <p><strong>Nombre:</strong> {{ usuarioSeleccionado.nombreCompleto }}</p>
+            <p><strong>Username:</strong> {{ usuarioSeleccionado.username }}</p>
+            <p><strong>Email:</strong> {{ usuarioSeleccionado.email }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Columna Derecha: Lista de Guardias -->
+      <div class="col-guardias" *ngIf="usuarioSeleccionado">
+        <h3>Guardias de la Sección</h3>
+
+        <div *ngIf="loading" class="loading-overlay">
+          <p-progressSpinner></p-progressSpinner>
+        </div>
+
+        <div *ngIf="!loading && guardias.length === 0" class="empty-message">
+          <p-message severity="info" text="No hay guardias disponibles en esta sección"></p-message>
+        </div>
+
+        <div *ngIf="!loading && guardias.length > 0" class="guardias-list">
+          <div *ngFor="let guardia of guardias" class="guardia-item">
+            <div class="guardia-header">
+              <div class="guardia-info">
+                <strong>{{ guardia.nombre }}</strong>
+                <small>{{ guardia.codigo }}</small>
+              </div>
+            </div>
+
+            <div class="guardia-actions">
+              <div class="p-field-checkbox">
+                <p-checkbox
+                  [(ngModel)]="guardia.estado"
+                  [value]="'ASIGNADA'"
+                  (onChange)="onCheckAsignar(guardia, $event.checked[0] === 'ASIGNADA')"
+                  inputId="asignar-{{ guardia.guardiaId }}"
+                  [binary]="false"
+                ></p-checkbox>
+                <label [for]="'asignar-' + guardia.guardiaId">Asignar</label>
+              </div>
+
+              <div class="p-field-checkbox">
+                <p-checkbox
+                  [(ngModel)]="guardia.estado"
+                  [value]="'RESTRINGIDA'"
+                  (onChange)="onCheckRestringir(guardia, $event.checked[0] === 'RESTRINGIDA')"
+                  inputId="restringir-{{ guardia.guardiaId }}"
+                  [binary]="false"
+                ></p-checkbox>
+                <label [for]="'restringir-' + guardia.guardiaId">Restringir</label>
+              </div>
+            </div>
+
+            <div *ngIf="isRestringida(guardia)" class="motivo-restriccion">
+              <label>Motivo de Restricción *</label>
+              <textarea
+                pInputTextarea
+                [(ngModel)]="guardia.motivoRestriccion"
+                [rows]="2"
+                placeholder="Indique el motivo de la restricción"
+                class="w-full"
+              ></textarea>
+            </div>
+
+            <div *ngIf="isAsignada(guardia)" class="estado-badge asignada">
+              ✓ Asignada
+            </div>
+            <div *ngIf="isRestringida(guardia)" class="estado-badge restringida">
+              ✗ Restringida
+            </div>
+          </div>
+        </div>
+
+        <!-- Botones -->
+        <div class="form-actions" *ngIf="!loading && guardias.length > 0">
+          <p-button
+            [label]="LABELS.BTN_CANCELAR"
+            icon="pi pi-times"
+            styleClass="p-button-secondary"
+            (onClick)="cancelar()"
+            [disabled]="guardando"
+          ></p-button>
+          <p-button
+            label="Guardar Cambios"
+            icon="pi pi-check"
+            styleClass="p-button-success"
+            (onClick)="guardarCambios()"
+            [loading]="guardando"
+          ></p-button>
+        </div>
+      </div>
+    </div>
+  </p-card>
+</div>
+

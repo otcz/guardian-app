@@ -1,0 +1,54 @@
+.card {
+  padding: 1.5rem;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.card-header h2 {
+  margin: 0;
+  color: #495057;
+}
+
+.filtros-container {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background-color: #f8f9fa;
+  border-radius: 6px;
+}
+
+.usuario-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.usuario-info strong {
+  color: #495057;
+}
+
+.usuario-info small {
+  color: #6c757d;
+  font-size: 0.875rem;
+}
+
+::ng-deep {
+  .p-datatable .p-datatable-thead > tr > th {
+    background-color: #f8f9fa;
+    color: #495057;
+    font-weight: 600;
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+}
+

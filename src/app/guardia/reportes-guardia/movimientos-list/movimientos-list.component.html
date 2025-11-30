@@ -1,0 +1,125 @@
+<div class="card">
+  <div class="card-header">
+    <h2>Movimientos de Guardia</h2>
+    <p-button
+      [label]="LABELS.BTN_EXPORTAR"
+      icon="pi pi-file-excel"
+      (onClick)="exportarExcel()"
+      styleClass="p-button-success"
+    ></p-button>
+  </div>
+
+  <!-- Filtros -->
+  <div class="filtros-container">
+    <div class="p-fluid p-formgrid p-grid">
+      <div class="p-field p-col-12 p-md-4">
+        <label for="filtroGuardia">Guardia</label>
+        <p-dropdown
+          id="filtroGuardia"
+          [(ngModel)]="filtroGuardia"
+          [options]="guardias"
+          optionLabel="nombre"
+          optionValue="id"
+          placeholder="Todas las guardias"
+          [showClear]="true"
+          (onChange)="onFiltroChange()"
+        ></p-dropdown>
+      </div>
+
+      <div class="p-field p-col-12 p-md-3">
+        <label for="filtroTipo">Tipo</label>
+        <p-dropdown
+          id="filtroTipo"
+          [(ngModel)]="filtroTipo"
+          [options]="tipoOptions"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Todos"
+          (onChange)="onFiltroChange()"
+        ></p-dropdown>
+      </div>
+
+      <div class="p-field p-col-12 p-md-5">
+        <label for="rangeFechas">Rango de Fechas</label>
+        <p-calendar
+          id="rangeFechas"
+          [(ngModel)]="rangeFechas"
+          selectionMode="range"
+          [showIcon]="true"
+          dateFormat="dd/mm/yy"
+          placeholder="Seleccione rango"
+          (onSelect)="onFiltroChange()"
+          (onClearClick)="onFiltroChange()"
+          [showClear]="true"
+        ></p-calendar>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabla -->
+  <p-table
+    [value]="movimientosFiltered"
+    [loading]="loading"
+    [paginator]="true"
+    [rows]="20"
+    [rowsPerPageOptions]="[20, 50, 100]"
+    [showCurrentPageReport]="true"
+    currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} movimientos"
+    styleClass="p-datatable-striped"
+    responsiveLayout="scroll"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th pSortableColumn="timestampMovimiento">
+          Fecha/Hora <p-sortIcon field="timestampMovimiento"></p-sortIcon>
+        </th>
+        <th pSortableColumn="tipo">
+          Tipo <p-sortIcon field="tipo"></p-sortIcon>
+        </th>
+        <th>Usuario</th>
+        <th>Vehículo</th>
+        <th>Guardia</th>
+        <th>Admin Guardia</th>
+        <th style="text-align: center">Permanencia (min)</th>
+        <th>Observaciones</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-movimiento>
+      <tr>
+        <td>{{ formatearFecha(movimiento.timestampMovimiento) }}</td>
+        <td>
+          <p-tag
+            [value]="movimiento.tipo"
+            [severity]="getSeverityTipo(movimiento.tipo)"
+          ></p-tag>
+        </td>
+        <td>
+          <div class="usuario-info">
+            <strong>{{ movimiento.usuario?.nombreCompleto || 'N/A' }}</strong>
+            <small>{{ movimiento.usuario?.documento || '' }}</small>
+          </div>
+        </td>
+        <td>{{ movimiento.vehiculo?.placa || '-' }}</td>
+        <td>{{ movimiento.guardia?.nombre || '-' }}</td>
+        <td>{{ movimiento.adminGuardia?.nombreCompleto || '-' }}</td>
+        <td style="text-align: center">
+          <span *ngIf="movimiento.permanenciaMinutos">
+            <strong>{{ movimiento.permanenciaMinutos }}</strong>
+          </span>
+          <span *ngIf="!movimiento.permanenciaMinutos">-</span>
+        </td>
+        <td>
+          <small>{{ movimiento.observaciones || '-' }}</small>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="8" style="text-align: center">No se encontraron movimientos</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
+

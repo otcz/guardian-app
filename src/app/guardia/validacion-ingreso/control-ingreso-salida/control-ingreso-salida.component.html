@@ -1,0 +1,291 @@
+<div class="control-container">
+  <!-- Paso 1: Selección de Guardia -->
+  <p-card styleClass="guardia-card">
+    <ng-template pTemplate="header">
+      <div class="card-header">
+        <h2>
+          <i class="pi pi-shield"></i>
+          Control de Ingreso y Salida
+        </h2>
+      </div>
+    </ng-template>
+
+    <div class="p-field">
+      <label for="guardiaId">{{ LABELS.GUARDIA_ACTUAL }} *</label>
+      <p-dropdown
+        id="guardiaId"
+        [(ngModel)]="guardiaId"
+        [options]="guardias"
+        optionLabel="nombre"
+        optionValue="id"
+        placeholder="Seleccione la guardia actual"
+        [showClear]="false"
+        (onChange)="onGuardiaChange()"
+        [style]="{ width: '100%' }"
+      >
+        <ng-template let-guardia pTemplate="item">
+          <div class="guardia-option">
+            <strong>{{ guardia.nombre }}</strong>
+            <small>{{ guardia.ubicacion }}</small>
+          </div>
+        </ng-template>
+      </p-dropdown>
+    </div>
+  </p-card>
+
+  <!-- Paso 2: Identificación de Usuario -->
+  <p-card *ngIf="guardiaId" styleClass="identificacion-card">
+    <div class="p-field">
+      <label for="identificador">{{ LABELS.IDENTIFICADOR }} *</label>
+      <div class="p-inputgroup">
+        <input
+          #identificadorInput
+          id="identificador"
+          type="text"
+          pInputText
+          [(ngModel)]="identificador"
+          [placeholder]="LABELS.PH_IDENTIFICADOR"
+          (keyup.enter)="onEnterIdentificador($event)"
+          [disabled]="buscando"
+          autofocus
+        />
+        <button
+          pButton
+          type="button"
+          [label]="LABELS.BTN_BUSCAR"
+          icon="pi pi-search"
+          (click)="buscarUsuario()"
+          [loading]="buscando"
+          [disabled]="!identificador.trim()"
+        ></button>
+      </div>
+      <small class="p-text-secondary">Presione Enter o click en Buscar</small>
+    </div>
+  </p-card>
+
+  <!-- Paso 3: Resultados - Usuario Encontrado con Entrada Disponible -->
+  <p-card *ngIf="puedeRegistrarEntrada" styleClass="resultado-card entrada-card">
+    <ng-template pTemplate="header">
+      <div class="resultado-header">
+        <i class="pi pi-user"></i>
+        <h3>Usuario Encontrado</h3>
+      </div>
+    </ng-template>
+
+    <div class="usuario-info">
+      <div class="info-row">
+        <label>Nombre Completo:</label>
+        <strong>{{ validacionUsuario?.nombreCompleto }}</strong>
+      </div>
+      <div class="info-row">
+        <label>Documento:</label>
+        <span>{{ validacionUsuario?.documento }}</span>
+      </div>
+      <div class="info-row">
+        <label>Sección:</label>
+        <span>{{ validacionUsuario?.seccion }}</span>
+      </div>
+      <div class="info-row">
+        <label>Estado:</label>
+        <p-tag
+          [value]="validacionUsuario?.activo ? 'ACTIVO' : 'INACTIVO'"
+          [severity]="validacionUsuario?.activo ? 'success' : 'danger'"
+        ></p-tag>
+      </div>
+    </div>
+
+    <!-- Vehículos (si tiene) -->
+    <div *ngIf="(validacionUsuario?.vehiculos?.length ?? 0) > 0" class="vehiculos-section">
+      <p-message
+        severity="warn"
+        text="⚠️ Este usuario tiene vehículo(s). ¿Desea registrar también el ingreso del vehículo?"
+      ></p-message>
+
+      <div class="p-field-checkbox">
+        <p-checkbox
+          [(ngModel)]="incluirVehiculo"
+          [binary]="true"
+          inputId="incluirVehiculo"
+        ></p-checkbox>
+        <label for="incluirVehiculo">{{ LABELS.INCLUIR_VEHICULO }}</label>
+      </div>
+
+      <div *ngIf="incluirVehiculo" class="p-field">
+        <p-dropdown
+          [(ngModel)]="vehiculoId"
+          [options]="validacionUsuario?.vehiculos ?? []"
+          optionLabel="placa"
+          optionValue="id"
+          placeholder="Seleccione un vehículo"
+          [style]="{ width: '100%' }"
+        ></p-dropdown>
+      </div>
+    </div>
+
+    <!-- Observaciones -->
+    <div class="p-field">
+      <label for="observaciones">{{ LABELS.OBSERVACIONES }}</label>
+      <textarea
+        id="observaciones"
+        pInputTextarea
+        [(ngModel)]="observaciones"
+        [rows]="2"
+        [placeholder]="LABELS.PH_OBSERVACIONES"
+      ></textarea>
+    </div>
+
+    <!-- Botones -->
+    <div class="form-actions">
+      <p-button
+        [label]="LABELS.BTN_CANCELAR"
+        icon="pi pi-times"
+        styleClass="p-button-secondary"
+        (onClick)="cancelar()"
+        [disabled]="registrando"
+      ></p-button>
+      <p-button
+        [label]="LABELS.BTN_REGISTRAR_ENTRADA"
+        icon="pi pi-sign-in"
+        styleClass="p-button-success p-button-lg"
+        (onClick)="registrarEntrada()"
+        [loading]="registrando"
+      ></p-button>
+    </div>
+  </p-card>
+
+  <!-- Paso 3B: Resultados - Usuario con Entrada Abierta (Salida) -->
+  <p-card *ngIf="puedeRegistrarSalida" styleClass="resultado-card salida-card">
+    <ng-template pTemplate="header">
+      <div class="resultado-header">
+        <i class="pi pi-user"></i>
+        <h3>Usuario Encontrado</h3>
+      </div>
+    </ng-template>
+
+    <div class="usuario-info">
+      <div class="info-row">
+        <label>Nombre Completo:</label>
+        <strong>{{ validacionUsuario?.nombreCompleto }}</strong>
+      </div>
+      <div class="info-row">
+        <label>Documento:</label>
+        <span>{{ validacionUsuario?.documento }}</span>
+      </div>
+      <div class="info-row">
+        <label>Sección:</label>
+        <span>{{ validacionUsuario?.seccion }}</span>
+      </div>
+      <div class="info-row">
+        <label>Estado:</label>
+        <p-tag
+          [value]="validacionUsuario?.activo ? 'ACTIVO' : 'INACTIVO'"
+          [severity]="validacionUsuario?.activo ? 'success' : 'danger'"
+        ></p-tag>
+      </div>
+    </div>
+
+    <!-- Información de entrada abierta -->
+    <div class="entrada-abierta-info">
+      <p-message severity="info" styleClass="entrada-abierta-message">
+        <ng-template pTemplate>
+          <div class="entrada-info-content">
+            <i class="pi pi-info-circle"></i>
+            <div>
+              <strong>El usuario tiene una entrada abierta</strong>
+              <p>
+                Fecha/Hora: {{ formatearFecha(validacionUsuario?.entradaAbierta?.timestampMovimiento!) }}
+                <br />
+                Guardia: {{ validacionUsuario?.entradaAbierta?.guardia?.nombre }}
+                <br />
+                Tiempo transcurrido: {{ calcularTiempoTranscurrido().horas }}h
+                {{ calcularTiempoTranscurrido().minutos }}m
+              </p>
+            </div>
+          </div>
+        </ng-template>
+      </p-message>
+    </div>
+
+    <!-- Observaciones -->
+    <div class="p-field">
+      <label for="observacionesSalida">{{ LABELS.OBSERVACIONES }}</label>
+      <textarea
+        id="observacionesSalida"
+        pInputTextarea
+        [(ngModel)]="observaciones"
+        [rows]="2"
+        [placeholder]="LABELS.PH_OBSERVACIONES"
+      ></textarea>
+    </div>
+
+    <!-- Botones -->
+    <div class="form-actions">
+      <p-button
+        [label]="LABELS.BTN_CANCELAR"
+        icon="pi pi-times"
+        styleClass="p-button-secondary"
+        (onClick)="cancelar()"
+        [disabled]="registrando"
+      ></p-button>
+      <p-button
+        [label]="LABELS.BTN_REGISTRAR_SALIDA"
+        icon="pi pi-sign-out"
+        styleClass="p-button-info p-button-lg"
+        (onClick)="registrarSalida()"
+        [loading]="registrando"
+      ></p-button>
+    </div>
+  </p-card>
+
+  <!-- Paso 3C: Usuario Bloqueado -->
+  <p-card *ngIf="estaBloqueado" styleClass="resultado-card bloqueado-card">
+    <ng-template pTemplate="header">
+      <div class="resultado-header bloqueado">
+        <i class="pi pi-ban"></i>
+        <h3>{{ MENSAJES_INFO.ACCESO_DENEGADO }}</h3>
+      </div>
+    </ng-template>
+
+    <div class="usuario-info">
+      <div class="info-row">
+        <label>Nombre Completo:</label>
+        <strong>{{ validacionUsuario?.nombreCompleto }}</strong>
+      </div>
+      <div class="info-row">
+        <label>Documento:</label>
+        <span>{{ validacionUsuario?.documento }}</span>
+      </div>
+      <div class="info-row">
+        <label>Estado:</label>
+        <p-tag
+          [value]="validacionUsuario?.activo ? 'ACTIVO' : 'INACTIVO'"
+          [severity]="validacionUsuario?.activo ? 'success' : 'danger'"
+        ></p-tag>
+      </div>
+    </div>
+
+    <p-message severity="error" styleClass="bloqueo-message">
+      <ng-template pTemplate>
+        <div class="bloqueo-content">
+          <i class="pi pi-exclamation-triangle"></i>
+          <div>
+            <strong>Acceso Denegado</strong>
+            <p [innerHTML]="motivoBloqueo"></p>
+          </div>
+        </div>
+      </ng-template>
+    </p-message>
+
+    <!-- Solo botón cancelar -->
+    <div class="form-actions">
+      <p-button
+        [label]="LABELS.BTN_CANCELAR"
+        icon="pi pi-times"
+        styleClass="p-button-secondary p-button-lg"
+        (onClick)="cancelar()"
+        [style]="{ width: '100%' }"
+      ></p-button>
+    </div>
+  </p-card>
+</div>
+

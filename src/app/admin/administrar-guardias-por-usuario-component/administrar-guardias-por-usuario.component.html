@@ -1,14 +1,14 @@
-<p-toast></p-toast>
+﻿<p-toast></p-toast>
 <p-confirmDialog></p-confirmDialog>
 
 <div class="administrar-guardias-container">
   <!-- Encabezado -->
   <div class="header">
     <h1>Administrar Guardias por Usuario</h1>
-    <p class="subtitle">Asignar y restringir guardias a múltiples usuarios de la sección</p>
+    <p class="subtitle">Gestione las asignaciones y restricciones de guardias para usuarios</p>
   </div>
 
-  <!-- Información de contexto de sección - Compacto -->
+  <!-- InformaciÃ³n de contexto de secciÃ³n - Compacto -->
   <p-message
     *ngIf="seccionId && nombreSeccion"
     severity="info"
@@ -19,7 +19,7 @@
         <i class="pi pi-map-marker mr-2"></i>
         <span>
           <strong>Contexto:</strong>
-          <span class="ml-2">{{ nombreOrganizacion || 'Organización' }}</span>
+          <span class="ml-2">{{ nombreOrganizacion || 'OrganizaciÃ³n' }}</span>
           <i class="pi pi-angle-right mx-2"></i>
           <span>{{ nombreSeccion }}</span>
         </span>
@@ -35,271 +35,585 @@
   </p-message>
 
   <!-- Mensaje de error global -->
-  <p-card *ngIf="error" class="error-card">
-    <div class="flex align-items-center gap-2">
-      <i class="pi pi-exclamation-circle" style="font-size: 1.5rem; color: var(--red-600);"></i>
+  <p-message
+    *ngIf="error"
+    severity="error"
+    styleClass="mb-3 w-full"
+  >
+    <div class="flex align-items-center">
+      <i class="pi pi-exclamation-circle mr-2"></i>
       <span>{{ error }}</span>
     </div>
-  </p-card>
+  </p-message>
 
-  <!-- Contenedor principal con 3 columnas -->
-  <div class="main-grid-multiple">
-    <!-- COLUMNA 1: Usuarios -->
-    <p-card class="usuarios-card">
-      <ng-template pTemplate="header">
-        <div class="card-header">
-          <div>
-            <h3>Usuarios ({{ usuariosSeleccionados.length }} seleccionado(s))</h3>
-            <div class="text-xs text-color-secondary mt-1" *ngIf="seccionId">
-              <i class="pi pi-filter"></i>
-              Filtrado por sección: {{ nombreSeccion || seccionId }}
-            </div>
-          </div>
-          <div class="flex align-items-center gap-2">
-            <p-checkbox
-              [(ngModel)]="todosUsuariosSeleccionados"
-              [binary]="true"
-              (onChange)="toggleTodosUsuarios($event)"
-              [disabled]="loading"
-              inputId="checkbox-todos-usuarios"
-            ></p-checkbox>
-            <label for="checkbox-todos-usuarios">Todos</label>
-          </div>
-        </div>
-      </ng-template>
-
-      <ng-template pTemplate="content">
-        <!-- Buscador -->
-        <div class="field mb-3">
-          <span class="p-input-icon-left w-full">
-            <i class="pi pi-search"></i>
-            <input
-              type="text"
-              pInputText
-              [(ngModel)]="filtroUsuario"
-              placeholder="Buscar usuario..."
-              class="w-full"
-              [disabled]="loading"
-            />
-          </span>
-        </div>
-
-        <!-- Loading -->
-        <div *ngIf="loading" class="loading-container">
-          <p-progressSpinner strokeWidth="4"></p-progressSpinner>
-        </div>
-
-        <!-- Lista de usuarios -->
-        <div *ngIf="!loading" class="usuarios-list">
-          <div
-            *ngFor="let usuario of usuariosFiltradosActuales"
-            class="usuario-item"
-            [class.selected]="isUsuarioSeleccionado(usuario)"
-          >
-            <p-checkbox
-              [ngModel]="isUsuarioSeleccionado(usuario)"
-              [binary]="true"
-              (onChange)="toggleUsuario(usuario, $event)"
-              [disabled]="loading"
-              [inputId]="'user-' + usuario.id"
-            ></p-checkbox>
-            <label [for]="'user-' + usuario.id" class="usuario-label">
-              <div class="usuario-info">
-                <div class="nombre">{{ usuario.nombreCompleto || usuario.username }}</div>
-                <div class="username">{{ '@' + usuario.username }}</div>
-                <p-tag
-                  [value]="usuario.activo ? 'ACTIVO' : 'INACTIVO'"
-                  [severity]="usuario.activo ? 'success' : 'danger'"
-                  styleClass="mt-1"
-                ></p-tag>
-              </div>
-            </label>
-          </div>
-
-          <!-- Mensaje si no hay usuarios -->
-          <div *ngIf="usuariosFiltradosActuales.length === 0" class="no-data">
-            <i class="pi pi-users"></i>
-            <p>No se encontraron usuarios</p>
-          </div>
-        </div>
-      </ng-template>
-    </p-card>
-
-    <!-- COLUMNA 2: Guardias -->
-    <p-card class="guardias-card">
-      <ng-template pTemplate="header">
-        <div class="card-header">
-          <div>
-            <h3>Personal de Guardia ({{ guardiasSeleccionadas.length }} seleccionada(s))</h3>
-            <div class="text-xs text-color-secondary mt-1" *ngIf="seccionId">
-              <i class="pi pi-filter"></i>
-              Filtrado por sección: {{ nombreSeccion || seccionId }}
-            </div>
-          </div>
-          <div class="flex align-items-center gap-2">
-            <p-checkbox
-              [(ngModel)]="todasGuardiasSeleccionadas"
-              [binary]="true"
-              (onChange)="toggleTodasGuardias($event)"
-              [disabled]="loading"
-              inputId="checkbox-todas-guardias"
-            ></p-checkbox>
-            <label for="checkbox-todas-guardias">Todas</label>
-          </div>
-        </div>
-      </ng-template>
-
-      <ng-template pTemplate="content">
-        <!-- Buscador -->
-        <div class="field mb-3">
-          <span class="p-input-icon-left w-full">
-            <i class="pi pi-search"></i>
-            <input
-              type="text"
-              pInputText
-              [(ngModel)]="filtroGuardia"
-              placeholder="Buscar guardia..."
-              class="w-full"
-              [disabled]="loading"
-            />
-          </span>
-        </div>
-
-        <!-- Loading -->
-        <div *ngIf="loading" class="loading-container">
-          <p-progressSpinner strokeWidth="4"></p-progressSpinner>
-        </div>
-
-        <!-- Lista de guardias -->
-        <div *ngIf="!loading" class="guardias-list">
-          <div
-            *ngFor="let guardia of guardiasFiltradas"
-            class="guardia-item"
-            [class.selected]="isGuardiaSeleccionada(guardia)"
-          >
-            <p-checkbox
-              [ngModel]="isGuardiaSeleccionada(guardia)"
-              [binary]="true"
-              (onChange)="toggleGuardia(guardia, $event)"
-              [disabled]="loading"
-              [inputId]="'guardia-' + guardia.id"
-            ></p-checkbox>
-            <label [for]="'guardia-' + guardia.id" class="guardia-label">
-              <div class="guardia-info">
-                <div class="nombre">{{ guardia.nombre }}</div>
-                <div class="codigo">{{ guardia.codigo }}</div>
-                <div class="ubicacion" *ngIf="guardia.ubicacion">
-                  <i class="pi pi-map-marker"></i>
-                  {{ guardia.ubicacion }}
-                </div>
-                <div class="permisos">
-                  <span *ngIf="guardia.permiteEntrada" class="permiso entrada">
-                    <i class="pi pi-sign-in"></i>
-                  </span>
-                  <span *ngIf="guardia.permiteSalida" class="permiso salida">
-                    <i class="pi pi-sign-out"></i>
-                  </span>
-                  <p-tag
-                    *ngIf="!guardia.activa"
-                    value="INACTIVA"
-                    severity="warn"
-                  ></p-tag>
-                </div>
-              </div>
-            </label>
-          </div>
-
-          <!-- Mensaje si no hay guardias -->
-          <div *ngIf="guardiasFiltradas.length === 0" class="no-data">
-            <i class="pi pi-shield"></i>
-            <p>No se encontraron guardias</p>
-          </div>
-        </div>
-      </ng-template>
-    </p-card>
-
-    <!-- COLUMNA 3: Acciones -->
-    <p-card class="acciones-card">
-      <ng-template pTemplate="header">
-        <div class="card-header">
-          <h3>Acciones</h3>
-        </div>
-      </ng-template>
-
-      <ng-template pTemplate="content">
-        <!-- Resumen de selección -->
-        <div class="resumen-seleccion">
-          <div class="resumen-item">
-            <i class="pi pi-users"></i>
-            <span><strong>{{ usuariosSeleccionados.length }}</strong> usuario(s) seleccionado(s)</span>
-          </div>
-          <div class="resumen-item">
-            <i class="pi pi-shield"></i>
-            <span><strong>{{ guardiasSeleccionadas.length }}</strong> guardia(s) seleccionada(s)</span>
-          </div>
-        </div>
-
-        <!-- Botones de acción -->
-        <div class="acciones-buttons">
-          <p-button
-            label="Asignar Guardias"
-            icon="pi pi-check-circle"
-            severity="success"
-            [disabled]="usuariosSeleccionados.length === 0 || guardiasSeleccionadas.length === 0 || loading"
-            (onClick)="asignarGuardiasAUsuarios()"
-            styleClass="w-full mb-2"
-            [pTooltip]="usuariosSeleccionados.length === 0 || guardiasSeleccionadas.length === 0 ? 'Seleccione usuarios y guardias' : 'Asignar las guardias seleccionadas a los usuarios seleccionados'"
-          ></p-button>
-
-          <p-button
-            label="Restringir Guardias"
-            icon="pi pi-ban"
-            severity="danger"
-            [disabled]="usuariosSeleccionados.length === 0 || guardiasSeleccionadas.length === 0 || loading"
-            (onClick)="restringirGuardiasAUsuarios()"
-            styleClass="w-full mb-2"
-            [pTooltip]="usuariosSeleccionados.length === 0 || guardiasSeleccionadas.length === 0 ? 'Seleccione usuarios y guardias' : 'Restringir las guardias seleccionadas para los usuarios seleccionados'"
-          ></p-button>
-
-          <p-button
-            label="Revocar Asignaciones"
-            icon="pi pi-times-circle"
-            severity="warn"
-            [disabled]="usuariosSeleccionados.length === 0 || guardiasSeleccionadas.length === 0 || loading"
-            (onClick)="revocarGuardiasAUsuarios()"
-            styleClass="w-full mb-2"
-            [pTooltip]="usuariosSeleccionados.length === 0 || guardiasSeleccionadas.length === 0 ? 'Seleccione usuarios y guardias' : 'Revocar las asignaciones de las guardias seleccionadas para los usuarios seleccionados'"
-          ></p-button>
-
-          <p-button
-            label="Limpiar Selección"
-            icon="pi pi-refresh"
-            severity="secondary"
-            [disabled]="usuariosSeleccionados.length === 0 && guardiasSeleccionadas.length === 0"
-            (onClick)="limpiarSelecciones()"
-            styleClass="w-full"
-          ></p-button>
-        </div>
-
-        <!-- Información adicional -->
-        <div class="info-adicional mt-4">
-          <p-card>
-            <div class="info-content">
-              <i class="pi pi-info-circle"></i>
-              <div class="info-text">
-                <strong>Instrucciones:</strong>
-                <ul>
-                  <li>Seleccione uno o más usuarios</li>
-                  <li>Seleccione una o más guardias</li>
-                  <li>Elija la acción a realizar</li>
-                  <li>Las operaciones se aplicarán a todos los seleccionados</li>
-                </ul>
-              </div>
-            </div>
-          </p-card>
-        </div>
-      </ng-template>
-    </p-card>
+  <!-- Loading Principal -->
+  <div *ngIf="loading" class="text-center py-5">
+    <p-progressSpinner></p-progressSpinner>
+    <p class="mt-3">Cargando informaciÃ³n...</p>
   </div>
+
+  <!-- Tabs Principal -->
+  <p-tabView *ngIf="!loading" [(activeIndex)]="activeTabIndex" styleClass="custom-tabview">
+
+    <!-- ============================================ -->
+    <!-- TAB 1: USUARIOS â†’ GUARDIAS -->
+    <!-- ============================================ -->
+    <p-tabPanel header="ðŸ‘¤ Usuarios â†’ Guardias" leftIcon="pi pi-users">
+      <div class="tab-content">
+        <div class="grid">
+          <!-- Columna Izquierda: Lista de Usuarios -->
+          <div class="col-12 md:col-5">
+            <p-card>
+              <ng-template pTemplate="header">
+                <div class="card-header">
+                  <h3>Usuarios ({{ usuarios.length }})</h3>
+                  <small>Seleccione un usuario para ver sus guardias</small>
+                </div>
+              </ng-template>
+
+              <!-- BÃºsqueda de Usuarios -->
+              <div class="field mb-3">
+                <span class="p-input-icon-left w-full">
+                  <i class="pi pi-search"></i>
+                  <input
+                    type="text"
+                    pInputText
+                    [(ngModel)]="filtroUsuario"
+                    placeholder="Buscar usuario..."
+                    class="w-full"
+                  />
+                </span>
+              </div>
+
+              <!-- Lista de Usuarios -->
+              <div class="usuarios-list" style="max-height: 500px; overflow-y: auto;">
+                <div
+                  *ngFor="let usuario of usuarios | slice:0:20"
+                  class="usuario-item"
+                  [class.selected]="usuarioSeleccionadoDetalle?.id === usuario.id"
+                  (click)="onSeleccionarUsuario(usuario)"
+                >
+                  <div class="flex align-items-center justify-content-between p-3 border-bottom-1 surface-border cursor-pointer hover:surface-hover">
+                    <div class="flex-1">
+                      <div class="font-semibold">{{ usuario.nombreCompleto }}</div>
+                      <div class="text-sm text-color-secondary">
+                        <i class="pi pi-user mr-1"></i>{{ usuario.username }}
+                      </div>
+                    </div>
+                    <i class="pi pi-chevron-right text-color-secondary"></i>
+                  </div>
+                </div>
+
+                <div *ngIf="usuarios.length === 0" class="text-center py-4 text-color-secondary">
+                  <i class="pi pi-inbox text-4xl mb-3"></i>
+                  <p>No hay usuarios disponibles</p>
+                </div>
+              </div>
+            </p-card>
+          </div>
+
+          <!-- Columna Derecha: Guardias del Usuario -->
+          <div class="col-12 md:col-7">
+            <!-- Placeholder cuando no hay usuario seleccionado -->
+            <div *ngIf="!usuarioSeleccionadoDetalle" class="text-center py-8">
+              <i class="pi pi-arrow-left text-6xl mb-4 text-color-secondary"></i>
+              <h3 class="text-color-secondary">Seleccione un usuario</h3>
+              <p class="text-color-secondary">Seleccione un usuario de la lista para ver y gestionar sus guardias</p>
+            </div>
+
+            <!-- Detalle de Guardias del Usuario -->
+            <div *ngIf="usuarioSeleccionadoDetalle">
+              <p-card>
+                <ng-template pTemplate="header">
+                  <div class="card-header">
+                    <div>
+                      <h3>Guardias de: {{ usuarioSeleccionadoDetalle.nombreCompleto }}</h3>
+                      <small class="text-color-secondary">{{ '@' }}{{ usuarioSeleccionadoDetalle.username }}</small>
+                    </div>
+                  </div>
+                </ng-template>
+
+                <!-- Loading Guardias -->
+                <div *ngIf="loadingGuardiasUsuario" class="text-center py-4">
+                  <p-progressSpinner [style]="{ width: '40px', height: '40px' }"></p-progressSpinner>
+                  <p class="mt-2 text-sm">Cargando guardias...</p>
+                </div>
+
+                <!-- Guardias Asignadas (Disponibles) -->
+                <div *ngIf="!loadingGuardiasUsuario" class="mb-4">
+                  <h4 class="flex align-items-center mb-3">
+                    <i class="pi pi-check-circle mr-2 text-green-500"></i>
+                    Guardias Asignadas ({{ getGuardiasDisponibles().length }})
+                  </h4>
+
+                  <div *ngFor="let relacion of getGuardiasDisponibles()" class="guardia-item p-3 mb-2 border-round border-1 surface-border">
+                    <div class="flex align-items-center justify-content-between">
+                      <div class="flex-1">
+                        <div class="font-semibold text-green-700">
+                          <i class="pi pi-map-marker mr-2"></i>{{ relacion.guardiaNombre }}
+                        </div>
+                        <div class="text-sm text-color-secondary mt-1">
+                          CÃ³digo: {{ relacion.guardiaCodigo }}
+                        </div>
+                        <div *ngIf="relacion.observaciones" class="text-sm text-color-secondary mt-1">
+                          <i class="pi pi-info-circle mr-1"></i>{{ relacion.observaciones }}
+                        </div>
+                      </div>
+                      <div class="flex gap-2">
+                        <p-button
+                          icon="pi pi-ban"
+                          severity="warn"
+                          [text]="true"
+                          pTooltip="Restringir acceso"
+                          (onClick)="onRestringirGuardiaParaUsuario(relacion)"
+                        ></p-button>
+                        <p-button
+                          icon="pi pi-trash"
+                          severity="danger"
+                          [text]="true"
+                          pTooltip="Revocar asignaciÃ³n"
+                          (onClick)="onRevocarGuardiaDeUsuario(relacion)"
+                        ></p-button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div *ngIf="getGuardiasDisponibles().length === 0" class="text-center py-3 text-color-secondary">
+                    <i class="pi pi-inbox text-3xl mb-2"></i>
+                    <p>No hay guardias asignadas</p>
+                  </div>
+                </div>
+
+                <!-- Guardias Restringidas -->
+                <div *ngIf="!loadingGuardiasUsuario" class="mb-4">
+                  <h4 class="flex align-items-center mb-3">
+                    <i class="pi pi-ban mr-2 text-red-500"></i>
+                    Guardias Restringidas ({{ getGuardiasRestringidas().length }})
+                  </h4>
+
+                  <div *ngFor="let relacion of getGuardiasRestringidas()" class="guardia-item p-3 mb-2 border-round border-1 border-red-200 bg-red-50">
+                    <div class="flex align-items-center justify-content-between">
+                      <div class="flex-1">
+                        <div class="font-semibold text-red-700">
+                          <i class="pi pi-ban mr-2"></i>{{ relacion.guardiaNombre }}
+                        </div>
+                        <div class="text-sm text-color-secondary mt-1">
+                          CÃ³digo: {{ relacion.guardiaCodigo }}
+                        </div>
+                        <div *ngIf="relacion.motivoRestriccion" class="text-sm text-red-600 mt-1">
+                          <i class="pi pi-exclamation-triangle mr-1"></i>Motivo: {{ relacion.motivoRestriccion }}
+                        </div>
+                      </div>
+                      <div class="flex gap-2">
+                        <p-button
+                          icon="pi pi-check"
+                          severity="success"
+                          [text]="true"
+                          label="Quitar RestricciÃ³n"
+                          (onClick)="onQuitarRestriccionUsuario(relacion)"
+                        ></p-button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div *ngIf="getGuardiasRestringidas().length === 0" class="text-center py-3 text-color-secondary">
+                    <i class="pi pi-check text-3xl mb-2"></i>
+                    <p>No hay restricciones</p>
+                  </div>
+                </div>
+
+                <!-- Agregar Nuevas Guardias -->
+                <div *ngIf="!loadingGuardiasUsuario" class="mt-4">
+                  <h4 class="mb-3">
+                    <i class="pi pi-plus-circle mr-2"></i>
+                    Agregar Guardias
+                  </h4>
+                  <div class="flex gap-2">
+                    <p-multiSelect
+                      [options]="getGuardiasNoAsignadas()"
+                      [(ngModel)]="guardiasSeleccionadasParaAsignar"
+                      optionLabel="nombre"
+                      placeholder="Seleccione guardias..."
+                      [filter]="true"
+                      filterBy="nombre,codigo"
+                      styleClass="flex-1"
+                      [showHeader]="false"
+                    ></p-multiSelect>
+                    <p-button
+                      label="Asignar"
+                      icon="pi pi-check"
+                      (onClick)="onAsignarGuardiasAUsuario()"
+                      [disabled]="!guardiasSeleccionadasParaAsignar || guardiasSeleccionadasParaAsignar.length === 0"
+                    ></p-button>
+                  </div>
+                </div>
+              </p-card>
+            </div>
+          </div>
+        </div>
+      </div>
+    </p-tabPanel>
+
+    <!-- ============================================ -->
+    <!-- TAB 2: GUARDIAS â†’ USUARIOS -->
+    <!-- ============================================ -->
+    <p-tabPanel header="ðŸšª Guardias â†’ Usuarios" leftIcon="pi pi-building">
+      <div class="tab-content">
+        <div class="grid">
+          <!-- Columna Izquierda: Lista de Guardias -->
+          <div class="col-12 md:col-5">
+            <p-card>
+              <ng-template pTemplate="header">
+                <div class="card-header">
+                  <h3>Guardias ({{ guardias.length }})</h3>
+                  <small>Seleccione una guardia para ver sus usuarios</small>
+                </div>
+              </ng-template>
+
+              <!-- BÃºsqueda de Guardias -->
+              <div class="field mb-3">
+                <span class="p-input-icon-left w-full">
+                  <i class="pi pi-search"></i>
+                  <input
+                    type="text"
+                    pInputText
+                    [(ngModel)]="filtroGuardia"
+                    placeholder="Buscar guardia..."
+                    class="w-full"
+                  />
+                </span>
+              </div>
+
+              <!-- Lista de Guardias -->
+              <div class="guardias-list" style="max-height: 500px; overflow-y: auto;">
+                <div
+                  *ngFor="let guardia of guardias | slice:0:20"
+                  class="guardia-item"
+                  [class.selected]="guardiaSeleccionadaDetalle?.id === guardia.id"
+                  (click)="onSeleccionarGuardia(guardia)"
+                >
+                  <div class="flex align-items-center justify-content-between p-3 border-bottom-1 surface-border cursor-pointer hover:surface-hover">
+                    <div class="flex-1">
+                      <div class="font-semibold">{{ guardia.nombre }}</div>
+                      <div class="text-sm text-color-secondary">
+                        <i class="pi pi-tag mr-1"></i>{{ guardia.codigo }}
+                      </div>
+                      <div *ngIf="guardia.ubicacion" class="text-sm text-color-secondary">
+                        <i class="pi pi-map-marker mr-1"></i>{{ guardia.ubicacion }}
+                      </div>
+                    </div>
+                    <i class="pi pi-chevron-right text-color-secondary"></i>
+                  </div>
+                </div>
+
+                <div *ngIf="guardias.length === 0" class="text-center py-4 text-color-secondary">
+                  <i class="pi pi-inbox text-4xl mb-3"></i>
+                  <p>No hay guardias disponibles</p>
+                </div>
+              </div>
+            </p-card>
+          </div>
+
+          <!-- Columna Derecha: Usuarios de la Guardia -->
+          <div class="col-12 md:col-7">
+            <!-- Placeholder cuando no hay guardia seleccionada -->
+            <div *ngIf="!guardiaSeleccionadaDetalle" class="text-center py-8">
+              <i class="pi pi-arrow-left text-6xl mb-4 text-color-secondary"></i>
+              <h3 class="text-color-secondary">Seleccione una guardia</h3>
+              <p class="text-color-secondary">Seleccione una guardia de la lista para ver y gestionar sus usuarios</p>
+            </div>
+
+            <!-- Detalle de Usuarios de la Guardia -->
+            <div *ngIf="guardiaSeleccionadaDetalle">
+              <p-card>
+                <ng-template pTemplate="header">
+                  <div class="card-header">
+                    <div>
+                      <h3>Usuarios en: {{ guardiaSeleccionadaDetalle.nombre }}</h3>
+                      <small class="text-color-secondary">{{ guardiaSeleccionadaDetalle.codigo }}</small>
+                    </div>
+                  </div>
+                </ng-template>
+
+                <!-- Loading Usuarios -->
+                <div *ngIf="loadingUsuariosGuardia" class="text-center py-4">
+                  <p-progressSpinner [style]="{ width: '40px', height: '40px' }"></p-progressSpinner>
+                  <p class="mt-2 text-sm">Cargando usuarios...</p>
+                </div>
+
+                <!-- Usuarios con Acceso -->
+                <div *ngIf="!loadingUsuariosGuardia" class="mb-4">
+                  <h4 class="flex align-items-center mb-3">
+                    <i class="pi pi-check-circle mr-2 text-green-500"></i>
+                    Usuarios con Acceso ({{ getUsuariosConAcceso().length }})
+                  </h4>
+
+                  <div *ngFor="let relacion of getUsuariosConAcceso()" class="usuario-item p-3 mb-2 border-round border-1 surface-border">
+                    <div class="flex align-items-center justify-content-between">
+                      <div class="flex-1">
+                        <div class="font-semibold text-green-700">
+                          <i class="pi pi-user mr-2"></i>{{ relacion.usuarioNombre }}
+                        </div>
+                        <div class="text-sm text-color-secondary mt-1">
+                          Username: {{ relacion.usuarioUsername }}
+                        </div>
+                        <div *ngIf="relacion.observaciones" class="text-sm text-color-secondary mt-1">
+                          <i class="pi pi-info-circle mr-1"></i>{{ relacion.observaciones }}
+                        </div>
+                      </div>
+                      <div class="flex gap-2">
+                        <p-button
+                          icon="pi pi-ban"
+                          severity="warn"
+                          [text]="true"
+                          pTooltip="Restringir acceso"
+                          (onClick)="onRestringirUsuarioEnGuardia(relacion)"
+                        ></p-button>
+                        <p-button
+                          icon="pi pi-trash"
+                          severity="danger"
+                          [text]="true"
+                          pTooltip="Revocar asignaciÃ³n"
+                          (onClick)="onRevocarUsuarioDeGuardia(relacion)"
+                        ></p-button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div *ngIf="getUsuariosConAcceso().length === 0" class="text-center py-3 text-color-secondary">
+                    <i class="pi pi-inbox text-3xl mb-2"></i>
+                    <p>No hay usuarios asignados</p>
+                  </div>
+                </div>
+
+                <!-- Usuarios Restringidos -->
+                <div *ngIf="!loadingUsuariosGuardia" class="mb-4">
+                  <h4 class="flex align-items-center mb-3">
+                    <i class="pi pi-ban mr-2 text-red-500"></i>
+                    Usuarios Restringidos ({{ getUsuariosRestringidos().length }})
+                  </h4>
+
+                  <div *ngFor="let relacion of getUsuariosRestringidos()" class="usuario-item p-3 mb-2 border-round border-1 border-red-200 bg-red-50">
+                    <div class="flex align-items-center justify-content-between">
+                      <div class="flex-1">
+                        <div class="font-semibold text-red-700">
+                          <i class="pi pi-ban mr-2"></i>{{ relacion.usuarioNombre }}
+                        </div>
+                        <div class="text-sm text-color-secondary mt-1">
+                          Username: {{ relacion.usuarioUsername }}
+                        </div>
+                        <div *ngIf="relacion.motivoRestriccion" class="text-sm text-red-600 mt-1">
+                          <i class="pi pi-exclamation-triangle mr-1"></i>Motivo: {{ relacion.motivoRestriccion }}
+                        </div>
+                      </div>
+                      <div class="flex gap-2">
+                        <p-button
+                          icon="pi pi-check"
+                          severity="success"
+                          [text]="true"
+                          label="Quitar RestricciÃ³n"
+                          (onClick)="onQuitarRestriccionGuardia(relacion)"
+                        ></p-button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div *ngIf="getUsuariosRestringidos().length === 0" class="text-center py-3 text-color-secondary">
+                    <i class="pi pi-check text-3xl mb-2"></i>
+                    <p>No hay restricciones</p>
+                  </div>
+                </div>
+
+                <!-- Agregar Nuevos Usuarios -->
+                <div *ngIf="!loadingUsuariosGuardia" class="mt-4">
+                  <h4 class="mb-3">
+                    <i class="pi pi-plus-circle mr-2"></i>
+                    Agregar Usuarios
+                  </h4>
+                  <div class="flex gap-2">
+                    <p-multiSelect
+                      [options]="getUsuariosNoAsignados()"
+                      [(ngModel)]="usuariosSeleccionadosParaAsignar"
+                      optionLabel="nombreCompleto"
+                      placeholder="Seleccione usuarios..."
+                      [filter]="true"
+                      filterBy="nombreCompleto,username"
+                      styleClass="flex-1"
+                      [showHeader]="false"
+                    ></p-multiSelect>
+                    <p-button
+                      label="Asignar"
+                      icon="pi pi-check"
+                      (onClick)="onAsignarUsuariosAGuardia()"
+                      [disabled]="!usuariosSeleccionadosParaAsignar || usuariosSeleccionadosParaAsignar.length === 0"
+                    ></p-button>
+                  </div>
+                </div>
+              </p-card>
+            </div>
+          </div>
+        </div>
+      </div>
+    </p-tabPanel>
+
+    <!-- ============================================ -->
+    <!-- TAB 3: TODAS LAS RELACIONES -->
+    <!-- ============================================ -->
+    <p-tabPanel header="ðŸ” Todas las Relaciones" leftIcon="pi pi-list">
+      <div class="tab-content">
+        <p-card>
+          <ng-template pTemplate="header">
+            <div class="card-header">
+              <div>
+                <h3>Matriz Completa de Relaciones</h3>
+                <small>Vista general de todas las asignaciones y restricciones</small>
+              </div>
+              <p-button
+                icon="pi pi-refresh"
+                [text]="true"
+                pTooltip="Actualizar"
+                (onClick)="cargarTodasLasRelaciones()"
+              ></p-button>
+            </div>
+          </ng-template>
+
+          <!-- Loading -->
+          <div *ngIf="loadingTodasRelaciones" class="text-center py-5">
+            <p-progressSpinner></p-progressSpinner>
+            <p class="mt-3">Cargando relaciones...</p>
+          </div>
+
+          <!-- Tabla de Relaciones -->
+          <div *ngIf="!loadingTodasRelaciones">
+            <p-table
+              [value]="todasLasRelaciones"
+              [paginator]="true"
+              [rows]="10"
+              [showCurrentPageReport]="true"
+              currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} relaciones"
+              [rowsPerPageOptions]="[10, 25, 50]"
+              [globalFilterFields]="['usuarioNombre', 'usuarioUsername', 'guardiaNombre', 'guardiaCodigo']"
+              #dt
+            >
+              <ng-template pTemplate="caption">
+                <div class="flex align-items-center justify-content-between">
+                  <span class="text-xl font-semibold">
+                    Total: {{ todasLasRelaciones.length }} relaciones
+                  </span>
+                  <span class="p-input-icon-left">
+                    <i class="pi pi-search"></i>
+                    <input
+                      pInputText
+                      type="text"
+                      (input)="dt.filterGlobal($any($event.target).value, 'contains')"
+                      placeholder="Buscar..."
+                    />
+                  </span>
+                </div>
+              </ng-template>
+
+              <ng-template pTemplate="header">
+                <tr>
+                  <th pSortableColumn="usuarioNombre">
+                    Usuario <p-sortIcon field="usuarioNombre"></p-sortIcon>
+                  </th>
+                  <th pSortableColumn="usuarioUsername">
+                    Username <p-sortIcon field="usuarioUsername"></p-sortIcon>
+                  </th>
+                  <th pSortableColumn="guardiaNombre">
+                    Guardia <p-sortIcon field="guardiaNombre"></p-sortIcon>
+                  </th>
+                  <th pSortableColumn="guardiaCodigo">
+                    CÃ³digo <p-sortIcon field="guardiaCodigo"></p-sortIcon>
+                  </th>
+                  <th>Estado</th>
+                  <th>Observaciones</th>
+                </tr>
+              </ng-template>
+
+              <ng-template pTemplate="body" let-relacion>
+                <tr>
+                  <td>{{ relacion.usuarioNombre }}</td>
+                  <td>
+                    <span class="font-mono text-sm">{{ relacion.usuarioUsername }}</span>
+                  </td>
+                  <td>{{ relacion.guardiaNombre }}</td>
+                  <td>
+                    <p-tag [value]="relacion.guardiaCodigo" severity="info"></p-tag>
+                  </td>
+                  <td>
+                    <p-tag
+                      *ngIf="relacion.asignada && !relacion.restringida"
+                      value="âœ… Activo"
+                      severity="success"
+                    ></p-tag>
+                    <p-tag
+                      *ngIf="relacion.restringida"
+                      value="âŒ Restringido"
+                      severity="danger"
+                    ></p-tag>
+                  </td>
+                  <td>
+                    <div *ngIf="relacion.restringida && relacion.motivoRestriccion" class="text-sm">
+                      <i class="pi pi-exclamation-triangle mr-1 text-orange-500"></i>
+                      {{ relacion.motivoRestriccion }}
+                    </div>
+                    <div *ngIf="relacion.observaciones" class="text-sm text-color-secondary">
+                      {{ relacion.observaciones }}
+                    </div>
+                    <span *ngIf="!relacion.motivoRestriccion && !relacion.observaciones" class="text-color-secondary">-</span>
+                  </td>
+                </tr>
+              </ng-template>
+
+              <ng-template pTemplate="emptymessage">
+                <tr>
+                  <td colspan="6" class="text-center py-5">
+                    <i class="pi pi-inbox text-4xl mb-3 text-color-secondary"></i>
+                    <p class="text-color-secondary">No hay relaciones registradas</p>
+                  </td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
+        </p-card>
+      </div>
+    </p-tabPanel>
+  </p-tabView>
 </div>
 
+<!-- Modal de RestricciÃ³n -->
+<p-dialog
+  [(visible)]="mostrarModalRestriccion"
+  [modal]="true"
+  [style]="{ width: '500px' }"
+  header="Restringir Acceso"
+>
+  <div class="field">
+    <label for="motivoRestriccion">Motivo de la RestricciÃ³n *</label>
+    <textarea
+      id="motivoRestriccion"
+      pInputTextarea
+      [(ngModel)]="motivoRestriccionInput"
+      rows="4"
+      class="w-full"
+      placeholder="Ej: Usuario en perÃ­odo de prueba, SanciÃ³n disciplinaria, etc."
+    ></textarea>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <p-button
+      label="Cancelar"
+      icon="pi pi-times"
+      severity="secondary"
+      (onClick)="mostrarModalRestriccion = false"
+    ></p-button>
+    <p-button
+      label="Confirmar RestricciÃ³n"
+      icon="pi pi-check"
+      severity="warn"
+      (onClick)="confirmarRestriccionNuevo()"
+      [disabled]="!motivoRestriccionInput || motivoRestriccionInput.trim().length === 0"
+    ></p-button>
+  </ng-template>
+</p-dialog>

@@ -11,6 +11,7 @@ import { ChipModule } from 'primeng/chip';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { AutoCompleteModule } from 'primeng/autocomplete';
+import { MultiSelectModule } from 'primeng/multiselect';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { ToastModule } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
@@ -19,16 +20,20 @@ import { TagModule } from 'primeng/tag';
 import { BadgeModule } from 'primeng/badge';
 import { Message } from 'primeng/message';
 import { ConfirmDialog } from 'primeng/confirmdialog';
+import { TabViewModule } from 'primeng/tabview';
+import { TableModule } from 'primeng/table';
 
 import { OrgContextService } from '../../service/org-context.service';
 import { UsersService, UserEntity } from '../../service/users.service';
 import { GuardiaService } from '../../service/guardia.service';
 import { GuardiaUsuarioService } from '../../service/guardia-usuario.service';
+import { GuardiaUsuarioConsultaService, GuardiaUsuarioRelacion } from '../../service/guardia-usuario-consulta.service';
 import {
   Guardia,
   Usuario,
   GuardiaConEstado,
-  EstadoGuardia
+  EstadoGuardia,
+  RestringirGuardiaDTO
 } from '../../models/guardia.models';
 
 /**
@@ -54,13 +59,16 @@ import {
     DialogModule,
     InputTextModule,
     AutoCompleteModule,
+    MultiSelectModule,
     ProgressSpinnerModule,
     ToastModule,
     TooltipModule,
     TagModule,
     BadgeModule,
     Message,
-    ConfirmDialog
+    ConfirmDialog,
+    TabViewModule,
+    TableModule
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './administrar-guardias-por-usuario.component.html',
@@ -105,11 +113,40 @@ export class AdministrarGuardiasPorUsuarioComponent implements OnInit {
   // Enum para usar en el template
   EstadoGuardia = EstadoGuardia;
 
+  // ============================================
+  // NUEVAS PROPIEDADES: Vista mejorada con pestañas
+  // ============================================
+
+  // Tab activa (0: Usuarios→Guardias, 1: Guardias→Usuarios, 2: Restricciones)
+  activeTabIndex = 0;
+
+  // Vista Usuarios → Guardias
+  usuarioSeleccionadoDetalle: Usuario | null = null;
+  guardiasDelUsuario: GuardiaUsuarioRelacion[] = [];
+  loadingGuardiasUsuario = false;
+
+  // Vista Guardias → Usuarios
+  guardiaSeleccionadaDetalle: Guardia | null = null;
+  usuariosDeLaGuardia: GuardiaUsuarioRelacion[] = [];
+  loadingUsuariosGuardia = false;
+
+  // Vista de todas las relaciones
+  todasLasRelaciones: GuardiaUsuarioRelacion[] = [];
+  loadingTodasRelaciones = false;
+
+  // Selecciones para asignar
+  guardiasSeleccionadasParaAsignar: Guardia[] = [];
+  usuariosSeleccionadosParaAsignar: Usuario[] = [];
+
+  // Relación temporal para restricción
+  relacionParaRestringir: GuardiaUsuarioRelacion | null = null;
+
   constructor(
     private orgContext: OrgContextService,
     private usersService: UsersService,
     private guardiaService: GuardiaService,
     private guardiaUsuarioService: GuardiaUsuarioService,
+    private guardiaUsuarioConsulta: GuardiaUsuarioConsultaService,
     private messageService: MessageService,
     private confirmationService: ConfirmationService
   ) {}
@@ -787,6 +824,371 @@ export class AdministrarGuardiasPorUsuarioComponent implements OnInit {
       documento: undefined, // No disponible en UserEntity
       activo: userEntity.activo
     };
+  }
+
+  // ============================================
+  // MÉTODOS NUEVOS: Vista con Pestañas
+  // ============================================
+
+  /**
+   * Seleccionar un usuario para ver sus guardias
+   */
+  onSeleccionarUsuario(usuario: Usuario): void {
+    this.usuarioSeleccionadoDetalle = usuario;
+    this.cargarGuardiasDelUsuario(usuario.id);
+  }
+
+  /**
+   * Cargar todas las guardias de un usuario (disponibles + restringidas)
+   */
+  private cargarGuardiasDelUsuario(usuarioId: string): void {
+    this.loadingGuardiasUsuario = true;
+    this.guardiasDelUsuario = [];
+
+    this.guardiaUsuarioConsulta.getTodasGuardiasPorUsuario(usuarioId).subscribe({
+      next: (relaciones) => {
+        this.guardiasDelUsuario = relaciones;
+        this.loadingGuardiasUsuario = false;
+      },
+      error: (err) => {
+        console.error('Error al cargar guardias del usuario:', err);
+        this.mostrarError('Error al cargar las guardias del usuario');
+        this.loadingGuardiasUsuario = false;
+      }
+    });
+  }
+
+  /**
+   * Seleccionar una guardia para ver sus usuarios
+   */
+  onSeleccionarGuardia(guardia: Guardia): void {
+    this.guardiaSeleccionadaDetalle = guardia;
+    this.cargarUsuariosDeLaGuardia(guardia.id);
+  }
+
+  /**
+   * Cargar todos los usuarios de una guardia
+   */
+  private cargarUsuariosDeLaGuardia(guardiaId: string): void {
+    this.loadingUsuariosGuardia = true;
+    this.usuariosDeLaGuardia = [];
+
+    this.guardiaUsuarioConsulta.getUsuariosPorGuardia(guardiaId).subscribe({
+      next: (relaciones) => {
+        this.usuariosDeLaGuardia = relaciones;
+        this.loadingUsuariosGuardia = false;
+      },
+      error: (err) => {
+        console.error('Error al cargar usuarios de la guardia:', err);
+        this.mostrarError('Error al cargar los usuarios de la guardia');
+        this.loadingUsuariosGuardia = false;
+      }
+    });
+  }
+
+  /**
+   * Obtener guardias disponibles (asignadas y no restringidas) del usuario actual
+   */
+  getGuardiasDisponibles(): GuardiaUsuarioRelacion[] {
+    return this.guardiasDelUsuario.filter(r => r.asignada && !r.restringida);
+  }
+
+  /**
+   * Obtener guardias restringidas del usuario actual
+   */
+  getGuardiasRestringidas(): GuardiaUsuarioRelacion[] {
+    return this.guardiasDelUsuario.filter(r => r.restringida);
+  }
+
+  /**
+   * Obtener usuarios con acceso a la guardia actual
+   */
+  getUsuariosConAcceso(): GuardiaUsuarioRelacion[] {
+    return this.usuariosDeLaGuardia.filter(r => r.asignada && !r.restringida);
+  }
+
+  /**
+   * Obtener usuarios restringidos de la guardia actual
+   */
+  getUsuariosRestringidos(): GuardiaUsuarioRelacion[] {
+    return this.usuariosDeLaGuardia.filter(r => r.restringida);
+  }
+
+  /**
+   * Obtener guardias no asignadas al usuario actual
+   */
+  getGuardiasNoAsignadas(): Guardia[] {
+    const guardiasAsignadasIds = this.guardiasDelUsuario.map(r => r.guardiaId);
+    return this.guardias.filter(g => !guardiasAsignadasIds.includes(g.id));
+  }
+
+  /**
+   * Obtener usuarios no asignados a la guardia actual
+   */
+  getUsuariosNoAsignados(): Usuario[] {
+    const usuariosAsignadosIds = this.usuariosDeLaGuardia.map(r => r.usuarioId);
+    return this.usuarios.filter(u => !usuariosAsignadosIds.includes(u.id));
+  }
+
+  /**
+   * Restringir guardia para usuario
+   */
+  onRestringirGuardiaParaUsuario(relacion: GuardiaUsuarioRelacion): void {
+    this.relacionParaRestringir = relacion;
+    this.motivoRestriccionInput = '';
+    this.mostrarModalRestriccion = true;
+  }
+
+  /**
+   * Restringir usuario en guardia
+   */
+  onRestringirUsuarioEnGuardia(relacion: GuardiaUsuarioRelacion): void {
+    this.relacionParaRestringir = relacion;
+    this.motivoRestriccionInput = '';
+    this.mostrarModalRestriccion = true;
+  }
+
+  /**
+   * Confirmar restricción
+   */
+  confirmarRestriccionNuevo(): void {
+    if (!this.relacionParaRestringir || !this.motivoRestriccionInput) return;
+
+    const dto: RestringirGuardiaDTO = {
+      motivoRestriccion: this.motivoRestriccionInput.trim()
+    };
+
+    this.guardiaUsuarioService.restringir(
+      this.relacionParaRestringir.guardiaId,
+      this.relacionParaRestringir.usuarioId,
+      dto
+    ).subscribe({
+      next: () => {
+        this.mostrarExito('✅ Restricción aplicada exitosamente');
+        this.mostrarModalRestriccion = false;
+
+        // Recargar según la vista activa
+        if (this.usuarioSeleccionadoDetalle) {
+          this.cargarGuardiasDelUsuario(this.usuarioSeleccionadoDetalle.id);
+        }
+        if (this.guardiaSeleccionadaDetalle) {
+          this.cargarUsuariosDeLaGuardia(this.guardiaSeleccionadaDetalle.id);
+        }
+        if (this.activeTabIndex === 2) {
+          this.cargarTodasLasRelaciones();
+        }
+      },
+      error: (err) => {
+        console.error('Error al restringir:', err);
+        this.mostrarError('Error al aplicar la restricción');
+      }
+    });
+  }
+
+  /**
+   * Quitar restricción (usuario)
+   */
+  onQuitarRestriccionUsuario(relacion: GuardiaUsuarioRelacion): void {
+    this.confirmationService.confirm({
+      message: `¿Desea quitar la restricción de <strong>${relacion.guardiaNombre}</strong> para este usuario?`,
+      header: 'Confirmar Acción',
+      icon: 'pi pi-question-circle',
+      acceptLabel: 'Sí, quitar restricción',
+      rejectLabel: 'Cancelar',
+      accept: () => {
+        this.guardiaUsuarioService.asignar(relacion.guardiaId, relacion.usuarioId).subscribe({
+          next: () => {
+            this.mostrarExito('✅ Restricción eliminada. Usuario tiene acceso nuevamente');
+            if (this.usuarioSeleccionadoDetalle) {
+              this.cargarGuardiasDelUsuario(this.usuarioSeleccionadoDetalle.id);
+            }
+          },
+          error: (err) => {
+            console.error('Error al quitar restricción:', err);
+            this.mostrarError('Error al quitar la restricción');
+          }
+        });
+      }
+    });
+  }
+
+  /**
+   * Quitar restricción (guardia)
+   */
+  onQuitarRestriccionGuardia(relacion: GuardiaUsuarioRelacion): void {
+    this.confirmationService.confirm({
+      message: `¿Desea quitar la restricción de <strong>${relacion.usuarioNombre}</strong> en esta guardia?`,
+      header: 'Confirmar Acción',
+      icon: 'pi pi-question-circle',
+      acceptLabel: 'Sí, quitar restricción',
+      rejectLabel: 'Cancelar',
+      accept: () => {
+        this.guardiaUsuarioService.asignar(relacion.guardiaId, relacion.usuarioId).subscribe({
+          next: () => {
+            this.mostrarExito('✅ Restricción eliminada. Usuario tiene acceso nuevamente');
+            if (this.guardiaSeleccionadaDetalle) {
+              this.cargarUsuariosDeLaGuardia(this.guardiaSeleccionadaDetalle.id);
+            }
+          },
+          error: (err) => {
+            console.error('Error al quitar restricción:', err);
+            this.mostrarError('Error al quitar la restricción');
+          }
+        });
+      }
+    });
+  }
+
+  /**
+   * Revocar guardia de usuario
+   */
+  onRevocarGuardiaDeUsuario(relacion: GuardiaUsuarioRelacion): void {
+    this.confirmationService.confirm({
+      message: `¿Desea revocar el acceso de este usuario a <strong>${relacion.guardiaNombre}</strong>?<br>Esta acción eliminará completamente la asignación.`,
+      header: 'Confirmar Revocación',
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Sí, revocar',
+      rejectLabel: 'Cancelar',
+      acceptButtonStyleClass: 'p-button-danger',
+      accept: () => {
+        this.guardiaUsuarioService.revocar(relacion.guardiaId, relacion.usuarioId).subscribe({
+          next: () => {
+            this.mostrarExito('✅ Asignación revocada exitosamente');
+            if (this.usuarioSeleccionadoDetalle) {
+              this.cargarGuardiasDelUsuario(this.usuarioSeleccionadoDetalle.id);
+            }
+          },
+          error: (err) => {
+            console.error('Error al revocar:', err);
+            this.mostrarError('Error al revocar la asignación');
+          }
+        });
+      }
+    });
+  }
+
+  /**
+   * Revocar usuario de guardia
+   */
+  onRevocarUsuarioDeGuardia(relacion: GuardiaUsuarioRelacion): void {
+    this.confirmationService.confirm({
+      message: `¿Desea revocar el acceso de <strong>${relacion.usuarioNombre}</strong> a esta guardia?<br>Esta acción eliminará completamente la asignación.`,
+      header: 'Confirmar Revocación',
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Sí, revocar',
+      rejectLabel: 'Cancelar',
+      acceptButtonStyleClass: 'p-button-danger',
+      accept: () => {
+        this.guardiaUsuarioService.revocar(relacion.guardiaId, relacion.usuarioId).subscribe({
+          next: () => {
+            this.mostrarExito('✅ Asignación revocada exitosamente');
+            if (this.guardiaSeleccionadaDetalle) {
+              this.cargarUsuariosDeLaGuardia(this.guardiaSeleccionadaDetalle.id);
+            }
+          },
+          error: (err) => {
+            console.error('Error al revocar:', err);
+            this.mostrarError('Error al revocar la asignación');
+          }
+        });
+      }
+    });
+  }
+
+  /**
+   * Asignar guardias seleccionadas al usuario
+   */
+  onAsignarGuardiasAUsuario(): void {
+    if (!this.usuarioSeleccionadoDetalle || !this.guardiasSeleccionadasParaAsignar.length) return;
+
+    this.confirmationService.confirm({
+      message: `¿Desea asignar <strong>${this.guardiasSeleccionadasParaAsignar.length} guardia(s)</strong> a <strong>${this.usuarioSeleccionadoDetalle.nombreCompleto}</strong>?`,
+      header: 'Confirmar Asignación',
+      icon: 'pi pi-question-circle',
+      acceptLabel: 'Sí, asignar',
+      rejectLabel: 'Cancelar',
+      accept: async () => {
+        let exitosas = 0;
+        let fallidas = 0;
+
+        for (const guardia of this.guardiasSeleccionadasParaAsignar) {
+          try {
+            await this.guardiaUsuarioService.asignar(guardia.id, this.usuarioSeleccionadoDetalle!.id).toPromise();
+            exitosas++;
+          } catch (err) {
+            console.error(`Error asignando guardia ${guardia.nombre}:`, err);
+            fallidas++;
+          }
+        }
+
+        if (exitosas > 0) {
+          this.mostrarExito(`✅ ${exitosas} guardia(s) asignada(s) exitosamente${fallidas > 0 ? `, ${fallidas} fallida(s)` : ''}`);
+          this.guardiasSeleccionadasParaAsignar = [];
+          this.cargarGuardiasDelUsuario(this.usuarioSeleccionadoDetalle!.id);
+        } else {
+          this.mostrarError('No se pudo asignar ninguna guardia');
+        }
+      }
+    });
+  }
+
+  /**
+   * Asignar usuarios seleccionados a la guardia
+   */
+  onAsignarUsuariosAGuardia(): void {
+    if (!this.guardiaSeleccionadaDetalle || !this.usuariosSeleccionadosParaAsignar.length) return;
+
+    this.confirmationService.confirm({
+      message: `¿Desea asignar <strong>${this.usuariosSeleccionadosParaAsignar.length} usuario(s)</strong> a <strong>${this.guardiaSeleccionadaDetalle.nombre}</strong>?`,
+      header: 'Confirmar Asignación',
+      icon: 'pi pi-question-circle',
+      acceptLabel: 'Sí, asignar',
+      rejectLabel: 'Cancelar',
+      accept: async () => {
+        let exitosas = 0;
+        let fallidas = 0;
+
+        for (const usuario of this.usuariosSeleccionadosParaAsignar) {
+          try {
+            await this.guardiaUsuarioService.asignar(this.guardiaSeleccionadaDetalle!.id, usuario.id).toPromise();
+            exitosas++;
+          } catch (err) {
+            console.error(`Error asignando usuario ${usuario.username}:`, err);
+            fallidas++;
+          }
+        }
+
+        if (exitosas > 0) {
+          this.mostrarExito(`✅ ${exitosas} usuario(s) asignado(s) exitosamente${fallidas > 0 ? `, ${fallidas} fallida(s)` : ''}`);
+          this.usuariosSeleccionadosParaAsignar = [];
+          this.cargarUsuariosDeLaGuardia(this.guardiaSeleccionadaDetalle!.id);
+        } else {
+          this.mostrarError('No se pudo asignar ningún usuario');
+        }
+      }
+    });
+  }
+
+  /**
+   * Cargar todas las relaciones de la sección
+   */
+  cargarTodasLasRelaciones(): void {
+    if (!this.seccionId) return;
+
+    this.loadingTodasRelaciones = true;
+    this.todasLasRelaciones = [];
+
+    this.guardiaUsuarioConsulta.getRelacionesPorSeccion(this.seccionId).subscribe({
+      next: (relaciones) => {
+        this.todasLasRelaciones = relaciones;
+        this.loadingTodasRelaciones = false;
+      },
+      error: (err) => {
+        console.error('Error al cargar relaciones:', err);
+        this.mostrarError('Error al cargar las relaciones de la sección');
+        this.loadingTodasRelaciones = false;
+      }
+    });
   }
 
   /**

@@ -79,6 +79,8 @@ export class AdministrarGuardiasPorUsuarioComponent implements OnInit {
   // Contexto de organización y sección
   seccionId: string | null = null;
   organizacionId: string | null = null;
+  nombreSeccion: string | null = null;
+  contextoBloqueo = false;
 
   // Filtro de búsqueda
   filtroUsuario = '';
@@ -102,17 +104,30 @@ export class AdministrarGuardiasPorUsuarioComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // Obtener contexto de organización y sección
-    this.organizacionId = this.orgContext.getCurrentOrgId();
+    // Obtener contexto de organización
+    this.organizacionId = this.orgContext.value;
 
-    // Obtener sección del usuario actual (admin de sección)
-    const currentUser = this.orgContext.getCurrentUser();
-    this.seccionId = currentUser?.seccionId || null;
+    // ✅ Obtener sección desde múltiples fuentes (orden de prioridad)
+    // 1. Desde OrgContextService (más confiable)
+    // 2. Desde localStorage (loginSeccionImmutable - valor inmutable del login)
+    // 3. Desde localStorage (seccionPrincipalId - valor actual)
+    this.seccionId =
+      this.orgContext.seccion ||
+      localStorage.getItem('loginSeccionImmutable') ||
+      localStorage.getItem('seccionPrincipalId') ||
+      null;
+
+    // ✅ Detectar si el contexto está bloqueado
+    this.contextoBloqueo = this.orgContext.isLocked;
+
+    // ✅ Obtener nombre de la sección desde localStorage
+    this.nombreSeccion = localStorage.getItem('currentSectionName') || null;
 
     console.log('🔍 [AdminGuardias] Contexto:', {
-      organizacionId: this.organizacionId,
+      orgId: this.organizacionId,
       seccionId: this.seccionId,
-      currentUser
+      nombreSeccion: this.nombreSeccion,
+      bloqueado: this.contextoBloqueo
     });
 
     if (!this.organizacionId) {
@@ -127,13 +142,19 @@ export class AdministrarGuardiasPorUsuarioComponent implements OnInit {
         'Para usar este módulo, un administrador debe asignar una sección a este usuario en "Gestión de Usuarios". ' +
         'Después de asignar la sección, debe cerrar sesión y volver a iniciar sesión.'
       );
-      console.error('❌ [AdminGuardias] Usuario sin seccionId. Token JWT:', currentUser);
-      console.error('❌ [AdminGuardias] localStorage.seccionPrincipalId:', localStorage.getItem('seccionPrincipalId'));
-      console.error('❌ [AdminGuardias] localStorage.loginSeccionImmutable:', localStorage.getItem('loginSeccionImmutable'));
+      console.error('❌ [AdminGuardias] Usuario sin seccionId');
+      console.error('❌ [AdminGuardias] localStorage completo:', {
+        seccionPrincipalId: localStorage.getItem('seccionPrincipalId'),
+        loginSeccionImmutable: localStorage.getItem('loginSeccionImmutable'),
+        scopeNivel: localStorage.getItem('scopeNivel'),
+        loginScopeImmutable: localStorage.getItem('loginScopeImmutable'),
+        currentSectionName: localStorage.getItem('currentSectionName')
+      });
       return;
     }
 
-    // Cargar datos iniciales
+    // ✅ Cargar datos iniciales
+    console.log(`✅ [AdminGuardias] Cargando datos para sección: ${this.nombreSeccion || this.seccionId}`);
     this.cargarUsuarios();
     this.cargarGuardias();
   }
@@ -150,75 +171,57 @@ export class AdministrarGuardiasPorUsuarioComponent implements OnInit {
    * Cargar usuarios de la sección (rol: USUARIO)
    */
   cargarUsuarios(): void {
-    if (!this.seccionId || !this.organizacionId) {
-      console.error('❌ [AdminGuardias] No hay seccionId u organizacionId');
-      return;
-    }
+    if (!this.seccionId || !this.organizacionId) return;
 
-    console.log('📥 [AdminGuardias] Cargando USUARIOS (rol: USUARIO) de sección:', this.seccionId);
-    console.log('📥 [AdminGuardias] OrgId:', this.organizacionId);
     this.loading = true;
 
-    // Usar endpoint correcto: listar usuarios por rol USUARIO
-    console.log('📥 [AdminGuardias] 🔄 Llamando a usersService.listarPorRolYSeccion...');
+    this.usersService.list(this.organizacionId, { seccionId: this.seccionId }).subscribe({
+      next: (usuariosBackend: UserEntity[]) => {
+        // Filtrar por rol USUARIO en el frontend
+        const usuariosFiltrados = usuariosBackend.filter(u => {
+          const rolesStr = (u.rolNombres || []).join(',').toUpperCase();
+          return rolesStr.includes('USUARIO') || u.rolNombre?.toUpperCase() === 'USUARIO';
+        });
 
-    const subscription = this.usersService.listarPorRolYSeccion(this.organizacionId, 'USUARIO', this.seccionId).subscribe({
-      next: (usuarios: UserEntity[]) => {
-        console.log('✅ [AdminGuardias] Usuarios recibidos:', usuarios);
-        console.log('✅ [AdminGuardias] Cantidad de usuarios:', usuarios?.length || 0);
-        this.usuarios = usuarios.map(u => this.mapearUsuario(u));
-        console.log('✅ [AdminGuardias] Usuarios mapeados:', this.usuarios);
+        this.usuarios = usuariosFiltrados.map(u => this.mapearUsuario(u));
         this.loading = false;
       },
-      error: (err) => {
-        console.error('❌ [AdminGuardias] Error al cargar usuarios:', err);
-        console.error('❌ [AdminGuardias] Error completo:', JSON.stringify(err, null, 2));
+      error: (err: any) => {
         this.mostrarError('Error al cargar usuarios: ' + (err?.error?.message || 'Error desconocido'));
         this.loading = false;
-      },
-      complete: () => {
-        console.log('✅ [AdminGuardias] Suscripción de usuarios completada');
       }
     });
-
-    console.log('📥 [AdminGuardias] Suscripción creada:', subscription);
   }
 
   /**
    * Cargar guardias de la sección (rol: GUARDIA - personal de vigilancia)
    */
   cargarGuardias(): void {
-    if (!this.seccionId || !this.organizacionId) {
-      console.error('❌ [AdminGuardias] No hay seccionId u organizacionId');
-      return;
-    }
+    if (!this.seccionId || !this.organizacionId) return;
 
-    console.log('📥 [AdminGuardias] Cargando GUARDIAS (rol: GUARDIA - personal) de sección:', this.seccionId);
-    console.log('📥 [AdminGuardias] OrgId:', this.organizacionId);
     this.loading = true;
 
-    // Usar endpoint correcto: listar usuarios por rol GUARDIA (personal de vigilancia)
-    console.log('📥 [AdminGuardias] 🔄 Llamando a usersService.listarPorRolYSeccion...');
-
-    const subscription = this.usersService.listarPorRolYSeccion(this.organizacionId, 'GUARDIA', this.seccionId).subscribe({
-      next: (guardiasUsuarios: UserEntity[]) => {
-        console.log('✅ [AdminGuardias] Guardias (personal) recibidos:', guardiasUsuarios);
-        console.log('✅ [AdminGuardias] Cantidad de guardias:', guardiasUsuarios?.length || 0);
+    this.usersService.list(this.organizacionId, { seccionId: this.seccionId }).subscribe({
+      next: (usuariosBackend: UserEntity[]) => {
+        // Filtrar por rol GUARDIA en el frontend
+        const guardiasUsuarios = usuariosBackend.filter(u => {
+          const rolesStr = (u.rolNombres || []).join(',').toUpperCase();
+          return rolesStr.includes('GUARDIA') || u.rolNombre?.toUpperCase() === 'GUARDIA';
+        });
 
         // Mapear UserEntity a Guardia para mantener compatibilidad con el componente
         this.guardias = guardiasUsuarios.map(u => ({
           id: u.id,
-          codigo: u.username, // Usar username como código
+          codigo: u.username,
           nombre: u.nombreCompleto || u.username,
           descripcion: u.email || undefined,
           ubicacion: u.seccionNombre || undefined,
           seccionId: u.seccionId || '',
           activa: u.activo,
-          permiteEntrada: true, // Por defecto
-          permiteSalida: true  // Por defecto
+          permiteEntrada: true,
+          permiteSalida: true
         } as Guardia));
 
-        console.log('✅ [AdminGuardias] Guardias mapeadas:', this.guardias);
         this.loading = false;
 
         // Si hay usuario seleccionado, recargar su estado
@@ -226,18 +229,11 @@ export class AdministrarGuardiasPorUsuarioComponent implements OnInit {
           this.cargarEstadoGuardias();
         }
       },
-      error: (err) => {
-        console.error('❌ [AdminGuardias] Error al cargar guardias:', err);
-        console.error('❌ [AdminGuardias] Error completo:', JSON.stringify(err, null, 2));
+      error: (err: any) => {
         this.mostrarError('Error al cargar guardias: ' + (err?.error?.message || 'Error desconocido'));
         this.loading = false;
-      },
-      complete: () => {
-        console.log('✅ [AdminGuardias] Suscripción de guardias completada');
       }
     });
-
-    console.log('📥 [AdminGuardias] Suscripción creada:', subscription);
   }
 
   /**

@@ -130,23 +130,6 @@ export class ControlIngresoSalidaComponent implements OnInit, AfterViewInit {
       || localStorage.getItem('nombre')
       || 'GUARDIA';
 
-    // Logging detallado para debug
-    console.log('Contexto inicializado:', {
-      organizacionId: this.organizacionId,
-      seccionId: this.seccionId,
-      usuarioId: this.usuarioId,
-      nombreGuardia: this.nombreGuardiaUsuario
-    });
-
-    console.log('localStorage completo:', {
-      currentOrgId: localStorage.getItem('currentOrgId'),
-      seccionPrincipalId: localStorage.getItem('seccionPrincipalId'),
-      seccionId: localStorage.getItem('seccionId'),
-      userId: localStorage.getItem('userId'),
-      usuarioId: localStorage.getItem('usuarioId'),
-      username: localStorage.getItem('username'),
-      nombreCompleto: localStorage.getItem('nombreCompleto')
-    });
 
     if (!this.usuarioId) {
       this.messageService.add({
@@ -165,10 +148,6 @@ export class ControlIngresoSalidaComponent implements OnInit, AfterViewInit {
     // El guardiaId es el userId porque el usuario logueado ES la guardia
     this.guardiaId = this.usuarioId;
 
-    console.log('✅ Guardia configurada:', {
-      guardiaId: this.guardiaId,
-      nombreGuardia: this.nombreGuardiaUsuario
-    });
 
     // Mostrar mensaje de bienvenida
     this.messageService.add({
@@ -224,7 +203,6 @@ export class ControlIngresoSalidaComponent implements OnInit, AfterViewInit {
         this.determinarTipoAccion();
       },
       error: (error) => {
-        console.error('Error al validar usuario:', error);
         this.buscando = false;
         this.messageService.add({
           severity: 'error',

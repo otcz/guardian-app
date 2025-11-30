@@ -196,7 +196,7 @@ export class AuthService {
                       localStorage.setItem('scopeNivel', scope);
                     }
                   } catch (e) {
-                    console.error('Error al guardar datos de sección:', e);
+                    // Error silencioso
                   }
                 }
                 // No hay orgId: limpiar lock previo y dejar libre para selección posterior

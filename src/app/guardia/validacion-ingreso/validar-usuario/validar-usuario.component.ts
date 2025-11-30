@@ -243,11 +243,9 @@ export class ValidarUsuarioComponent implements OnInit {
     }
 
     this.buscando = true;
-    console.log('Validando usuario:', this.identificador);
 
     this.movimientoService.validarUsuario(this.identificador).subscribe({
       next: (validacion) => {
-        console.log('Validación recibida:', validacion);
         this.validacion = validacion;
         this.buscando = false;
 
@@ -268,7 +266,6 @@ export class ValidarUsuarioComponent implements OnInit {
         }
       },
       error: (error) => {
-        console.error('Error al validar usuario:', error);
         this.buscando = false;
         this.messageService.add({
           severity: 'error',

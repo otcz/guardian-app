@@ -7,6 +7,29 @@
     <p class="subtitle">Asignar y restringir guardias a múltiples usuarios de la sección</p>
   </div>
 
+  <!-- Información de contexto de sección -->
+  <p-card *ngIf="seccionId && nombreSeccion" class="context-card mb-3" styleClass="border-primary">
+    <div class="flex align-items-center gap-3">
+      <i class="pi pi-map-marker" style="font-size: 1.5rem; color: var(--primary-color);"></i>
+      <div class="flex-1">
+        <div class="font-bold text-lg">{{ nombreSeccion }}</div>
+        <div class="text-sm text-color-secondary">
+          Sección actual: <code class="bg-primary-50 px-2 py-1 border-round">{{ seccionId }}</code>
+        </div>
+        <div class="text-sm text-color-secondary mt-1">
+          <i class="pi pi-info-circle"></i>
+          Mostrando usuarios y personal de guardia de esta sección únicamente
+        </div>
+      </div>
+      <p-tag
+        icon="pi pi-lock"
+        value="CONTEXTO BLOQUEADO"
+        severity="info"
+        *ngIf="contextoBloqueo"
+      ></p-tag>
+    </div>
+  </p-card>
+
   <!-- Mensaje de error global -->
   <p-card *ngIf="error" class="error-card">
     <div class="flex align-items-center gap-2">
@@ -21,7 +44,13 @@
     <p-card class="usuarios-card">
       <ng-template pTemplate="header">
         <div class="card-header">
-          <h3>Usuarios ({{ usuariosSeleccionados.length }} seleccionado(s))</h3>
+          <div>
+            <h3>Usuarios ({{ usuariosSeleccionados.length }} seleccionado(s))</h3>
+            <div class="text-xs text-color-secondary mt-1" *ngIf="seccionId">
+              <i class="pi pi-filter"></i>
+              Filtrado por sección: {{ nombreSeccion || seccionId }}
+            </div>
+          </div>
           <div class="flex align-items-center gap-2">
             <p-checkbox
               [(ngModel)]="todosUsuariosSeleccionados"
@@ -96,7 +125,13 @@
     <p-card class="guardias-card">
       <ng-template pTemplate="header">
         <div class="card-header">
-          <h3>Guardias ({{ guardiasSeleccionadas.length }} seleccionada(s))</h3>
+          <div>
+            <h3>Personal de Guardia ({{ guardiasSeleccionadas.length }} seleccionada(s))</h3>
+            <div class="text-xs text-color-secondary mt-1" *ngIf="seccionId">
+              <i class="pi pi-filter"></i>
+              Filtrado por sección: {{ nombreSeccion || seccionId }}
+            </div>
+          </div>
           <div class="flex align-items-center gap-2">
             <p-checkbox
               [(ngModel)]="todasGuardiasSeleccionadas"

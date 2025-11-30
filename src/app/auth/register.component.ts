@@ -256,8 +256,6 @@ export class RegisterComponent implements OnInit, OnDestroy {
       nombreCompleto: nombreCompleto || undefined,
       email: email || undefined
     };
-    // Único log: qué se envía al backend cuando se crea usuario (directo)
-    console.log('[REGISTER][REQUEST]', { action: 'direct-create', orgId, body: createBody });
     this.users.create(orgId, createBody).subscribe({
       next: () => { this.notifyAndRedirect('Usuario creado correctamente. Te redirigiremos al login en 5 segundos.'); },
       error: (e: any) => { this.errorMsg = e?.error?.message || e?.message || 'Error al crear usuario'; this.loading = false; }

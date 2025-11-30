@@ -97,7 +97,6 @@ export class VehiculosGestionarComponent implements OnInit {
         this.showBloqueado = this.isAdmin; // visible; se deshabilita con canUpdateBloqueado
       },
       error: (e: any) => {
-        console.warn('[VehiculosGestionarComponent] GET capabilities error:', e);
         this.canUpdateBloqueado = false;
         this.capabilitiesMsg = e?.error?.message || 'No autorizado';
         this.showBloqueado = this.isAdmin; // visible pero deshabilitado

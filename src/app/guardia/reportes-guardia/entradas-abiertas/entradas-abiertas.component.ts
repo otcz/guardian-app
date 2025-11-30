@@ -202,7 +202,6 @@ export class EntradasAbiertasComponent implements OnInit {
         }
       },
       error: (error) => {
-        console.error('Error al cargar entradas abiertas:', error);
         this.loading = false;
         this.messageService.add({
           severity: 'error',
@@ -247,7 +246,6 @@ export class EntradasAbiertasComponent implements OnInit {
 
   verDetalle(movimiento: MovimientoGuardia): void {
     // TODO: Implementar modal con detalle completo
-    console.log('Ver detalle:', movimiento);
     this.messageService.add({
       severity: 'info',
       summary: 'Detalle',

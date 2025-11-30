@@ -545,20 +545,18 @@ export class MenuService {
       uiOnly.forEach(p => extraInUI.push(p));
 
       if (missingInUI.length > 0) {
-        console.warn('[MenuAudit] Opciones recibidas no renderizadas en UI:', missingInUI);
         const preview = missingInUI.slice(0, 4).join(', ');
         const detail = missingInUI.length > 4 ? `${preview}, y ${missingInUI.length - 4} más…` : preview;
         this.notify.warn('Alerta de menú', `Hay ${missingInUI.length} opciones sin vista: ${detail}`);
       }
 
       if (extraInUI.length > 0) {
-        console.warn('[MenuAudit] Items en UI no presentes en opcionesDetalle:', extraInUI);
         const preview = extraInUI.slice(0, 4).join(', ');
         const detail = extraInUI.length > 4 ? `${preview}, y ${extraInUI.length - 4} más…` : preview;
         this.notify.info('Menú adicional', `Se detectaron ${extraInUI.length} items locales: ${detail}`);
       }
     } catch (e) {
-      console.warn('[MenuAudit] No se pudo auditar menús:', e);
+      // Error silencioso
     }
   }
 }

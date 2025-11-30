@@ -332,13 +332,6 @@ export class UsersService {
       params: queryParams
     };
 
-    try {
-      const queryString = Object.keys(queryParams).length > 0
-        ? '?' + Object.entries(queryParams).map(([k, v]) => `${k}=${v}`).join('&')
-        : '';
-      console.log('[UsersService] 📡 GET', `${path}${queryString}`);
-      console.log('[UsersService] ℹ️ Backend aplicará filtrado automático según rol de usuario autenticado');
-    } catch {}
 
     return this.http.get<any>(url, httpOptions).pipe(
       map((payload: any) => this.toApiResponse(payload)),

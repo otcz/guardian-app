@@ -142,14 +142,14 @@
                 <!-- Guardias Asignadas (Disponibles) -->
                 <div *ngIf="!loadingGuardiasUsuario" class="mb-4">
                   <h4 class="flex align-items-center mb-3">
-                    <i class="pi pi-check-circle mr-2 text-green-500"></i>
+                    <i class="pi pi-check-circle mr-2 success-color"></i>
                     Guardias Asignadas ({{ getGuardiasDisponibles().length }})
                   </h4>
 
                   <div *ngFor="let relacion of getGuardiasDisponibles()" class="guardia-item p-3 mb-2 border-round border-1 surface-border">
                     <div class="flex align-items-center justify-content-between">
                       <div class="flex-1">
-                        <div class="font-semibold text-green-700">
+                        <div class="font-semibold success-color">
                           <i class="pi pi-map-marker mr-2"></i>{{ relacion.guardiaNombre }}
                         </div>
                         <div class="text-sm text-color-secondary mt-1">
@@ -187,20 +187,20 @@
                 <!-- Guardias Restringidas -->
                 <div *ngIf="!loadingGuardiasUsuario" class="mb-4">
                   <h4 class="flex align-items-center mb-3">
-                    <i class="pi pi-ban mr-2 text-red-500"></i>
+                    <i class="pi pi-ban mr-2 danger-color"></i>
                     Guardias Restringidas ({{ getGuardiasRestringidas().length }})
                   </h4>
 
-                  <div *ngFor="let relacion of getGuardiasRestringidas()" class="guardia-item p-3 mb-2 border-round border-1 border-red-200 bg-red-50">
+                  <div *ngFor="let relacion of getGuardiasRestringidas()" class="guardia-item p-3 mb-2 border-round border-1 border-danger bg-danger-light">
                     <div class="flex align-items-center justify-content-between">
                       <div class="flex-1">
-                        <div class="font-semibold text-red-700">
+                        <div class="font-semibold danger-color">
                           <i class="pi pi-ban mr-2"></i>{{ relacion.guardiaNombre }}
                         </div>
                         <div class="text-sm text-color-secondary mt-1">
                           CÃ³digo: {{ relacion.guardiaCodigo }}
                         </div>
-                        <div *ngIf="relacion.motivoRestriccion" class="text-sm text-red-600 mt-1">
+                        <div *ngIf="relacion.motivoRestriccion" class="text-sm danger-color mt-1">
                           <i class="pi pi-exclamation-triangle mr-1"></i>Motivo: {{ relacion.motivoRestriccion }}
                         </div>
                       </div>
@@ -344,14 +344,14 @@
                 <!-- Usuarios con Acceso -->
                 <div *ngIf="!loadingUsuariosGuardia" class="mb-4">
                   <h4 class="flex align-items-center mb-3">
-                    <i class="pi pi-check-circle mr-2 text-green-500"></i>
+                    <i class="pi pi-check-circle mr-2 success-color"></i>
                     Usuarios con Acceso ({{ getUsuariosConAcceso().length }})
                   </h4>
 
                   <div *ngFor="let relacion of getUsuariosConAcceso()" class="usuario-item p-3 mb-2 border-round border-1 surface-border">
                     <div class="flex align-items-center justify-content-between">
                       <div class="flex-1">
-                        <div class="font-semibold text-green-700">
+                        <div class="font-semibold success-color">
                           <i class="pi pi-user mr-2"></i>{{ relacion.usuarioNombre }}
                         </div>
                         <div class="text-sm text-color-secondary mt-1">
@@ -389,20 +389,20 @@
                 <!-- Usuarios Restringidos -->
                 <div *ngIf="!loadingUsuariosGuardia" class="mb-4">
                   <h4 class="flex align-items-center mb-3">
-                    <i class="pi pi-ban mr-2 text-red-500"></i>
+                    <i class="pi pi-ban mr-2 danger-color"></i>
                     Usuarios Restringidos ({{ getUsuariosRestringidos().length }})
                   </h4>
 
-                  <div *ngFor="let relacion of getUsuariosRestringidos()" class="usuario-item p-3 mb-2 border-round border-1 border-red-200 bg-red-50">
+                  <div *ngFor="let relacion of getUsuariosRestringidos()" class="usuario-item p-3 mb-2 border-round border-1 border-danger bg-danger-light">
                     <div class="flex align-items-center justify-content-between">
                       <div class="flex-1">
-                        <div class="font-semibold text-red-700">
+                        <div class="font-semibold danger-color">
                           <i class="pi pi-ban mr-2"></i>{{ relacion.usuarioNombre }}
                         </div>
                         <div class="text-sm text-color-secondary mt-1">
                           Username: {{ relacion.usuarioUsername }}
                         </div>
-                        <div *ngIf="relacion.motivoRestriccion" class="text-sm text-red-600 mt-1">
+                        <div *ngIf="relacion.motivoRestriccion" class="text-sm danger-color mt-1">
                           <i class="pi pi-exclamation-triangle mr-1"></i>Motivo: {{ relacion.motivoRestriccion }}
                         </div>
                       </div>
@@ -455,134 +455,10 @@
         </div>
       </div>
     </p-tabPanel>
-
-    <!-- ============================================ -->
-    <!-- TAB 3: TODAS LAS RELACIONES -->
-    <!-- ============================================ -->
-    <p-tabPanel header="ðŸ” Todas las Relaciones" leftIcon="pi pi-list">
-      <div class="tab-content">
-        <p-card>
-          <ng-template pTemplate="header">
-            <div class="card-header">
-              <div>
-                <h3>Matriz Completa de Relaciones</h3>
-                <small>Vista general de todas las asignaciones y restricciones</small>
-              </div>
-              <p-button
-                icon="pi pi-refresh"
-                [text]="true"
-                pTooltip="Actualizar"
-                (onClick)="cargarTodasLasRelaciones()"
-              ></p-button>
-            </div>
-          </ng-template>
-
-          <!-- Loading -->
-          <div *ngIf="loadingTodasRelaciones" class="text-center py-5">
-            <p-progressSpinner></p-progressSpinner>
-            <p class="mt-3">Cargando relaciones...</p>
-          </div>
-
-          <!-- Tabla de Relaciones -->
-          <div *ngIf="!loadingTodasRelaciones">
-            <p-table
-              [value]="todasLasRelaciones"
-              [paginator]="true"
-              [rows]="10"
-              [showCurrentPageReport]="true"
-              currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} relaciones"
-              [rowsPerPageOptions]="[10, 25, 50]"
-              [globalFilterFields]="['usuarioNombre', 'usuarioUsername', 'guardiaNombre', 'guardiaCodigo']"
-              #dt
-            >
-              <ng-template pTemplate="caption">
-                <div class="flex align-items-center justify-content-between">
-                  <span class="text-xl font-semibold">
-                    Total: {{ todasLasRelaciones.length }} relaciones
-                  </span>
-                  <span class="p-input-icon-left">
-                    <i class="pi pi-search"></i>
-                    <input
-                      pInputText
-                      type="text"
-                      (input)="dt.filterGlobal($any($event.target).value, 'contains')"
-                      placeholder="Buscar..."
-                    />
-                  </span>
-                </div>
-              </ng-template>
-
-              <ng-template pTemplate="header">
-                <tr>
-                  <th pSortableColumn="usuarioNombre">
-                    Usuario <p-sortIcon field="usuarioNombre"></p-sortIcon>
-                  </th>
-                  <th pSortableColumn="usuarioUsername">
-                    Username <p-sortIcon field="usuarioUsername"></p-sortIcon>
-                  </th>
-                  <th pSortableColumn="guardiaNombre">
-                    Guardia <p-sortIcon field="guardiaNombre"></p-sortIcon>
-                  </th>
-                  <th pSortableColumn="guardiaCodigo">
-                    CÃ³digo <p-sortIcon field="guardiaCodigo"></p-sortIcon>
-                  </th>
-                  <th>Estado</th>
-                  <th>Observaciones</th>
-                </tr>
-              </ng-template>
-
-              <ng-template pTemplate="body" let-relacion>
-                <tr>
-                  <td>{{ relacion.usuarioNombre }}</td>
-                  <td>
-                    <span class="font-mono text-sm">{{ relacion.usuarioUsername }}</span>
-                  </td>
-                  <td>{{ relacion.guardiaNombre }}</td>
-                  <td>
-                    <p-tag [value]="relacion.guardiaCodigo" severity="info"></p-tag>
-                  </td>
-                  <td>
-                    <p-tag
-                      *ngIf="relacion.asignada && !relacion.restringida"
-                      value="âœ… Activo"
-                      severity="success"
-                    ></p-tag>
-                    <p-tag
-                      *ngIf="relacion.restringida"
-                      value="âŒ Restringido"
-                      severity="danger"
-                    ></p-tag>
-                  </td>
-                  <td>
-                    <div *ngIf="relacion.restringida && relacion.motivoRestriccion" class="text-sm">
-                      <i class="pi pi-exclamation-triangle mr-1 text-orange-500"></i>
-                      {{ relacion.motivoRestriccion }}
-                    </div>
-                    <div *ngIf="relacion.observaciones" class="text-sm text-color-secondary">
-                      {{ relacion.observaciones }}
-                    </div>
-                    <span *ngIf="!relacion.motivoRestriccion && !relacion.observaciones" class="text-color-secondary">-</span>
-                  </td>
-                </tr>
-              </ng-template>
-
-              <ng-template pTemplate="emptymessage">
-                <tr>
-                  <td colspan="6" class="text-center py-5">
-                    <i class="pi pi-inbox text-4xl mb-3 text-color-secondary"></i>
-                    <p class="text-color-secondary">No hay relaciones registradas</p>
-                  </td>
-                </tr>
-              </ng-template>
-            </p-table>
-          </div>
-        </p-card>
-      </div>
-    </p-tabPanel>
   </p-tabView>
 </div>
 
-<!-- Modal de RestricciÃ³n -->
+<!-- Modal de Restricción -->
 <p-dialog
   [(visible)]="mostrarModalRestriccion"
   [modal]="true"

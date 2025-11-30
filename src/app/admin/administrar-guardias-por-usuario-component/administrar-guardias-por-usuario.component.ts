@@ -21,7 +21,6 @@ import { BadgeModule } from 'primeng/badge';
 import { Message } from 'primeng/message';
 import { ConfirmDialog } from 'primeng/confirmdialog';
 import { TabViewModule } from 'primeng/tabview';
-import { TableModule } from 'primeng/table';
 
 import { OrgContextService } from '../../service/org-context.service';
 import { UsersService, UserEntity } from '../../service/users.service';
@@ -67,8 +66,7 @@ import {
     BadgeModule,
     Message,
     ConfirmDialog,
-    TabViewModule,
-    TableModule
+    TabViewModule
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './administrar-guardias-por-usuario.component.html',

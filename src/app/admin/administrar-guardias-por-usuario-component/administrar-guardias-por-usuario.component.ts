@@ -14,9 +14,11 @@ import { AutoCompleteModule } from 'primeng/autocomplete';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { ToastModule } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
-import { MessageService } from 'primeng/api';
+import { MessageService, ConfirmationService } from 'primeng/api';
 import { TagModule } from 'primeng/tag';
 import { BadgeModule } from 'primeng/badge';
+import { Message } from 'primeng/message';
+import { ConfirmDialog } from 'primeng/confirmdialog';
 
 import { OrgContextService } from '../../service/org-context.service';
 import { UsersService, UserEntity } from '../../service/users.service';
@@ -56,9 +58,11 @@ import {
     ToastModule,
     TooltipModule,
     TagModule,
-    BadgeModule
+    BadgeModule,
+    Message,
+    ConfirmDialog
   ],
-  providers: [MessageService],
+  providers: [MessageService, ConfirmationService],
   templateUrl: './administrar-guardias-por-usuario.component.html',
   styleUrls: ['./administrar-guardias-por-usuario.component.scss']
 })
@@ -85,6 +89,7 @@ export class AdministrarGuardiasPorUsuarioComponent implements OnInit {
   seccionId: string | null = null;
   organizacionId: string | null = null;
   nombreSeccion: string | null = null;
+  nombreOrganizacion: string | null = null;
   contextoBloqueo = false;
 
   // Filtro de búsqueda
@@ -105,7 +110,8 @@ export class AdministrarGuardiasPorUsuarioComponent implements OnInit {
     private usersService: UsersService,
     private guardiaService: GuardiaService,
     private guardiaUsuarioService: GuardiaUsuarioService,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private confirmationService: ConfirmationService
   ) {}
 
   ngOnInit(): void {
@@ -121,8 +127,9 @@ export class AdministrarGuardiasPorUsuarioComponent implements OnInit {
     // ✅ Detectar si el contexto está bloqueado
     this.contextoBloqueo = this.orgContext.isLocked;
 
-    // ✅ Obtener nombre de la sección desde localStorage
+    // ✅ Obtener nombres desde localStorage
     this.nombreSeccion = localStorage.getItem('currentSectionName') || null;
+    this.nombreOrganizacion = localStorage.getItem('currentOrgName') || null;
 
 
     if (!this.organizacionId) {
@@ -353,12 +360,19 @@ export class AdministrarGuardiasPorUsuarioComponent implements OnInit {
       return;
     }
 
-    const confirmacion = confirm(
-      `¿Desea asignar ${this.guardiasSeleccionadas.length} guardia(s) a ${this.usuariosSeleccionados.length} usuario(s)?`
-    );
+    this.confirmationService.confirm({
+      message: `¿Desea asignar <strong>${this.guardiasSeleccionadas.length} guardia(s)</strong> a <strong>${this.usuariosSeleccionados.length} usuario(s)</strong>?`,
+      header: 'Confirmar Asignación',
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Sí, asignar',
+      rejectLabel: 'Cancelar',
+      accept: async () => {
+        await this.ejecutarAsignacion();
+      }
+    });
+  }
 
-    if (!confirmacion) return;
-
+  private async ejecutarAsignacion(): Promise<void> {
     this.loading = true;
     let exitosas = 0;
     let fallidas = 0;
@@ -457,12 +471,20 @@ export class AdministrarGuardiasPorUsuarioComponent implements OnInit {
       return;
     }
 
-    const confirmacion = confirm(
-      `¿Desea revocar ${this.guardiasSeleccionadas.length} guardia(s) de ${this.usuariosSeleccionados.length} usuario(s)?`
-    );
+    this.confirmationService.confirm({
+      message: `¿Desea revocar <strong>${this.guardiasSeleccionadas.length} guardia(s)</strong> de <strong>${this.usuariosSeleccionados.length} usuario(s)</strong>?`,
+      header: 'Confirmar Revocación',
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Sí, revocar',
+      rejectLabel: 'Cancelar',
+      acceptButtonStyleClass: 'p-button-danger',
+      accept: async () => {
+        await this.ejecutarRevocacion();
+      }
+    });
+  }
 
-    if (!confirmacion) return;
-
+  private async ejecutarRevocacion(): Promise<void> {
     this.loading = true;
     let exitosas = 0;
     let fallidas = 0;

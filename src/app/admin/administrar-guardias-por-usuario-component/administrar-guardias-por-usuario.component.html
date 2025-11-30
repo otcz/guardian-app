@@ -1,4 +1,5 @@
 <p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
 
 <div class="administrar-guardias-container">
   <!-- Encabezado -->
@@ -7,28 +8,31 @@
     <p class="subtitle">Asignar y restringir guardias a múltiples usuarios de la sección</p>
   </div>
 
-  <!-- Información de contexto de sección -->
-  <p-card *ngIf="seccionId && nombreSeccion" class="context-card mb-3" styleClass="border-primary">
-    <div class="flex align-items-center gap-3">
-      <i class="pi pi-map-marker" style="font-size: 1.5rem; color: var(--primary-color);"></i>
-      <div class="flex-1">
-        <div class="font-bold text-lg">{{ nombreSeccion }}</div>
-        <div class="text-sm text-color-secondary">
-          Sección actual: <code class="bg-primary-50 px-2 py-1 border-round">{{ seccionId }}</code>
-        </div>
-        <div class="text-sm text-color-secondary mt-1">
-          <i class="pi pi-info-circle"></i>
-          Mostrando usuarios y personal de guardia de esta sección únicamente
-        </div>
+  <!-- Información de contexto de sección - Compacto -->
+  <p-message
+    *ngIf="seccionId && nombreSeccion"
+    severity="info"
+    styleClass="mb-3 w-full"
+  >
+    <div class="flex align-items-center justify-content-between">
+      <div class="flex align-items-center">
+        <i class="pi pi-map-marker mr-2"></i>
+        <span>
+          <strong>Contexto:</strong>
+          <span class="ml-2">{{ nombreOrganizacion || 'Organización' }}</span>
+          <i class="pi pi-angle-right mx-2"></i>
+          <span>{{ nombreSeccion }}</span>
+        </span>
       </div>
       <p-tag
         icon="pi pi-lock"
         value="CONTEXTO BLOQUEADO"
         severity="info"
         *ngIf="contextoBloqueo"
+        styleClass="ml-2"
       ></p-tag>
     </div>
-  </p-card>
+  </p-message>
 
   <!-- Mensaje de error global -->
   <p-card *ngIf="error" class="error-card">

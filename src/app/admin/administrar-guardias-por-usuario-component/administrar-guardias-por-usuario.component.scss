@@ -1,15 +1,25 @@
-/* Estilos personalizados para Administrar Guardias por Usuario */
-/* Alineado con la paleta de colores del proyecto */
+/* ============================================ */
+/* Estilos Administrar Guardias por Usuario */
+/* Totalmente alineado con paleta del proyecto */
+/* Soporte: Modo Claro, Oscuro y Negro */
+/* ============================================ */
 
 .administrar-guardias-container {
   padding: 1.5rem;
+  min-height: calc(100vh - 120px);
+  background: var(--bg);
 
-  /* Header mejorado */
+  /* ========== HEADER ========== */
   .header {
     margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: var(--surface);
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 
     h1 {
-      font-size: 1.75rem;
+      font-size: 1.875rem;
       font-weight: 700;
       color: var(--text);
       margin: 0 0 0.5rem 0;
@@ -19,54 +29,84 @@
 
       i {
         color: var(--primary);
+        font-size: 1.75rem;
       }
     }
 
     .subtitle {
       color: var(--muted);
-      font-size: 0.95rem;
+      font-size: 1rem;
       margin: 0;
+      font-weight: 500;
     }
   }
 
-  /* Tabs personalizados */
+  /* ========== TABS PERSONALIZADOS ========== */
   ::ng-deep .custom-tabview {
+    background: var(--surface);
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+
     .p-tabview-nav {
       background: var(--surface);
       border-bottom: 2px solid var(--border);
-      padding: 0.5rem 1rem;
-      border-radius: 14px 14px 0 0;
+      padding: 0.75rem 1rem 0 1rem;
+      margin: 0;
 
       .p-tabview-nav-link {
         background: transparent;
         border: none;
         color: var(--muted);
         font-weight: 600;
-        padding: 0.875rem 1.5rem;
-        transition: all 0.3s ease;
-        border-radius: 10px;
+        font-size: 1rem;
+        padding: 1rem 1.75rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border-radius: 10px 10px 0 0;
+        margin: 0 0.25rem;
+        position: relative;
 
         &:hover {
           background: var(--bg);
           color: var(--text);
+          transform: translateY(-2px);
+        }
+
+        .p-tabview-left-icon {
+          font-size: 1.125rem;
+          margin-right: 0.5rem;
         }
       }
 
-      .p-tabview-selected .p-tabview-nav-link {
-        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-600) 100%);
-        color: #ffffff !important;
-        box-shadow: 0 4px 12px rgba(79, 140, 255, 0.3);
+      .p-tabview-selected {
+        .p-tabview-nav-link {
+          background: linear-gradient(135deg, var(--primary) 0%, var(--primary-600) 100%);
+          color: #ffffff !important;
+          box-shadow: 0 4px 12px rgba(79, 140, 255, 0.4),
+                      0 2px 6px rgba(79, 140, 255, 0.2);
+          border: none;
+
+          &::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--primary);
+          }
+        }
       }
     }
 
     .p-tabview-panels {
       background: var(--surface);
-      padding: 1.5rem;
-      border-radius: 0 0 14px 14px;
+      padding: 2rem;
     }
   }
 
-  /* Cards de lista */
+  /* ========== CARDS ========== */
   ::ng-deep p-card {
     .p-card {
       background: var(--surface);
@@ -74,183 +114,351 @@
       border-radius: 14px;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
       transition: all 0.3s ease;
+      overflow: hidden;
 
       &:hover {
         box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+        transform: translateY(-2px);
       }
 
       .p-card-header {
         background: var(--bg);
-        padding: 1.25rem 1.5rem;
+        padding: 1.5rem;
         border-bottom: 1px solid var(--border);
-        border-radius: 14px 14px 0 0;
 
         .card-header {
           h3 {
             margin: 0 0 0.25rem 0;
             color: var(--text);
-            font-size: 1.125rem;
+            font-size: 1.25rem;
             font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+
+            i {
+              color: var(--primary);
+            }
           }
 
           small {
             color: var(--muted);
             font-size: 0.875rem;
+            font-weight: 500;
           }
         }
       }
 
-      .p-card-body, .p-card-content {
+      .p-card-body,
+      .p-card-content {
         padding: 1.5rem;
+        background: var(--surface);
       }
     }
   }
 
-  /* Items de usuario/guardia con hover mejorado */
-  .usuario-item, .guardia-item {
+  /* ========== LISTAS DE USUARIOS/GUARDIAS ========== */
+  .usuarios-list,
+  .guardias-list {
+    max-height: 500px;
+    overflow-y: auto;
+    padding-right: 0.5rem;
+
+    /* Scrollbar personalizado */
+    &::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: var(--bg);
+      border-radius: 10px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 10px;
+
+      &:hover {
+        background: var(--muted);
+      }
+    }
+  }
+
+  .usuario-item,
+  .guardia-item {
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     border-radius: 10px;
+    margin-bottom: 0.5rem;
+    border: 1px solid transparent;
 
     &:hover {
       background: var(--bg);
-      transform: translateX(4px);
+      transform: translateX(6px);
+      border-color: var(--border);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
     }
 
     &.selected {
-      background: var(--bg);
+      background: linear-gradient(90deg, var(--bg) 0%, var(--surface) 100%);
       border-left: 4px solid var(--primary);
-      box-shadow: 0 2px 8px rgba(79, 140, 255, 0.15);
-    }
-  }
-
-  /* Estados visuales mejorados con paleta del proyecto */
-  .guardia-item, .usuario-item {
-    /* Asignado/Con Acceso - Success */
-    &.status-asignada {
-      border-left: 3px solid var(--success);
-      background: var(--success-100);
+      box-shadow: 0 2px 12px rgba(79, 140, 255, 0.15);
+      transform: translateX(4px);
 
       .font-semibold {
-        color: var(--success) !important;
+        color: var(--primary);
       }
     }
 
-    /* Restringido - Danger */
-    &.status-restringida {
-      border-left: 3px solid var(--danger);
-      background: var(--danger-100);
+    .font-semibold {
+      font-weight: 600;
+      color: var(--text);
+      font-size: 1rem;
+    }
 
-      .font-semibold {
-        color: var(--danger) !important;
+    .text-sm {
+      font-size: 0.875rem;
+      color: var(--muted);
+      margin-top: 0.25rem;
+
+      i {
+        font-size: 0.75rem;
       }
+    }
+
+    .pi-chevron-right {
+      color: var(--muted);
+      transition: all 0.3s ease;
+    }
+
+    &:hover .pi-chevron-right {
+      color: var(--primary);
+      transform: translateX(4px);
     }
   }
 
-  /* Colores de íconos alineados con paleta */
-  i.pi {
-    &.text-green-500, &.text-green-700 {
-      color: var(--success) !important;
+  /* ========== ESTADOS: ASIGNADAS Y RESTRINGIDAS ========== */
+  h4 {
+    color: var(--text);
+    font-weight: 700;
+    font-size: 1.125rem;
+    margin: 1.5rem 0 1rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    i.pi-check-circle {
+      color: var(--success);
+      font-size: 1.25rem;
     }
 
-    &.text-red-500, &.text-red-700, &.text-red-600 {
+    i.pi-ban {
+      color: var(--danger);
+      font-size: 1.25rem;
+    }
+  }
+
+  /* Cards de guardias/usuarios asignados */
+  .status-asignada,
+  .guardia-item:has(.success-color),
+  .usuario-item:has(.success-color) {
+    border-left: 3px solid var(--success);
+    background: var(--success-100);
+
+    &:hover {
+      background: color-mix(in srgb, var(--success-100) 90%, var(--bg));
+      box-shadow: 0 4px 12px rgba(22, 163, 74, 0.15);
+    }
+  }
+
+  /* Cards de guardias/usuarios restringidos */
+  .status-restringida,
+  .border-danger {
+    border-left: 3px solid var(--danger) !important;
+    background: var(--danger-100) !important;
+
+    &:hover {
+      background: color-mix(in srgb, var(--danger-100) 90%, var(--bg)) !important;
+      box-shadow: 0 4px 12px rgba(229, 62, 62, 0.15);
+    }
+
+    .font-semibold {
       color: var(--danger) !important;
     }
-
-    &.text-color-secondary {
-      color: var(--muted) !important;
-    }
   }
 
-  /* Botones de acción personalizados */
+  /* ========== BOTONES ========== */
   ::ng-deep p-button {
     .p-button {
       border-radius: 10px;
       font-weight: 600;
-      transition: all 0.3s ease;
+      font-size: 0.9375rem;
+      padding: 0.75rem 1.25rem;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       border: none;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      }
+
+      &:active {
+        transform: translateY(0);
+      }
+
+      /* Botón primario */
+      &.p-button-primary {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-600) 100%);
+        color: #ffffff;
+
+        &:hover {
+          background: linear-gradient(135deg, var(--primary-600) 0%, var(--primary) 100%);
+          box-shadow: 0 4px 16px rgba(79, 140, 255, 0.4);
+        }
+      }
+
+      /* Botón success */
       &.p-button-success {
         background: var(--success);
+        color: #ffffff;
 
         &:hover {
-          background: color-mix(in srgb, var(--success) 85%, black);
-          box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
+          background: color-mix(in srgb, var(--success) 90%, black);
+          box-shadow: 0 4px 16px rgba(22, 163, 74, 0.4);
         }
       }
 
+      /* Botón danger */
       &.p-button-danger {
         background: var(--danger);
+        color: #ffffff;
 
         &:hover {
-          background: color-mix(in srgb, var(--danger) 85%, black);
-          box-shadow: 0 4px 12px rgba(229, 62, 62, 0.3);
+          background: color-mix(in srgb, var(--danger) 90%, black);
+          box-shadow: 0 4px 16px rgba(229, 62, 62, 0.4);
         }
       }
 
+      /* Botón warn */
       &.p-button-warn {
         background: #f59e0b;
+        color: #ffffff;
 
         &:hover {
           background: #d97706;
-          box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+          box-shadow: 0 4px 16px rgba(245, 158, 11, 0.4);
         }
       }
 
+      /* Botón secondary */
+      &.p-button-secondary {
+        background: var(--muted);
+        color: #ffffff;
+
+        &:hover {
+          background: color-mix(in srgb, var(--muted) 85%, black);
+        }
+      }
+
+      /* Botón text */
       &.p-button-text {
         background: transparent;
         color: var(--muted);
+        box-shadow: none;
+        padding: 0.5rem 0.75rem;
 
         &:hover {
           background: var(--bg);
           color: var(--text);
+          box-shadow: none;
+        }
+
+        &.p-button-success {
+          color: var(--success);
+
+          &:hover {
+            background: var(--success-100);
+            color: var(--success);
+          }
+        }
+
+        &.p-button-danger {
+          color: var(--danger);
+
+          &:hover {
+            background: var(--danger-100);
+            color: var(--danger);
+          }
+        }
+
+        &.p-button-warn {
+          color: #f59e0b;
+
+          &:hover {
+            background: #fef3c7;
+          }
         }
       }
     }
   }
 
-  /* Tags personalizados */
+  /* ========== TAGS ========== */
   ::ng-deep p-tag {
     .p-tag {
       border-radius: 6px;
       font-weight: 600;
-      font-size: 0.75rem;
-      padding: 0.375rem 0.75rem;
+      font-size: 0.8125rem;
+      padding: 0.5rem 0.875rem;
+      border: 1px solid;
 
       &.p-tag-success {
         background: var(--success-100);
         color: var(--success);
-        border: 1px solid var(--success);
+        border-color: var(--success);
       }
 
       &.p-tag-danger {
         background: var(--danger-100);
         color: var(--danger);
-        border: 1px solid var(--danger);
+        border-color: var(--danger);
       }
 
       &.p-tag-info {
-        background: color-mix(in srgb, var(--primary) 10%, transparent);
+        background: color-mix(in srgb, var(--primary) 10%, var(--surface));
         color: var(--primary-600);
-        border: 1px solid var(--primary);
+        border-color: var(--primary);
       }
     }
   }
 
-  /* Inputs de búsqueda */
+  /* ========== INPUTS Y FORMULARIOS ========== */
   .field {
-    .p-inputtext {
+    margin-bottom: 1rem;
+
+    label {
+      display: block;
+      color: var(--text);
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      font-size: 0.9375rem;
+    }
+
+    .p-inputtext,
+    input[type="text"] {
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 10px;
       color: var(--text);
-      padding: 0.75rem 1rem;
-      padding-left: 2.5rem;
+      padding: 0.875rem 1rem;
+      width: 100%;
       transition: all 0.3s ease;
+      font-size: 0.9375rem;
 
       &:focus {
         border-color: var(--primary);
         box-shadow: 0 0 0 3px rgba(79, 140, 255, 0.1);
+        outline: none;
       }
 
       &::placeholder {
@@ -258,94 +466,189 @@
       }
     }
 
-    .p-input-icon-left i {
-      color: var(--muted);
+    .p-input-icon-left {
+      width: 100%;
+
+      i {
+        color: var(--muted);
+        left: 1rem;
+      }
+
+      .p-inputtext {
+        padding-left: 2.75rem;
+      }
     }
   }
 
-  /* MultiSelect personalizado */
+  /* ========== MULTISELECT ========== */
   ::ng-deep p-multiselect {
+    width: 100%;
+
     .p-multiselect {
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 10px;
+      color: var(--text);
+      transition: all 0.3s ease;
+      width: 100%;
 
       &:hover {
         border-color: var(--primary);
       }
 
-      &:focus-within {
+      &:focus-within,
+      &.p-focus {
         border-color: var(--primary);
         box-shadow: 0 0 0 3px rgba(79, 140, 255, 0.1);
+      }
+
+      .p-multiselect-label {
+        color: var(--text);
+        padding: 0.875rem 1rem;
+      }
+
+      .p-multiselect-trigger {
+        color: var(--muted);
+      }
+    }
+
+    .p-multiselect-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+
+      .p-multiselect-header {
+        background: var(--bg);
+        border-bottom: 1px solid var(--border);
+        padding: 1rem;
+      }
+
+      .p-multiselect-items {
+        padding: 0.5rem;
+
+        .p-multiselect-item {
+          color: var(--text);
+          padding: 0.75rem 1rem;
+          border-radius: 6px;
+          margin: 0.125rem 0;
+
+          &:hover {
+            background: var(--bg);
+          }
+
+          &.p-highlight {
+            background: var(--primary);
+            color: #ffffff;
+          }
+        }
       }
     }
   }
 
-  /* Secciones de guardias/usuarios asignadas y restringidas */
-  h4 {
-    color: var(--text);
-    font-weight: 700;
-    font-size: 1rem;
-
-    i.pi-check-circle {
-      color: var(--success);
-    }
-
-    i.pi-ban {
-      color: var(--danger);
-    }
-  }
-
-  /* Cards de relaciones */
-  .guardia-item, .usuario-item {
-    .font-semibold {
-      font-weight: 600;
-    }
-
-    .text-sm {
-      font-size: 0.875rem;
-    }
-  }
-
-  /* Loading states */
+  /* ========== PROGRESS SPINNER ========== */
   ::ng-deep p-progressSpinner {
     .p-progress-spinner-circle {
       stroke: var(--primary);
+      animation: p-progress-spinner-dash 1.5s ease-in-out infinite;
     }
   }
 
-  /* Placeholders cuando no hay selección */
+  /* ========== PLACEHOLDERS Y ESTADOS VACÍOS ========== */
   .text-center {
     i.text-6xl {
       color: var(--muted);
-      opacity: 0.3;
+      opacity: 0.25;
+      font-size: 4rem;
+      display: block;
+      margin-bottom: 1rem;
     }
 
-    h3, p {
+    h3 {
       color: var(--muted);
+      font-weight: 600;
+      margin: 0 0 0.5rem 0;
+    }
+
+    p {
+      color: var(--muted);
+      margin: 0;
     }
   }
 
-  /* Responsive */
+  /* ========== CLASES DE UTILIDAD ========== */
+  .success-color {
+    color: var(--success) !important;
+  }
+
+  .danger-color {
+    color: var(--danger) !important;
+  }
+
+  .border-danger {
+    border-color: var(--danger) !important;
+  }
+
+  .bg-danger-light {
+    background-color: var(--danger-100) !important;
+  }
+
+  .bg-success-light {
+    background-color: var(--success-100) !important;
+  }
+
+  .border-success {
+    border-color: var(--success) !important;
+  }
+
+  /* ========== RESPONSIVE ========== */
   @media (max-width: 768px) {
     padding: 1rem;
 
-    .header h1 {
-      font-size: 1.5rem;
+    .header {
+      padding: 1rem;
+
+      h1 {
+        font-size: 1.5rem;
+
+        i {
+          font-size: 1.25rem;
+        }
+      }
+
+      .subtitle {
+        font-size: 0.875rem;
+      }
     }
 
-    ::ng-deep .custom-tabview .p-tabview-nav .p-tabview-nav-link {
-      padding: 0.75rem 1rem;
-      font-size: 0.875rem;
+    ::ng-deep .custom-tabview {
+      .p-tabview-nav {
+        .p-tabview-nav-link {
+          padding: 0.75rem 1rem;
+          font-size: 0.875rem;
+        }
+      }
+
+      .p-tabview-panels {
+        padding: 1rem;
+      }
+    }
+
+    .grid {
+      .col-12 {
+        padding: 0.5rem !important;
+      }
     }
   }
 }
 
-/* Modal de restricción personalizado */
+/* ========== MODAL DE RESTRICCIÓN ========== */
 ::ng-deep p-dialog {
   .p-dialog {
     border-radius: 14px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    background: var(--surface);
+    border: 1px solid var(--border);
 
     .p-dialog-header {
       background: var(--surface);
@@ -356,29 +659,49 @@
       .p-dialog-title {
         color: var(--text);
         font-weight: 700;
+        font-size: 1.25rem;
+      }
+
+      .p-dialog-header-icon {
+        color: var(--muted);
+
+        &:hover {
+          color: var(--text);
+          background: var(--bg);
+        }
       }
     }
 
     .p-dialog-content {
       background: var(--surface);
       padding: 1.5rem;
+      color: var(--text);
 
       label {
         color: var(--text);
         font-weight: 600;
         margin-bottom: 0.5rem;
         display: block;
+        font-size: 0.9375rem;
       }
 
       textarea {
-        background: var(--surface-alt);
+        background: var(--surface);
         border: 1px solid var(--border);
         border-radius: 10px;
         color: var(--text);
+        padding: 0.875rem 1rem;
+        width: 100%;
+        font-family: inherit;
+        font-size: 0.9375rem;
+        transition: all 0.3s ease;
+        resize: vertical;
+        min-height: 120px;
 
         &:focus {
           border-color: var(--primary);
           box-shadow: 0 0 0 3px rgba(79, 140, 255, 0.1);
+          outline: none;
         }
 
         &::placeholder {
@@ -392,32 +715,53 @@
       border-top: 1px solid var(--border);
       border-radius: 0 0 14px 14px;
       padding: 1rem 1.5rem;
+      display: flex;
+      gap: 0.75rem;
+      justify-content: flex-end;
     }
   }
 }
 
+/* ========== MESSAGES (p-message) ========== */
+::ng-deep p-message {
+  .p-message {
+    border-radius: 10px;
+    border: 1px solid;
+    padding: 1rem 1.25rem;
+    margin-bottom: 1rem;
 
-/* Clases de utilidad personalizadas alineadas a la paleta */
-.success-color {
-  color: var(--success) !important;
+    &.p-message-info {
+      background: color-mix(in srgb, var(--primary) 10%, var(--surface));
+      border-color: var(--primary);
+      color: var(--text);
+
+      .p-message-icon {
+        color: var(--primary);
+      }
+    }
+
+    &.p-message-error {
+      background: var(--danger-100);
+      border-color: var(--danger);
+      color: var(--text);
+
+      .p-message-icon {
+        color: var(--danger);
+      }
+    }
+
+    .p-message-wrapper {
+      padding: 0;
+    }
+
+    .p-message-icon {
+      font-size: 1.125rem;
+    }
+
+    .p-message-summary {
+      font-weight: 600;
+      margin-left: 0.75rem;
+    }
+  }
 }
 
-.danger-color {
-  color: var(--danger) !important;
-}
-
-.border-danger {
-  border-color: var(--danger) !important;
-}
-
-.bg-danger-light {
-  background-color: var(--danger-100) !important;
-}
-
-.bg-success-light {
-  background-color: var(--success-100) !important;
-}
-
-.border-success {
-  border-color: var(--success) !important;
-}

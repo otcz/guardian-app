@@ -14,9 +14,8 @@ import { MessageModule } from 'primeng/message';
 import { ToastModule } from 'primeng/toast';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { TooltipModule } from 'primeng/tooltip';
-import { MessageService } from 'primeng/api';
-import { BreadcrumbModule } from 'primeng/breadcrumb';
-import { MenuItem } from 'primeng/api';
+import { MessageService, ConfirmationService } from 'primeng/api';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
 
 import { OrgContextService } from '../../service/org-context.service';
 import { UsersService, UserEntity } from '../../service/users.service';
@@ -41,9 +40,9 @@ import { CrearGuardiaConGestorDTO } from '../../models/guardia.models';
     ToastModule,
     ProgressSpinnerModule,
     TooltipModule,
-    BreadcrumbModule
+    ConfirmDialogModule
   ],
-  providers: [MessageService],
+  providers: [MessageService, ConfirmationService],
   templateUrl: './punto-control-crear.component.html',
   styleUrls: ['./punto-control-crear.component.scss']
 })
@@ -66,10 +65,6 @@ export class PuntoControlCrearComponent implements OnInit, OnDestroy {
   // Datos para dropdown
   usuariosGuardia: UserEntity[] = [];
 
-  // Breadcrumb
-  breadcrumbItems: MenuItem[] = [];
-  homeBreadcrumb: MenuItem = { icon: 'pi pi-home', routerLink: '/dashboard' };
-
   // Subject para destruir subscripciones
   private destroy$ = new Subject<void>();
 
@@ -86,15 +81,19 @@ export class PuntoControlCrearComponent implements OnInit, OnDestroy {
     private orgContext: OrgContextService,
     private usersService: UsersService,
     private guardiaService: GuardiaService,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private confirmationService: ConfirmationService
   ) {}
 
   ngOnInit(): void {
-    this.inicializarContexto();
-    this.inicializarFormulario();
-    this.configurarValidacionCodigo();
-    this.cargarUsuariosGuardia();
-    this.configurarBreadcrumb();
+    try {
+      this.inicializarContexto();
+      this.inicializarFormulario();
+      this.configurarValidacionCodigo();
+      this.cargarUsuariosGuardia();
+    } catch (error) {
+      this.mostrarError('Error al inicializar el componente: ' + error);
+    }
   }
 
   ngOnDestroy(): void {
@@ -218,7 +217,14 @@ export class PuntoControlCrearComponent implements OnInit, OnDestroy {
    * Cargar usuarios con rol GUARDIA de la sección
    */
   private cargarUsuariosGuardia(): void {
-    if (!this.organizacionId || !this.seccionId) return;
+    console.log('🔵 Iniciando carga de usuarios GUARDIA');
+    console.log('   - Organización ID:', this.organizacionId);
+    console.log('   - Sección ID:', this.seccionId);
+
+    if (!this.organizacionId || !this.seccionId) {
+      console.warn('⚠️ No hay organización o sección, no se pueden cargar usuarios');
+      return;
+    }
 
     this.loading = true;
 
@@ -226,15 +232,23 @@ export class PuntoControlCrearComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (usuarios: UserEntity[]) => {
+          console.log('✅ Usuarios recibidos del backend:', usuarios.length);
+
           // Filtrar usuarios con rol GUARDIA
           this.usuariosGuardia = usuarios.filter(u => {
             const rolesStr = (u.rolNombres || []).join(',').toUpperCase();
-            return rolesStr.includes('GUARDIA') || u.rolNombre?.toUpperCase() === 'GUARDIA';
+            const tieneRol = rolesStr.includes('GUARDIA') || u.rolNombre?.toUpperCase() === 'GUARDIA';
+            if (tieneRol) {
+              console.log('   ✓ Usuario con rol GUARDIA encontrado:', u.username, u.nombreCompleto);
+            }
+            return tieneRol;
           });
 
+          console.log('🟢 Total usuarios con rol GUARDIA:', this.usuariosGuardia.length);
           this.loading = false;
 
           if (this.usuariosGuardia.length === 0) {
+            console.warn('⚠️ No hay usuarios con rol GUARDIA en esta sección');
             this.mostrarAdvertencia(
               '⚠️ No hay usuarios con rol GUARDIA en esta sección. ' +
               'Debe crear usuarios con rol GUARDIA antes de crear puntos de control.'
@@ -242,22 +256,13 @@ export class PuntoControlCrearComponent implements OnInit, OnDestroy {
           }
         },
         error: (err) => {
+          console.error('❌ Error al cargar usuarios:', err);
           this.loading = false;
           this.mostrarError('Error al cargar usuarios: ' + (err?.error?.message || 'Error desconocido'));
         }
       });
   }
 
-  /**
-   * Configurar breadcrumb de navegación
-   */
-  private configurarBreadcrumb(): void {
-    this.breadcrumbItems = [
-      { label: 'Gestión de Secciones', routerLink: '/admin/secciones' },
-      { label: this.nombreSeccion || 'Sección', routerLink: `/admin/secciones/${this.seccionId}` },
-      { label: 'Crear Punto de Control' }
-    ];
-  }
 
   /**
    * Enviar formulario
@@ -278,17 +283,20 @@ export class PuntoControlCrearComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Confirmar creación
-    const confirmacion = confirm(
-      '¿Está seguro que desea crear este punto de control?\n\n' +
-      `Código: ${this.formulario.value.codigo}\n` +
-      `Nombre: ${this.formulario.value.nombre}\n` +
-      `Gestor: ${this.obtenerNombreGestorSeleccionado()}`
-    );
-
-    if (!confirmacion) return;
-
-    this.crearPuntoControl();
+    // Confirmar creación con diálogo personalizado
+    this.confirmationService.confirm({
+      message: `¿Está seguro que desea crear este punto de control?<br><br>
+                <strong>Código:</strong> ${this.formulario.value.codigo}<br>
+                <strong>Nombre:</strong> ${this.formulario.value.nombre}<br>
+                <strong>Gestor:</strong> ${this.obtenerNombreGestorSeleccionado()}`,
+      header: 'Confirmar Creación',
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Sí, crear',
+      rejectLabel: 'Cancelar',
+      accept: () => {
+        this.crearPuntoControl();
+      }
+    });
   }
 
   /**
@@ -321,7 +329,7 @@ export class PuntoControlCrearComponent implements OnInit, OnDestroy {
 
           // Redirigir después de 2 segundos
           setTimeout(() => {
-            this.router.navigate(['/admin/secciones', this.seccionId, 'puntos-control']);
+            this.router.navigate(['/gestion-de-secciones/administrar-guardias-por-usuario']);
           }, 2000);
         },
         error: (err) => {
@@ -366,13 +374,20 @@ export class PuntoControlCrearComponent implements OnInit, OnDestroy {
    */
   onCancelar(): void {
     if (this.formulario.dirty) {
-      const confirmacion = confirm(
-        '¿Está seguro que desea cancelar? Se perderán los cambios no guardados.'
-      );
-      if (!confirmacion) return;
+      this.confirmationService.confirm({
+        message: '¿Está seguro que desea cancelar? Se perderán los cambios no guardados.',
+        header: 'Confirmar Cancelación',
+        icon: 'pi pi-exclamation-triangle',
+        acceptLabel: 'Sí, cancelar',
+        rejectLabel: 'No, continuar editando',
+        acceptButtonStyleClass: 'p-button-danger',
+        accept: () => {
+          this.router.navigate(['/gestion-de-secciones/administrar-guardias-por-usuario']);
+        }
+      });
+    } else {
+      this.router.navigate(['/gestion-de-secciones/administrar-guardias-por-usuario']);
     }
-
-    this.router.navigate(['/admin/secciones', this.seccionId]);
   }
 
   /**

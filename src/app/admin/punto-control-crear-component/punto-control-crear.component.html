@@ -1,0 +1,332 @@
+<div class="punto-control-crear-container">
+  <p-toast></p-toast>
+  <p-confirmDialog></p-confirmDialog>
+
+
+  <!-- Título Principal -->
+  <div class="header-container mb-4">
+    <h1 class="page-title">
+      <i class="pi pi-map-marker mr-2"></i>
+      Crear Punto de Control
+    </h1>
+    <p class="page-subtitle">
+      Complete el formulario para crear un nuevo punto de control con gestor asignado
+    </p>
+  </div>
+
+  <!-- Spinner de carga inicial -->
+  <div *ngIf="loading" class="loading-container">
+    <p-progressSpinner></p-progressSpinner>
+    <p class="loading-text">Cargando información...</p>
+  </div>
+
+  <!-- Formulario -->
+  <form [formGroup]="formulario" (ngSubmit)="onSubmit()" *ngIf="!loading">
+
+    <!-- Contexto Compacto (Solo Lectura) -->
+    <p-message
+      severity="info"
+      styleClass="mb-4 w-full"
+      [closable]="false"
+    >
+      <div class="flex align-items-center">
+        <i class="pi pi-info-circle mr-2"></i>
+        <span>
+          <strong>Contexto:</strong>
+          <span class="ml-2">{{ nombreOrganizacion }}</span>
+          <i class="pi pi-angle-right mx-2"></i>
+          <span>{{ nombreSeccion }}</span>
+        </span>
+      </div>
+    </p-message>
+
+    <!-- Sección: Información del Punto de Control -->
+    <p-card styleClass="mb-4">
+      <ng-template pTemplate="header">
+        <div class="card-header">
+          <i class="pi pi-building mr-2"></i>
+          <span class="card-title">Información del Punto de Control</span>
+        </div>
+      </ng-template>
+
+      <div class="grid">
+        <!-- Código -->
+        <div class="col-12 md:col-6">
+          <div class="field">
+            <label for="codigo" class="field-label required">Código</label>
+            <div class="p-inputgroup">
+              <input
+                id="codigo"
+                type="text"
+                pInputText
+                formControlName="codigo"
+                placeholder="Ej: GUARDIA_NORTE, PUERTA_1"
+                (input)="onCodigoInput($event)"
+                [class.input-error]="codigo?.invalid && codigo?.touched"
+                class="w-full"
+                pTooltip="Solo mayúsculas, números, guiones (-) y guión bajo (_)"
+                tooltipPosition="top"
+              />
+              <span class="p-inputgroup-addon" *ngIf="verificandoCodigo">
+                <i class="pi pi-spin pi-spinner"></i>
+              </span>
+              <span class="p-inputgroup-addon" *ngIf="!verificandoCodigo && codigo?.value && !codigoExiste && codigo?.valid">
+                <i class="pi pi-check text-green-500"></i>
+              </span>
+            </div>
+
+            <small class="field-help">
+              <i class="pi pi-info-circle mr-1"></i>
+              {{ caracteresRestantesCodigo }} caracteres restantes
+            </small>
+
+            <!-- Mensajes de error -->
+            <div class="field-error" *ngIf="codigo?.invalid && codigo?.touched">
+              <small *ngIf="codigo?.errors?.['required']">
+                <i class="pi pi-exclamation-circle mr-1"></i>
+                El código es obligatorio
+              </small>
+              <small *ngIf="codigo?.errors?.['maxlength']">
+                <i class="pi pi-exclamation-circle mr-1"></i>
+                Máximo {{ MAX_CODIGO }} caracteres
+              </small>
+              <small *ngIf="codigo?.errors?.['pattern']">
+                <i class="pi pi-exclamation-circle mr-1"></i>
+                Solo se permiten mayúsculas, números, guiones (-) y guión bajo (_)
+              </small>
+              <small *ngIf="codigo?.errors?.['codigoDuplicado']">
+                <i class="pi pi-exclamation-circle mr-1"></i>
+                Este código ya existe. Por favor, use otro
+              </small>
+            </div>
+
+            <!-- Advertencia de código duplicado -->
+            <p-message
+              *ngIf="codigoExiste && !verificandoCodigo"
+              severity="warn"
+              text="⚠️ Ya existe un punto de control con este código"
+              styleClass="mt-2 w-full"
+            ></p-message>
+          </div>
+        </div>
+
+        <!-- Nombre -->
+        <div class="col-12 md:col-6">
+          <div class="field">
+            <label for="nombre" class="field-label required">Nombre</label>
+            <input
+              id="nombre"
+              type="text"
+              pInputText
+              formControlName="nombre"
+              placeholder="Ej: Garita Norte - Entrada Principal"
+              [class.input-error]="nombre?.invalid && nombre?.touched"
+              class="w-full"
+            />
+
+            <small class="field-help">
+              <i class="pi pi-info-circle mr-1"></i>
+              {{ caracteresRestantesNombre }} caracteres restantes
+            </small>
+
+            <div class="field-error" *ngIf="nombre?.invalid && nombre?.touched">
+              <small *ngIf="nombre?.errors?.['required']">
+                <i class="pi pi-exclamation-circle mr-1"></i>
+                El nombre es obligatorio
+              </small>
+              <small *ngIf="nombre?.errors?.['maxlength']">
+                <i class="pi pi-exclamation-circle mr-1"></i>
+                Máximo {{ MAX_NOMBRE }} caracteres
+              </small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Descripción -->
+        <div class="col-12">
+          <div class="field">
+            <label for="descripcion" class="field-label">Descripción</label>
+            <textarea
+              id="descripcion"
+              pInputTextarea
+              formControlName="descripcion"
+              placeholder="Descripción detallada del punto de control..."
+              rows="3"
+              [class.input-error]="descripcion?.invalid && descripcion?.touched"
+              class="w-full"
+            ></textarea>
+
+            <small class="field-help">
+              <i class="pi pi-info-circle mr-1"></i>
+              {{ caracteresRestantesDescripcion }} caracteres restantes
+            </small>
+
+            <div class="field-error" *ngIf="descripcion?.invalid && descripcion?.touched">
+              <small *ngIf="descripcion?.errors?.['maxlength']">
+                <i class="pi pi-exclamation-circle mr-1"></i>
+                Máximo {{ MAX_DESCRIPCION }} caracteres
+              </small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Ubicación -->
+        <div class="col-12">
+          <div class="field">
+            <label for="ubicacion" class="field-label">Ubicación</label>
+            <input
+              id="ubicacion"
+              type="text"
+              pInputText
+              formControlName="ubicacion"
+              placeholder="Ej: Avenida Norte #123, Entrada Principal"
+              [class.input-error]="ubicacion?.invalid && ubicacion?.touched"
+              class="w-full"
+            />
+
+            <small class="field-help">
+              <i class="pi pi-info-circle mr-1"></i>
+              {{ caracteresRestantesUbicacion }} caracteres restantes
+            </small>
+
+            <div class="field-error" *ngIf="ubicacion?.invalid && ubicacion?.touched">
+              <small *ngIf="ubicacion?.errors?.['maxlength']">
+                <i class="pi pi-exclamation-circle mr-1"></i>
+                Máximo {{ MAX_UBICACION }} caracteres
+              </small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </p-card>
+
+    <!-- Sección: Gestor del Punto de Control -->
+    <p-card styleClass="mb-4">
+      <ng-template pTemplate="header">
+        <div class="card-header">
+          <i class="pi pi-user mr-2"></i>
+          <span class="card-title">Gestor del Punto de Control</span>
+        </div>
+      </ng-template>
+
+      <div class="grid">
+        <!-- Usuario Gestor -->
+        <div class="col-12 md:col-6">
+          <div class="field">
+            <label for="usuarioGestorId" class="field-label required">Usuario Gestor</label>
+            <p-dropdown
+              inputId="usuarioGestorId"
+              formControlName="usuarioGestorId"
+              [options]="usuariosGuardia"
+              optionLabel="nombreCompleto"
+              optionValue="id"
+              placeholder="Seleccione un usuario con rol GUARDIA"
+              [filter]="true"
+              filterBy="nombreCompleto,username"
+              emptyMessage="No hay usuarios con rol GUARDIA disponibles"
+              emptyFilterMessage="No se encontraron usuarios"
+              [class.input-error]="usuarioGestorId?.invalid && usuarioGestorId?.touched"
+              styleClass="w-full"
+            >
+              <ng-template pTemplate="selectedItem" let-usuario>
+                <div *ngIf="usuario">
+                  <span class="font-semibold">{{ usuario.nombreCompleto || usuario.username }}</span>
+                  <span class="text-sm text-gray-500 ml-2">({{ usuario.username }})</span>
+                </div>
+              </ng-template>
+              <ng-template pTemplate="item" let-usuario>
+                <div>
+                  <div class="font-semibold">{{ usuario.nombreCompleto || usuario.username }}</div>
+                  <div class="text-sm text-gray-500">
+                    <i class="pi pi-user mr-1"></i>{{ usuario.username }}
+                    <span *ngIf="usuario.email" class="ml-2">
+                      <i class="pi pi-envelope mr-1"></i>{{ usuario.email }}
+                    </span>
+                  </div>
+                </div>
+              </ng-template>
+            </p-dropdown>
+
+            <small class="field-help">
+              <i class="pi pi-info-circle mr-1"></i>
+              Usuario que administrará este punto de control
+            </small>
+
+            <div class="field-error" *ngIf="usuarioGestorId?.invalid && usuarioGestorId?.touched">
+              <small *ngIf="usuarioGestorId?.errors?.['required']">
+                <i class="pi pi-exclamation-circle mr-1"></i>
+                Debe seleccionar un usuario gestor
+              </small>
+            </div>
+
+            <!-- Mensaje si no hay usuarios con rol GUARDIA -->
+            <p-message
+              *ngIf="usuariosGuardia.length === 0"
+              severity="warn"
+              styleClass="mt-2 w-full"
+            >
+              <div class="flex align-items-start">
+                <i class="pi pi-exclamation-triangle mr-2 mt-1"></i>
+                <div>
+                  <div class="font-semibold">No hay usuarios con rol GUARDIA</div>
+                  <div class="text-sm mt-1">
+                    Debe crear usuarios con rol GUARDIA en esta sección antes de crear puntos de control.
+                  </div>
+                </div>
+              </div>
+            </p-message>
+          </div>
+        </div>
+
+        <!-- Observaciones -->
+        <div class="col-12">
+          <div class="field">
+            <label for="observaciones" class="field-label">Observaciones</label>
+            <textarea
+              id="observaciones"
+              pInputTextarea
+              formControlName="observaciones"
+              placeholder="Observaciones sobre la asignación del gestor..."
+              rows="3"
+              [class.input-error]="observaciones?.invalid && observaciones?.touched"
+              class="w-full"
+            ></textarea>
+
+            <small class="field-help">
+              <i class="pi pi-info-circle mr-1"></i>
+              {{ caracteresRestantesObservaciones }} caracteres restantes
+            </small>
+
+            <div class="field-error" *ngIf="observaciones?.invalid && observaciones?.touched">
+              <small *ngIf="observaciones?.errors?.['maxlength']">
+                <i class="pi pi-exclamation-circle mr-1"></i>
+                Máximo {{ MAX_OBSERVACIONES }} caracteres
+              </small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </p-card>
+
+    <!-- Botones de acción -->
+    <div class="actions-container">
+      <p-button
+        label="Cancelar"
+        icon="pi pi-times"
+        severity="secondary"
+        (onClick)="onCancelar()"
+        [disabled]="guardando"
+        styleClass="mr-2"
+      ></p-button>
+
+      <p-button
+        type="submit"
+        label="Crear Punto de Control"
+        icon="pi pi-check"
+        [loading]="guardando"
+        [disabled]="formulario.invalid || codigoExiste || usuariosGuardia.length === 0"
+      ></p-button>
+    </div>
+  </form>
+</div>
+

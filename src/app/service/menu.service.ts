@@ -271,9 +271,10 @@ export class MenuService {
         const looksVerAuditoria = (nameNorm.includes('ver') || nameNorm.includes('auditoria')) && nameNorm.includes('organizacion');
         const looksCrearSeccion = nameNorm.includes('crear') && (nameNorm.includes('seccion') || nameNorm.includes('seccion'));
         const looksListarSeccion = (nameNorm.includes('listar') || nameNorm.includes('listado')) && (nameNorm.includes('seccion') || nameNorm.includes('seccion'));
-        const looksCrearRol = nameNorm.includes('crear') && nameNorm.includes('rol');
-        const looksGestionarRol = nameNorm.includes('gestionar') && nameNorm.includes('rol');
-        const looksListarRol = (nameNorm.includes('listar') || nameNorm.includes('listado')) && (nameNorm.includes('rol') || nameNorm.includes('roles'));
+        // IMPORTANTE: Verificar que NO sea "control" antes de considerarlo "rol"
+        const looksCrearRol = nameNorm.includes('crear') && nameNorm.includes('rol') && !nameNorm.includes('control') && !nameNorm.includes('punto');
+        const looksGestionarRol = nameNorm.includes('gestionar') && nameNorm.includes('rol') && !nameNorm.includes('control');
+        const looksListarRol = (nameNorm.includes('listar') || nameNorm.includes('listado')) && (nameNorm.includes('rol') || nameNorm.includes('roles')) && !nameNorm.includes('control');
         const looksAsignarAdminSeccion = nameNorm.includes('asignar') && nameNorm.includes('administrador') && (nameNorm.includes('seccion') || nameNorm.includes('seccion'));
 
         // NUEVO: Gestión de opciones/menú

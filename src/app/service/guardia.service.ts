@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import {
   Guardia,
   CrearGuardiaDTO,
+  CrearGuardiaConGestorDTO,
   ActualizarGuardiaDTO
 } from '../models/guardia.models';
 
@@ -52,6 +53,23 @@ export class GuardiaService {
    */
   crear(dto: CrearGuardiaDTO): Observable<Guardia> {
     return this.http.post<Guardia>(this.API_URL, dto);
+  }
+
+  /**
+   * Crear nueva guardia con gestor asignado
+   */
+  crearConGestor(dto: CrearGuardiaConGestorDTO): Observable<Guardia> {
+    return this.http.post<Guardia>(`${this.API_URL}/con-gestor`, dto);
+  }
+
+  /**
+   * Verificar si un código ya existe
+   */
+  existeCodigo(organizacionId: string, codigo: string): Observable<{ existe: boolean }> {
+    const params = new HttpParams()
+      .set('organizacionId', organizacionId)
+      .set('codigo', codigo);
+    return this.http.get<{ existe: boolean }>(`${this.API_URL}/existe-codigo`, { params });
   }
 
   /**

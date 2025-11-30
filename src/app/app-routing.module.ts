@@ -29,6 +29,7 @@ import { AsignarMenuAUsuarioComponent } from './admin/opciones-menu/asignar-menu
 import { LugarFormComponent } from './admin/lugar-form-component/lugar-form.component';
 import { LugaresListComponent } from './admin/lugares-list-component/lugares-list.component';
 import { SeccionGestionarComponent } from './admin/seccion-gestionar-component/seccion-gestionar.component';
+import {PuntoControlCrearComponent} from './admin/punto-control-crear-component/punto-control-crear.component';
 
 export const appRoutes: Routes = [
   // Rutas públicas para pruebas de gestión de opciones (sin guards)
@@ -40,6 +41,10 @@ export const appRoutes: Routes = [
 
   // Ruta pública para mostrar mensaje de acceso restringido
   { path: 'no-autorizado', component: NoAutorizadoComponent },
+
+  // RUTA DE PRUEBA - Crear Punto de Control (sin guard)
+  { path: 'test-crear-punto-control', component: PuntoControlCrearComponent },
+
   { path: 'system/login', redirectTo: 'login', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
@@ -109,6 +114,12 @@ export const appRoutes: Routes = [
       { path: 'gestion-de-secciones/listar-secciones', redirectTo: 'listar-secciones', pathMatch: 'full' },
       { path: 'gestion-de-secciones/asignar-administrador-de-seccion', redirectTo: 'asignar-administrador-de-seccion', pathMatch: 'full' },
       { path: 'gestion-de-secciones/gestionar-seccion', component: SeccionGestionarComponent, canActivate: [PermissionGuard], data: { code: 'SECTION_REPORT_VIEW' } },
+      {
+        path: 'gestion-de-secciones/crear-punto-de-control',
+        component: PuntoControlCrearComponent,
+        canActivate: [PermissionGuard],
+        data: { code: 'ITEM_CREAR_PUNTO_DE_CONTROL' }
+      },
       {
         path: 'gestion-de-secciones/administrar-guardias-por-usuario',
         loadComponent: () => import('./admin/administrar-guardias-por-usuario-component/administrar-guardias-por-usuario.component').then(m => m.AdministrarGuardiasPorUsuarioComponent),

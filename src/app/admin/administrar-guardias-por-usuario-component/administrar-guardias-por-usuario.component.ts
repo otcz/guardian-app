@@ -31,7 +31,12 @@ import {
 
 /**
  * Componente para administrar guardias por usuario
- * Permite asignar, restringir y revocar guardias a usuarios de una sección
+ * Permite asignar, restringir y revocar guardias (puntos de control) a usuarios de una sección
+ *
+ * IMPORTANTE:
+ * - Guardia = Punto de control físico (garita, puerta, checkpoint)
+ * - Usuario con rol USUARIO = Persona que puede usar los puntos de control
+ * - GuardiaUsuario = Relación entre punto de control y usuario (permisos de acceso)
  */
 @Component({
   selector: 'app-administrar-guardias-por-usuario',
@@ -156,9 +161,7 @@ export class AdministrarGuardiasPorUsuarioComponent implements OnInit {
 
     this.loading = true;
 
-    // Usar endpoint correcto: list con filtro de sección (el backend filtra automáticamente)
-
-    const subscription = this.usersService.list(this.organizacionId, { seccionId: this.seccionId }).subscribe({
+    this.usersService.list(this.organizacionId, { seccionId: this.seccionId }).subscribe({
       next: (usuariosBackend: UserEntity[]) => {
         const usuariosFiltrados = usuariosBackend.filter(u => {
           const rolesStr = (u.rolNombres || []).join(',').toUpperCase();
@@ -176,33 +179,16 @@ export class AdministrarGuardiasPorUsuarioComponent implements OnInit {
   }
 
   /**
-   * Cargar guardias de la sección (rol: GUARDIA - personal de vigilancia)
+   * Cargar guardias de la sección (puntos de control físicos)
    */
   cargarGuardias(): void {
     if (!this.seccionId || !this.organizacionId) return;
 
     this.loading = true;
 
-    this.usersService.list(this.organizacionId, { seccionId: this.seccionId }).subscribe({
-      next: (usuariosBackend: UserEntity[]) => {
-        // Filtrar por rol GUARDIA en el frontend
-        const guardiasUsuarios = usuariosBackend.filter(u => {
-          const rolesStr = (u.rolNombres || []).join(',').toUpperCase();
-          return rolesStr.includes('GUARDIA') || u.rolNombre?.toUpperCase() === 'GUARDIA';
-        });
-
-        // Mapear UserEntity a Guardia para mantener compatibilidad con el componente
-        this.guardias = guardiasUsuarios.map(u => ({
-          id: u.id,
-          codigo: u.username,
-          nombre: u.nombreCompleto || u.username,
-          descripcion: u.email || undefined,
-          ubicacion: u.seccionNombre || undefined,
-          seccionId: u.seccionId || '',
-          activa: u.activo,
-          permiteEntrada: true,
-          permiteSalida: true
-        } as Guardia));
+    this.guardiaService.listarPorSeccion(this.seccionId).subscribe({
+      next: (guardias: Guardia[]) => {
+        this.guardias = guardias;
         this.loading = false;
 
         // Si hay usuario seleccionado, recargar su estado
@@ -211,7 +197,7 @@ export class AdministrarGuardiasPorUsuarioComponent implements OnInit {
         }
       },
       error: (err: any) => {
-        this.mostrarError('Error al cargar guardias: ' + (err?.error?.message || 'Error desconocido'));
+        this.mostrarError('Error al cargar puntos de control: ' + (err?.error?.message || 'Error desconocido'));
         this.loading = false;
       }
     });
@@ -268,20 +254,6 @@ export class AdministrarGuardiasPorUsuarioComponent implements OnInit {
         this.loading = false;
       }
     });
-  }
-
-  /**
-   * Filtrar usuarios por nombre, username o documento
-   */
-  filtrarUsuarios(filtro: string): Usuario[] {
-    if (!filtro) return this.usuarios;
-
-    const filtroLower = filtro.toLowerCase();
-    return this.usuarios.filter(u =>
-      u.nombreCompleto?.toLowerCase().includes(filtroLower) ||
-      u.username.toLowerCase().includes(filtroLower) ||
-      u.documento?.toLowerCase().includes(filtroLower)
-    );
   }
 
   /**
@@ -356,25 +328,16 @@ export class AdministrarGuardiasPorUsuarioComponent implements OnInit {
   }
 
   /**
-   * Obtener usuarios filtrados
+   * Limpiar todas las selecciones
    */
-  get usuariosFiltradosActuales(): Usuario[] {
-    if (!this.filtroUsuario) return this.usuarios;
-    return this.filtrarUsuarios(this.filtroUsuario);
+  limpiarSelecciones(): void {
+    this.usuariosSeleccionados = [];
+    this.guardiasSeleccionadas = [];
   }
 
-  /**
-   * Obtener guardias filtradas
-   */
-  get guardiasFiltradas(): Guardia[] {
-    if (!this.filtroGuardia) return this.guardias;
-    const filtroLower = this.filtroGuardia.toLowerCase();
-    return this.guardias.filter(g =>
-      g.nombre.toLowerCase().includes(filtroLower) ||
-      g.codigo.toLowerCase().includes(filtroLower) ||
-      g.ubicacion?.toLowerCase().includes(filtroLower)
-    );
-  }
+  // ============================================
+  // MÉTODOS PÚBLICOS - Operaciones masivas
+  // ============================================
 
   /**
    * Asignar guardias seleccionadas a usuarios seleccionados (modo masivo)
@@ -530,23 +493,9 @@ export class AdministrarGuardiasPorUsuarioComponent implements OnInit {
     }
   }
 
-  /**
-   * Limpiar todas las selecciones
-   */
-  limpiarSelecciones(): void {
-    this.usuariosSeleccionados = [];
-    this.guardiasSeleccionadas = [];
-  }
-
-  /**
-   * Obtener guardias con cambios aplicados
-   */
-  get guardiasConCambios(): GuardiaConEstado[] {
-    return this.guardiasConEstado.map(guardia => {
-      const cambio = this.cambiosLocales.get(guardia.id);
-      return cambio || guardia;
-    });
-  }
+  // ============================================
+  // MÉTODOS PÚBLICOS - Gestión individual
+  // ============================================
 
   /**
    * Toggle estado de asignación de guardia
@@ -716,24 +665,6 @@ export class AdministrarGuardiasPorUsuarioComponent implements OnInit {
   }
 
   /**
-   * Contar guardias por estado
-   */
-  get contadorAsignadas(): number {
-    return this.guardiasConCambios.filter(g => g.estado === EstadoGuardia.ASIGNADA).length;
-  }
-
-  get contadorRestringidas(): number {
-    return this.guardiasConCambios.filter(g => g.estado === EstadoGuardia.RESTRINGIDA).length;
-  }
-
-  /**
-   * Verificar si hay cambios pendientes
-   */
-  get hayCambiosPendientes(): boolean {
-    return this.cambiosLocales.size > 0;
-  }
-
-  /**
    * Obtener clase CSS para el estado
    */
   getEstadoClass(estado: EstadoGuardia): string {
@@ -748,6 +679,79 @@ export class AdministrarGuardiasPorUsuarioComponent implements OnInit {
     }
   }
 
+  // ============================================
+  // GETTERS - Propiedades computadas
+  // ============================================
+
+  /**
+   * Obtener usuarios filtrados
+   */
+  get usuariosFiltradosActuales(): Usuario[] {
+    if (!this.filtroUsuario) return this.usuarios;
+    return this.filtrarUsuarios(this.filtroUsuario);
+  }
+
+  /**
+   * Obtener guardias filtradas
+   */
+  get guardiasFiltradas(): Guardia[] {
+    if (!this.filtroGuardia) return this.guardias;
+    const filtroLower = this.filtroGuardia.toLowerCase();
+    return this.guardias.filter(g =>
+      g.nombre.toLowerCase().includes(filtroLower) ||
+      g.codigo.toLowerCase().includes(filtroLower) ||
+      g.ubicacion?.toLowerCase().includes(filtroLower)
+    );
+  }
+
+  /**
+   * Obtener guardias con cambios aplicados
+   */
+  get guardiasConCambios(): GuardiaConEstado[] {
+    return this.guardiasConEstado.map(guardia => {
+      const cambio = this.cambiosLocales.get(guardia.id);
+      return cambio || guardia;
+    });
+  }
+
+  /**
+   * Contar guardias asignadas
+   */
+  get contadorAsignadas(): number {
+    return this.guardiasConCambios.filter(g => g.estado === EstadoGuardia.ASIGNADA).length;
+  }
+
+  /**
+   * Contar guardias restringidas
+   */
+  get contadorRestringidas(): number {
+    return this.guardiasConCambios.filter(g => g.estado === EstadoGuardia.RESTRINGIDA).length;
+  }
+
+  /**
+   * Verificar si hay cambios pendientes
+   */
+  get hayCambiosPendientes(): boolean {
+    return this.cambiosLocales.size > 0;
+  }
+
+  // ============================================
+  // MÉTODOS PRIVADOS - Helpers
+  // ============================================
+
+  /**
+   * Filtrar usuarios por nombre, username o documento
+   */
+  private filtrarUsuarios(filtro: string): Usuario[] {
+    if (!filtro) return this.usuarios;
+
+    const filtroLower = filtro.toLowerCase();
+    return this.usuarios.filter(u =>
+      u.nombreCompleto?.toLowerCase().includes(filtroLower) ||
+      u.username.toLowerCase().includes(filtroLower) ||
+      u.documento?.toLowerCase().includes(filtroLower)
+    );
+  }
 
   /**
    * Mapear UserEntity a Usuario

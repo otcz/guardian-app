@@ -29,6 +29,20 @@ export interface CrearGuardiaDTO {
 }
 
 /**
+ * DTO para crear una guardia con gestor asignado
+ */
+export interface CrearGuardiaConGestorDTO {
+  organizacionId: string;
+  seccionId: string;
+  codigo: string;
+  nombre: string;
+  descripcion?: string;
+  ubicacion?: string;
+  usuarioGestorId: string;
+  observaciones?: string;
+}
+
+/**
  * DTO para actualizar una guardia existente
  */
 export interface ActualizarGuardiaDTO {

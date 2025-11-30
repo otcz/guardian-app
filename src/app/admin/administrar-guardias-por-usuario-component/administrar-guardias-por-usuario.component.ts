@@ -107,10 +107,6 @@ export class AdministrarGuardiasPorUsuarioComponent implements OnInit {
     // Obtener contexto de organización
     this.organizacionId = this.orgContext.value;
 
-    // ✅ Obtener sección desde múltiples fuentes (orden de prioridad)
-    // 1. Desde OrgContextService (más confiable)
-    // 2. Desde localStorage (loginSeccionImmutable - valor inmutable del login)
-    // 3. Desde localStorage (seccionPrincipalId - valor actual)
     this.seccionId =
       this.orgContext.seccion ||
       localStorage.getItem('loginSeccionImmutable') ||
@@ -123,12 +119,6 @@ export class AdministrarGuardiasPorUsuarioComponent implements OnInit {
     // ✅ Obtener nombre de la sección desde localStorage
     this.nombreSeccion = localStorage.getItem('currentSectionName') || null;
 
-    console.log('🔍 [AdminGuardias] Contexto:', {
-      orgId: this.organizacionId,
-      seccionId: this.seccionId,
-      nombreSeccion: this.nombreSeccion,
-      bloqueado: this.contextoBloqueo
-    });
 
     if (!this.organizacionId) {
       this.mostrarError('⚠️ No se pudo determinar la organización actual. Por favor, vuelva a iniciar sesión.');
@@ -142,19 +132,8 @@ export class AdministrarGuardiasPorUsuarioComponent implements OnInit {
         'Para usar este módulo, un administrador debe asignar una sección a este usuario en "Gestión de Usuarios". ' +
         'Después de asignar la sección, debe cerrar sesión y volver a iniciar sesión.'
       );
-      console.error('❌ [AdminGuardias] Usuario sin seccionId');
-      console.error('❌ [AdminGuardias] localStorage completo:', {
-        seccionPrincipalId: localStorage.getItem('seccionPrincipalId'),
-        loginSeccionImmutable: localStorage.getItem('loginSeccionImmutable'),
-        scopeNivel: localStorage.getItem('scopeNivel'),
-        loginScopeImmutable: localStorage.getItem('loginScopeImmutable'),
-        currentSectionName: localStorage.getItem('currentSectionName')
-      });
       return;
     }
-
-    // ✅ Cargar datos iniciales
-    console.log(`✅ [AdminGuardias] Cargando datos para sección: ${this.nombreSeccion || this.seccionId}`);
     this.cargarUsuarios();
     this.cargarGuardias();
   }
@@ -171,13 +150,16 @@ export class AdministrarGuardiasPorUsuarioComponent implements OnInit {
    * Cargar usuarios de la sección (rol: USUARIO)
    */
   cargarUsuarios(): void {
-    if (!this.seccionId || !this.organizacionId) return;
+    if (!this.seccionId || !this.organizacionId) {
+      return;
+    }
 
     this.loading = true;
 
-    this.usersService.list(this.organizacionId, { seccionId: this.seccionId }).subscribe({
+    // Usar endpoint correcto: list con filtro de sección (el backend filtra automáticamente)
+
+    const subscription = this.usersService.list(this.organizacionId, { seccionId: this.seccionId }).subscribe({
       next: (usuariosBackend: UserEntity[]) => {
-        // Filtrar por rol USUARIO en el frontend
         const usuariosFiltrados = usuariosBackend.filter(u => {
           const rolesStr = (u.rolNombres || []).join(',').toUpperCase();
           return rolesStr.includes('USUARIO') || u.rolNombre?.toUpperCase() === 'USUARIO';
@@ -189,7 +171,7 @@ export class AdministrarGuardiasPorUsuarioComponent implements OnInit {
       error: (err: any) => {
         this.mostrarError('Error al cargar usuarios: ' + (err?.error?.message || 'Error desconocido'));
         this.loading = false;
-      }
+      },
     });
   }
 
@@ -221,7 +203,6 @@ export class AdministrarGuardiasPorUsuarioComponent implements OnInit {
           permiteEntrada: true,
           permiteSalida: true
         } as Guardia));
-
         this.loading = false;
 
         // Si hay usuario seleccionado, recargar su estado

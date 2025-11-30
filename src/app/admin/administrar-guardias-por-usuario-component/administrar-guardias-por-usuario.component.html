@@ -1,0 +1,266 @@
+<p-toast></p-toast>
+
+<div class="administrar-guardias-container">
+  <!-- Encabezado -->
+  <div class="header">
+    <h1>Administrar Guardias por Usuario</h1>
+    <p class="subtitle">Asignar y restringir guardias a múltiples usuarios de la sección</p>
+  </div>
+
+  <!-- Mensaje de error global -->
+  <p-card *ngIf="error" class="error-card">
+    <div class="flex align-items-center gap-2">
+      <i class="pi pi-exclamation-circle" style="font-size: 1.5rem; color: var(--red-600);"></i>
+      <span>{{ error }}</span>
+    </div>
+  </p-card>
+
+  <!-- Contenedor principal con 3 columnas -->
+  <div class="main-grid-multiple">
+    <!-- COLUMNA 1: Usuarios -->
+    <p-card class="usuarios-card">
+      <ng-template pTemplate="header">
+        <div class="card-header">
+          <h3>Usuarios ({{ usuariosSeleccionados.length }} seleccionado(s))</h3>
+          <div class="flex align-items-center gap-2">
+            <p-checkbox
+              [(ngModel)]="todosUsuariosSeleccionados"
+              [binary]="true"
+              (onChange)="toggleTodosUsuarios($event)"
+              [disabled]="loading"
+              inputId="checkbox-todos-usuarios"
+            ></p-checkbox>
+            <label for="checkbox-todos-usuarios">Todos</label>
+          </div>
+        </div>
+      </ng-template>
+
+      <ng-template pTemplate="content">
+        <!-- Buscador -->
+        <div class="field mb-3">
+          <span class="p-input-icon-left w-full">
+            <i class="pi pi-search"></i>
+            <input
+              type="text"
+              pInputText
+              [(ngModel)]="filtroUsuario"
+              placeholder="Buscar usuario..."
+              class="w-full"
+              [disabled]="loading"
+            />
+          </span>
+        </div>
+
+        <!-- Loading -->
+        <div *ngIf="loading" class="loading-container">
+          <p-progressSpinner strokeWidth="4"></p-progressSpinner>
+        </div>
+
+        <!-- Lista de usuarios -->
+        <div *ngIf="!loading" class="usuarios-list">
+          <div
+            *ngFor="let usuario of usuariosFiltradosActuales"
+            class="usuario-item"
+            [class.selected]="isUsuarioSeleccionado(usuario)"
+          >
+            <p-checkbox
+              [ngModel]="isUsuarioSeleccionado(usuario)"
+              [binary]="true"
+              (onChange)="toggleUsuario(usuario, $event)"
+              [disabled]="loading"
+              [inputId]="'user-' + usuario.id"
+            ></p-checkbox>
+            <label [for]="'user-' + usuario.id" class="usuario-label">
+              <div class="usuario-info">
+                <div class="nombre">{{ usuario.nombreCompleto || usuario.username }}</div>
+                <div class="username">{{ '@' + usuario.username }}</div>
+                <p-tag
+                  [value]="usuario.activo ? 'ACTIVO' : 'INACTIVO'"
+                  [severity]="usuario.activo ? 'success' : 'danger'"
+                  styleClass="mt-1"
+                ></p-tag>
+              </div>
+            </label>
+          </div>
+
+          <!-- Mensaje si no hay usuarios -->
+          <div *ngIf="usuariosFiltradosActuales.length === 0" class="no-data">
+            <i class="pi pi-users"></i>
+            <p>No se encontraron usuarios</p>
+          </div>
+        </div>
+      </ng-template>
+    </p-card>
+
+    <!-- COLUMNA 2: Guardias -->
+    <p-card class="guardias-card">
+      <ng-template pTemplate="header">
+        <div class="card-header">
+          <h3>Guardias ({{ guardiasSeleccionadas.length }} seleccionada(s))</h3>
+          <div class="flex align-items-center gap-2">
+            <p-checkbox
+              [(ngModel)]="todasGuardiasSeleccionadas"
+              [binary]="true"
+              (onChange)="toggleTodasGuardias($event)"
+              [disabled]="loading"
+              inputId="checkbox-todas-guardias"
+            ></p-checkbox>
+            <label for="checkbox-todas-guardias">Todas</label>
+          </div>
+        </div>
+      </ng-template>
+
+      <ng-template pTemplate="content">
+        <!-- Buscador -->
+        <div class="field mb-3">
+          <span class="p-input-icon-left w-full">
+            <i class="pi pi-search"></i>
+            <input
+              type="text"
+              pInputText
+              [(ngModel)]="filtroGuardia"
+              placeholder="Buscar guardia..."
+              class="w-full"
+              [disabled]="loading"
+            />
+          </span>
+        </div>
+
+        <!-- Loading -->
+        <div *ngIf="loading" class="loading-container">
+          <p-progressSpinner strokeWidth="4"></p-progressSpinner>
+        </div>
+
+        <!-- Lista de guardias -->
+        <div *ngIf="!loading" class="guardias-list">
+          <div
+            *ngFor="let guardia of guardiasFiltradas"
+            class="guardia-item"
+            [class.selected]="isGuardiaSeleccionada(guardia)"
+          >
+            <p-checkbox
+              [ngModel]="isGuardiaSeleccionada(guardia)"
+              [binary]="true"
+              (onChange)="toggleGuardia(guardia, $event)"
+              [disabled]="loading"
+              [inputId]="'guardia-' + guardia.id"
+            ></p-checkbox>
+            <label [for]="'guardia-' + guardia.id" class="guardia-label">
+              <div class="guardia-info">
+                <div class="nombre">{{ guardia.nombre }}</div>
+                <div class="codigo">{{ guardia.codigo }}</div>
+                <div class="ubicacion" *ngIf="guardia.ubicacion">
+                  <i class="pi pi-map-marker"></i>
+                  {{ guardia.ubicacion }}
+                </div>
+                <div class="permisos">
+                  <span *ngIf="guardia.permiteEntrada" class="permiso entrada">
+                    <i class="pi pi-sign-in"></i>
+                  </span>
+                  <span *ngIf="guardia.permiteSalida" class="permiso salida">
+                    <i class="pi pi-sign-out"></i>
+                  </span>
+                  <p-tag
+                    *ngIf="!guardia.activa"
+                    value="INACTIVA"
+                    severity="warn"
+                  ></p-tag>
+                </div>
+              </div>
+            </label>
+          </div>
+
+          <!-- Mensaje si no hay guardias -->
+          <div *ngIf="guardiasFiltradas.length === 0" class="no-data">
+            <i class="pi pi-shield"></i>
+            <p>No se encontraron guardias</p>
+          </div>
+        </div>
+      </ng-template>
+    </p-card>
+
+    <!-- COLUMNA 3: Acciones -->
+    <p-card class="acciones-card">
+      <ng-template pTemplate="header">
+        <div class="card-header">
+          <h3>Acciones</h3>
+        </div>
+      </ng-template>
+
+      <ng-template pTemplate="content">
+        <!-- Resumen de selección -->
+        <div class="resumen-seleccion">
+          <div class="resumen-item">
+            <i class="pi pi-users"></i>
+            <span><strong>{{ usuariosSeleccionados.length }}</strong> usuario(s) seleccionado(s)</span>
+          </div>
+          <div class="resumen-item">
+            <i class="pi pi-shield"></i>
+            <span><strong>{{ guardiasSeleccionadas.length }}</strong> guardia(s) seleccionada(s)</span>
+          </div>
+        </div>
+
+        <!-- Botones de acción -->
+        <div class="acciones-buttons">
+          <p-button
+            label="Asignar Guardias"
+            icon="pi pi-check-circle"
+            severity="success"
+            [disabled]="usuariosSeleccionados.length === 0 || guardiasSeleccionadas.length === 0 || loading"
+            (onClick)="asignarGuardiasAUsuarios()"
+            styleClass="w-full mb-2"
+            [pTooltip]="usuariosSeleccionados.length === 0 || guardiasSeleccionadas.length === 0 ? 'Seleccione usuarios y guardias' : 'Asignar las guardias seleccionadas a los usuarios seleccionados'"
+          ></p-button>
+
+          <p-button
+            label="Restringir Guardias"
+            icon="pi pi-ban"
+            severity="danger"
+            [disabled]="usuariosSeleccionados.length === 0 || guardiasSeleccionadas.length === 0 || loading"
+            (onClick)="restringirGuardiasAUsuarios()"
+            styleClass="w-full mb-2"
+            [pTooltip]="usuariosSeleccionados.length === 0 || guardiasSeleccionadas.length === 0 ? 'Seleccione usuarios y guardias' : 'Restringir las guardias seleccionadas para los usuarios seleccionados'"
+          ></p-button>
+
+          <p-button
+            label="Revocar Asignaciones"
+            icon="pi pi-times-circle"
+            severity="warn"
+            [disabled]="usuariosSeleccionados.length === 0 || guardiasSeleccionadas.length === 0 || loading"
+            (onClick)="revocarGuardiasAUsuarios()"
+            styleClass="w-full mb-2"
+            [pTooltip]="usuariosSeleccionados.length === 0 || guardiasSeleccionadas.length === 0 ? 'Seleccione usuarios y guardias' : 'Revocar las asignaciones de las guardias seleccionadas para los usuarios seleccionados'"
+          ></p-button>
+
+          <p-button
+            label="Limpiar Selección"
+            icon="pi pi-refresh"
+            severity="secondary"
+            [disabled]="usuariosSeleccionados.length === 0 && guardiasSeleccionadas.length === 0"
+            (onClick)="limpiarSelecciones()"
+            styleClass="w-full"
+          ></p-button>
+        </div>
+
+        <!-- Información adicional -->
+        <div class="info-adicional mt-4">
+          <p-card>
+            <div class="info-content">
+              <i class="pi pi-info-circle"></i>
+              <div class="info-text">
+                <strong>Instrucciones:</strong>
+                <ul>
+                  <li>Seleccione uno o más usuarios</li>
+                  <li>Seleccione una o más guardias</li>
+                  <li>Elija la acción a realizar</li>
+                  <li>Las operaciones se aplicarán a todos los seleccionados</li>
+                </ul>
+              </div>
+            </div>
+          </p-card>
+        </div>
+      </ng-template>
+    </p-card>
+  </div>
+</div>
+

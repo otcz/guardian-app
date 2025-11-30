@@ -92,7 +92,7 @@ export const appRoutes: Routes = [
 
       // --- Módulo Guardia (Control de Ingreso y Salida) ---
       {
-        path: 'guardia',
+        path: 'modulo-guardia',
         loadChildren: () => import('./guardia/guardia.routes').then(m => m.GUARDIA_ROUTES)
       },
 
@@ -109,6 +109,12 @@ export const appRoutes: Routes = [
       { path: 'gestion-de-secciones/listar-secciones', redirectTo: 'listar-secciones', pathMatch: 'full' },
       { path: 'gestion-de-secciones/asignar-administrador-de-seccion', redirectTo: 'asignar-administrador-de-seccion', pathMatch: 'full' },
       { path: 'gestion-de-secciones/gestionar-seccion', component: SeccionGestionarComponent, canActivate: [PermissionGuard], data: { code: 'SECTION_REPORT_VIEW' } },
+      {
+        path: 'gestion-de-secciones/administrar-guardias-por-usuario',
+        loadComponent: () => import('./admin/administrar-guardias-por-usuario-component/administrar-guardias-por-usuario.component').then(m => m.AdministrarGuardiasPorUsuarioComponent),
+        canActivate: [PermissionGuard],
+        data: { code: 'ITEM_ADMINISTRAR_GUARDIAS_POR_USUARIO' }
+      },
       // Accesos a Lugares desde el prefijo de Secciones
       { path: 'gestion-de-secciones/listar-lugares', redirectTo: 'listar-lugares', pathMatch: 'full' },
       { path: 'gestion-de-secciones/crear-lugar', redirectTo: 'crear-lugar', pathMatch: 'full' },

@@ -67,6 +67,8 @@ export const LABELS = {
   // Formulario Control Ingreso
   GUARDIA_ACTUAL: 'Guardia Actual',
   IDENTIFICADOR: 'Documento / Placa / QR',
+  DOCUMENTO_USERNAME: 'Documento o Username',
+  PLACA_VEHICULO: 'Placa del Vehículo',
   OBSERVACIONES: 'Observaciones',
   INCLUIR_VEHICULO: 'Incluir vehículo',
 

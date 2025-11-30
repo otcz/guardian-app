@@ -74,6 +74,33 @@ export interface RestringirGuardiaDTO {
 }
 
 /**
+ * DTO para verificar si un usuario puede usar una guardia
+ */
+export interface PuedeUsarGuardiaDTO {
+  puedeUsar: boolean;
+  motivoRestriccion?: string;
+}
+
+
+/**
+ * Estados posibles de una guardia para un usuario
+ */
+export enum EstadoGuardia {
+  ASIGNADA = 'ASIGNADA',
+  RESTRINGIDA = 'RESTRINGIDA',
+  SIN_ASIGNAR = 'SIN_ASIGNAR'
+}
+
+/**
+ * Guardia con estado calculado para un usuario específico
+ */
+export interface GuardiaConEstado extends Guardia {
+  estado: EstadoGuardia;
+  motivoRestriccion?: string;
+  relacionId?: string; // ID de GuardiaUsuario si existe
+}
+
+/**
  * Modelo: Movimiento de Guardia (Entrada/Salida)
  */
 export interface MovimientoGuardia {

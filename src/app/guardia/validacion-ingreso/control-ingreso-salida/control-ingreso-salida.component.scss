@@ -1,75 +1,146 @@
 .control-container {
-  max-width: 900px;
-  margin: 2rem auto;
-  padding: 0 1rem;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 1rem;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
 }
 
-.card-header {
-  padding: 1.5rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+// Header con Guardia Asignada
+.guardia-header {
+  background: linear-gradient(90deg, #3b82f6 0%, #2563eb 100%);
   color: white;
-  border-radius: 8px 8px 0 0;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+  .header-content {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+
+    i {
+      font-size: 2.5rem;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 1.75rem;
+      font-weight: 600;
+    }
+  }
+
+  .guardia-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    backdrop-filter: blur(10px);
+
+    .guardia-label {
+      font-weight: 600;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      opacity: 0.9;
+    }
+
+    .guardia-nombre {
+      font-size: 1.25rem;
+      font-weight: 700;
+    }
+
+    .guardia-rol {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      opacity: 0.9;
+      margin-left: auto;
+      font-size: 0.9rem;
+
+      i {
+        font-size: 0.9rem;
+      }
+    }
+  }
+
+  .guardia-loading {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 1.1rem;
+
+    i {
+      font-size: 1.5rem;
+    }
+  }
 }
 
-.card-header h2 {
-  margin: 0;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  font-size: 1.5rem;
-}
-
-.card-header i {
-  font-size: 1.75rem;
-}
-
-::ng-deep {
-  .guardia-card .p-card-body,
-  .identificacion-card .p-card-body,
-  .resultado-card .p-card-body {
+// Card de Búsqueda
+::ng-deep .busqueda-card {
+  .p-card-body {
     padding: 1.5rem;
   }
 
-  .guardia-card .p-card-content,
-  .identificacion-card .p-card-content,
-  .resultado-card .p-card-content {
+  .p-card-content {
     padding: 0;
   }
 }
 
-.p-field {
-  margin-bottom: 1.5rem;
+.busqueda-field {
+  label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: #495057;
+    font-size: 1rem;
+  }
+
+  .p-inputgroup {
+    input {
+      font-size: 1.1rem;
+      padding: 0.875rem;
+      border-radius: 8px 0 0 8px;
+    }
+
+    button {
+      padding: 0 1.5rem;
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: 0 8px 8px 0;
+      background: linear-gradient(90deg, #3b82f6 0%, #2563eb 100%);
+      border: none;
+      transition: all 0.3s ease;
+
+      &:hover:not(:disabled) {
+        background: linear-gradient(90deg, #2563eb 0%, #1d4ed8 100%);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(59, 130, 246, 0.4);
+      }
+
+      &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+    }
+  }
 }
 
-.p-field:last-child {
-  margin-bottom: 0;
+// Card de Resultado
+::ng-deep .resultado-card {
+  .p-card-body {
+    padding: 1.5rem;
+  }
+
+  .p-card-content {
+    padding: 0;
+  }
 }
 
-.p-field label {
-  display: block;
-  margin-bottom: 0.5rem;
-  color: #495057;
-  font-weight: 500;
-}
-
-.guardia-option {
-  display: flex;
-  flex-direction: column;
-}
-
-.guardia-option strong {
-  color: #495057;
-}
-
-.guardia-option small {
-  color: #6c757d;
-  font-size: 0.875rem;
-}
-
-/* Resultado Card */
 .resultado-header {
   padding: 1rem 1.5rem;
   display: flex;
@@ -77,191 +148,130 @@
   gap: 0.75rem;
   font-size: 1.25rem;
   color: #495057;
+  border-bottom: 2px solid #e9ecef;
+  margin-bottom: 1rem;
+
+  i {
+    font-size: 1.5rem;
+  }
+
+  h3 {
+    margin: 0;
+    font-weight: 600;
+  }
 }
 
-.resultado-header i {
-  font-size: 1.5rem;
-}
-
-.resultado-header h3 {
-  margin: 0;
-}
-
-.entrada-card {
-  border-left: 4px solid #22c55e;
-}
-
-.salida-card {
-  border-left: 4px solid #3b82f6;
-}
-
-.bloqueado-card {
-  border-left: 4px solid #ef4444;
-}
-
-.resultado-header.bloqueado {
-  color: #ef4444;
-}
-
-/* Usuario Info */
 .usuario-info {
-  background-color: #f8f9fa;
-  padding: 1rem;
-  border-radius: 6px;
-  margin-bottom: 1.5rem;
-}
-
-.info-row {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.5rem 0;
-  border-bottom: 1px solid #e9ecef;
-}
-
-.info-row:last-child {
-  border-bottom: none;
-}
-
-.info-row label {
-  color: #6c757d;
-  font-weight: 500;
-  margin: 0;
-}
-
-.info-row strong {
-  color: #495057;
-  font-size: 1.1rem;
-}
-
-/* Vehículos Section */
-.vehiculos-section {
-  margin: 1.5rem 0;
-  padding: 1rem;
-  background-color: #fffbeb;
-  border-radius: 6px;
-  border: 1px solid #fbbf24;
-}
-
-.p-field-checkbox {
-  display: flex;
-  align-items: center;
-  margin: 1rem 0;
-}
-
-.p-field-checkbox label {
-  margin-left: 0.5rem;
-  margin-bottom: 0;
-  cursor: pointer;
-}
-
-/* Entrada Abierta Info */
-.entrada-abierta-info {
-  margin: 1.5rem 0;
-}
-
-::ng-deep .entrada-abierta-message .p-message-wrapper {
-  padding: 1rem;
-}
-
-.entrada-info-content {
-  display: flex;
+  flex-direction: column;
   gap: 1rem;
-}
-
-.entrada-info-content i {
-  font-size: 1.5rem;
-  color: #3b82f6;
-}
-
-.entrada-info-content p {
-  margin: 0.5rem 0 0 0;
-  color: #6c757d;
-  font-size: 0.95rem;
-  line-height: 1.6;
-}
-
-/* Bloqueo Message */
-::ng-deep .bloqueo-message .p-message-wrapper {
-  padding: 1rem;
-}
-
-.bloqueo-content {
-  display: flex;
-  gap: 1rem;
-}
-
-.bloqueo-content i {
-  font-size: 1.5rem;
-  color: #ef4444;
-}
-
-.bloqueo-content p {
-  margin: 0.5rem 0 0 0;
-  color: #6c757d;
-  white-space: pre-line;
-}
-
-/* Form Actions */
-.form-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 1rem;
-  margin-top: 1.5rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid #e9ecef;
-}
-
-::ng-deep .p-button-lg {
-  padding: 0.75rem 1.5rem;
-  font-size: 1.1rem;
-  font-weight: 600;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-  .control-container {
-    margin: 1rem auto;
-    padding: 0 0.5rem;
-  }
-
-  .card-header h2 {
-    font-size: 1.25rem;
-  }
 
   .info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem;
+    background: #f8f9fa;
+    border-radius: 6px;
+
+    label {
+      font-weight: 600;
+      color: #6c757d;
+      margin: 0;
+    }
+
+    strong {
+      color: #495057;
+    }
+  }
+}
+
+.vehiculos-section {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: #fff3cd;
+  border-left: 4px solid #ffc107;
+  border-radius: 6px;
+}
+
+.acciones {
+  margin-top: 1.5rem;
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+
+  button {
+    flex: 1;
+    min-width: 150px;
+    padding: 0.875rem 1.5rem;
+    font-size: 1.05rem;
+    font-weight: 600;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+
+    &.entrada-btn {
+      background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);
+      border: none;
+
+      &:hover:not(:disabled) {
+        background: linear-gradient(135deg, #388e3c 0%, #2e7d32 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+      }
+    }
+
+    &.salida-btn {
+      background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+      border: none;
+
+      &:hover:not(:disabled) {
+        background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(33, 150, 243, 0.4);
+      }
+    }
+
+    &.cancelar-btn {
+      background: #6c757d;
+      border: none;
+
+      &:hover {
+        background: #5a6268;
+      }
+    }
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .control-container {
+    padding: 0.5rem;
+  }
+
+  .guardia-header {
+    padding: 1.5rem;
+
+    .header-content h1 {
+      font-size: 1.25rem;
+    }
+
+    .guardia-info {
+      flex-direction: column;
+      align-items: flex-start;
+
+      .guardia-ubicacion {
+        margin-left: 0;
+      }
+    }
+  }
+
+  .acciones {
     flex-direction: column;
-    align-items: flex-start;
-    gap: 0.25rem;
-  }
 
-  .form-actions {
-    flex-direction: column-reverse;
+    button {
+      width: 100%;
+      min-width: auto;
+    }
   }
-
-  .form-actions button {
-    width: 100%;
-  }
-
-  ::ng-deep .p-button-lg {
-    padding: 0.65rem 1rem;
-    font-size: 1rem;
-  }
-}
-
-/* Animaciones */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.resultado-card {
-  animation: fadeIn 0.3s ease-in-out;
 }
 

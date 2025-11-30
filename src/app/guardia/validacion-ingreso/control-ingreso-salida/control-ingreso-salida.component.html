@@ -1,41 +1,28 @@
+<p-toast position="top-right"></p-toast>
+
 <div class="control-container">
-  <!-- Paso 1: Selección de Guardia -->
-  <p-card styleClass="guardia-card">
-    <ng-template pTemplate="header">
-      <div class="card-header">
-        <h2>
-          <i class="pi pi-shield"></i>
-          Control de Ingreso y Salida
-        </h2>
-      </div>
-    </ng-template>
-
-    <div class="p-field">
-      <label for="guardiaId">{{ LABELS.GUARDIA_ACTUAL }} *</label>
-      <p-dropdown
-        id="guardiaId"
-        [(ngModel)]="guardiaId"
-        [options]="guardias"
-        optionLabel="nombre"
-        optionValue="id"
-        placeholder="Seleccione la guardia actual"
-        [showClear]="false"
-        (onChange)="onGuardiaChange()"
-        [style]="{ width: '100%' }"
-      >
-        <ng-template let-guardia pTemplate="item">
-          <div class="guardia-option">
-            <strong>{{ guardia.nombre }}</strong>
-            <small>{{ guardia.ubicacion }}</small>
-          </div>
-        </ng-template>
-      </p-dropdown>
+  <!-- Header con Guardia Asignada -->
+  <div class="guardia-header">
+    <div class="header-content">
+      <i class="pi pi-shield"></i>
+      <h1>Control de Ingreso y Salida</h1>
     </div>
-  </p-card>
+    <div *ngIf="nombreGuardiaUsuario" class="guardia-info">
+      <span class="guardia-label">GUARDIA:</span>
+      <span class="guardia-nombre">{{ nombreGuardiaUsuario }}</span>
+      <span class="guardia-rol">
+        <i class="pi pi-user"></i> Usuario autenticado
+      </span>
+    </div>
+    <div *ngIf="!nombreGuardiaUsuario" style="background: rgba(255,0,0,0.2); padding: 1rem; border-radius: 4px; margin-top: 1rem;">
+      <strong>⚠️ Error: No se pudo identificar la guardia</strong>
+      <br><small>Por favor, vuelva a iniciar sesión</small>
+    </div>
+  </div>
 
-  <!-- Paso 2: Identificación de Usuario -->
-  <p-card *ngIf="guardiaId" styleClass="identificacion-card">
-    <div class="p-field">
+  <!-- Formulario de Búsqueda -->
+  <p-card *ngIf="guardiaId && !cargandoGuardias" styleClass="busqueda-card">
+    <div class="busqueda-field">
       <label for="identificador">{{ LABELS.IDENTIFICADOR }} *</label>
       <div class="p-inputgroup">
         <input
@@ -44,7 +31,7 @@
           type="text"
           pInputText
           [(ngModel)]="identificador"
-          [placeholder]="LABELS.PH_IDENTIFICADOR"
+          placeholder="Ingrese documento, placa o código QR"
           (keyup.enter)="onEnterIdentificador($event)"
           [disabled]="buscando"
           autofocus

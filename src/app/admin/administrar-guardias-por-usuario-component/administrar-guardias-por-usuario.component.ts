@@ -27,6 +27,7 @@ import { UsersService, UserEntity } from '../../service/users.service';
 import { GuardiaService } from '../../service/guardia.service';
 import { GuardiaUsuarioService } from '../../service/guardia-usuario.service';
 import { GuardiaUsuarioConsultaService, GuardiaUsuarioRelacion } from '../../service/guardia-usuario-consulta.service';
+import { GuardiasReporteService } from '../../service/guardias-reporte.service';
 import {
   Guardia,
   Usuario,
@@ -139,12 +140,17 @@ export class AdministrarGuardiasPorUsuarioComponent implements OnInit {
   // Relación temporal para restricción
   relacionParaRestringir: GuardiaUsuarioRelacion | null = null;
 
+  // Estado de descarga de reportes
+  descargandoReporteUsuario = false;
+  descargandoReporteGuardia = false;
+
   constructor(
     private orgContext: OrgContextService,
     private usersService: UsersService,
     private guardiaService: GuardiaService,
     private guardiaUsuarioService: GuardiaUsuarioService,
     private guardiaUsuarioConsulta: GuardiaUsuarioConsultaService,
+    private guardiasReporteService: GuardiasReporteService,
     private messageService: MessageService,
     private confirmationService: ConfirmationService
   ) {}
@@ -1225,5 +1231,162 @@ export class AdministrarGuardiasPorUsuarioComponent implements OnInit {
       life: 3000
     });
   }
-}
 
+  /**
+   * ============================================
+   * EXPORTACIÓN A EXCEL (BACKEND)
+   * ============================================
+   */
+
+  /**
+   * Exportar guardias de un usuario a Excel
+   * Consume el endpoint del backend que genera el informe con estilos profesionales
+   */
+  exportarGuardiasUsuarioAExcel(): void {
+    // Validación: debe haber un usuario seleccionado
+    if (!this.usuarioSeleccionadoDetalle) {
+      this.mostrarError('No hay usuario seleccionado');
+      return;
+    }
+
+    // Validación: deben existir los contextos necesarios
+    if (!this.seccionId || !this.organizacionId) {
+      this.mostrarError('Contexto de sección u organización no disponible');
+      return;
+    }
+
+    // Activar estado de carga
+    this.descargandoReporteUsuario = true;
+
+    // Mostrar feedback inmediato
+    this.mostrarInfo('⏳ Generando reporte Excel... Por favor espera');
+
+    // Llamar al servicio backend
+    this.guardiasReporteService.exportarGuardiasUsuario(
+      this.usuarioSeleccionadoDetalle.id,
+      this.usuarioSeleccionadoDetalle.username,
+      this.seccionId,
+      this.organizacionId
+    ).subscribe({
+      next: (blob) => {
+        this.descargandoReporteUsuario = false;
+
+        // Validar tamaño del archivo
+        const tamano = this.guardiasReporteService.obtenerTamanoLegible(blob);
+
+        // Alerta si el archivo es muy grande
+        if (!this.guardiasReporteService.validarTamanoArchivo(blob, 10)) {
+          this.mostrarInfo(`⚠️ Archivo grande (${tamano}). La descarga puede tardar un momento.`);
+        }
+
+        // Mensaje de éxito
+        this.mostrarExito(`✅ Reporte descargado exitosamente (${tamano})`);
+
+        // Log para debugging
+        console.log('Reporte de guardias descargado:', {
+          usuario: this.usuarioSeleccionadoDetalle?.username,
+          tamano: tamano,
+          tipo: blob.type
+        });
+      },
+      error: (error) => {
+        this.descargandoReporteUsuario = false;
+
+        console.error('Error al descargar reporte de guardias:', error);
+
+        // Manejo de errores específicos según código HTTP
+        let mensajeError = 'Error al generar el reporte Excel';
+
+        if (error.status === 403) {
+          mensajeError = '🔒 No tienes permisos para generar este reporte';
+        } else if (error.status === 404) {
+          mensajeError = '🔍 Usuario no encontrado o sin datos';
+        } else if (error.status === 400) {
+          mensajeError = '⚠️ Parámetros inválidos. Por favor, intenta nuevamente';
+        } else if (error.status === 500) {
+          mensajeError = '⚙️ Error del servidor. Por favor, contacta al administrador';
+        } else if (error.status === 0) {
+          mensajeError = '📡 Error de conexión. Verifica tu red e intenta nuevamente';
+        }
+
+        this.mostrarError(mensajeError);
+      }
+    });
+  }
+
+  /**
+   * Exportar usuarios de una guardia a Excel
+   * Consume el endpoint del backend que genera el informe con estilos profesionales
+   */
+  exportarUsuariosGuardiaAExcel(): void {
+    // Validación: debe haber una guardia seleccionada
+    if (!this.guardiaSeleccionadaDetalle) {
+      this.mostrarError('No hay guardia seleccionada');
+      return;
+    }
+
+    // Validación: deben existir los contextos necesarios
+    if (!this.seccionId || !this.organizacionId) {
+      this.mostrarError('Contexto de sección u organización no disponible');
+      return;
+    }
+
+    // Activar estado de carga
+    this.descargandoReporteGuardia = true;
+
+    // Mostrar feedback inmediato
+    this.mostrarInfo('⏳ Generando reporte Excel... Por favor espera');
+
+    // Llamar al servicio backend
+    this.guardiasReporteService.exportarUsuariosGuardia(
+      this.guardiaSeleccionadaDetalle.id,
+      this.guardiaSeleccionadaDetalle.codigo,
+      this.seccionId,
+      this.organizacionId
+    ).subscribe({
+      next: (blob) => {
+        this.descargandoReporteGuardia = false;
+
+        // Validar tamaño del archivo
+        const tamano = this.guardiasReporteService.obtenerTamanoLegible(blob);
+
+        // Alerta si el archivo es muy grande
+        if (!this.guardiasReporteService.validarTamanoArchivo(blob, 10)) {
+          this.mostrarInfo(`⚠️ Archivo grande (${tamano}). La descarga puede tardar un momento.`);
+        }
+
+        // Mensaje de éxito
+        this.mostrarExito(`✅ Reporte descargado exitosamente (${tamano})`);
+
+        // Log para debugging
+        console.log('Reporte de usuarios descargado:', {
+          guardia: this.guardiaSeleccionadaDetalle?.codigo,
+          tamano: tamano,
+          tipo: blob.type
+        });
+      },
+      error: (error) => {
+        this.descargandoReporteGuardia = false;
+
+        console.error('Error al descargar reporte de usuarios:', error);
+
+        // Manejo de errores específicos según código HTTP
+        let mensajeError = 'Error al generar el reporte Excel';
+
+        if (error.status === 403) {
+          mensajeError = '🔒 No tienes permisos para generar este reporte';
+        } else if (error.status === 404) {
+          mensajeError = '🔍 Guardia no encontrada o sin datos';
+        } else if (error.status === 400) {
+          mensajeError = '⚠️ Parámetros inválidos. Por favor, intenta nuevamente';
+        } else if (error.status === 500) {
+          mensajeError = '⚙️ Error del servidor. Por favor, contacta al administrador';
+        } else if (error.status === 0) {
+          mensajeError = '📡 Error de conexión. Verifica tu red e intenta nuevamente';
+        }
+
+        this.mostrarError(mensajeError);
+      }
+    });
+  }
+}

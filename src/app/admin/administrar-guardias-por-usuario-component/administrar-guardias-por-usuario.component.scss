@@ -168,6 +168,12 @@
         border-bottom: 1px solid var(--border);
 
         .card-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 1rem;
+          flex-wrap: wrap;
+
           h3 {
             margin: 0 0 0.25rem 0;
             color: var(--text);
@@ -368,6 +374,17 @@
         &:hover {
           background: color-mix(in srgb, var(--success) 90%, black);
           box-shadow: 0 4px 16px rgba(22, 163, 74, 0.4);
+        }
+
+        /* Botón success grande para exportación */
+        &.p-button-lg {
+          padding: 1rem 2rem;
+          font-size: 1rem;
+          font-weight: 700;
+
+          .p-button-icon {
+            font-size: 1.25rem;
+          }
         }
       }
 

@@ -263,6 +263,23 @@
                     ></p-button>
                   </div>
                 </div>
+
+                <!-- Botón de Exportación -->
+                <div *ngIf="!loadingGuardiasUsuario" class="mt-4 flex justify-content-center">
+                  <p-button
+                    [icon]="descargandoReporteUsuario ? 'pi pi-spin pi-spinner' : 'pi pi-file-excel'"
+                    [label]="descargandoReporteUsuario ? 'Generando Reporte...' : 'Exportar Reporte Completo a Excel'"
+                    severity="success"
+                    size="large"
+                    [disabled]="descargandoReporteUsuario || !usuarioSeleccionadoDetalle"
+                    [loading]="descargandoReporteUsuario"
+                    (onClick)="exportarGuardiasUsuarioAExcel()"
+                    pTooltip="Descargar todas las guardias (asignadas, restringidas y disponibles) en formato Excel"
+                    tooltipPosition="top"
+                    [attr.aria-label]="descargandoReporteUsuario ? 'Generando reporte Excel, por favor espere' : 'Exportar guardias a formato Excel'"
+                    [attr.aria-busy]="descargandoReporteUsuario"
+                  ></p-button>
+                </div>
               </p-card>
             </div>
           </div>
@@ -480,6 +497,23 @@
                       [disabled]="!usuariosSeleccionadosParaAsignar || usuariosSeleccionadosParaAsignar.length === 0"
                     ></p-button>
                   </div>
+                </div>
+
+                <!-- Botón de Exportación -->
+                <div *ngIf="!loadingUsuariosGuardia" class="mt-4 flex justify-content-center">
+                  <p-button
+                    [icon]="descargandoReporteGuardia ? 'pi pi-spin pi-spinner' : 'pi pi-file-excel'"
+                    [label]="descargandoReporteGuardia ? 'Generando Reporte...' : 'Exportar Reporte Completo a Excel'"
+                    severity="success"
+                    size="large"
+                    [disabled]="descargandoReporteGuardia || !guardiaSeleccionadaDetalle"
+                    [loading]="descargandoReporteGuardia"
+                    (onClick)="exportarUsuariosGuardiaAExcel()"
+                    pTooltip="Descargar todos los usuarios (con acceso, restringidos y disponibles) en formato Excel"
+                    tooltipPosition="top"
+                    [attr.aria-label]="descargandoReporteGuardia ? 'Generando reporte Excel, por favor espere' : 'Exportar usuarios a formato Excel'"
+                    [attr.aria-busy]="descargandoReporteGuardia"
+                  ></p-button>
                 </div>
               </p-card>
             </div>

@@ -18,6 +18,13 @@ Se ha implementado exitosamente el consumo de los servicios de reportes Excel de
 
 **Ubicación:** `src/app/service/guardias-reporte.service.ts`
 
+**Configuración:**
+```typescript
+import { environment } from '../config/environment';
+// ...
+private apiUrl = `${environment.apiBaseUrl}/reportes`;
+```
+
 **Funcionalidad:**
 - ✅ Consume endpoints `/api/reportes/guardias-usuario` y `/api/reportes/usuarios-guardia`
 - ✅ Maneja la descarga de archivos blob Excel

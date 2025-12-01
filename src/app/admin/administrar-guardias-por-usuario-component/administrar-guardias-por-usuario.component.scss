@@ -43,66 +43,107 @@
 
   /* ========== TABS PERSONALIZADOS ========== */
   ::ng-deep .custom-tabview {
-    background: var(--surface);
+    background: var(--surface) !important;
     border-radius: 14px;
     border: 1px solid var(--border);
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
     overflow: hidden;
 
-    .p-tabview-nav {
-      background: var(--surface);
-      border-bottom: 2px solid var(--border);
+    /* Estilos para las nuevas clases de PrimeNG */
+    .p-tablist-tab-list,
+    .p-tabview-nav,
+    .p-tablist,
+    .p-tabview-nav-container {
+      background: var(--surface) !important;
+      border-bottom: 2px solid var(--border) !important;
       padding: 0.75rem 1rem 0 1rem;
       margin: 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.25rem;
 
-      .p-tabview-nav-link {
-        background: transparent;
-        border: none;
-        color: var(--muted);
-        font-weight: 600;
-        font-size: 1rem;
-        padding: 1rem 1.75rem;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        border-radius: 10px 10px 0 0;
-        margin: 0 0.25rem;
-        position: relative;
+      /* PESTAÑAS NO SELECCIONADAS - GRIS */
+      .p-tablist-nav-link,
+      .p-tabview-nav-link,
+      .p-tab,
+      button,
+      a {
+        background: #d1d5db !important; /* Gris para no seleccionadas */
+        border: none !important;
+        color: #6b7280 !important; /* Gris oscuro para texto */
+        font-weight: 600 !important;
+        font-size: 0.9375rem !important;
+        padding: 0.875rem 1.25rem !important;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        border-radius: 10px 10px 0 0 !important;
+        margin: 0 !important;
+        position: relative !important;
+        white-space: nowrap !important;
+        min-width: fit-content !important;
 
         &:hover {
-          background: var(--bg);
-          color: var(--text);
-          transform: translateY(-2px);
+          background: #9ca3af !important; /* Gris más oscuro al hover */
+          color: #374151 !important;
+          transform: translateY(-2px) !important;
         }
 
-        .p-tabview-left-icon {
-          font-size: 1.125rem;
-          margin-right: 0.5rem;
+        .p-tabview-left-icon,
+        .p-tabview-title,
+        span,
+        i {
+          font-size: 1rem !important;
+          margin-right: 0.5rem !important;
+          color: inherit !important;
         }
       }
 
-      .p-tabview-selected {
-        .p-tabview-nav-link {
-          background: linear-gradient(135deg, var(--primary) 0%, var(--primary-600) 100%);
+      /* PESTAÑA SELECCIONADA - VERDE */
+      .p-tablist-active,
+      .p-tabview-selected,
+      li[aria-selected="true"],
+      .p-tab[aria-selected="true"] {
+        .p-tablist-nav-link,
+        .p-tabview-nav-link,
+        .p-tab,
+        button,
+        a {
+          background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
           color: #ffffff !important;
-          box-shadow: 0 4px 12px rgba(79, 140, 255, 0.4),
-                      0 2px 6px rgba(79, 140, 255, 0.2);
-          border: none;
+          box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4),
+                      0 2px 6px rgba(16, 185, 129, 0.2) !important;
+          border: none !important;
+
+          &:hover {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%) !important;
+            color: #ffffff !important;
+          }
+
+          .p-tabview-left-icon,
+          .p-tabview-title,
+          span,
+          i,
+          * {
+            color: #ffffff !important;
+          }
 
           &::after {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: var(--primary);
+            content: '' !important;
+            position: absolute !important;
+            bottom: -2px !important;
+            left: 0 !important;
+            right: 0 !important;
+            height: 3px !important;
+            background: #10b981 !important;
           }
         }
       }
     }
 
+    .p-tabpanels,
     .p-tabview-panels {
-      background: var(--surface);
-      padding: 2rem;
+      background: var(--surface) !important;
+      padding: 1.5rem;
+      color: var(--text) !important;
     }
   }
 
@@ -114,7 +155,7 @@
       border-radius: 14px;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
       transition: all 0.3s ease;
-      overflow: hidden;
+      overflow: visible; /* Cambiado de hidden a visible para que no recorte el multiSelect */
 
       &:hover {
         box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
@@ -153,6 +194,7 @@
       .p-card-content {
         padding: 1.5rem;
         background: var(--surface);
+        overflow: visible; /* También visible en el contenido */
       }
     }
   }
@@ -483,6 +525,8 @@
   /* ========== MULTISELECT ========== */
   ::ng-deep p-multiselect {
     width: 100%;
+    position: relative;
+    z-index: 1;
 
     .p-multiselect {
       background: var(--surface);
@@ -491,6 +535,8 @@
       color: var(--text);
       transition: all 0.3s ease;
       width: 100%;
+      position: relative;
+      z-index: 1;
 
       &:hover {
         border-color: var(--primary);
@@ -500,15 +546,18 @@
       &.p-focus {
         border-color: var(--primary);
         box-shadow: 0 0 0 3px rgba(79, 140, 255, 0.1);
+        z-index: 1050;
       }
 
       .p-multiselect-label {
         color: var(--text);
         padding: 0.875rem 1rem;
+        font-size: 0.9375rem;
       }
 
       .p-multiselect-trigger {
         color: var(--muted);
+        width: 3rem;
       }
     }
 
@@ -517,11 +566,66 @@
       border: 1px solid var(--border);
       border-radius: 10px;
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+      min-width: 450px !important;
+      max-width: 600px !important;
+      width: 500px !important;
+      z-index: 9999 !important; /* Z-index muy alto para estar por encima de todo */
+      margin-top: 4px !important;
+      position: absolute !important;
 
       .p-multiselect-header {
         background: var(--bg);
         border-bottom: 1px solid var(--border);
         padding: 1rem;
+
+        .p-checkbox {
+          margin-right: 0.5rem;
+        }
+
+        .p-multiselect-filter-container {
+          width: 100%;
+          margin-top: 0.5rem;
+
+          .p-inputtext {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            font-size: 0.9375rem;
+          }
+        }
+
+        .p-multiselect-close {
+          color: var(--muted);
+
+          &:hover {
+            background: var(--surface);
+            color: var(--text);
+          }
+        }
+      }
+
+      .p-multiselect-items-wrapper {
+        max-height: 350px;
+        overflow-y: auto;
+        overflow-x: hidden;
+
+        /* Scrollbar personalizado */
+        &::-webkit-scrollbar {
+          width: 6px;
+        }
+
+        &::-webkit-scrollbar-track {
+          background: var(--bg);
+          border-radius: 10px;
+        }
+
+        &::-webkit-scrollbar-thumb {
+          background: var(--border);
+          border-radius: 10px;
+
+          &:hover {
+            background: var(--muted);
+          }
+        }
       }
 
       .p-multiselect-items {
@@ -529,18 +633,71 @@
 
         .p-multiselect-item {
           color: var(--text);
-          padding: 0.75rem 1rem;
-          border-radius: 6px;
+          padding: 0.875rem 1rem;
+          border-radius: 8px;
           margin: 0.125rem 0;
+          white-space: normal;
+          word-wrap: break-word;
+          min-height: 3.5rem;
+          display: flex;
+          align-items: center;
+          transition: all 0.2s ease;
 
           &:hover {
             background: var(--bg);
+            transform: translateX(4px);
           }
 
           &.p-highlight {
-            background: var(--primary);
+            background: linear-gradient(90deg, var(--primary) 0%, var(--primary-600) 100%);
             color: #ffffff;
+            box-shadow: 0 2px 8px rgba(79, 140, 255, 0.3);
+
+            * {
+              color: #ffffff !important;
+            }
           }
+
+          .p-checkbox {
+            margin-right: 0.75rem;
+          }
+
+          /* Estilos para el template personalizado */
+          .flex {
+            width: 100%;
+
+            .pi-user {
+              font-size: 1.125rem;
+              margin-right: 0.5rem;
+            }
+
+            .flex-column {
+              flex: 1;
+              min-width: 0;
+
+              .font-semibold {
+                font-size: 0.9375rem;
+                font-weight: 600;
+                color: var(--text);
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+              }
+
+              small {
+                font-size: 0.8125rem;
+                color: var(--muted);
+                margin-top: 0.125rem;
+              }
+            }
+          }
+        }
+
+        .p-multiselect-empty-message {
+          padding: 2rem 1rem;
+          text-align: center;
+          color: var(--muted);
+          font-size: 0.9375rem;
         }
       }
     }
@@ -602,7 +759,7 @@
   }
 
   /* ========== RESPONSIVE ========== */
-  @media (max-width: 768px) {
+  @media (max-width: 1024px) {
     padding: 1rem;
 
     .header {
@@ -622,13 +779,19 @@
     }
 
     ::ng-deep .custom-tabview {
+      .p-tablist-tab-list,
       .p-tabview-nav {
+        padding: 0.5rem 0.75rem 0 0.75rem;
+
+        .p-tablist-nav-link,
         .p-tabview-nav-link {
           padding: 0.75rem 1rem;
           font-size: 0.875rem;
+          margin: 0 0.125rem;
         }
       }
 
+      .p-tabpanels,
       .p-tabview-panels {
         padding: 1rem;
       }
@@ -638,6 +801,202 @@
       .col-12 {
         padding: 0.5rem !important;
       }
+    }
+
+    /* Hacer que Agregar Guardias/Usuarios sea vertical en pantallas pequeñas */
+    .flex.gap-2 {
+      flex-direction: column !important;
+      gap: 0.75rem !important;
+
+      p-multiSelect,
+      .p-multiselect {
+        width: 100% !important;
+      }
+
+      p-button {
+        width: 100% !important;
+
+        .p-button {
+          width: 100% !important;
+        }
+      }
+    }
+
+    h4 {
+      font-size: 1rem;
+    }
+  }
+
+  @media (max-width: 768px) {
+    padding: 0.75rem;
+
+    .header {
+      padding: 0.75rem;
+
+      h1 {
+        font-size: 1.25rem;
+        gap: 0.5rem;
+
+        i {
+          font-size: 1rem;
+        }
+      }
+
+      .subtitle {
+        font-size: 0.8125rem;
+      }
+    }
+
+    ::ng-deep .custom-tabview {
+      .p-tablist-tab-list,
+      .p-tabview-nav {
+        padding: 0.25rem 0.5rem 0 0.5rem;
+        gap: 0.125rem;
+
+        .p-tablist-nav-link,
+        .p-tabview-nav-link {
+          padding: 0.625rem 0.875rem;
+          font-size: 0.8125rem;
+          margin: 0;
+
+          .p-tabview-left-icon {
+            font-size: 0.875rem;
+            margin-right: 0.375rem;
+          }
+        }
+      }
+
+      .p-tabpanels,
+      .p-tabview-panels {
+        padding: 0.75rem;
+      }
+    }
+
+    .grid {
+      .col-12 {
+        padding: 0.25rem !important;
+      }
+
+      /* En móvil, hacer una sola columna */
+      &.grid {
+        display: flex !important;
+        flex-direction: column !important;
+      }
+    }
+
+    /* Cards más compactos en móvil */
+    ::ng-deep p-card {
+      .p-card {
+        .p-card-header {
+          padding: 0.875rem 1rem;
+
+          h3 {
+            font-size: 1rem;
+          }
+
+          small {
+            font-size: 0.75rem;
+          }
+        }
+
+        .p-card-body,
+        .p-card-content {
+          padding: 0.875rem 1rem;
+        }
+      }
+    }
+
+    /* Botones de acción más pequeños */
+    .guardia-item,
+    .usuario-item {
+      .p-button {
+        padding: 0.5rem !important;
+
+        .p-button-icon {
+          font-size: 0.875rem;
+        }
+      }
+    }
+
+    h4 {
+      font-size: 0.9375rem;
+      margin: 1rem 0 0.75rem 0;
+    }
+  }
+
+  @media (max-width: 480px) {
+    padding: 0.5rem;
+
+    .header {
+      padding: 0.5rem;
+      margin-bottom: 1rem;
+
+      h1 {
+        font-size: 1.125rem;
+        gap: 0.375rem;
+      }
+
+      .subtitle {
+        font-size: 0.75rem;
+      }
+    }
+
+    ::ng-deep .custom-tabview {
+      border-radius: 10px;
+
+      .p-tablist-tab-list,
+      .p-tabview-nav {
+        .p-tablist-nav-link,
+        .p-tabview-nav-link {
+          padding: 0.5rem 0.75rem;
+          font-size: 0.75rem;
+          border-radius: 8px 8px 0 0;
+
+          .p-tabview-left-icon {
+            display: none; /* Ocultar iconos en pantallas muy pequeñas */
+          }
+        }
+      }
+
+      .p-tabpanels,
+      .p-tabview-panels {
+        padding: 0.5rem;
+      }
+    }
+
+    /* Listas más compactas */
+    .usuarios-list,
+    .guardias-list {
+      max-height: 400px !important;
+    }
+
+    .usuario-item,
+    .guardia-item {
+      padding: 0.5rem !important;
+
+      .font-semibold {
+        font-size: 0.875rem;
+      }
+
+      .text-sm {
+        font-size: 0.75rem;
+      }
+    }
+
+    /* Inputs de búsqueda más pequeños */
+    .field {
+      margin-bottom: 0.75rem;
+
+      .p-inputtext,
+      input[type="text"] {
+        padding: 0.625rem 0.875rem;
+        font-size: 0.875rem;
+      }
+    }
+
+    h4 {
+      font-size: 0.875rem;
+      margin: 0.75rem 0 0.5rem 0;
     }
   }
 }
@@ -765,3 +1124,359 @@
   }
 }
 
+/* ========== ESTILOS ADICIONALES PARA TABS (p-tabpanel) ========== */
+::ng-deep .administrar-guardias-container {
+  .p-tabpanel,
+  .p-tabview-panel {
+    background: var(--surface) !important;
+    color: var(--text) !important;
+  }
+  .p-tablist,
+  .p-tabview-nav-container {
+    background: var(--surface) !important;
+  }
+  .p-tablist-tab,
+  li[role="presentation"] {
+    background: transparent !important;
+    button {
+      background: transparent !important;
+      color: var(--muted) !important;
+      border: none !important;
+      &:hover {
+        background: var(--bg) !important;
+        color: var(--text) !important;
+      }
+    }
+    &[aria-selected="true"] button,
+    &.p-tablist-active button {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+      color: #ffffff !important;
+    }
+  }
+  .p-tabpanel-content,
+  .p-tabview-panel {
+    background: var(--surface) !important;
+    color: var(--text) !important;
+    * {
+      color: var(--text);
+    }
+    .text-color-secondary,
+    .text-sm {
+      color: var(--muted) !important;
+    }
+  }
+  .tab-content {
+    background: var(--surface);
+    color: var(--text);
+  }
+}
+/* ========== FORZAR COLORES EN MODO OSCURO Y NEGRO ========== */
+:root.theme-dark,
+:root.theme-black {
+  .administrar-guardias-container {
+    ::ng-deep {
+      .p-tablist-tab-list,
+      .p-tabview-nav,
+      .p-tablist,
+      .p-tabview-nav-container {
+        background: var(--surface) !important;
+        border-bottom-color: var(--border) !important;
+      }
+      .p-tabpanels,
+      .p-tabview-panels,
+      .p-tabpanel,
+      .p-tabview-panel {
+        background: var(--surface) !important;
+        color: var(--text) !important;
+      }
+      .p-card,
+      .p-card-body,
+      .p-card-content {
+        background: var(--surface) !important;
+        color: var(--text) !important;
+        border-color: var(--border) !important;
+      }
+      .p-card-header {
+        background: var(--bg) !important;
+        border-bottom-color: var(--border) !important;
+      }
+      input[type="text"],
+      .p-inputtext {
+        background: var(--surface) !important;
+        color: var(--text) !important;
+        border-color: var(--border) !important;
+        &::placeholder {
+          color: var(--muted) !important;
+        }
+      }
+      .p-button {
+        &.p-button-text {
+          color: var(--muted) !important;
+          &:hover {
+            background: var(--bg) !important;
+            color: var(--text) !important;
+          }
+        }
+      }
+    }
+  }
+}
+/* ========== CORRECCI�N ESPEC�FICA PARA p-tab ========== */
+::ng-deep .administrar-guardias-container {
+  /* Tabs inactivas - color muted (claro en modo claro, oscuro en modo oscuro) */
+  .p-tab,
+  .p-tablist-tab,
+  li[role="presentation"]:not([aria-selected="true"]) {
+    button,
+    .p-tablist-nav-link,
+    .p-tabview-nav-link {
+      color: var(--muted) !important;
+      span,
+      .p-tabview-left-icon,
+      .p-tabview-title,
+      * {
+        color: var(--muted) !important;
+      }
+      &:hover {
+        color: var(--text) !important;
+        span,
+        .p-tabview-left-icon,
+        .p-tabview-title,
+        * {
+          color: var(--text) !important;
+        }
+      }
+    }
+  }
+  /* Tabs activas - siempre blanco sobre verde */
+  .p-tab[aria-selected="true"],
+  .p-tablist-tab[aria-selected="true"],
+  li[role="presentation"][aria-selected="true"],
+  .p-tablist-active,
+  .p-tabview-selected {
+    button,
+    .p-tablist-nav-link,
+    .p-tabview-nav-link {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important; /* Verde */
+      color: #ffffff !important;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4),
+                  0 2px 6px rgba(16, 185, 129, 0.2);
+      span,
+      .p-tabview-left-icon,
+      .p-tabview-title,
+      * {
+        color: #ffffff !important;
+      }
+    }
+  }
+}
+/* ========== FORZAR EN MODO CLARO ========== */
+:root.theme-light {
+  .administrar-guardias-container {
+    ::ng-deep {
+      .p-tab:not([aria-selected="true"]),
+      .p-tablist-tab:not([aria-selected="true"]),
+      li[role="presentation"]:not([aria-selected="true"]) {
+        button,
+        .p-tablist-nav-link,
+        .p-tabview-nav-link {
+          color: #7a869a !important; /* Gris claro en modo claro */
+          * {
+            color: #7a869a !important;
+          }
+        }
+      }
+    }
+  }
+}
+
+/* ========== SOLUCION DEFINITIVA - COLORES FORZADOS ========== */
+/* Esta sección sobrescribe todos los estilos anteriores con máxima especificidad */
+.administrar-guardias-container ::ng-deep .custom-tabview {
+  /* Pestañas NO seleccionadas - GRIS */
+  .p-tablist-tab-list,
+  .p-tabview-nav,
+  .p-tablist,
+  .p-tabview-nav-container {
+    .p-tab:not([aria-selected="true"]),
+    .p-tablist-tab:not([aria-selected="true"]),
+    li[role="presentation"]:not([aria-selected="true"]),
+    button:not([aria-selected="true"]) {
+      background: #d1d5db !important;
+      color: #6b7280 !important;
+
+      .p-tablist-nav-link,
+      .p-tabview-nav-link,
+      button,
+      a,
+      span,
+      i,
+      .p-tabview-left-icon,
+      .p-tabview-title,
+      * {
+        background: #d1d5db !important;
+        color: #6b7280 !important;
+      }
+
+      &:hover {
+        background: #9ca3af !important;
+        color: #374151 !important;
+
+        * {
+          background: #9ca3af !important;
+          color: #374151 !important;
+        }
+      }
+    }
+
+    /* Pestaña SELECCIONADA - VERDE */
+    .p-tab[aria-selected="true"],
+    .p-tablist-tab[aria-selected="true"],
+    li[role="presentation"][aria-selected="true"],
+    .p-tablist-active,
+    .p-tabview-selected,
+    button[aria-selected="true"] {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+      color: #ffffff !important;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4), 0 2px 6px rgba(16, 185, 129, 0.2) !important;
+
+      .p-tablist-nav-link,
+      .p-tabview-nav-link,
+      button,
+      a,
+      span,
+      i,
+      .p-tabview-left-icon,
+      .p-tabview-title,
+      * {
+        background: transparent !important;
+        color: #ffffff !important;
+      }
+
+      &:hover {
+        background: linear-gradient(135deg, #059669 0%, #047857 100%) !important;
+        color: #ffffff !important;
+
+        * {
+          color: #ffffff !important;
+        }
+      }
+    }
+  }
+}
+
+/* Forzar para TODOS los selectores posibles */
+.administrar-guardias-container ::ng-deep {
+  /* NO SELECCIONADA */
+  .p-tab:not([aria-selected="true"]) button,
+  .p-tablist-tab:not([aria-selected="true"]) button,
+  .p-tablist-tab:not([aria-selected="true"]) .p-tablist-nav-link,
+  li[role="presentation"]:not([aria-selected="true"]) button,
+  li[role="presentation"]:not([aria-selected="true"]) .p-tablist-nav-link,
+  li[role="presentation"]:not([aria-selected="true"]) .p-tabview-nav-link {
+    background: #d1d5db !important;
+    color: #6b7280 !important;
+
+    * {
+      color: #6b7280 !important;
+    }
+
+    &:hover {
+      background: #9ca3af !important;
+      color: #374151 !important;
+
+      * {
+        color: #374151 !important;
+      }
+    }
+  }
+
+  /* SELECCIONADA */
+  .p-tab[aria-selected="true"] button,
+  .p-tablist-tab[aria-selected="true"] button,
+  .p-tablist-tab[aria-selected="true"] .p-tablist-nav-link,
+  .p-tablist-active button,
+  .p-tablist-active .p-tablist-nav-link,
+  .p-tabview-selected button,
+  .p-tabview-selected .p-tabview-nav-link,
+  li[role="presentation"][aria-selected="true"] button,
+  li[role="presentation"][aria-selected="true"] .p-tablist-nav-link,
+  li[role="presentation"][aria-selected="true"] .p-tabview-nav-link {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4), 0 2px 6px rgba(16, 185, 129, 0.2) !important;
+
+    span,
+    i,
+    .p-tabview-left-icon,
+    .p-tabview-title,
+    * {
+      color: #ffffff !important;
+    }
+
+    &:hover {
+      background: linear-gradient(135deg, #059669 0%, #047857 100%) !important;
+
+      * {
+        color: #ffffff !important;
+      }
+    }
+  }
+}
+
+/* ========== FORZAR Z-INDEX PARA MULTISELECT - SOLUCION GLOBAL ========== */
+/* Esta sección asegura que el panel del multiSelect siempre esté visible */
+::ng-deep {
+  .p-multiselect-panel {
+    z-index: 99999 !important; /* Z-index extremadamente alto */
+    position: fixed !important; /* Cambiar a fixed para que no dependa del contenedor padre */
+  }
+
+  /* Asegurar que el contenedor del tabview no recorte */
+  .custom-tabview {
+    overflow: visible !important;
+
+    .p-tabview-panels,
+    .p-tabpanels {
+      overflow: visible !important;
+    }
+  }
+
+  /* Asegurar que las cards no recorten */
+  p-card .p-card {
+    overflow: visible !important;
+
+    .p-card-body,
+    .p-card-content {
+      overflow: visible !important;
+    }
+  }
+}
+
+/* Forzar para el componente específico */
+.administrar-guardias-container {
+  position: relative;
+  z-index: 1;
+
+  ::ng-deep {
+    .p-multiselect-panel {
+      z-index: 99999 !important;
+      position: fixed !important;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2) !important;
+    }
+
+    /* Asegurar que los contenedores no recorten */
+    .grid,
+    .col-12,
+    p-card,
+    .p-card,
+    .p-card-body,
+    .p-card-content,
+    .custom-tabview,
+    .p-tabview-panels,
+    .p-tabpanels {
+      overflow: visible !important;
+      position: relative !important;
+    }
+  }
+}

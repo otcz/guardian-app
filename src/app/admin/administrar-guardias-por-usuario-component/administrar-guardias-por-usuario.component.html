@@ -19,7 +19,7 @@
         <i class="pi pi-map-marker mr-2"></i>
         <span>
           <strong>Contexto:</strong>
-          <span class="ml-2">{{ nombreOrganizacion || 'OrganizaciÃ³n' }}</span>
+          <span class="ml-2">{{ nombreOrganizacion || 'Organización' }}</span>
           <i class="pi pi-angle-right mx-2"></i>
           <span>{{ nombreSeccion }}</span>
         </span>
@@ -56,9 +56,9 @@
   <p-tabView *ngIf="!loading" [(activeIndex)]="activeTabIndex" styleClass="custom-tabview">
 
     <!-- ============================================ -->
-    <!-- TAB 1: USUARIOS â†’ GUARDIAS -->
+    <!-- TAB 1: USUARIOS X GUARDIAS -->
     <!-- ============================================ -->
-    <p-tabPanel header="ðŸ‘¤ Usuarios â†’ Guardias" leftIcon="pi pi-users">
+    <p-tabPanel header="Usuarios por Guardias" leftIcon="pi pi-users">
       <div class="tab-content">
         <div class="grid">
           <!-- Columna Izquierda: Lista de Usuarios -->
@@ -153,7 +153,7 @@
                           <i class="pi pi-map-marker mr-2"></i>{{ relacion.guardiaNombre }}
                         </div>
                         <div class="text-sm text-color-secondary mt-1">
-                          CÃ³digo: {{ relacion.guardiaCodigo }}
+                          Código: {{ relacion.guardiaCodigo }}
                         </div>
                         <div *ngIf="relacion.observaciones" class="text-sm text-color-secondary mt-1">
                           <i class="pi pi-info-circle mr-1"></i>{{ relacion.observaciones }}
@@ -198,7 +198,7 @@
                           <i class="pi pi-ban mr-2"></i>{{ relacion.guardiaNombre }}
                         </div>
                         <div class="text-sm text-color-secondary mt-1">
-                          CÃ³digo: {{ relacion.guardiaCodigo }}
+                          Código: {{ relacion.guardiaCodigo }}
                         </div>
                         <div *ngIf="relacion.motivoRestriccion" class="text-sm danger-color mt-1">
                           <i class="pi pi-exclamation-triangle mr-1"></i>Motivo: {{ relacion.motivoRestriccion }}
@@ -209,7 +209,7 @@
                           icon="pi pi-check"
                           severity="success"
                           [text]="true"
-                          label="Quitar RestricciÃ³n"
+                          label="Quitar Restricción"
                           (onClick)="onQuitarRestriccionUsuario(relacion)"
                         ></p-button>
                       </div>
@@ -233,12 +233,28 @@
                       [options]="getGuardiasNoAsignadas()"
                       [(ngModel)]="guardiasSeleccionadasParaAsignar"
                       optionLabel="nombre"
-                      placeholder="Seleccione guardias..."
+                      placeholder="🔍 Buscar y seleccionar guardias..."
                       [filter]="true"
+                      [filterMatchMode]="'contains'"
                       filterBy="nombre,codigo"
-                      styleClass="flex-1"
-                      [showHeader]="false"
-                    ></p-multiSelect>
+                      filterPlaceHolder="Buscar por nombre o código..."
+                      emptyFilterMessage="No se encontraron guardias"
+                      emptyMessage="No hay guardias disponibles"
+                      [showToggleAll]="true"
+                      [showHeader]="true"
+                      styleClass="flex-1 w-full"
+                      [panelStyle]="{ 'min-width': '400px', 'max-width': '600px' }"
+                    >
+                      <ng-template let-guardia pTemplate="item">
+                        <div class="flex align-items-center gap-2">
+                          <i class="pi pi-map-marker text-primary"></i>
+                          <div class="flex flex-column">
+                            <span class="font-semibold">{{ guardia.nombre }}</span>
+                            <small class="text-color-secondary">{{ guardia.codigo }}</small>
+                          </div>
+                        </div>
+                      </ng-template>
+                    </p-multiSelect>
                     <p-button
                       label="Asignar"
                       icon="pi pi-check"
@@ -255,9 +271,9 @@
     </p-tabPanel>
 
     <!-- ============================================ -->
-    <!-- TAB 2: GUARDIAS â†’ USUARIOS -->
+    <!-- TAB 2: GUARDIAS X USUARIOS -->
     <!-- ============================================ -->
-    <p-tabPanel header="ðŸšª Guardias â†’ Usuarios" leftIcon="pi pi-building">
+    <p-tabPanel header="Guardias por Usuarios" leftIcon="pi pi-building">
       <div class="tab-content">
         <div class="grid">
           <!-- Columna Izquierda: Lista de Guardias -->
@@ -435,12 +451,28 @@
                       [options]="getUsuariosNoAsignados()"
                       [(ngModel)]="usuariosSeleccionadosParaAsignar"
                       optionLabel="nombreCompleto"
-                      placeholder="Seleccione usuarios..."
+                      placeholder="🔍 Buscar y seleccionar usuarios..."
                       [filter]="true"
-                      filterBy="nombreCompleto,username"
-                      styleClass="flex-1"
-                      [showHeader]="false"
-                    ></p-multiSelect>
+                      [filterMatchMode]="'contains'"
+                      filterBy="nombreCompleto,username,email"
+                      filterPlaceHolder="Buscar por nombre, usuario o email..."
+                      emptyFilterMessage="No se encontraron usuarios"
+                      emptyMessage="No hay usuarios disponibles"
+                      [showToggleAll]="true"
+                      [showHeader]="true"
+                      styleClass="flex-1 w-full"
+                      [panelStyle]="{ 'min-width': '400px', 'max-width': '600px' }"
+                    >
+                      <ng-template let-usuario pTemplate="item">
+                        <div class="flex align-items-center gap-2">
+                          <i class="pi pi-user text-primary"></i>
+                          <div class="flex flex-column">
+                            <span class="font-semibold">{{ usuario.nombreCompleto }}</span>
+                            <small class="text-color-secondary">{{ '@' }}{{ usuario.username }}</small>
+                          </div>
+                        </div>
+                      </ng-template>
+                    </p-multiSelect>
                     <p-button
                       label="Asignar"
                       icon="pi pi-check"
@@ -493,3 +525,4 @@
     ></p-button>
   </ng-template>
 </p-dialog>
+

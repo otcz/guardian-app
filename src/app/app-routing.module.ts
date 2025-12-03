@@ -114,14 +114,27 @@ export const appRoutes: Routes = [
       { path: 'gestion-de-secciones/listar-secciones', redirectTo: 'listar-secciones', pathMatch: 'full' },
       { path: 'gestion-de-secciones/asignar-administrador-de-seccion', redirectTo: 'asignar-administrador-de-seccion', pathMatch: 'full' },
       { path: 'gestion-de-secciones/gestionar-seccion', component: SeccionGestionarComponent, canActivate: [PermissionGuard], data: { code: 'SECTION_REPORT_VIEW' } },
+      // LEGACY: Redirects desde rutas antiguas a las nuevas rutas de PUNTOS DE CONTROL
       {
         path: 'gestion-de-secciones/crear-punto-de-control',
+        redirectTo: 'puntos-de-control/crear-punto-de-control',
+        pathMatch: 'full'
+      },
+      {
+        path: 'gestion-de-secciones/administrar-guardias-por-usuario',
+        redirectTo: 'puntos-de-control/administrar-guardias-por-usuario',
+        pathMatch: 'full'
+      },
+
+      // --- PUNTOS DE CONTROL (nuevo menú) ---
+      {
+        path: 'puntos-de-control/crear-punto-de-control',
         component: PuntoControlCrearComponent,
         canActivate: [PermissionGuard],
         data: { code: 'ITEM_CREAR_PUNTO_DE_CONTROL' }
       },
       {
-        path: 'gestion-de-secciones/administrar-guardias-por-usuario',
+        path: 'puntos-de-control/administrar-guardias-por-usuario',
         loadComponent: () => import('./admin/administrar-guardias-por-usuario-component/administrar-guardias-por-usuario.component').then(m => m.AdministrarGuardiasPorUsuarioComponent),
         canActivate: [PermissionGuard],
         data: { code: 'ITEM_ADMINISTRAR_GUARDIAS_POR_USUARIO' }

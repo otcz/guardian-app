@@ -638,34 +638,66 @@ export class UsuariosCrearComponent implements OnInit {
   loadSecciones() {
     if (!this.orgId) return;
     this.loading = true;
-    this.seccionService.list(this.orgId).subscribe({
-      next: (list) => {
-        this.secciones = list;
-        this.loading = false;
 
-        // Auto-asignar sección para usuarios de sección
-        if (!this.model.seccionId) {
-          // Intentar del contexto/localStorage primero
-          let seccionContexto = this.orgCtx.seccion;
-          if (!seccionContexto) {
-            try {
-              seccionContexto = localStorage.getItem('seccionPrincipalId');
-            } catch {}
-          }
+    // Detectar si el usuario que hace login es de una sección específica
+    let seccionLoginId: string | null = null;
+    try {
+      seccionLoginId = localStorage.getItem('loginSeccionImmutable') || localStorage.getItem('seccionPrincipalId');
+    } catch {}
 
-          if (seccionContexto) {
-            this.model.seccionId = seccionContexto;
-            this.onSeccionChange();
-          } else if (this.tieneContextoSeccion && this.secciones.length > 0) {
-            // Si es usuario de sección, asignar la primera sección disponible
-            // El backend validará que sea la correcta
-            this.model.seccionId = this.secciones[0].id;
-            this.onSeccionChange();
-          }
+    if (!seccionLoginId) {
+      seccionLoginId = this.orgCtx.seccion;
+    }
+
+    // Si hay una sección de login, SOLO mostrar esa sección (no todas)
+    if (seccionLoginId && this.tieneContextoSeccion) {
+      // Cargar solo la sección específica del login
+      this.seccionService.get(this.orgId, seccionLoginId).subscribe({
+        next: (seccion) => {
+          // Solo incluir la sección del login
+          this.secciones = [seccion];
+          this.loading = false;
+
+          // Auto-asignar automáticamente
+          this.model.seccionId = seccion.id;
+          this.onSeccionChange();
+        },
+        error: (e) => {
+          this.loading = false;
+          this.notify.error('Error', e?.error?.message || 'No se pudo cargar la sección');
         }
-      },
-      error: (e) => { this.loading = false; this.notify.error('Error', e?.error?.message || 'No se pudieron cargar secciones'); }
-    });
+      });
+    } else {
+      // Si NO hay contexto de sección (usuario SYSADMIN o ORGANIZACION), cargar TODAS las secciones
+      this.seccionService.list(this.orgId).subscribe({
+        next: (list) => {
+          this.secciones = list;
+          this.loading = false;
+
+          // Auto-asignar sección para usuarios de sección
+          if (!this.model.seccionId) {
+            // Intentar del contexto/localStorage primero
+            let seccionContexto = this.orgCtx.seccion;
+            if (!seccionContexto) {
+              try {
+                seccionContexto = localStorage.getItem('seccionPrincipalId');
+              } catch {}
+            }
+
+            if (seccionContexto) {
+              this.model.seccionId = seccionContexto;
+              this.onSeccionChange();
+            } else if (this.tieneContextoSeccion && this.secciones.length > 0) {
+              // Si es usuario de sección, asignar la primera sección disponible
+              // El backend validará que sea la correcta
+              this.model.seccionId = this.secciones[0].id;
+              this.onSeccionChange();
+            }
+          }
+        },
+        error: (e) => { this.loading = false; this.notify.error('Error', e?.error?.message || 'No se pudieron cargar secciones'); }
+      });
+    }
   }
 
   // Método para combinar código de país y número

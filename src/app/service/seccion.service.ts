@@ -135,6 +135,45 @@ export class SeccionService {
     );
   }
 
+  getById(orgId: string, seccionId: string): Observable<SeccionEntity> {
+    const path = `/orgs/${orgId}/secciones/${seccionId}`;
+    const urlPrimary = `${this.base}${path}`;
+    const urlFallback = `${environment.backendHost}${this.base}${path}`;
+
+    const mapResponse = (resp: ApiResponse<any>): SeccionEntity => {
+      if (!resp || resp.success === false) {
+        throw { error: { message: resp?.message || 'No se pudo obtener la sección' }, status: 400 };
+      }
+      const d = resp.data || {};
+      return {
+        id: String(d.id),
+        nombre: String(d.nombre),
+        descripcion: d.descripcion || undefined,
+        estado: d.estado || undefined,
+        autonomiaConfigurada: !!(d.autonomiaConfigurada ?? d.autonomiaConfigurada === true),
+        seccionPadreId: d.seccionPadreId ?? d.idSeccionPadre ?? null,
+        adminId: (d.administradorId ?? d.administradorPrincipal ?? d.adminId ?? d?.administradorEntity?.id) != null ? String(d.administradorId ?? d.administradorPrincipal ?? d.adminId ?? d?.administradorEntity?.id) : null,
+        adminNombre: (d.administradorNombre ?? d.administradorUsername ?? d?.administradorEntity?.nombre ?? d?.administradorEntity?.username) != null ? String(d.administradorNombre ?? d.administradorUsername ?? d?.administradorEntity?.nombre ?? d?.administradorEntity?.username) : null
+      } as SeccionEntity;
+    };
+
+    return this.http.get<ApiResponse<any>>(urlPrimary, { headers: this.accept }).pipe(
+      map(mapResponse),
+      catchError((err) => {
+        const status = err?.status;
+        if (status === 0 || status === 404 || status === 502 || status === 503) {
+          return this.http.get<ApiResponse<any>>(urlFallback, { headers: this.accept }).pipe(
+            map(mapResponse),
+            catchError((e2) =>
+              throwError(() => ({ error: { message: e2?.error?.message || e2?.message || 'No se pudo obtener la sección' }, status: e2?.status }))
+            )
+          );
+        }
+        return throwError(() => ({ error: { message: err?.error?.message || err?.message || 'No se pudo obtener la sección' }, status }));
+      })
+    );
+  }
+
   update(orgId: string, seccionId: string, body: UpdateSeccionRequest): Observable<{ seccion: SeccionEntity; message?: string }> {
     const url = `${this.base}/orgs/${orgId}/secciones/${seccionId}`;
     return this.http.patch<ApiResponse<any>>(url, body, { headers: this.json }).pipe(

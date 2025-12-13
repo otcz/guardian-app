@@ -86,10 +86,10 @@
                 <span>Roles</span>
               </div>
             </th>
-            <th style="width: 150px">
+            <th style="width: 180px">
               <div class="th-content">
-                <i class="pi pi-phone"></i>
-                <span>Teléfono</span>
+                <i class="pi pi-id-card"></i>
+                <span>Identificación</span>
               </div>
             </th>
             <th style="width: 120px">
@@ -184,11 +184,21 @@
               </ng-container>
             </td>
 
-            <!-- Teléfono -->
+            <!-- Identificación (REQ-001) -->
             <td>
-              <div class="phone-cell">
-                <i class="pi pi-phone" *ngIf="u.telefono"></i>
-                <span>{{ u.telefono || '—' }}</span>
+              <div class="id-cell">
+                <ng-container *ngIf="u.tipoIdentificacion && u.identificacion; else noId">
+                  <p-chip
+                    [icon]="'pi pi-id-card'"
+                    styleClass="id-chip">
+                    <span class="id-type">{{ u.tipoIdentificacion }}</span>
+                    <span class="id-separator">:</span>
+                    <span class="id-number">{{ u.identificacion }}</span>
+                  </p-chip>
+                </ng-container>
+                <ng-template #noId>
+                  <span class="text-muted">—</span>
+                </ng-template>
               </div>
             </td>
 

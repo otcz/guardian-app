@@ -9,6 +9,19 @@ export interface ApiResponse<T> { success?: boolean; message?: string; data?: T;
 
 export type ScopeNivel = 'ORGANIZACION' | 'SECCION' | string;
 
+/**
+ * Tipos de documento de identidad soportados
+ * REQ-001: Campo de Identificación de Usuario
+ */
+export enum TipoIdentificacion {
+  CEDULA = 'CEDULA',       // Cédula de ciudadanía/identidad
+  PASAPORTE = 'PASAPORTE', // Pasaporte internacional
+  DNI = 'DNI',             // Documento Nacional de Identidad
+  RUC = 'RUC',             // Registro Único de Contribuyentes
+  LICENCIA = 'LICENCIA',   // Licencia de conducir
+  OTRO = 'OTRO'            // Otro tipo de documento
+}
+
 export interface LugarSimpleDto {
   id: string;
   nombre: string;
@@ -40,6 +53,9 @@ export interface UserEntity {
   rolNombre?: string | null;
   // LUGARES ASIGNADOS
   lugaresAsignados?: LugarSimpleDto[] | null;
+  // CAMPOS DE IDENTIFICACIÓN (REQ-001)
+  tipoIdentificacion?: TipoIdentificacion | null;
+  identificacion?: string | null;
 }
 
 export interface CreateUserRequest {
@@ -56,6 +72,9 @@ export interface CreateUserRequest {
   rolesIds?: string[] | string | null;
   // NUEVO: lugares asignados al usuario (múltiples)
   lugaresIds?: string[] | null;
+  // CAMPOS DE IDENTIFICACIÓN (REQ-001)
+  tipoIdentificacion?: TipoIdentificacion | null;
+  identificacion?: string | null;
 }
 
 export interface UpdateUserRequest {
@@ -68,6 +87,9 @@ export interface UpdateUserRequest {
   seccionId?: string | null;
   // NUEVO: lugares asignados (reemplaza completamente)
   lugaresIds?: string[] | null;
+  // CAMPOS DE IDENTIFICACIÓN (REQ-001)
+  tipoIdentificacion?: TipoIdentificacion | null;
+  identificacion?: string | null;
 }
 
 // Contrato de asignación de rol a usuario
@@ -174,7 +196,10 @@ export class UsersService {
       seccionId: body.seccionId ?? undefined,
       orgAdministradaId: body.orgAdministradaId ?? undefined,
       rolesIds: body.rolesIds ?? undefined,
-      lugaresIds: body.lugaresIds ?? undefined
+      lugaresIds: body.lugaresIds ?? undefined,
+      // campos de identificación (REQ-001)
+      tipoIdentificacion: body.tipoIdentificacion ?? undefined,
+      identificacion: body.identificacion ?? undefined
     };
     return this.http.post<ApiResponse<any>>(url, payload, { headers: this.json }).pipe(
       map((resp) => {

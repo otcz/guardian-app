@@ -144,6 +144,50 @@
               />
             </div>
 
+            <!-- Tipo de Identificación (REQ-001) -->
+            <div class="field">
+              <label for="tipoIdentificacion" class="field-label">
+                <i class="pi pi-id-card label-icon"></i>
+                Tipo de Identificación
+              </label>
+              <p-dropdown
+                id="tipoIdentificacion"
+                [options]="tiposIdentificacion"
+                optionLabel="label"
+                optionValue="value"
+                [(ngModel)]="model.tipoIdentificacion"
+                name="tipoIdentificacion"
+                placeholder="Seleccione tipo..."
+                styleClass="w-100">
+              </p-dropdown>
+              <small class="info-message">
+                <i class="pi pi-info-circle"></i>
+                Tipo de documento (opcional)
+              </small>
+            </div>
+
+            <!-- Número de Identificación (REQ-001) -->
+            <div class="field">
+              <label for="identificacion" class="field-label">
+                <i class="pi pi-hashtag label-icon"></i>
+                Número de Identificación
+              </label>
+              <input
+                pInputText
+                id="identificacion"
+                type="text"
+                name="identificacion"
+                [(ngModel)]="model.identificacion"
+                maxlength="50"
+                placeholder="Ej: 1234567890"
+                class="input-field"
+              />
+              <small class="info-message">
+                <i class="pi pi-info-circle"></i>
+                Debe ser único en el sistema (opcional)
+              </small>
+            </div>
+
             <!-- Teléfono (Dividido en código de país y número) -->
             <div class="field field-full">
               <label class="field-label">

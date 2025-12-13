@@ -8,7 +8,7 @@ import { ButtonModule } from 'primeng/button';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { UppercaseDirective } from '../../shared/formatting.directives';
 import { OrgContextService } from '../../service/org-context.service';
-import { UsersService, UserEntity, UpdateUserRequest } from '../../service/users.service';
+import { UsersService, UserEntity, UpdateUserRequest, TipoIdentificacion } from '../../service/users.service';
 import { NotificationService } from '../../service/notification.service';
 import { SeccionService, SeccionEntity } from '../../service/seccion.service';
 import { TagModule } from 'primeng/tag';
@@ -20,11 +20,12 @@ import { ToolbarModule } from 'primeng/toolbar';
 import { SkeletonModule } from 'primeng/skeleton';
 import { ChipModule } from 'primeng/chip';
 import { RolesService, UserRoleAssignment } from '../../service/roles.service';
+import { DropdownModule } from 'primeng/dropdown';
 
 @Component({
   selector: 'app-usuario-gestionar',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, CardModule, InputTextModule, ButtonModule, ProgressSpinnerModule, UppercaseDirective, TagModule, DividerModule, TooltipModule, AvatarModule, ToolbarModule, SkeletonModule, ChipModule],
+  imports: [CommonModule, FormsModule, RouterModule, CardModule, InputTextModule, ButtonModule, ProgressSpinnerModule, UppercaseDirective, TagModule, DividerModule, TooltipModule, AvatarModule, ToolbarModule, SkeletonModule, ChipModule, DropdownModule],
   templateUrl: './usuario-gestionar.component.html',
   styleUrls: ['./usuario-gestionar.component.scss']
 })
@@ -39,6 +40,23 @@ export class UsuarioGestionarComponent implements OnInit {
   principalSeccionNombre: string | null = null;
   roles: UserRoleAssignment[] = [];
   rolesLoading = false;
+
+  // Opciones de tipo de identificación (REQ-001)
+  tiposIdentificacion = [
+    { label: 'Cédula', value: TipoIdentificacion.CEDULA },
+    { label: 'Pasaporte', value: TipoIdentificacion.PASAPORTE },
+    { label: 'DNI', value: TipoIdentificacion.DNI },
+    { label: 'RUC', value: TipoIdentificacion.RUC },
+    { label: 'Licencia', value: TipoIdentificacion.LICENCIA },
+    { label: 'Otro', value: TipoIdentificacion.OTRO }
+  ];
+
+  // Helper para obtener el label del tipo de identificación
+  getTipoIdentificacionLabel(tipo: TipoIdentificacion | null | undefined): string {
+    if (!tipo) return 'Sin definir';
+    const found = this.tiposIdentificacion.find(t => t.value === tipo);
+    return found ? found.label : tipo;
+  }
 
   // Helpers de visualización
   isPresent(v: any): boolean {
@@ -129,7 +147,15 @@ export class UsuarioGestionarComponent implements OnInit {
   toggleEdit() {
     if (!this.user) return;
     this.editing = true;
-    this.draft = { username: this.user.username, nombreCompleto: this.user.nombreCompleto || '', email: this.user.email || '', telefono: this.user.telefono || '' } as UpdateUserRequest;
+    this.draft = {
+      username: this.user.username,
+      nombreCompleto: this.user.nombreCompleto || '',
+      email: this.user.email || '',
+      telefono: this.user.telefono || '',
+      // campos de identificación (REQ-001)
+      tipoIdentificacion: this.user.tipoIdentificacion || null,
+      identificacion: this.user.identificacion || ''
+    } as UpdateUserRequest;
   }
 
   cancel() { this.editing = false; this.draft = {}; }
@@ -141,7 +167,10 @@ export class UsuarioGestionarComponent implements OnInit {
       username: (this.draft.username || '').toString().trim().toUpperCase() || undefined,
       nombreCompleto: (this.draft.nombreCompleto || '').toString().trim() || undefined,
       email: (this.draft.email || '').toString().trim() || undefined,
-      telefono: (this.draft as any).telefono ? String((this.draft as any).telefono).trim() : undefined
+      telefono: (this.draft as any).telefono ? String((this.draft as any).telefono).trim() : undefined,
+      // campos de identificación (REQ-001)
+      tipoIdentificacion: this.draft.tipoIdentificacion || undefined,
+      identificacion: this.draft.identificacion ? String(this.draft.identificacion).trim() : undefined
     };
     this.users.update(this.orgId, this.userId, body).subscribe({
       next: res => { this.user = res.user; this.saving = false; this.editing = false; this.notify.success('Éxito', res.message || 'USUARIO ACTUALIZADO CORRECTAMENTE.'); this.loadSeccionNombreIfNeeded(); },

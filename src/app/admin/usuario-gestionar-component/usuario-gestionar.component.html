@@ -60,6 +60,31 @@
             <input pInputText type="tel" [(ngModel)]="draft.telefono" name="telefono" placeholder="Ej: +57 3135331533" />
           </div>
         </div>
+
+        <div class="field-row">
+          <label class="fld-label">Tipo de Identificación</label>
+          <div class="fld-control">
+            <p-dropdown
+              [options]="tiposIdentificacion"
+              optionLabel="label"
+              optionValue="value"
+              [(ngModel)]="draft.tipoIdentificacion"
+              name="tipoIdentificacion"
+              placeholder="Seleccione tipo..."
+              styleClass="w-100">
+            </p-dropdown>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <label class="fld-label">Número de Identificación</label>
+          <div class="fld-control">
+            <div class="input-with-tools">
+              <input pInputText type="text" [(ngModel)]="draft.identificacion" name="identificacion" maxlength="50" placeholder="Ej: 1234567890" />
+              <button pButton type="button" icon="pi pi-copy" class="p-button p-button-text p-button-rounded" (click)="copy(draft.identificacion)" pTooltip="Copiar" tooltipPosition="top"></button>
+            </div>
+          </div>
+        </div>
       </div>
       <div class="actions footer-actions">
         <button pButton type="submit" label="Guardar" [disabled]="saving"></button>
@@ -86,6 +111,13 @@
           </div>
         </div>
         <div class="kv" *ngIf="isPresent(user.telefono)"><span>Teléfono</span><b>{{ user.telefono }}</b></div>
+        <div class="kv" *ngIf="isPresent(user.tipoIdentificacion)"><span>Tipo de Identificación</span><b>{{ getTipoIdentificacionLabel(user.tipoIdentificacion) }}</b></div>
+        <div class="kv" *ngIf="isPresent(user.identificacion)"><span>Número de Identificación</span>
+          <div class="value-row">
+            <b>{{ user.identificacion }}</b>
+            <button pButton type="button" icon="pi pi-copy" class="p-button p-button-text p-button-rounded" (click)="copy(user.identificacion)" pTooltip="Copiar" tooltipPosition="top"></button>
+          </div>
+        </div>
       </div>
 
       <div class="section">

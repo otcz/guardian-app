@@ -11,7 +11,7 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { UppercaseDirective } from '../../shared/formatting.directives';
 import { OrgContextService } from '../../service/org-context.service';
 import { SeccionService, SeccionEntity } from '../../service/seccion.service';
-import { UsersService, CreateUserRequest, ScopeNivel, UsuariosMeta } from '../../service/users.service';
+import { UsersService, CreateUserRequest, ScopeNivel, UsuariosMeta, TipoIdentificacion } from '../../service/users.service';
 import { NotificationService } from '../../service/notification.service';
 import { SkeletonModule } from 'primeng/skeleton';
 import { ChipModule } from 'primeng/chip';
@@ -61,6 +61,16 @@ export class UsuariosCrearComponent implements OnInit {
   // Campos separados para teléfono
   codigoPais: string = '+57';
   numeroTelefono: string = '';
+
+  // Opciones de tipo de identificación (REQ-001)
+  tiposIdentificacion = [
+    { label: 'Cédula', value: TipoIdentificacion.CEDULA },
+    { label: 'Pasaporte', value: TipoIdentificacion.PASAPORTE },
+    { label: 'DNI', value: TipoIdentificacion.DNI },
+    { label: 'RUC', value: TipoIdentificacion.RUC },
+    { label: 'Licencia', value: TipoIdentificacion.LICENCIA },
+    { label: 'Otro', value: TipoIdentificacion.OTRO }
+  ];
 
   // Lista completa de códigos de país (ordenados alfabéticamente)
   codigosPais = [
@@ -305,12 +315,15 @@ export class UsuariosCrearComponent implements OnInit {
     // no default para scopeNivel
     scopeNivel: undefined as any,
     seccionId: null,
-    // organizaci��n que administrará cuando el alcance sea ORGANIZACION
+    // organización que administrará cuando el alcance sea ORGANIZACION
     orgAdministradaId: null as any,
     // nuevo: roles seleccionados (single o multiple segun backend)
     rolesIds: [] as any,
     // nuevo: lugares asignados (múltiples)
-    lugaresIds: []
+    lugaresIds: [],
+    // campos de identificación (REQ-001)
+    tipoIdentificacion: null,
+    identificacion: null
   } as any;
 
   constructor(

@@ -337,6 +337,46 @@
   }
 }
 
+/* Identificación (REQ-001) */
+.id-cell {
+  .text-muted {
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+
+  ::ng-deep .id-chip {
+    background: rgba(79, 140, 255, 0.08);
+    border: 1px solid rgba(79, 140, 255, 0.2);
+    padding: 0.35rem 0.75rem;
+    font-size: 0.85rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+
+    .p-chip-icon {
+      color: var(--primary);
+      font-size: 0.9rem;
+    }
+
+    .id-type {
+      font-weight: 600;
+      color: var(--primary);
+      text-transform: uppercase;
+    }
+
+    .id-separator {
+      color: var(--muted);
+      margin: 0 2px;
+    }
+
+    .id-number {
+      color: var(--text);
+      font-family: 'Courier New', monospace;
+      font-weight: 500;
+    }
+  }
+}
+
 /* Botones de acción */
 .action-buttons {
   display: flex;

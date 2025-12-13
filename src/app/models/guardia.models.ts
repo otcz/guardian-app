@@ -12,6 +12,7 @@ export interface Guardia {
   activa: boolean;
   permiteEntrada: boolean;
   permiteSalida: boolean;
+  usuarioGestorId?: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -51,6 +52,7 @@ export interface ActualizarGuardiaDTO {
   ubicacion?: string;
   permiteEntrada?: boolean;
   permiteSalida?: boolean;
+  usuarioGestorId?: string | null;
 }
 
 /**

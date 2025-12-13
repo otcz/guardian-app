@@ -365,6 +365,15 @@
                       <h3>Usuarios en: {{ guardiaSeleccionadaDetalle.nombre }}</h3>
                       <small class="text-color-secondary">{{ guardiaSeleccionadaDetalle.codigo }}</small>
                     </div>
+                    <p-button
+                      icon="pi pi-cog"
+                      label="Configurar Guardia"
+                      severity="secondary"
+                      [outlined]="true"
+                      (onClick)="onAbrirConfiguracionGuardia(guardiaSeleccionadaDetalle)"
+                      pTooltip="Ver y editar configuración completa de la guardia"
+                      tooltipPosition="left"
+                    ></p-button>
                   </div>
                 </ng-template>
 
@@ -560,3 +569,194 @@
   </ng-template>
 </p-dialog>
 
+<!-- ============================================ -->
+<!-- MODAL: Configuración de Guardia -->
+<!-- ============================================ -->
+<p-dialog
+  [(visible)]="mostrarModalConfigGuardia"
+  header="Configuración de Guardia"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [style]="{ width: '700px', 'max-width': '95vw' }"
+>
+  <div *ngIf="guardiaEditando">
+    <!-- Estado de la guardia -->
+    <div class="mb-4 p-3 border-round" [style.background-color]="guardiaEditando.activa ? '#d4edda' : '#f8d7da'">
+      <div class="flex align-items-center justify-content-between">
+        <div>
+          <h4 class="m-0 mb-2">{{ guardiaEditando.nombre }}</h4>
+          <p-tag
+            [value]="guardiaEditando.activa ? 'ACTIVA' : 'INACTIVA'"
+            [severity]="guardiaEditando.activa ? 'success' : 'danger'"
+          ></p-tag>
+        </div>
+        <p-button
+          [label]="guardiaEditando.activa ? 'Desactivar' : 'Activar'"
+          [icon]="guardiaEditando.activa ? 'pi pi-ban' : 'pi pi-check'"
+          [severity]="guardiaEditando.activa ? 'warn' : 'success'"
+          [outlined]="true"
+          (onClick)="onToggleEstadoGuardia()"
+        ></p-button>
+      </div>
+    </div>
+
+    <!-- Formulario -->
+    <div class="grid">
+      <!-- Nombre -->
+      <div class="col-12">
+        <label for="guardiaNombre" class="font-semibold block mb-2">
+          <i class="pi pi-map-marker mr-2"></i>Nombre de la Guardia *
+        </label>
+        <input
+          id="guardiaNombre"
+          type="text"
+          pInputText
+          [(ngModel)]="guardiaEditando.nombre"
+          class="w-full"
+          maxlength="100"
+        />
+      </div>
+
+      <!-- Código (solo lectura) -->
+      <div class="col-12 md:col-6">
+        <label for="guardiaCodigo" class="font-semibold block mb-2">
+          <i class="pi pi-tag mr-2"></i>Código
+        </label>
+        <input
+          id="guardiaCodigo"
+          type="text"
+          pInputText
+          [value]="guardiaEditando.codigo"
+          class="w-full"
+          [disabled]="true"
+        />
+        <small class="text-color-secondary">El código no se puede modificar</small>
+      </div>
+
+      <!-- Ubicación -->
+      <div class="col-12 md:col-6">
+        <label for="guardiaUbicacion" class="font-semibold block mb-2">
+          <i class="pi pi-map mr-2"></i>Ubicación
+        </label>
+        <input
+          id="guardiaUbicacion"
+          type="text"
+          pInputText
+          [(ngModel)]="guardiaEditando.ubicacion"
+          class="w-full"
+          maxlength="200"
+        />
+      </div>
+
+      <!-- Descripción -->
+      <div class="col-12">
+        <label for="guardiaDescripcion" class="font-semibold block mb-2">
+          <i class="pi pi-info-circle mr-2"></i>Descripción
+        </label>
+        <textarea
+          id="guardiaDescripcion"
+          pInputTextarea
+          [(ngModel)]="guardiaEditando.descripcion"
+          [rows]="3"
+          class="w-full"
+          maxlength="500"
+        ></textarea>
+      </div>
+
+      <!-- Usuario Administrador -->
+      <div class="col-12">
+        <label class="font-semibold block mb-2">
+          <i class="pi pi-user-edit mr-2"></i>Usuario Administrador de Guardia
+        </label>
+        <p class="text-sm text-color-secondary mb-3">
+          El usuario administrador puede gestionar esta guardia específica
+        </p>
+
+        <!-- Usuario actual -->
+        <div *ngIf="usuarioAdminSeleccionado" class="mb-3 p-3 border-round surface-border border-1">
+          <div class="flex align-items-center justify-content-between">
+            <div>
+              <div class="font-semibold">{{ usuarioAdminSeleccionado.nombreCompleto || usuarioAdminSeleccionado.username }}</div>
+              <div class="text-sm text-color-secondary">{{ '@' }}{{ usuarioAdminSeleccionado.username }}</div>
+              <div *ngIf="usuarioAdminSeleccionado.email" class="text-sm text-color-secondary">
+                <i class="pi pi-envelope mr-1"></i>{{ usuarioAdminSeleccionado.email }}
+              </div>
+            </div>
+            <p-button
+              icon="pi pi-times"
+              [text]="true"
+              [rounded]="true"
+              severity="danger"
+              pTooltip="Quitar administrador"
+              (onClick)="onQuitarUsuarioAdmin()"
+            ></p-button>
+          </div>
+        </div>
+
+        <!-- Selector de nuevo admin -->
+        <div *ngIf="!usuarioAdminSeleccionado">
+          <p-dropdown
+            [options]="usuariosDisponiblesAdmin"
+            [(ngModel)]="usuarioAdminSeleccionado"
+            optionLabel="nombreCompleto"
+            placeholder="Seleccionar usuario administrador..."
+            [filter]="true"
+            filterBy="nombreCompleto,username"
+            [showClear]="true"
+            styleClass="w-full"
+            emptyMessage="No hay usuarios administradores disponibles"
+            [loading]="cargandoUsuariosAdmin"
+          >
+            <ng-template let-usuario pTemplate="item">
+              <div class="flex flex-column">
+                <span class="font-semibold">{{ usuario.nombreCompleto || usuario.username }}</span>
+                <small class="text-color-secondary">{{ '@' }}{{ usuario.username }}</small>
+              </div>
+            </ng-template>
+          </p-dropdown>
+          <small class="text-color-secondary mt-2 block">
+            Solo usuarios con rol GUARDIA pueden gestionar este punto de control
+          </small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Zona de peligro -->
+    <div class="mt-4 p-3 border-round" style="background-color: #fff3cd; border: 1px solid #ffc107;">
+      <h5 class="mt-0 mb-3 flex align-items-center" style="color: #856404;">
+        <i class="pi pi-exclamation-triangle mr-2"></i>
+        Zona de Peligro
+      </h5>
+      <p class="text-sm mb-3" style="color: #856404;">
+        La eliminación de la guardia es permanente y no se puede deshacer. Solo se puede eliminar si no tiene movimientos registrados.
+      </p>
+      <p-button
+        label="Eliminar Guardia Permanentemente"
+        icon="pi pi-trash"
+        severity="danger"
+        [outlined]="true"
+        [loading]="eliminandoGuardia"
+        (onClick)="onEliminarGuardia()"
+      ></p-button>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <p-button
+      label="Cancelar"
+      icon="pi pi-times"
+      severity="secondary"
+      [outlined]="true"
+      (onClick)="onCerrarConfiguracionGuardia()"
+      [disabled]="guardandoGuardia"
+    ></p-button>
+    <p-button
+      label="Guardar Cambios"
+      icon="pi pi-check"
+      severity="primary"
+      (onClick)="onGuardarConfiguracionGuardia()"
+      [loading]="guardandoGuardia"
+    ></p-button>
+  </ng-template>
+</p-dialog>

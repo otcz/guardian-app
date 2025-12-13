@@ -21,6 +21,8 @@ import { BadgeModule } from 'primeng/badge';
 import { Message } from 'primeng/message';
 import { ConfirmDialog } from 'primeng/confirmdialog';
 import { TabViewModule } from 'primeng/tabview';
+import { DropdownModule } from 'primeng/dropdown';
+import { InputTextarea } from 'primeng/inputtextarea';
 
 import { OrgContextService } from '../../service/org-context.service';
 import { UsersService, UserEntity } from '../../service/users.service';
@@ -33,7 +35,8 @@ import {
   Usuario,
   GuardiaConEstado,
   EstadoGuardia,
-  RestringirGuardiaDTO
+  RestringirGuardiaDTO,
+  ActualizarGuardiaDTO
 } from '../../models/guardia.models';
 
 /**
@@ -67,7 +70,9 @@ import {
     BadgeModule,
     Message,
     ConfirmDialog,
-    TabViewModule
+    TabViewModule,
+    DropdownModule,
+    InputTextarea
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './administrar-guardias-por-usuario.component.html',
@@ -143,6 +148,18 @@ export class AdministrarGuardiasPorUsuarioComponent implements OnInit {
   // Estado de descarga de reportes
   descargandoReporteUsuario = false;
   descargandoReporteGuardia = false;
+
+  // Configuración de Guardia
+  mostrarModalConfigGuardia = false;
+  guardiaParaConfigurar: Guardia | null = null;
+  guardiaEditando: Guardia | null = null;
+  guardandoGuardia = false;
+  eliminandoGuardia = false;
+
+  // Gestión de Usuario Administrador
+  usuariosDisponiblesAdmin: UserEntity[] = [];
+  usuarioAdminSeleccionado: UserEntity | null = null;
+  cargandoUsuariosAdmin = false;
 
   constructor(
     private orgContext: OrgContextService,
@@ -1386,6 +1403,231 @@ export class AdministrarGuardiasPorUsuarioComponent implements OnInit {
         }
 
         this.mostrarError(mensajeError);
+      }
+    });
+  }
+
+  // ============================================
+  // MÉTODOS: Configuración de Guardia
+  // ============================================
+
+  /**
+   * Abrir modal de configuración de guardia
+   */
+  onAbrirConfiguracionGuardia(guardia: Guardia): void {
+    this.guardiaParaConfigurar = guardia;
+    this.guardiaEditando = { ...guardia }; // Clonar para edición
+    this.mostrarModalConfigGuardia = true;
+
+    // Cargar usuarios disponibles para asignar como admin
+    this.cargarUsuariosDisponiblesAdmin();
+
+    // Cargar usuario admin actual si existe
+    if (guardia.usuarioGestorId) {
+      this.cargarUsuarioAdmin(guardia.usuarioGestorId);
+    } else {
+      this.usuarioAdminSeleccionado = null;
+    }
+  }
+
+  /**
+   * Cerrar modal de configuración
+   */
+  onCerrarConfiguracionGuardia(): void {
+    this.mostrarModalConfigGuardia = false;
+    this.guardiaParaConfigurar = null;
+    this.guardiaEditando = null;
+    this.usuarioAdminSeleccionado = null;
+  }
+
+  /**
+   * Cargar usuarios disponibles para asignar como admin de guardia
+   * Usa la misma lógica que punto-control-crear
+   */
+  cargarUsuariosDisponiblesAdmin(): void {
+    if (!this.organizacionId || !this.seccionId) return;
+
+    this.cargandoUsuariosAdmin = true;
+
+    this.usersService.list(this.organizacionId, { seccionId: this.seccionId }).subscribe({
+      next: (usuarios) => {
+        // Filtrar usuarios con rol GUARDIA (misma lógica que punto-control-crear)
+        this.usuariosDisponiblesAdmin = usuarios.filter(u => {
+          const rolesStr = (u.rolNombres || []).join(',').toUpperCase();
+          return rolesStr.includes('GUARDIA') || u.rolNombre?.toUpperCase() === 'GUARDIA';
+        });
+        this.cargandoUsuariosAdmin = false;
+      },
+      error: (err) => {
+        console.error('Error al cargar usuarios admin:', err);
+        this.cargandoUsuariosAdmin = false;
+        this.usuariosDisponiblesAdmin = [];
+      }
+    });
+  }
+
+  /**
+   * Cargar datos del usuario admin actual
+   */
+  cargarUsuarioAdmin(usuarioId: string): void {
+    if (!this.organizacionId) return;
+
+    this.usersService.get(this.organizacionId, usuarioId).subscribe({
+      next: (usuario) => {
+        this.usuarioAdminSeleccionado = usuario;
+      },
+      error: (err) => {
+        console.error('Error al cargar usuario admin:', err);
+        this.usuarioAdminSeleccionado = null;
+      }
+    });
+  }
+
+  /**
+   * Quitar usuario admin de la guardia
+   */
+  onQuitarUsuarioAdmin(): void {
+    this.confirmationService.confirm({
+      message: '¿Está seguro que desea quitar el usuario administrador de esta guardia?',
+      header: 'Confirmar acción',
+      icon: 'pi pi-question-circle',
+      acceptLabel: 'Sí, quitar',
+      rejectLabel: 'Cancelar',
+      accept: () => {
+        this.usuarioAdminSeleccionado = null;
+      }
+    });
+  }
+
+  /**
+   * Guardar cambios en la configuración de la guardia
+   */
+  onGuardarConfiguracionGuardia(): void {
+    if (!this.guardiaEditando) return;
+
+    // Validaciones
+    if (!this.guardiaEditando.nombre || this.guardiaEditando.nombre.trim() === '') {
+      this.mostrarError('El nombre de la guardia es obligatorio');
+      return;
+    }
+
+    this.guardandoGuardia = true;
+
+    const dto: ActualizarGuardiaDTO = {
+      nombre: this.guardiaEditando.nombre.trim(),
+      descripcion: this.guardiaEditando.descripcion?.trim() || undefined,
+      ubicacion: this.guardiaEditando.ubicacion?.trim() || undefined,
+      usuarioGestorId: this.usuarioAdminSeleccionado?.id || null
+    };
+
+    this.guardiaService.actualizar(this.guardiaEditando.id, dto).subscribe({
+      next: (guardiaActualizada) => {
+        this.guardandoGuardia = false;
+        this.mostrarExito('✅ Configuración de guardia actualizada correctamente');
+
+        // Actualizar en la lista local
+        const index = this.guardias.findIndex(g => g.id === guardiaActualizada.id);
+        if (index !== -1) {
+          this.guardias[index] = guardiaActualizada;
+        }
+
+        // Si es la guardia seleccionada actualmente, actualizarla
+        if (this.guardiaSeleccionadaDetalle?.id === guardiaActualizada.id) {
+          this.guardiaSeleccionadaDetalle = guardiaActualizada;
+        }
+
+        this.onCerrarConfiguracionGuardia();
+      },
+      error: (err) => {
+        this.guardandoGuardia = false;
+        this.mostrarError('Error al actualizar guardia: ' + (err?.error?.message || 'Error desconocido'));
+      }
+    });
+  }
+
+  /**
+   * Activar/Desactivar guardia
+   */
+  onToggleEstadoGuardia(): void {
+    if (!this.guardiaEditando) return;
+
+    const activa = this.guardiaEditando.activa;
+    const accion = activa ? 'desactivar' : 'activar';
+
+    this.confirmationService.confirm({
+      message: `¿Está seguro que desea ${accion} esta guardia?`,
+      header: `Confirmar ${accion}`,
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Sí, ' + accion,
+      rejectLabel: 'Cancelar',
+      accept: () => {
+        const observable = activa
+          ? this.guardiaService.desactivar(this.guardiaEditando!.id)
+          : this.guardiaService.activar(this.guardiaEditando!.id);
+
+        observable.subscribe({
+          next: (guardiaActualizada) => {
+            this.mostrarExito(`✅ Guardia ${activa ? 'desactivada' : 'activada'} correctamente`);
+
+            // Actualizar en la lista local
+            const index = this.guardias.findIndex(g => g.id === guardiaActualizada.id);
+            if (index !== -1) {
+              this.guardias[index] = guardiaActualizada;
+            }
+
+            this.guardiaEditando = guardiaActualizada;
+
+            // Si es la guardia seleccionada actualmente, actualizarla
+            if (this.guardiaSeleccionadaDetalle?.id === guardiaActualizada.id) {
+              this.guardiaSeleccionadaDetalle = guardiaActualizada;
+            }
+          },
+          error: (err) => {
+            this.mostrarError('Error al cambiar estado: ' + (err?.error?.message || 'Error desconocido'));
+          }
+        });
+      }
+    });
+  }
+
+  /**
+   * Eliminar guardia
+   */
+  onEliminarGuardia(): void {
+    if (!this.guardiaEditando) return;
+
+    this.confirmationService.confirm({
+      message: `¿Está seguro que desea ELIMINAR permanentemente la guardia "${this.guardiaEditando.nombre}"? Esta acción NO se puede deshacer.`,
+      header: 'Confirmar Eliminación',
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Sí, eliminar',
+      rejectLabel: 'Cancelar',
+      acceptButtonStyleClass: 'p-button-danger',
+      accept: () => {
+        this.eliminandoGuardia = true;
+
+        this.guardiaService.eliminar(this.guardiaEditando!.id).subscribe({
+          next: () => {
+            this.eliminandoGuardia = false;
+            this.mostrarExito('✅ Guardia eliminada correctamente');
+
+            // Eliminar de la lista local
+            this.guardias = this.guardias.filter(g => g.id !== this.guardiaEditando!.id);
+
+            // Si es la guardia seleccionada, limpiar selección
+            if (this.guardiaSeleccionadaDetalle?.id === this.guardiaEditando!.id) {
+              this.guardiaSeleccionadaDetalle = null;
+              this.usuariosDeLaGuardia = [];
+            }
+
+            this.onCerrarConfiguracionGuardia();
+          },
+          error: (err) => {
+            this.eliminandoGuardia = false;
+            const mensaje = err?.error?.message || 'Error desconocido';
+            this.mostrarError('Error al eliminar guardia: ' + mensaje);
+          }
+        });
       }
     });
   }

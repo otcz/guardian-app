@@ -80,7 +80,7 @@ import { LABELS } from '../../constants/mensajes.constants';
               <td>
                 <div class="usuario-info">
                   <strong>{{ movimiento.usuario?.nombreCompleto || 'N/A' }}</strong>
-                  <small>{{ movimiento.usuario?.documento || '' }}</small>
+                  <small>{{ movimiento.usuario?.username || (movimiento.usuario?.identificacion ? (movimiento.usuario?.tipoIdentificacion + ': ' + movimiento.usuario?.identificacion) : '') }}</small>
                 </div>
               </td>
               <td>{{ movimiento.guardia?.nombre || 'N/A' }}</td>

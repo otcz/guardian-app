@@ -164,17 +164,21 @@ export interface RegistrarSalidaDTO {
 
 /**
  * Respuesta de validación de usuario
+ * @version 2.0 - Actualizado con campos de identificación (REQ-001-FRONTEND-ADDENDUM-GUARDIA)
  */
 export interface ValidacionUsuarioDTO {
   existe: boolean;
   activo: boolean;
-  nombreCompleto: string;
-  documento: string;
-  seccion: string;
+  nombreCompleto: string | null;
+  username: string | null;  // ⚠️ ACTUALIZADO: antes era 'documento'
+  // ✨ NUEVO: Campos de identificación (REQ-001)
+  tipoIdentificacion: 'CEDULA' | 'PASAPORTE' | 'DNI' | 'RUC' | 'LICENCIA' | 'OTRO' | null;
+  identificacion: string | null;
+  seccion: string | null;
   restricciones: string[];
   vehiculos: string[];
   tieneEntradaAbierta: boolean;
-  entradaAbierta?: MovimientoGuardia;
+  entradaAbierta: MovimientoGuardia | null;
 }
 
 /**

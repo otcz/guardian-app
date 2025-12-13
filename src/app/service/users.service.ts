@@ -157,7 +157,10 @@ export class UsersService {
             seccionId: l?.seccionId != null ? String(l?.seccionId) : null,
             seccionNombre: l?.seccionNombre != null ? String(l?.seccionNombre) : null
           }))
-        : null
+        : null,
+      // campos de identificación (REQ-001)
+      tipoIdentificacion: d?.tipoIdentificacion != null ? (d.tipoIdentificacion as TipoIdentificacion) : null,
+      identificacion: d?.identificacion != null ? String(d?.identificacion) : null
     } as UserEntity;
   }
 

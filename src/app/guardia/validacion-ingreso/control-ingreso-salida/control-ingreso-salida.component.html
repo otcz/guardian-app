@@ -65,8 +65,12 @@
         <strong>{{ validacionUsuario?.nombreCompleto }}</strong>
       </div>
       <div class="info-row">
-        <label>Documento:</label>
-        <span>{{ validacionUsuario?.documento }}</span>
+        <label>Username:</label>
+        <span>{{ validacionUsuario?.username }}</span>
+      </div>
+      <div class="info-row" *ngIf="validacionUsuario?.tipoIdentificacion && validacionUsuario?.identificacion">
+        <label>Identificación:</label>
+        <span>{{ validacionUsuario?.tipoIdentificacion }}: {{ validacionUsuario?.identificacion }}</span>
       </div>
       <div class="info-row">
         <label>Sección:</label>
@@ -155,8 +159,12 @@
         <strong>{{ validacionUsuario?.nombreCompleto }}</strong>
       </div>
       <div class="info-row">
-        <label>Documento:</label>
-        <span>{{ validacionUsuario?.documento }}</span>
+        <label>Username:</label>
+        <span>{{ validacionUsuario?.username }}</span>
+      </div>
+      <div class="info-row" *ngIf="validacionUsuario?.tipoIdentificacion && validacionUsuario?.identificacion">
+        <label>Identificación:</label>
+        <span>{{ validacionUsuario?.tipoIdentificacion }}: {{ validacionUsuario?.identificacion }}</span>
       </div>
       <div class="info-row">
         <label>Sección:</label>
@@ -239,8 +247,12 @@
         <strong>{{ validacionUsuario?.nombreCompleto }}</strong>
       </div>
       <div class="info-row">
-        <label>Documento:</label>
-        <span>{{ validacionUsuario?.documento }}</span>
+        <label>Username:</label>
+        <span>{{ validacionUsuario?.username }}</span>
+      </div>
+      <div class="info-row" *ngIf="validacionUsuario?.tipoIdentificacion && validacionUsuario?.identificacion">
+        <label>Identificación:</label>
+        <span>{{ validacionUsuario?.tipoIdentificacion }}: {{ validacionUsuario?.identificacion }}</span>
       </div>
       <div class="info-row">
         <label>Estado:</label>

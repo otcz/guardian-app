@@ -756,7 +756,9 @@ export class UsuariosCrearComponent implements OnInit {
       seccionId: null,
       orgAdministradaId: null,
       rolesIds: [] as any,
-      lugaresIds: []
+      lugaresIds: [],
+      tipoIdentificacion: null,
+      identificacion: null
     } as any;
     this.codigoPais = '+57';
     this.numeroTelefono = '';
@@ -786,7 +788,10 @@ export class UsuariosCrearComponent implements OnInit {
       telefono: (this.model.telefono || '').trim() || undefined,
       scopeNivel: this.model.scopeNivel,
       seccionId: this.isSeccionRequerida ? (this.model.seccionId || null) : undefined,
-      lugaresIds: Array.isArray(this.model.lugaresIds) && this.model.lugaresIds.length > 0 ? this.model.lugaresIds : undefined
+      lugaresIds: Array.isArray(this.model.lugaresIds) && this.model.lugaresIds.length > 0 ? this.model.lugaresIds : undefined,
+      // Campos de identificación (REQ-001)
+      tipoIdentificacion: this.model.tipoIdentificacion || undefined,
+      identificacion: (this.model.identificacion || '').trim() || undefined
     };
     if (this.isAlcanceOrganizacion && (this.model as any).orgAdministradaId) {
       body.orgAdministradaId = (this.model as any).orgAdministradaId;

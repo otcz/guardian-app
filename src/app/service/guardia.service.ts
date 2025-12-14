@@ -49,6 +49,27 @@ export class GuardiaService {
   }
 
   /**
+   * Buscar guardias con filtros múltiples
+   */
+  buscar(filtros: {
+    organizacionId?: string;
+    seccionId?: string;
+    codigo?: string;
+    nombre?: string;
+    activa?: boolean;
+  }): Observable<Guardia[]> {
+    let params = new HttpParams();
+
+    if (filtros.organizacionId) params = params.set('organizacionId', filtros.organizacionId);
+    if (filtros.seccionId) params = params.set('seccionId', filtros.seccionId);
+    if (filtros.codigo) params = params.set('codigo', filtros.codigo);
+    if (filtros.nombre) params = params.set('nombre', filtros.nombre);
+    if (filtros.activa !== undefined) params = params.set('activa', filtros.activa.toString());
+
+    return this.http.get<Guardia[]>(`${this.API_URL}/buscar`, { params });
+  }
+
+  /**
    * Crear nueva guardia
    */
   crear(dto: CrearGuardiaDTO): Observable<Guardia> {

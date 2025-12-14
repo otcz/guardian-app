@@ -1,5 +1,6 @@
 /**
  * Modelo: Guardia (Punto de Control)
+ * @version 2.0 - Alineado con API-MODULO-GUARDIA-FRONTEND-2025-12-13
  */
 export interface Guardia {
   id: string;
@@ -13,6 +14,12 @@ export interface Guardia {
   permiteEntrada: boolean;
   permiteSalida: boolean;
   usuarioGestorId?: string | null;
+  usuarioGestorNombre?: string | null;
+  usuarioGestorUsername?: string | null;
+  // Campos adicionales retornados por el backend
+  seccionNombre?: string;
+  organizacionNombre?: string;
+  cantidadUsuariosAsignados?: number;
   createdAt: string;
   updatedAt: string;
 }
@@ -57,14 +64,18 @@ export interface ActualizarGuardiaDTO {
 
 /**
  * Modelo: Relación Guardia-Usuario
+ * @version 2.0 - Alineado con API-MODULO-GUARDIA-FRONTEND-2025-12-13
  */
 export interface GuardiaUsuario {
   id: string;
   guardiaId: string;
   usuarioId: string;
+  usuarioNombre?: string;
+  usuarioUsername?: string;
   seccionId: string;
   organizacionId: string;
   asignada: boolean;
+  fechaAsignacion?: string;  // ISO DateTime - agregado según API backend
   restringida: boolean;
   motivoRestriccion?: string;
   observaciones?: string;
@@ -118,22 +129,29 @@ export interface GuardiaConEstado extends Guardia {
 
 /**
  * Modelo: Movimiento de Guardia (Entrada/Salida)
+ * @version 2.0 - Alineado con API-MODULO-GUARDIA-FRONTEND-2025-12-13
  */
 export interface MovimientoGuardia {
   id: string;
-  organizacionId: string;
-  seccionId: string;
+  organizacionId?: string;  // Opcional según implementación local
+  seccionId?: string;  // Opcional según implementación local
   guardiaId: string;
+  guardiaCodigo?: string;  // Agregado según API backend
+  guardiaNombre?: string;  // Agregado según API backend
   usuarioId: string;
+  usuarioNombre?: string;  // Agregado según API backend
+  usuarioUsername?: string;  // Agregado según API backend
   vehiculoId?: string;
-  adminGuardiaId: string;
-  tipo: 'ENTRADA' | 'SALIDA';
-  timestampMovimiento: string; // ISO 8601
+  adminGuardiaId?: string;  // Opcional según implementación local
+  tipoMovimiento?: 'ENTRADA' | 'SALIDA';  // Nombre del backend
+  tipo?: 'ENTRADA' | 'SALIDA';  // Nombre local - mantener compatibilidad
+  fechaHora?: string;  // ISO DateTime - nombre del backend
+  timestampMovimiento?: string; // ISO 8601 - nombre local - mantener compatibilidad
   observaciones?: string;
   entradaAsociadaId?: string; // Solo para SALIDA
   permanenciaMinutos?: number; // Solo para SALIDA
-  registroVehiculoIncluido: boolean;
-  createdAt: string;
+  registroVehiculoIncluido?: boolean;
+  createdAt?: string;
   // Datos anidados para UI
   guardia?: Guardia;
   usuario?: Usuario;

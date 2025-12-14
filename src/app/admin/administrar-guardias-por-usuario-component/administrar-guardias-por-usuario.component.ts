@@ -256,6 +256,9 @@ export class AdministrarGuardiasPorUsuarioComponent implements OnInit {
         this.guardias = guardias;
         this.loading = false;
 
+        // Cargar usuarios gestores para todas las guardias
+        this.cargarUsuariosGestores(guardias);
+
         // Si hay usuario seleccionado, recargar su estado
         if (this.usuarioSeleccionado) {
           this.cargarEstadoGuardias();
@@ -266,6 +269,27 @@ export class AdministrarGuardiasPorUsuarioComponent implements OnInit {
         this.loading = false;
       }
     });
+  }
+
+  /**
+   * Cargar usuarios gestores para todas las guardias
+   */
+  /**
+   * Cargar usuarios gestores para todas las guardias
+   * NOTA: Ya no es necesario cargar por separado porque el backend envía
+   * usuarioGestorNombre y usuarioGestorUsername directamente
+   */
+  private cargarUsuariosGestores(guardias: Guardia[]): void {
+    // El backend ahora envía usuarioGestorNombre y usuarioGestorUsername directamente
+    // Por lo tanto, ya no necesitamos hacer llamadas adicionales al API
+    const guardiasConGestor = guardias.filter(g => g.usuarioGestorId);
+
+    console.log('👥 Guardias con gestor asignado:', guardiasConGestor.length);
+    if (guardiasConGestor.length > 0) {
+      guardiasConGestor.forEach(g => {
+        console.log(`  ✅ ${g.nombre}: ${g.usuarioGestorNombre} (@${g.usuarioGestorUsername})`);
+      });
+    }
   }
 
   /**

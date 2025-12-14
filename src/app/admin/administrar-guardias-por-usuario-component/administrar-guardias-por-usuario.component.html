@@ -334,6 +334,23 @@
                       <div *ngIf="guardia.ubicacion" class="text-sm text-color-secondary">
                         <i class="pi pi-map-marker mr-1"></i>{{ guardia.ubicacion }}
                       </div>
+                      <!-- Usuario Gestor -->
+                      <div *ngIf="guardia.usuarioGestorId" class="text-sm mt-2 p-2 border-round" style="background-color: #f0f9ff; border-left: 3px solid #0ea5e9;">
+                        <div class="flex align-items-center gap-2">
+                          <i class="pi pi-user-edit" style="color: #0ea5e9;"></i>
+                          <div class="flex-1">
+                            <div class="font-semibold" style="color: #0369a1;">
+                              {{ guardia.usuarioGestorNombre || 'Gestor Asignado' }}
+                            </div>
+                            <div class="text-xs" style="color: #0284c7;">
+                              {{ '@' }}{{ guardia.usuarioGestorUsername }}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div *ngIf="!guardia.usuarioGestorId" class="text-sm text-color-secondary mt-1">
+                        <i class="pi pi-info-circle mr-1"></i>Sin administrador
+                      </div>
                     </div>
                     <i class="pi pi-chevron-right text-color-secondary"></i>
                   </div>

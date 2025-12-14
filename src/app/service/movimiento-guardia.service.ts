@@ -40,26 +40,26 @@ export class MovimientoGuardiaService {
   // ========== VALIDACIONES (SOLO LECTURA) ==========
 
   /**
-   * Validar usuario por UUID (método existente - ACTUALIZADO)
-   * @param usuarioId UUID del usuario
-   * @returns Observable con información de validación (incluye identificación ahora)
+   * Validar usuario por UUID o identificación (MÉTODO UNIFICADO)
+   * @param usuarioIdOIdentificacion UUID del usuario O número de identificación
+   * @returns Observable con información de validación
+   * @description El backend detecta automáticamente si es UUID o identificación
    */
-  validarUsuario(usuarioId: string): Observable<ValidacionUsuarioDTO> {
-    return this.http.get<ValidacionUsuarioDTO>(`${this.API_URL}/validar-usuario/${usuarioId}`);
+  validarUsuario(usuarioIdOIdentificacion: string): Observable<ValidacionUsuarioDTO> {
+    const valor = usuarioIdOIdentificacion.trim();
+    return this.http.get<ValidacionUsuarioDTO>(`${this.API_URL}/validar-usuario/${valor}`);
   }
 
   /**
-   * Validar usuario por número de identificación (NUEVO - REQ-001-FRONTEND-ADDENDUM-GUARDIA)
+   * Validar usuario por número de identificación (MÉTODO LEGACY - Mantener por compatibilidad)
    * @param identificacion Número de documento (cédula, pasaporte, DNI, etc.)
    * @returns Observable con información de validación
-   * @description Permite a los guardias validar usuarios usando su documento físico en lugar del UUID
+   * @description Alias del método validarUsuario() para compatibilidad con código existente
+   * @deprecated Usar validarUsuario() que acepta ambos formatos
    */
   validarUsuarioPorIdentificacion(identificacion: string): Observable<ValidacionUsuarioDTO> {
-    // Limpiar espacios en blanco
-    const identificacionLimpia = identificacion.trim();
-    return this.http.get<ValidacionUsuarioDTO>(
-      `${this.API_URL}/validar-usuario-identificacion/${identificacionLimpia}`
-    );
+    // Redirige al método unificado
+    return this.validarUsuario(identificacion);
   }
 
   /**

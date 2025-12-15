@@ -11,9 +11,10 @@ export interface ApiResponse<T> { success?: boolean; message?: string; data?: T;
 export interface VehiculoDto {
   id: string;
   placa: string;
+  tipo?: string | null; // ✅ NUEVO: Tipo de vehículo (máx 100 caracteres)
   marca?: string | null;
   modelo?: string | null;
-  linea?: string | null;
+  linea?: string | null; // ✅ AMPLIADO: hasta 200 caracteres
   anio?: number | null;
   color?: string | null;
   activo: boolean;
@@ -45,9 +46,10 @@ export type VehicleEntity = VehiculoDto; // alias para compatibilidad
 
 export interface VehiculoCreateReq {
   placa: string; // Requerido
+  tipo?: string | null; // ✅ NUEVO: Tipo de vehículo (máx 100 caracteres)
   marca?: string | null;
   modelo?: string | null;
-  linea?: string | null;
+  linea?: string | null; // ✅ AMPLIADO: hasta 200 caracteres
   anio?: number | null;
   color?: string | null;
   seccionId: string; // ✅ NUEVO: Requerido - UUID de la sección
@@ -58,10 +60,11 @@ export type CreateVehicleRequest = VehiculoCreateReq; // alias compatibilidad
 
 export interface UpdateVehicleRequest {
   placa?: string;
+  tipo?: string | null; // ✅ NUEVO: Tipo de vehículo (máx 100 caracteres)
   seccionAsignadaId?: string | null; // se gestiona por endpoint dedicado, pero lo mantenemos aquí para compatibilidad de llamadas previas
   marca?: string | null;
   modelo?: string | null;
-  linea?: string | null;
+  linea?: string | null; // ✅ AMPLIADO: hasta 200 caracteres
   anio?: number | null;
   color?: string | null;
   activo?: boolean;
@@ -70,9 +73,10 @@ export interface UpdateVehicleRequest {
 // Contratos del checklist (alias explícitos)
 export interface VehiculoUpdateReq {
   placa?: string;
+  tipo?: string | null; // ✅ NUEVO: Tipo de vehículo (máx 100 caracteres)
   marca?: string | null;
   modelo?: string | null;
-  linea?: string | null;
+  linea?: string | null; // ✅ AMPLIADO: hasta 200 caracteres
   anio?: number | null;
   color?: string | null;
   activo?: boolean;
@@ -152,6 +156,7 @@ export class VehiculosService {
       createdAt: d?.createdAt ? String(d?.createdAt) : (d?.fechaCreacion ? String(d?.fechaCreacion) : null),
       updatedAt: d?.updatedAt ? String(d?.updatedAt) : (d?.fechaActualizacion ? String(d?.fechaActualizacion) : null),
 
+      tipo: d?.tipo != null ? String(d?.tipo) : null, // ✅ NUEVO campo
       marca: d?.marca != null ? String(d?.marca) : null,
       modelo: d?.modelo != null ? String(d?.modelo) : null,
       linea: d?.linea != null ? String(d?.linea) : null,

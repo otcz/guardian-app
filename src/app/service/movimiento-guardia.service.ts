@@ -40,25 +40,23 @@ export class MovimientoGuardiaService {
   // ========== VALIDACIONES (SOLO LECTURA) ==========
 
   /**
-   * Validar usuario por UUID o identificación (MÉTODO UNIFICADO)
-   * @param usuarioIdOIdentificacion UUID del usuario O número de identificación
-   * @returns Observable con información de validación
-   * @description El backend detecta automáticamente si es UUID o identificación
+   * Validar usuario por número de identificación
+   * @param identificacion Número de documento (cédula, pasaporte, DNI, etc.)
+   * @returns Observable con información de validación del usuario
+   * @description Endpoint: GET /api/movimientos-guardia/validar-usuario-identificacion/{identificacion}
    */
-  validarUsuario(usuarioIdOIdentificacion: string): Observable<ValidacionUsuarioDTO> {
-    const valor = usuarioIdOIdentificacion.trim();
-    return this.http.get<ValidacionUsuarioDTO>(`${this.API_URL}/validar-usuario/${valor}`);
+  validarUsuario(identificacion: string): Observable<ValidacionUsuarioDTO> {
+    const valor = identificacion.trim();
+    return this.http.get<ValidacionUsuarioDTO>(`${this.API_URL}/validar-usuario-identificacion/${valor}`);
   }
 
   /**
-   * Validar usuario por número de identificación (MÉTODO LEGACY - Mantener por compatibilidad)
+   * Validar usuario por número de identificación (ALIAS)
    * @param identificacion Número de documento (cédula, pasaporte, DNI, etc.)
    * @returns Observable con información de validación
    * @description Alias del método validarUsuario() para compatibilidad con código existente
-   * @deprecated Usar validarUsuario() que acepta ambos formatos
    */
   validarUsuarioPorIdentificacion(identificacion: string): Observable<ValidacionUsuarioDTO> {
-    // Redirige al método unificado
     return this.validarUsuario(identificacion);
   }
 

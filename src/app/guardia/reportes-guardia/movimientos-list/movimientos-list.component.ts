@@ -113,6 +113,7 @@ export class MovimientosListComponent implements OnInit {
       const desde = this.rangeFechas[0].getTime();
       const hasta = this.rangeFechas[1].getTime();
       resultado = resultado.filter(m => {
+        if (!m.timestampMovimiento) return false;
         const fecha = new Date(m.timestampMovimiento).getTime();
         return fecha >= desde && fecha <= hasta;
       });

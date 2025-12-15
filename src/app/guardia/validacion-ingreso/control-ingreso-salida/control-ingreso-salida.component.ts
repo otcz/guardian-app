@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -14,6 +14,9 @@ import { TagModule } from 'primeng/tag';
 import { MessageModule } from 'primeng/message';
 import { MessagesModule } from 'primeng/messages';
 import { ToastModule } from 'primeng/toast';
+import { DialogModule } from 'primeng/dialog';
+import { RadioButtonModule } from 'primeng/radiobutton';
+import { DividerModule } from 'primeng/divider';
 
 // Servicios
 import { GuardiaService } from '../../../service/guardia.service';
@@ -30,13 +33,14 @@ import {
 import {
   MENSAJES_ERROR,
   MENSAJES_EXITO,
-  MENSAJES_ADVERTENCIA,
   MENSAJES_INFO,
   LABELS
 } from '../../constants/mensajes.constants';
 
 type EstadoFormulario = 'INICIAL' | 'USUARIO_ENCONTRADO' | 'REGISTRANDO';
 type TipoAccion = 'ENTRADA' | 'SALIDA' | 'BLOQUEADO';
+type MetodoValidacion = 'BIOMETRICO' | 'FACE_CAM' | 'PLACA_CAM' | 'MANUAL';
+type TipoMovimiento = 'ENTRADA' | 'SALIDA';
 
 @Component({
   selector: 'app-control-ingreso-salida',
@@ -53,18 +57,35 @@ type TipoAccion = 'ENTRADA' | 'SALIDA' | 'BLOQUEADO';
     TagModule,
     MessageModule,
     MessagesModule,
-    ToastModule
+    ToastModule,
+    DialogModule,
+    RadioButtonModule,
+    DividerModule
   ],
   providers: [MessageService],
   templateUrl: './control-ingreso-salida.component.html',
   styleUrls: ['./control-ingreso-salida.component.scss']
 })
-export class ControlIngresoSalidaComponent implements OnInit, AfterViewInit {
+export class ControlIngresoSalidaComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('identificadorInput') identificadorInput!: ElementRef;
+
+  // ⚙️ CONFIGURACIÓN DE VALIDACIÓN
+  metodoValidacion: MetodoValidacion = 'MANUAL';
+  tipoMovimientoConfig: TipoMovimiento = 'ENTRADA';
 
   // Estado del formulario
   estado: EstadoFormulario = 'INICIAL';
   tipoAccion: TipoAccion | null = null;
+
+  // 🚗 Modal de selección de vehículo
+  mostrarModalVehiculo = false;
+  vehiculoSeleccionado: string = '';
+  tiempoRestante = 15;
+  private intervalTimer: any = null;
+
+  // 📊 Modal de confirmación de registro
+  mostrarModalConfirmacion = false;
+  datosRegistroExitoso: any = null;
 
   // Datos del formulario
   guardiaId: string = '';
@@ -75,7 +96,6 @@ export class ControlIngresoSalidaComponent implements OnInit, AfterViewInit {
 
   // Datos cargados
   guardias: Guardia[] = [];
-  guardiaSeleccionada: Guardia | null = null;
   validacionUsuario: ValidacionUsuarioDTO | null = null;
   nombreGuardiaUsuario: string = ''; // Nombre del usuario que es la guardia
 
@@ -96,8 +116,7 @@ export class ControlIngresoSalidaComponent implements OnInit, AfterViewInit {
     private guardiaService: GuardiaService,
     private movimientoService: MovimientoGuardiaService,
     private orgContextService: OrgContextService,
-    private messageService: MessageService,
-    private cdr: ChangeDetectorRef
+    private messageService: MessageService
   ) {}
 
   ngOnInit(): void {
@@ -110,6 +129,11 @@ export class ControlIngresoSalidaComponent implements OnInit, AfterViewInit {
     setTimeout(() => {
       this.enfocarInput();
     }, 500);
+  }
+
+  ngOnDestroy(): void {
+    // Limpiar temporizador al destruir componente
+    this.clearTimer();
   }
 
   private inicializarContexto(): void {
@@ -247,21 +271,277 @@ export class ControlIngresoSalidaComponent implements OnInit, AfterViewInit {
           life: 5000
         });
       }
+
+      // 🚀 REGISTRO AUTOMÁTICO DE SALIDA con modal
+      this.registrarSalidaConModal();
+
     } else {
       this.tipoAccion = 'ENTRADA';
 
-      // Mostrar mensaje por defecto si tiene vehículos
-      if ((this.validacionUsuario.vehiculos?.length ?? 0) > 0) {
-        this.messageService.add({
-          severity: 'warn',
-          summary: 'Vehículos Disponibles',
-          detail: MENSAJES_ADVERTENCIA.USUARIO_CON_VEHICULOS,
-          life: 5000
-        });
+      const tieneVehiculos = (this.validacionUsuario.vehiculos?.length ?? 0) > 0;
+
+      if (tieneVehiculos) {
+        // 🚗 Mostrar modal de selección de vehículo con temporizador de 15 segundos
+        this.mostrarModalSeleccionVehiculo();
+      } else {
+        // 🚀 REGISTRO AUTOMÁTICO DE ENTRADA con modal (sin vehículos)
+        this.registrarEntradaConModal();
       }
     }
   }
 
+  /**
+   * 🚗 MOSTRAR MODAL DE SELECCIÓN DE VEHÍCULO CON TEMPORIZADOR
+   */
+  mostrarModalSeleccionVehiculo(): void {
+    this.mostrarModalVehiculo = true;
+    this.vehiculoSeleccionado = '';
+    this.tiempoRestante = 15;
+
+    // Iniciar cuenta regresiva
+    this.intervalTimer = setInterval(() => {
+      this.tiempoRestante--;
+
+      if (this.tiempoRestante <= 0) {
+        this.clearTimer();
+        // Registrar entrada SIN vehículo automáticamente
+        this.registrarEntradaConModal();
+      }
+    }, 1000);
+  }
+
+  /**
+   * Limpiar temporizador
+   */
+  clearTimer(): void {
+    if (this.intervalTimer) {
+      clearInterval(this.intervalTimer);
+      this.intervalTimer = null;
+    }
+    this.mostrarModalVehiculo = false;
+  }
+
+  /**
+   * Confirmar selección de vehículo
+   */
+  confirmarVehiculo(): void {
+    this.clearTimer();
+
+    if (this.vehiculoSeleccionado) {
+      // Registrar CON vehículo
+      this.registrarEntradaConModal(this.vehiculoSeleccionado);
+    } else {
+      // Registrar SIN vehículo
+      this.registrarEntradaConModal();
+    }
+  }
+
+  /**
+   * Cancelar modal de vehículo (registrar sin vehículo)
+   */
+  cancelarModalVehiculo(): void {
+    this.clearTimer();
+    this.registrarEntradaConModal();
+  }
+
+  /**
+   * 🚀 REGISTRO AUTOMÁTICO DE ENTRADA CON MODAL DE CONFIRMACIÓN
+   */
+  registrarEntradaConModal(vehiculoId?: string): void {
+    if (!this.usuarioId) {
+      console.error('No hay usuarioId para registro automático');
+      return;
+    }
+
+    this.registrando = true;
+
+    const dto: RegistrarEntradaDTO = {
+      guardiaId: this.guardiaId,
+      usuarioId: this.identificador,
+      adminGuardiaId: this.usuarioId,
+      observaciones: this.observaciones || undefined,
+      vehiculoId: vehiculoId
+    };
+
+    console.log('🚀 Registrando entrada:', dto);
+
+    this.movimientoService.registrarEntrada(dto).subscribe({
+      next: (movimiento) => {
+        console.log('✅ Entrada registrada:', movimiento);
+
+        // Guardar datos y mostrar modal de confirmación
+        this.datosRegistroExitoso = {
+          ...movimiento,
+          usuario: this.validacionUsuario,
+          tipo: 'ENTRADA',
+          vehiculo: vehiculoId ? this.validacionUsuario?.vehiculos.find(v => v.id === vehiculoId) : null
+        };
+
+        this.mostrarModalConfirmacion = true;
+        this.registrando = false;
+
+        // Auto cerrar después de 5 segundos
+        setTimeout(() => {
+          this.cerrarModalConfirmacion();
+        }, 5000);
+      },
+      error: (error) => {
+        console.error('❌ Error en registro de entrada:', error);
+        this.registrando = false;
+        this.manejarError(error);
+        this.estado = 'USUARIO_ENCONTRADO';
+      }
+    });
+  }
+
+  /**
+   * 🚀 REGISTRO AUTOMÁTICO DE SALIDA CON MODAL
+   */
+  registrarSalidaConModal(): void {
+    if (!this.usuarioId) {
+      console.error('No hay usuarioId para registro automático');
+      return;
+    }
+
+    this.registrando = true;
+
+    const dto: RegistrarSalidaDTO = {
+      guardiaId: this.guardiaId,
+      usuarioId: this.identificador,
+      adminGuardiaId: this.usuarioId,
+      observaciones: this.observaciones || undefined,
+      vehiculoId: undefined // Sin vehículo en salidas
+    };
+
+    console.log('🚀 Registrando salida:', dto);
+
+    this.movimientoService.registrarSalida(dto).subscribe({
+      next: (movimiento) => {
+        console.log('✅ Salida registrada:', movimiento);
+
+        // Guardar datos y mostrar modal de confirmación
+        this.datosRegistroExitoso = {
+          ...movimiento,
+          usuario: this.validacionUsuario,
+          tipo: 'SALIDA'
+        };
+
+        this.mostrarModalConfirmacion = true;
+        this.registrando = false;
+
+        // Auto cerrar después de 5 segundos
+        setTimeout(() => {
+          this.cerrarModalConfirmacion();
+        }, 5000);
+      },
+      error: (error) => {
+        console.error('❌ Error en registro de salida:', error);
+        this.registrando = false;
+        this.manejarError(error);
+        this.estado = 'USUARIO_ENCONTRADO';
+      }
+    });
+  }
+
+  /**
+   * Cerrar modal de confirmación y limpiar
+   */
+  cerrarModalConfirmacion(): void {
+    this.mostrarModalConfirmacion = false;
+    this.datosRegistroExitoso = null;
+    this.limpiarYEnfocar();
+  }
+
+  /**
+   * 🚀 REGISTRO AUTOMÁTICO DE ENTRADA (DEPRECADO - mantener por compatibilidad)
+   */
+  registrarEntradaAutomatica(): void {
+    if (!this.usuarioId) {
+      console.error('No hay usuarioId para registro automático');
+      return;
+    }
+
+    this.registrando = true;
+
+    const dto: RegistrarEntradaDTO = {
+      guardiaId: this.guardiaId,
+      usuarioId: this.identificador,
+      adminGuardiaId: this.usuarioId,
+      observaciones: this.observaciones || undefined,
+      vehiculoId: undefined // Sin vehículo en registro automático
+    };
+
+    console.log('🚀 Registrando entrada automáticamente:', dto);
+
+    this.movimientoService.registrarEntrada(dto).subscribe({
+      next: (movimiento) => {
+        console.log('✅ Entrada registrada automáticamente:', movimiento);
+        this.messageService.add({
+          severity: 'success',
+          summary: '✅ Entrada Registrada',
+          detail: `${this.validacionUsuario?.nombreCompleto || 'Usuario'} - Entrada registrada automáticamente`,
+          life: 3000
+        });
+        this.registrando = false;
+        this.limpiarYEnfocar();
+      },
+      error: (error) => {
+        console.error('❌ Error en registro automático de entrada:', error);
+        this.registrando = false;
+        this.manejarError(error);
+        // Mantener el estado para que el usuario pueda reintentar manualmente
+        this.estado = 'USUARIO_ENCONTRADO';
+      }
+    });
+  }
+
+  /**
+   * 🚀 REGISTRO AUTOMÁTICO DE SALIDA
+   */
+  registrarSalidaAutomatica(): void {
+    if (!this.usuarioId) {
+      console.error('No hay usuarioId para registro automático');
+      return;
+    }
+
+    this.registrando = true;
+
+    const dto: RegistrarSalidaDTO = {
+      guardiaId: this.guardiaId,
+      usuarioId: this.identificador,
+      adminGuardiaId: this.usuarioId,
+      observaciones: this.observaciones || undefined,
+      vehiculoId: undefined // Sin vehículo en salidas
+    };
+
+    console.log('🚀 Registrando salida automáticamente:', dto);
+
+    this.movimientoService.registrarSalida(dto).subscribe({
+      next: (movimiento) => {
+        console.log('✅ Salida registrada automáticamente:', movimiento);
+        const minutos = movimiento.permanenciaMinutos || 0;
+        this.messageService.add({
+          severity: 'success',
+          summary: '✅ Salida Registrada',
+          detail: `${this.validacionUsuario?.nombreCompleto || 'Usuario'} - Permanencia: ${minutos} minutos`,
+          life: 3000
+        });
+        this.registrando = false;
+        this.limpiarYEnfocar();
+      },
+      error: (error) => {
+        console.error('❌ Error en registro automático de salida:', error);
+        this.registrando = false;
+        this.manejarError(error);
+        // Mantener el estado para que el usuario pueda reintentar manualmente
+        this.estado = 'USUARIO_ENCONTRADO';
+      }
+    });
+  }
+
+  /**
+   * Registro MANUAL de entrada (cuando el usuario selecciona vehículo)
+   */
   registrarEntrada(): void {
     if (!this.validarRegistro()) return;
 
@@ -285,7 +565,7 @@ export class ControlIngresoSalidaComponent implements OnInit, AfterViewInit {
       vehiculoId: this.incluirVehiculo ? this.vehiculoId : undefined
     };
 
-    console.log('Registrando entrada:', dto);
+    console.log('Registrando entrada manualmente:', dto);
 
     this.movimientoService.registrarEntrada(dto).subscribe({
       next: (movimiento) => {
@@ -301,52 +581,6 @@ export class ControlIngresoSalidaComponent implements OnInit, AfterViewInit {
       },
       error: (error) => {
         console.error('Error al registrar entrada:', error);
-        this.registrando = false;
-        this.manejarError(error);
-      }
-    });
-  }
-
-  registrarSalida(): void {
-    if (!this.validarRegistro()) return;
-
-    if (!this.usuarioId) {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Error',
-        detail: 'No se pudo obtener el ID del usuario autenticado',
-        life: 3000
-      });
-      return;
-    }
-
-    this.registrando = true;
-
-    const dto: RegistrarSalidaDTO = {
-      guardiaId: this.guardiaId,
-      usuarioId: this.identificador,
-      adminGuardiaId: this.usuarioId,
-      observaciones: this.observaciones || undefined,
-      vehiculoId: this.incluirVehiculo ? this.vehiculoId : undefined
-    };
-
-    console.log('Registrando salida:', dto);
-
-    this.movimientoService.registrarSalida(dto).subscribe({
-      next: (movimiento) => {
-        console.log('Salida registrada:', movimiento);
-        const minutos = movimiento.permanenciaMinutos || 0;
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Éxito',
-          detail: MENSAJES_EXITO.SALIDA_REGISTRADA(minutos),
-          life: 3000
-        });
-        this.registrando = false;
-        this.limpiarYEnfocar();
-      },
-      error: (error) => {
-        console.error('Error al registrar salida:', error);
         this.registrando = false;
         this.manejarError(error);
       }
@@ -457,7 +691,12 @@ export class ControlIngresoSalidaComponent implements OnInit, AfterViewInit {
       return { horas: 0, minutos: 0 };
     }
 
-    const entrada = new Date(this.validacionUsuario.entradaAbierta.timestampMovimiento);
+    const timestamp = this.validacionUsuario.entradaAbierta.timestampMovimiento;
+    if (!timestamp) {
+      return { horas: 0, minutos: 0 };
+    }
+
+    const entrada = new Date(timestamp);
     const ahora = new Date();
     const diff = ahora.getTime() - entrada.getTime();
     const minutosTotales = Math.floor(diff / 60000);

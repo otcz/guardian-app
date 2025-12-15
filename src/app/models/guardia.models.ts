@@ -196,7 +196,7 @@ export interface ValidacionUsuarioDTO {
   identificacion: string | null;
   seccion: string | null;
   restricciones: string[];
-  vehiculos: string[];
+  vehiculos: Vehiculo[]; // ✅ ACTUALIZADO: Cambiado de string[] a Vehiculo[]
   tieneEntradaAbierta: boolean;
   entradaAbierta: MovimientoGuardia | null;
 }
@@ -247,8 +247,10 @@ export interface Usuario {
 export interface Vehiculo {
   id: string;
   placa: string;
+  tipo?: string; // ✅ NUEVO: Tipo de vehículo
   marca?: string;
   modelo?: string;
+  linea?: string; // ✅ AGREGADO: Línea del vehículo
   color?: string;
   estado: 'ACTIVO' | 'BLOQUEADO' | 'INACTIVO';
   usuarioId?: string;

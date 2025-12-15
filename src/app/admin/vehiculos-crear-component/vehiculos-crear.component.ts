@@ -33,7 +33,14 @@ export class VehiculosCrearComponent implements OnInit {
   secciones: SeccionEntity[] = [];
   usuarios: UserEntity[] = [];
   isAdmin = false;
-  model: { placa: string; marca?: string | null; modelo?: string | null; linea?: string | null; anio?: number | null; color?: string | null; usuarioIds?: string[]; seccionId?: string | null } = { placa: '', marca: null, modelo: null, linea: null, anio: null, color: null, usuarioIds: [], seccionId: null };
+
+  // ✅ Opciones para el dropdown de tipo de vehículo (enum backend)
+  tiposVehiculo = [
+    { label: 'VEHÍCULO', value: 'VEHICULO' },
+    { label: 'MOTOCICLETA', value: 'MOTOCICLETA' }
+  ];
+
+  model: { placa: string; tipo?: string | null; marca?: string | null; modelo?: string | null; linea?: string | null; anio?: number | null; color?: string | null; usuarioIds?: string[]; seccionId?: string | null } = { placa: '', tipo: null, marca: null, modelo: null, linea: null, anio: null, color: null, usuarioIds: [], seccionId: null };
 
   // Usuario actual
   currentUsername: string | null = null;

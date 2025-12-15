@@ -14,12 +14,13 @@ import { NotificationService } from '../../service/notification.service';
 import { SeccionService } from '../../service/seccion.service';
 import { InputSwitchModule } from 'primeng/inputswitch';
 import { TooltipModule } from 'primeng/tooltip';
+import { DropdownModule } from 'primeng/dropdown';
 import { AuthService } from '../../service/auth.service';
 
 @Component({
   selector: 'app-vehiculos-gestionar',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, CardModule, InputTextModule, ButtonModule, TagModule, ProgressSpinnerModule, UppercaseDirective, InputSwitchModule, TooltipModule],
+  imports: [CommonModule, FormsModule, RouterModule, CardModule, InputTextModule, ButtonModule, TagModule, ProgressSpinnerModule, UppercaseDirective, InputSwitchModule, TooltipModule, DropdownModule],
   templateUrl: './vehiculos-gestionar.component.html',
   styleUrls: ['./vehiculos-gestionar.component.scss']
 })
@@ -41,9 +42,15 @@ export class VehiculosGestionarComponent implements OnInit {
   // Visible para ADMIN; se deshabilita si backend no permite
   showBloqueado = false;
 
+  // ✅ Opciones para el dropdown de tipo de vehículo (enum backend)
+  tiposVehiculo = [
+    { label: 'VEHÍCULO', value: 'VEHICULO' },
+    { label: 'MOTOCICLETA', value: 'MOTOCICLETA' }
+  ];
+
   // Modelo de edición
-  model: { placa: string; marca: string; modelo: string; linea: string; anio: number | null; color: string } = {
-    placa: '', marca: '', modelo: '', linea: '', anio: null, color: ''
+  model: { placa: string; tipo: string; marca: string; modelo: string; linea: string; anio: number | null; color: string } = {
+    placa: '', tipo: '', marca: '', modelo: '', linea: '', anio: null, color: ''
   };
 
   constructor(
@@ -111,6 +118,7 @@ export class VehiculosGestionarComponent implements OnInit {
       next: (v) => {
         this.entity = v;
         this.model.placa = v.placa || '';
+        this.model.tipo = v.tipo || '';
         this.model.marca = v.marca || '';
         this.model.modelo = v.modelo || '';
         this.model.linea = v.linea || '';
@@ -157,11 +165,13 @@ export class VehiculosGestionarComponent implements OnInit {
 
     this.saving = true;
     const body: any = { placa: this.model.placa.trim().toUpperCase() };
+    const tipo = (this.model.tipo || '').trim();
     const marca = (this.model.marca || '').trim();
     const modelo = (this.model.modelo || '').trim();
     const linea = (this.model.linea || '').trim();
     const color = (this.model.color || '').trim();
     const anio = this.model.anio != null ? Number(this.model.anio) : undefined;
+    if (tipo) body.tipo = tipo;
     if (marca) body.marca = marca;
     if (modelo) body.modelo = modelo;
     if (linea) body.linea = linea;
@@ -175,6 +185,7 @@ export class VehiculosGestionarComponent implements OnInit {
           this.entity = res.vehicle;
           // reflejar en modelo
           this.model.placa = this.entity.placa || this.model.placa;
+          this.model.tipo = this.entity.tipo || '';
           this.model.marca = this.entity.marca || '';
           this.model.modelo = this.entity.modelo || '';
           this.model.linea = this.entity.linea || '';

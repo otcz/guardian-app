@@ -36,6 +36,21 @@
         <input id="placa" type="text" pInputText [(ngModel)]="model.placa" appUppercase [disabled]="saving" />
       </div>
 
+      <!-- ✅ NUEVO: Campo Tipo de Vehículo (Dropdown) -->
+      <div class="form-row">
+        <label for="tipo">Tipo de Vehículo</label>
+        <p-dropdown id="tipo"
+                    [options]="tiposVehiculo"
+                    [(ngModel)]="model.tipo"
+                    optionLabel="label"
+                    optionValue="value"
+                    placeholder="Seleccione un tipo"
+                    [disabled]="saving"
+                    [showClear]="true"
+                    styleClass="w-full">
+        </p-dropdown>
+      </div>
+
       <div class="form-row">
         <label for="marca">Marca</label>
         <input id="marca" type="text" pInputText [(ngModel)]="model.marca" [disabled]="saving" />
@@ -48,7 +63,7 @@
 
       <div class="form-row">
         <label for="linea">Línea</label>
-        <input id="linea" type="text" pInputText [(ngModel)]="model.linea" [disabled]="saving" />
+        <input id="linea" type="text" pInputText [(ngModel)]="model.linea" [disabled]="saving" maxlength="200" />
       </div>
 
       <div class="form-row">

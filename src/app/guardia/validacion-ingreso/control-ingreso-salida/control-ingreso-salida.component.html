@@ -20,6 +20,89 @@
     </div>
   </div>
 
+  <!-- ⚙️ CONFIGURACIÓN DE MÉTODO DE VALIDACIÓN -->
+  <p-card styleClass="config-card">
+    <div class="config-section">
+      <div class="config-group">
+        <label class="config-label">
+          <i class="pi pi-cog"></i> Método de Validación
+        </label>
+        <div class="radio-options">
+          <div class="radio-item">
+            <p-radioButton
+              [(ngModel)]="metodoValidacion"
+              value="BIOMETRICO"
+              inputId="biometrico"
+            ></p-radioButton>
+            <label for="biometrico">
+              <i class="pi pi-fingerprint"></i> Biométrico (Huella)
+            </label>
+          </div>
+          <div class="radio-item">
+            <p-radioButton
+              [(ngModel)]="metodoValidacion"
+              value="FACE_CAM"
+              inputId="faceCam"
+            ></p-radioButton>
+            <label for="faceCam">
+              <i class="pi pi-camera"></i> Face CAM
+            </label>
+          </div>
+          <div class="radio-item">
+            <p-radioButton
+              [(ngModel)]="metodoValidacion"
+              value="PLACA_CAM"
+              inputId="placaCam"
+            ></p-radioButton>
+            <label for="placaCam">
+              <i class="pi pi-video"></i> Placa CAM
+            </label>
+          </div>
+          <div class="radio-item">
+            <p-radioButton
+              [(ngModel)]="metodoValidacion"
+              value="MANUAL"
+              inputId="manual"
+            ></p-radioButton>
+            <label for="manual">
+              <i class="pi pi-pencil"></i> Manual
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <p-divider layout="vertical"></p-divider>
+
+      <div class="config-group">
+        <label class="config-label">
+          <i class="pi pi-arrow-right-arrow-left"></i> Tipo de Movimiento
+        </label>
+        <div class="radio-options">
+          <div class="radio-item">
+            <p-radioButton
+              [(ngModel)]="tipoMovimientoConfig"
+              value="ENTRADA"
+              inputId="entrada"
+            ></p-radioButton>
+            <label for="entrada">
+              <i class="pi pi-sign-in"></i> Entrada
+            </label>
+          </div>
+          <div class="radio-item">
+            <p-radioButton
+              [(ngModel)]="tipoMovimientoConfig"
+              value="SALIDA"
+              inputId="salida"
+            ></p-radioButton>
+            <label for="salida">
+              <i class="pi pi-sign-out"></i> Salida
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </p-card>
+
   <!-- Formulario de Búsqueda -->
   <p-card *ngIf="guardiaId && !cargandoGuardias" styleClass="busqueda-card">
     <div class="busqueda-field">
@@ -50,8 +133,21 @@
     </div>
   </p-card>
 
-  <!-- Paso 3: Resultados - Usuario Encontrado con Entrada Disponible -->
-  <p-card *ngIf="puedeRegistrarEntrada" styleClass="resultado-card entrada-card">
+  <!-- ✅ Registro Automático en Progreso -->
+  <p-card *ngIf="registrando && estado === 'USUARIO_ENCONTRADO'" styleClass="resultado-card registrando-card">
+    <div class="registrando-content">
+      <i class="pi pi-spin pi-spinner" style="font-size: 3rem; color: var(--primary-color);"></i>
+      <h3>🚀 Registrando automáticamente...</h3>
+      <p>{{ validacionUsuario?.nombreCompleto }}</p>
+      <p-tag
+        [value]="tipoAccion === 'ENTRADA' ? 'ENTRADA' : 'SALIDA'"
+        [severity]="tipoAccion === 'ENTRADA' ? 'success' : 'info'"
+      ></p-tag>
+    </div>
+  </p-card>
+
+  <!-- 🚗 Selección de Vehículo (SOLO cuando tiene vehículos y NO se ha registrado automáticamente) -->
+  <p-card *ngIf="puedeRegistrarEntrada && (validacionUsuario?.vehiculos?.length ?? 0) > 0 && !registrando" styleClass="resultado-card entrada-card">
     <ng-template pTemplate="header">
       <div class="resultado-header">
         <i class="pi pi-user"></i>
@@ -85,11 +181,11 @@
       </div>
     </div>
 
-    <!-- Vehículos (si tiene) -->
-    <div *ngIf="(validacionUsuario?.vehiculos?.length ?? 0) > 0" class="vehiculos-section">
+    <!-- Vehículos (Obligatorio cuando tiene vehículos) -->
+    <div class="vehiculos-section">
       <p-message
         severity="warn"
-        text="⚠️ Este usuario tiene vehículo(s). ¿Desea registrar también el ingreso del vehículo?"
+        text="🚗 Este usuario tiene vehículo(s) registrados. Seleccione el vehículo para registrar la entrada."
       ></p-message>
 
       <div class="p-field-checkbox">
@@ -102,7 +198,9 @@
       </div>
 
       <div *ngIf="incluirVehiculo" class="p-field">
+        <label for="vehiculoSelect">Vehículo *</label>
         <p-dropdown
+          id="vehiculoSelect"
           [(ngModel)]="vehiculoId"
           [options]="validacionUsuario?.vehiculos ?? []"
           optionLabel="placa"
@@ -140,94 +238,7 @@
         styleClass="p-button-success p-button-lg"
         (onClick)="registrarEntrada()"
         [loading]="registrando"
-      ></p-button>
-    </div>
-  </p-card>
-
-  <!-- Paso 3B: Resultados - Usuario con Entrada Abierta (Salida) -->
-  <p-card *ngIf="puedeRegistrarSalida" styleClass="resultado-card salida-card">
-    <ng-template pTemplate="header">
-      <div class="resultado-header">
-        <i class="pi pi-user"></i>
-        <h3>Usuario Encontrado</h3>
-      </div>
-    </ng-template>
-
-    <div class="usuario-info">
-      <div class="info-row">
-        <label>Nombre Completo:</label>
-        <strong>{{ validacionUsuario?.nombreCompleto }}</strong>
-      </div>
-      <div class="info-row">
-        <label>Username:</label>
-        <span>{{ validacionUsuario?.username }}</span>
-      </div>
-      <div class="info-row" *ngIf="validacionUsuario?.tipoIdentificacion && validacionUsuario?.identificacion">
-        <label>Identificación:</label>
-        <span>{{ validacionUsuario?.tipoIdentificacion }}: {{ validacionUsuario?.identificacion }}</span>
-      </div>
-      <div class="info-row">
-        <label>Sección:</label>
-        <span>{{ validacionUsuario?.seccion }}</span>
-      </div>
-      <div class="info-row">
-        <label>Estado:</label>
-        <p-tag
-          [value]="validacionUsuario?.activo ? 'ACTIVO' : 'INACTIVO'"
-          [severity]="validacionUsuario?.activo ? 'success' : 'danger'"
-        ></p-tag>
-      </div>
-    </div>
-
-    <!-- Información de entrada abierta -->
-    <div class="entrada-abierta-info">
-      <p-message severity="info" styleClass="entrada-abierta-message">
-        <ng-template pTemplate>
-          <div class="entrada-info-content">
-            <i class="pi pi-info-circle"></i>
-            <div>
-              <strong>El usuario tiene una entrada abierta</strong>
-              <p>
-                Fecha/Hora: {{ formatearFecha(validacionUsuario?.entradaAbierta?.timestampMovimiento!) }}
-                <br />
-                Guardia: {{ validacionUsuario?.entradaAbierta?.guardia?.nombre }}
-                <br />
-                Tiempo transcurrido: {{ calcularTiempoTranscurrido().horas }}h
-                {{ calcularTiempoTranscurrido().minutos }}m
-              </p>
-            </div>
-          </div>
-        </ng-template>
-      </p-message>
-    </div>
-
-    <!-- Observaciones -->
-    <div class="p-field">
-      <label for="observacionesSalida">{{ LABELS.OBSERVACIONES }}</label>
-      <textarea
-        id="observacionesSalida"
-        pInputTextarea
-        [(ngModel)]="observaciones"
-        [rows]="2"
-        [placeholder]="LABELS.PH_OBSERVACIONES"
-      ></textarea>
-    </div>
-
-    <!-- Botones -->
-    <div class="form-actions">
-      <p-button
-        [label]="LABELS.BTN_CANCELAR"
-        icon="pi pi-times"
-        styleClass="p-button-secondary"
-        (onClick)="cancelar()"
-        [disabled]="registrando"
-      ></p-button>
-      <p-button
-        [label]="LABELS.BTN_REGISTRAR_SALIDA"
-        icon="pi pi-sign-out"
-        styleClass="p-button-info p-button-lg"
-        (onClick)="registrarSalida()"
-        [loading]="registrando"
+        [disabled]="incluirVehiculo && !vehiculoId"
       ></p-button>
     </div>
   </p-card>
@@ -287,4 +298,169 @@
     </div>
   </p-card>
 </div>
+
+<!-- 🚗 MODAL DE SELECCIÓN DE VEHÍCULO CON TEMPORIZADOR -->
+<p-dialog
+  [(visible)]="mostrarModalVehiculo"
+  [modal]="true"
+  [closable]="false"
+  [draggable]="false"
+  [resizable]="false"
+  styleClass="vehiculo-dialog"
+  header="Seleccione Vehículo"
+>
+  <div class="vehiculo-modal-content">
+    <div class="timer-warning">
+      <i class="pi pi-clock"></i>
+      <span class="timer-text">Tiempo restante: <strong>{{ tiempoRestante }}s</strong></span>
+      <small>Si no selecciona, se registrará sin vehículo</small>
+    </div>
+
+    <div class="user-summary">
+      <h3>
+        <i class="pi pi-user"></i>
+        {{ validacionUsuario?.nombreCompleto }}
+      </h3>
+      <p>{{ validacionUsuario?.username }}</p>
+    </div>
+
+    <p-divider></p-divider>
+
+    <div class="vehiculos-list">
+      <h4>
+        <i class="pi pi-car"></i> Vehículos Disponibles
+      </h4>
+      <div class="vehiculo-cards">
+        <div
+          *ngFor="let vehiculo of validacionUsuario?.vehiculos"
+          class="vehiculo-card"
+          [class.selected]="vehiculoSeleccionado === vehiculo.id"
+          (click)="vehiculoSeleccionado = vehiculo.id"
+        >
+          <div class="vehiculo-header">
+            <i class="pi pi-car"></i>
+            <strong>{{ vehiculo.placa }}</strong>
+            <p-tag
+              [value]="vehiculo.tipo || 'N/A'"
+              severity="info"
+            ></p-tag>
+          </div>
+          <div class="vehiculo-details">
+            <div class="detail-row">
+              <span class="label">Marca:</span>
+              <span class="value">{{ vehiculo.marca || 'N/A' }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Modelo:</span>
+              <span class="value">{{ vehiculo.modelo || 'N/A' }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Color:</span>
+              <span class="value">
+                <span
+                  class="color-dot"
+                  [style.background]="vehiculo.color || '#ccc'"
+                ></span>
+                {{ vehiculo.color || 'N/A' }}
+              </span>
+            </div>
+          </div>
+          <div class="vehiculo-radio">
+            <p-radioButton
+              [(ngModel)]="vehiculoSeleccionado"
+              [value]="vehiculo.id"
+            ></p-radioButton>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <p-button
+      label="Sin Vehículo"
+      icon="pi pi-times"
+      styleClass="p-button-secondary"
+      (onClick)="cancelarModalVehiculo()"
+    ></p-button>
+    <p-button
+      label="Confirmar"
+      icon="pi pi-check"
+      styleClass="p-button-success"
+      (onClick)="confirmarVehiculo()"
+      [disabled]="!vehiculoSeleccionado"
+    ></p-button>
+  </ng-template>
+</p-dialog>
+
+<!-- 📊 MODAL DE CONFIRMACIÓN DE REGISTRO -->
+<p-dialog
+  [(visible)]="mostrarModalConfirmacion"
+  [modal]="true"
+  [closable]="true"
+  [draggable]="false"
+  [resizable]="false"
+  styleClass="confirmacion-dialog"
+  (onHide)="cerrarModalConfirmacion()"
+>
+  <ng-template pTemplate="header">
+    <div class="confirmacion-header">
+      <i
+        class="pi"
+        [class.pi-sign-in]="datosRegistroExitoso?.tipo === 'ENTRADA'"
+        [class.pi-sign-out]="datosRegistroExitoso?.tipo === 'SALIDA'"
+      ></i>
+      <h3>{{ datosRegistroExitoso?.tipo === 'ENTRADA' ? 'Entrada Registrada' : 'Salida Registrada' }}</h3>
+    </div>
+  </ng-template>
+
+  <div class="confirmacion-content">
+    <div class="success-icon">
+      <i class="pi pi-check-circle"></i>
+    </div>
+
+    <div class="user-info-modal">
+      <h3>{{ datosRegistroExitoso?.usuario?.nombreCompleto }}</h3>
+      <p>{{ datosRegistroExitoso?.usuario?.username }}</p>
+      <p-tag
+        [value]="datosRegistroExitoso?.tipo"
+        [severity]="datosRegistroExitoso?.tipo === 'ENTRADA' ? 'success' : 'info'"
+      ></p-tag>
+    </div>
+
+    <p-divider></p-divider>
+
+    <div class="registro-details">
+      <div class="detail-row">
+        <i class="pi pi-calendar"></i>
+        <span>{{ formatearFecha(datosRegistroExitoso?.timestampMovimiento) }}</span>
+      </div>
+      <div class="detail-row" *ngIf="datosRegistroExitoso?.usuario?.seccion">
+        <i class="pi pi-building"></i>
+        <span>{{ datosRegistroExitoso?.usuario?.seccion }}</span>
+      </div>
+      <div class="detail-row" *ngIf="datosRegistroExitoso?.vehiculo">
+        <i class="pi pi-car"></i>
+        <span>
+          Vehículo: {{ datosRegistroExitoso.vehiculo.placa }}
+          ({{ datosRegistroExitoso.vehiculo.marca }} {{ datosRegistroExitoso.vehiculo.modelo }})
+        </span>
+      </div>
+      <div class="detail-row" *ngIf="datosRegistroExitoso?.permanenciaMinutos">
+        <i class="pi pi-clock"></i>
+        <span>Permanencia: {{ datosRegistroExitoso.permanenciaMinutos }} minutos</span>
+      </div>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <p-button
+      label="Cerrar"
+      icon="pi pi-times"
+      styleClass="p-button-primary"
+      (onClick)="cerrarModalConfirmacion()"
+    ></p-button>
+  </ng-template>
+</p-dialog>
+
 

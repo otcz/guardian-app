@@ -20,6 +20,35 @@
     </div>
   </div>
 
+  <!-- Selector de Guardia (solo si tiene múltiples guardias) -->
+  <p-card *ngIf="guardias.length > 0 && !guardiaId" styleClass="selector-guardia-card">
+    <div class="selector-guardia">
+      <label for="guardiaSelect" class="selector-label">
+        <i class="pi pi-map-marker"></i> Selecciona el Punto de Control:
+      </label>
+      <p-dropdown
+        id="guardiaSelect"
+        [(ngModel)]="guardiaId"
+        [options]="guardias"
+        optionLabel="nombre"
+        optionValue="id"
+        placeholder="-- Seleccionar Guardia --"
+        [filter]="true"
+        filterBy="nombre,codigo"
+        [showClear]="false"
+        styleClass="w-full"
+      >
+        <ng-template let-guardia pTemplate="item">
+          <div class="guardia-option">
+            <strong>{{ guardia.nombre }}</strong>
+            <small class="text-muted"> - {{ guardia.codigo }}</small>
+            <p-tag *ngIf="guardia.ubicacion" severity="info" [value]="guardia.ubicacion" styleClass="ml-2"></p-tag>
+          </div>
+        </ng-template>
+      </p-dropdown>
+    </div>
+  </p-card>
+
   <!-- ⚙️ CONFIGURACIÓN DE MÉTODO DE VALIDACIÓN -->
   <p-card styleClass="config-card">
     <div class="config-section">
@@ -463,4 +492,39 @@
   </ng-template>
 </p-dialog>
 
+<!-- ❌ MODAL DE ERROR -->
+<p-dialog
+  [(visible)]="mostrarModalError"
+  [modal]="true"
+  [closable]="true"
+  [draggable]="false"
+  [resizable]="false"
+  styleClass="modal-error"
+  [style]="{ width: '500px' }"
+>
+  <ng-template pTemplate="header">
+    <div class="error-header">
+      <i class="pi pi-times-circle"></i>
+      <span>{{ tituloError }}</span>
+    </div>
+  </ng-template>
 
+  <div class="error-content">
+    <div class="error-icon">
+      <i class="pi pi-exclamation-triangle"></i>
+    </div>
+
+    <div class="error-message">
+      <p>{{ mensajeError }}</p>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <p-button
+      label="Entendido"
+      icon="pi pi-check"
+      styleClass="p-button-danger"
+      (onClick)="cerrarModalError()"
+    ></p-button>
+  </ng-template>
+</p-dialog>

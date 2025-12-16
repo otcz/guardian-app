@@ -20,12 +20,14 @@ import { DividerModule } from 'primeng/divider';
 
 // Servicios
 import { GuardiaService } from '../../../service/guardia.service';
+import { GuardiaUsuarioService } from '../../../service/guardia-usuario.service';
 import { MovimientoGuardiaService } from '../../../service/movimiento-guardia.service';
 import { OrgContextService } from '../../../service/org-context.service';
 
 // Modelos
 import {
   Guardia,
+  GuardiaUsuario,
   ValidacionUsuarioDTO,
   RegistrarEntradaDTO,
   RegistrarSalidaDTO
@@ -87,6 +89,11 @@ export class ControlIngresoSalidaComponent implements OnInit, AfterViewInit, OnD
   mostrarModalConfirmacion = false;
   datosRegistroExitoso: any = null;
 
+  // ❌ Modal de error
+  mostrarModalError = false;
+  mensajeError: string = '';
+  tituloError: string = 'Error';
+
   // Datos del formulario
   guardiaId: string = '';
   identificador: string = '';
@@ -114,6 +121,7 @@ export class ControlIngresoSalidaComponent implements OnInit, AfterViewInit, OnD
 
   constructor(
     private guardiaService: GuardiaService,
+    private guardiaUsuarioService: GuardiaUsuarioService,
     private movimientoService: MovimientoGuardiaService,
     private orgContextService: OrgContextService,
     private messageService: MessageService
@@ -166,19 +174,73 @@ export class ControlIngresoSalidaComponent implements OnInit, AfterViewInit, OnD
   }
 
   /**
-   * Configura el componente - El usuario logueado ES la guardia
+   * Carga las guardias asignadas al usuario logueado
    */
   cargarGuardiaUsuario(): void {
-    // El guardiaId es el userId porque el usuario logueado ES la guardia
-    this.guardiaId = this.usuarioId;
+    if (!this.usuarioId) {
+      console.error('No hay usuarioId para cargar guardias');
+      return;
+    }
 
+    this.cargandoGuardias = true;
 
-    // Mostrar mensaje de bienvenida
-    this.messageService.add({
-      severity: 'success',
-      summary: 'Bienvenido',
-      detail: `Guardia: ${this.nombreGuardiaUsuario}`,
-      life: 2000
+    this.guardiaUsuarioService.listarDisponiblesPorUsuario(this.usuarioId).subscribe({
+      next: (guardiasUsuario) => {
+        console.log('✅ Guardias recibidas del backend:', guardiasUsuario);
+
+        // ✅ SIN FILTROS - El backend ya envía solo las guardias válidas
+        if (guardiasUsuario.length === 0) {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Sin Guardias Asignadas',
+            detail: 'No tienes guardias activas asignadas. Contacta al administrador.',
+            life: 5000
+          });
+          this.cargandoGuardias = false;
+          return;
+        }
+
+        // Si solo tiene una guardia, seleccionarla automáticamente
+        if (guardiasUsuario.length === 1) {
+          this.guardiaId = guardiasUsuario[0].guardiaId;
+          const nombreGuardia = guardiasUsuario[0].guardia?.nombre || 'Guardia';
+          console.log('✅ Guardia seleccionada automáticamente:', this.guardiaId);
+
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Bienvenido',
+            detail: `${this.nombreGuardiaUsuario} - ${nombreGuardia}`,
+            life: 3000
+          });
+        } else {
+          // ✅ Mapeo directo - Sin transformación, el backend envía estructura consistente
+          // Filtrar undefined por seguridad (el backend DEBE enviar siempre guardia)
+          this.guardias = guardiasUsuario
+            .map(gu => gu.guardia)
+            .filter((g): g is Guardia => g !== undefined);
+
+          console.log('✅ Guardias para selector:', this.guardias);
+
+          this.messageService.add({
+            severity: 'info',
+            summary: 'Múltiples Guardias',
+            detail: `Tienes ${guardiasUsuario.length} guardias asignadas. Por favor selecciona una.`,
+            life: 5000
+          });
+        }
+
+        this.cargandoGuardias = false;
+      },
+      error: (error) => {
+        console.error('Error al cargar guardias del usuario:', error);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Error al cargar guardias asignadas: ' + (error.error?.message || error.message),
+          life: 5000
+        });
+        this.cargandoGuardias = false;
+      }
     });
   }
 
@@ -205,11 +267,10 @@ export class ControlIngresoSalidaComponent implements OnInit, AfterViewInit, OnD
     }
 
     this.buscando = true;
-    console.log('Buscando usuario:', this.identificador);
 
-    this.movimientoService.validarUsuario(this.identificador).subscribe({
+    // ✅ Enviar guardiaId al backend para que determine la acción permitida
+    this.movimientoService.validarUsuario(this.identificador, this.guardiaId).subscribe({
       next: (validacion) => {
-        console.log('Validación recibida:', validacion);
         this.validacionUsuario = validacion;
         this.buscando = false;
 
@@ -224,7 +285,9 @@ export class ControlIngresoSalidaComponent implements OnInit, AfterViewInit, OnD
         }
 
         this.estado = 'USUARIO_ENCONTRADO';
-        this.determinarTipoAccion();
+
+        // ✅ El backend ya decidió qué acción hacer - Solo mostramos
+        this.procesarAccionBackend(validacion);
       },
       error: (error) => {
         this.buscando = false;
@@ -238,27 +301,114 @@ export class ControlIngresoSalidaComponent implements OnInit, AfterViewInit, OnD
     });
   }
 
-  determinarTipoAccion(): void {
+  /**
+   * ✅ Procesa la acción que el backend determinó
+   * Frontend SOLO muestra lo que el backend envía
+   */
+  procesarAccionBackend(validacion: ValidacionUsuarioDTO): void {
+    // ✅ Usar el campo accionPermitida que el backend envía
+    const accion = (validacion as any).accionPermitida;
+
+    // Si el backend no envía accionPermitida, usar la lógica temporal
+    // TODO: Eliminar esto cuando el backend implemente accionPermitida
+    if (!accion) {
+      console.warn('⚠️ Backend no envía accionPermitida - usando lógica temporal');
+      this.determinarTipoAccionTemporal();
+      return;
+    }
+
+    this.tipoAccion = accion;
+
+    switch (accion) {
+      case 'BLOQUEADO':
+        const motivo = (validacion as any).motivoBloqueo || 'Usuario no autorizado';
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Acceso Bloqueado',
+          detail: motivo,
+          life: 5000
+        });
+        break;
+
+      case 'SALIDA':
+        if (validacion.entradaAbierta) {
+          const permanencia = (validacion.entradaAbierta as any).permanenciaActual;
+          if (permanencia) {
+            this.messageService.add({
+              severity: 'info',
+              summary: 'Entrada Abierta',
+              detail: `El usuario tiene una entrada abierta desde hace ${permanencia.horas}h ${permanencia.minutos}m`,
+              life: 5000
+            });
+          }
+        }
+        this.registrarSalidaConModal();
+        break;
+
+      case 'ENTRADA':
+        const tieneVehiculos = (validacion.vehiculos?.length ?? 0) > 0;
+        if (tieneVehiculos) {
+          this.mostrarModalSeleccionVehiculo();
+        } else {
+          this.registrarEntradaConModal();
+        }
+        break;
+    }
+  }
+
+  /**
+   * ✅ LÓGICA BASADA EN CONFIGURACIÓN MANUAL DEL USUARIO
+   * El módulo respeta el check seleccionado (ENTRADA o SALIDA)
+   * y valida que la operación sea posible según el estado del usuario.
+   */
+  determinarTipoAccionTemporal(): void {
     if (!this.validacionUsuario) return;
 
-    // Verificar si está activo
-    if (!this.validacionUsuario.activo) {
-      this.tipoAccion = 'BLOQUEADO';
-      return;
-    }
+    // ✅ USAR LA CONFIGURACIÓN DEL CHECK (tipoMovimientoConfig)
+    // No automático, sino según lo que el operador configuró
+    const tipoConfigurado = this.tipoMovimientoConfig;
 
-    // Verificar si tiene restricción en esta guardia
-    const tieneRestriccion = this.validacionUsuario.restricciones.some(r =>
-      r.includes(this.guardiaId)
-    );
+    // Validar si la operación configurada es posible
+    if (tipoConfigurado === 'ENTRADA') {
+      // Validar: ¿Puede registrar entrada?
+      if (this.validacionUsuario.tieneEntradaAbierta) {
+        // ❌ NO puede registrar entrada porque ya tiene una abierta
+        const tiempo = this.calcularTiempoTranscurrido();
+        this.messageService.add({
+          severity: 'error',
+          summary: '❌ Entrada No Permitida',
+          detail: `El usuario ya tiene una entrada abierta desde hace ${tiempo.horas}h ${tiempo.minutos}m. Cambie el check a SALIDA o registre la salida primero.`,
+          life: 8000
+        });
+        this.tipoAccion = 'BLOQUEADO';
+        return;
+      }
 
-    if (tieneRestriccion) {
-      this.tipoAccion = 'BLOQUEADO';
-      return;
-    }
+      // ✅ Puede registrar entrada
+      this.tipoAccion = 'ENTRADA';
+      const tieneVehiculos = (this.validacionUsuario.vehiculos?.length ?? 0) > 0;
 
-    // Determinar si es entrada o salida según si tiene entrada abierta
-    if (this.validacionUsuario.tieneEntradaAbierta) {
+      if (tieneVehiculos) {
+        this.mostrarModalSeleccionVehiculo();
+      } else {
+        this.registrarEntradaConModal();
+      }
+
+    } else if (tipoConfigurado === 'SALIDA') {
+      // Validar: ¿Puede registrar salida?
+      if (!this.validacionUsuario.tieneEntradaAbierta) {
+        // ❌ NO puede registrar salida porque no tiene entrada abierta
+        this.messageService.add({
+          severity: 'error',
+          summary: '❌ Salida No Permitida',
+          detail: 'El usuario NO tiene ninguna entrada abierta. Cambie el check a ENTRADA o registre una entrada primero.',
+          life: 8000
+        });
+        this.tipoAccion = 'BLOQUEADO';
+        return;
+      }
+
+      // ✅ Puede registrar salida
       this.tipoAccion = 'SALIDA';
 
       // Mostrar info de entrada abierta
@@ -266,27 +416,13 @@ export class ControlIngresoSalidaComponent implements OnInit, AfterViewInit, OnD
         const tiempo = this.calcularTiempoTranscurrido();
         this.messageService.add({
           severity: 'info',
-          summary: 'Entrada Abierta',
+          summary: 'Entrada Abierta Detectada',
           detail: `El usuario tiene una entrada abierta desde hace ${tiempo.horas}h ${tiempo.minutos}m`,
           life: 5000
         });
       }
 
-      // 🚀 REGISTRO AUTOMÁTICO DE SALIDA con modal
       this.registrarSalidaConModal();
-
-    } else {
-      this.tipoAccion = 'ENTRADA';
-
-      const tieneVehiculos = (this.validacionUsuario.vehiculos?.length ?? 0) > 0;
-
-      if (tieneVehiculos) {
-        // 🚗 Mostrar modal de selección de vehículo con temporizador de 15 segundos
-        this.mostrarModalSeleccionVehiculo();
-      } else {
-        // 🚀 REGISTRO AUTOMÁTICO DE ENTRADA con modal (sin vehículos)
-        this.registrarEntradaConModal();
-      }
     }
   }
 
@@ -349,7 +485,18 @@ export class ControlIngresoSalidaComponent implements OnInit, AfterViewInit, OnD
    */
   registrarEntradaConModal(vehiculoId?: string): void {
     if (!this.usuarioId) {
-      console.error('No hay usuarioId para registro automático');
+      console.error('No hay usuarioId (adminGuardiaId) para registro automático');
+      return;
+    }
+
+    if (!this.validacionUsuario?.id) {
+      console.error('No hay validacionUsuario.id disponible');
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'No se pudo obtener el UUID del usuario. Intente buscar nuevamente.',
+        life: 3000
+      });
       return;
     }
 
@@ -357,18 +504,16 @@ export class ControlIngresoSalidaComponent implements OnInit, AfterViewInit, OnD
 
     const dto: RegistrarEntradaDTO = {
       guardiaId: this.guardiaId,
-      usuarioId: this.identificador,
+      usuarioId: this.validacionUsuario.id,
+      vehiculoId: vehiculoId || null,
       adminGuardiaId: this.usuarioId,
-      observaciones: this.observaciones || undefined,
-      vehiculoId: vehiculoId
+      observaciones: this.observaciones || null
     };
 
-    console.log('🚀 Registrando entrada:', dto);
+    console.log(`🔵 Endpoint: POST /api/movimientos-guardia/entrada | Check: ${this.tipoMovimientoConfig}`);
 
     this.movimientoService.registrarEntrada(dto).subscribe({
       next: (movimiento) => {
-        console.log('✅ Entrada registrada:', movimiento);
-
         // Guardar datos y mostrar modal de confirmación
         this.datosRegistroExitoso = {
           ...movimiento,
@@ -399,7 +544,18 @@ export class ControlIngresoSalidaComponent implements OnInit, AfterViewInit, OnD
    */
   registrarSalidaConModal(): void {
     if (!this.usuarioId) {
-      console.error('No hay usuarioId para registro automático');
+      console.error('No hay usuarioId (adminGuardiaId) para registro automático');
+      return;
+    }
+
+    if (!this.validacionUsuario?.id) {
+      console.error('No hay validacionUsuario.id disponible');
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'No se pudo obtener el UUID del usuario. Intente buscar nuevamente.',
+        life: 3000
+      });
       return;
     }
 
@@ -407,17 +563,16 @@ export class ControlIngresoSalidaComponent implements OnInit, AfterViewInit, OnD
 
     const dto: RegistrarSalidaDTO = {
       guardiaId: this.guardiaId,
-      usuarioId: this.identificador,
+      usuarioId: this.validacionUsuario.id,
+      vehiculoId: null,
       adminGuardiaId: this.usuarioId,
-      observaciones: this.observaciones || undefined,
-      vehiculoId: undefined // Sin vehículo en salidas
+      observaciones: this.observaciones || null
     };
 
-    console.log('🚀 Registrando salida:', dto);
+    console.log(`🟠 Endpoint: POST /api/movimientos-guardia/salida | Check: ${this.tipoMovimientoConfig}`);
 
     this.movimientoService.registrarSalida(dto).subscribe({
       next: (movimiento) => {
-        console.log('✅ Salida registrada:', movimiento);
 
         // Guardar datos y mostrar modal de confirmación
         this.datosRegistroExitoso = {
@@ -457,7 +612,12 @@ export class ControlIngresoSalidaComponent implements OnInit, AfterViewInit, OnD
    */
   registrarEntradaAutomatica(): void {
     if (!this.usuarioId) {
-      console.error('No hay usuarioId para registro automático');
+      console.error('No hay usuarioId (adminGuardiaId) para registro automático');
+      return;
+    }
+
+    if (!this.validacionUsuario?.id) {
+      console.error('No hay validacionUsuario.id disponible');
       return;
     }
 
@@ -465,17 +625,16 @@ export class ControlIngresoSalidaComponent implements OnInit, AfterViewInit, OnD
 
     const dto: RegistrarEntradaDTO = {
       guardiaId: this.guardiaId,
-      usuarioId: this.identificador,
+      usuarioId: this.validacionUsuario.id,
       adminGuardiaId: this.usuarioId,
-      observaciones: this.observaciones || undefined,
-      vehiculoId: undefined // Sin vehículo en registro automático
+      observaciones: this.observaciones || null,
+      vehiculoId: null
     };
 
-    console.log('🚀 Registrando entrada automáticamente:', dto);
+    console.log(`🔵 Endpoint: POST /api/movimientos-guardia/entrada | Check: ${this.tipoMovimientoConfig}`);
 
     this.movimientoService.registrarEntrada(dto).subscribe({
       next: (movimiento) => {
-        console.log('✅ Entrada registrada automáticamente:', movimiento);
         this.messageService.add({
           severity: 'success',
           summary: '✅ Entrada Registrada',
@@ -500,7 +659,12 @@ export class ControlIngresoSalidaComponent implements OnInit, AfterViewInit, OnD
    */
   registrarSalidaAutomatica(): void {
     if (!this.usuarioId) {
-      console.error('No hay usuarioId para registro automático');
+      console.error('No hay usuarioId (adminGuardiaId) para registro automático');
+      return;
+    }
+
+    if (!this.validacionUsuario?.id) {
+      console.error('No hay validacionUsuario.id disponible');
       return;
     }
 
@@ -508,17 +672,15 @@ export class ControlIngresoSalidaComponent implements OnInit, AfterViewInit, OnD
 
     const dto: RegistrarSalidaDTO = {
       guardiaId: this.guardiaId,
-      usuarioId: this.identificador,
+      usuarioId: this.validacionUsuario.id,
       adminGuardiaId: this.usuarioId,
-      observaciones: this.observaciones || undefined,
-      vehiculoId: undefined // Sin vehículo en salidas
+      observaciones: this.observaciones || undefined
     };
 
-    console.log('🚀 Registrando salida automáticamente:', dto);
+    console.log(`🟠 Endpoint: POST /api/movimientos-guardia/salida | Check: ${this.tipoMovimientoConfig}`);
 
     this.movimientoService.registrarSalida(dto).subscribe({
       next: (movimiento) => {
-        console.log('✅ Salida registrada automáticamente:', movimiento);
         const minutos = movimiento.permanenciaMinutos || 0;
         this.messageService.add({
           severity: 'success',
@@ -555,21 +717,30 @@ export class ControlIngresoSalidaComponent implements OnInit, AfterViewInit, OnD
       return;
     }
 
+    if (!this.validacionUsuario?.id) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'No se pudo obtener el UUID del usuario. Intente buscar nuevamente.',
+        life: 3000
+      });
+      return;
+    }
+
     this.registrando = true;
 
     const dto: RegistrarEntradaDTO = {
       guardiaId: this.guardiaId,
-      usuarioId: this.identificador,
+      usuarioId: this.validacionUsuario.id,  // ✅ USA UUID del DTO
       adminGuardiaId: this.usuarioId,
-      observaciones: this.observaciones || undefined,
-      vehiculoId: this.incluirVehiculo ? this.vehiculoId : undefined
+      ...(this.observaciones && { observaciones: this.observaciones }),  // ✅ Solo incluir si tiene valor
+      ...(this.incluirVehiculo && this.vehiculoId && { vehiculoId: this.vehiculoId })  // ✅ Solo incluir si existe
     };
 
-    console.log('Registrando entrada manualmente:', dto);
+    console.log(`🔵 Endpoint: POST /api/movimientos-guardia/entrada | Check: ${this.tipoMovimientoConfig}`);
 
     this.movimientoService.registrarEntrada(dto).subscribe({
       next: (movimiento) => {
-        console.log('Entrada registrada:', movimiento);
         this.messageService.add({
           severity: 'success',
           summary: 'Éxito',
@@ -639,6 +810,7 @@ export class ControlIngresoSalidaComponent implements OnInit, AfterViewInit, OnD
     this.validacionUsuario = null;
     this.estado = 'INICIAL';
     this.tipoAccion = null;
+    // ✅ NO resetear tipoMovimientoConfig - mantener la configuración del operador
   }
 
   enfocarInput(): void {
@@ -721,6 +893,26 @@ export class ControlIngresoSalidaComponent implements OnInit, AfterViewInit, OnD
     if (keyboardEvent.key === 'Enter') {
       this.buscarUsuario();
     }
+  }
+
+  /**
+   * Cerrar modal de error
+   */
+  cerrarModalError(): void {
+    this.mostrarModalError = false;
+    this.mensajeError = '';
+    this.tituloError = 'Error';
+  }
+
+  /**
+   * Obtener nombre de la guardia actual
+   */
+  obtenerNombreGuardia(): string {
+    if (this.guardias.length === 1) {
+      return this.guardias[0].nombre || 'Guardia';
+    }
+    const guardiaActual = this.guardias.find(g => g.id === this.guardiaId);
+    return guardiaActual?.nombre || 'Guardia';
   }
 }
 

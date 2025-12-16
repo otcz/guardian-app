@@ -150,7 +150,7 @@ import { LABELS } from '../../constants/mensajes.constants';
               <div class="vehiculos-list">
                 <p-tag
                   *ngFor="let vehiculo of validacion.vehiculos"
-                  [value]="vehiculo"
+                  [value]="vehiculo.placa"
                   severity="info"
                   icon="pi pi-car"
                 ></p-tag>

@@ -64,7 +64,7 @@ export interface ActualizarGuardiaDTO {
 
 /**
  * Modelo: Relación Guardia-Usuario
- * @version 2.0 - Alineado con API-MODULO-GUARDIA-FRONTEND-2025-12-13
+ * @version 2.1 - Actualizado con campos planos del backend
  */
 export interface GuardiaUsuario {
   id: string;
@@ -79,9 +79,13 @@ export interface GuardiaUsuario {
   restringida: boolean;
   motivoRestriccion?: string;
   observaciones?: string;
-  createdAt: string;
-  updatedAt: string;
-  // Datos anidados para UI
+  createdAt?: string;
+  updatedAt?: string;
+  // Campos planos opcionales (cuando el backend no devuelve objetos anidados)
+  guardiaNombre?: string;
+  guardiaCodigo?: string;
+  seccionNombre?: string;
+  // Datos anidados para UI (opcionales)
   guardia?: Guardia;
   usuario?: Usuario;
 }
@@ -162,31 +166,34 @@ export interface MovimientoGuardia {
 
 /**
  * DTO para registrar entrada
+ * El backend determina automáticamente tipo=ENTRADA según el endpoint /entrada
  */
 export interface RegistrarEntradaDTO {
   guardiaId: string;
   usuarioId: string;
-  vehiculoId?: string;
+  vehiculoId?: string | null;  // ✅ Opcional y puede ser null
   adminGuardiaId: string;
-  observaciones?: string;
+  observaciones?: string | null;  // ✅ Opcional y puede ser null
 }
 
 /**
  * DTO para registrar salida
+ * El backend determina automáticamente tipo=SALIDA según el endpoint /salida
  */
 export interface RegistrarSalidaDTO {
   guardiaId: string;
   usuarioId: string;
-  vehiculoId?: string;
+  vehiculoId?: string | null;  // ✅ Opcional y puede ser null
   adminGuardiaId: string;
-  observaciones?: string;
+  observaciones?: string | null;  // ✅ Opcional y puede ser null
 }
 
 /**
  * Respuesta de validación de usuario
- * @version 2.0 - Actualizado con campos de identificación (REQ-001-FRONTEND-ADDENDUM-GUARDIA)
+ * @version 2.1 - Actualizado con UUID del usuario (REQUERIMIENTO-FRONTEND-AJUSTE-API-MOVIMIENTOS-GUARDIA)
  */
 export interface ValidacionUsuarioDTO {
+  id: string;  // ⭐ NUEVO - UUID del usuario (REQUERIDO para registrar movimientos)
   existe: boolean;
   activo: boolean;
   nombreCompleto: string | null;

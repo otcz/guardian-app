@@ -80,6 +80,46 @@
   }
 }
 
+// Selector de Guardia (múltiples guardias)
+::ng-deep .selector-guardia-card {
+  .p-card-body {
+    padding: 1.5rem;
+  }
+
+  .p-card-content {
+    padding: 0;
+  }
+}
+
+.selector-guardia {
+  .selector-label {
+    display: block;
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+    color: #495057;
+    font-size: 1.1rem;
+
+    i {
+      color: #3b82f6;
+      margin-right: 0.5rem;
+    }
+  }
+
+  .guardia-option {
+    padding: 0.5rem 0;
+
+    strong {
+      color: #1e293b;
+      font-size: 1rem;
+    }
+
+    .text-muted {
+      color: #64748b;
+      font-size: 0.875rem;
+    }
+  }
+}
+
 // Card de Búsqueda
 ::ng-deep .busqueda-card {
   .p-card-body {
@@ -584,7 +624,7 @@
 
 // 📊 MODAL DE CONFIRMACIÓN
 ::ng-deep .confirmacion-dialog {
-  .p-dialog {
+  .p_dialog {
     min-width: 500px;
     max-width: 90vw;
 
@@ -593,18 +633,18 @@
     }
   }
 
-  .p-dialog-header {
+  .p_dialog_header {
     background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);
     color: white;
     padding: 1.5rem;
     border-radius: 12px 12px 0 0;
   }
 
-  .p-dialog-content {
+  .p_dialog_content {
     padding: 2rem;
   }
 
-  .p-dialog-footer {
+  .p_dialog_footer {
     padding: 1rem 1.5rem;
     border-top: 1px solid #dee2e6;
   }
@@ -698,6 +738,88 @@
   }
 }
 
+// ❌ MODAL DE ERROR
+::ng-deep .modal-error {
+  .p-dialog-header {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+
+    .error-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 1.25rem;
+      font-weight: 600;
+
+      i {
+        font-size: 1.5rem;
+      }
+    }
+  }
+
+  .p-dialog-content {
+    padding: 2rem;
+  }
+
+  .error-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+
+    .error-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: rgba(239, 68, 68, 0.1);
+      animation: errorPulse 2s ease-in-out infinite;
+
+      i {
+        font-size: 3rem;
+        color: #ef4444;
+      }
+    }
+
+    .error-message {
+      text-align: center;
+      width: 100%;
+
+      p {
+        margin: 0;
+        font-size: 1rem;
+        line-height: 1.6;
+        color: #374151;
+        white-space: pre-line;
+      }
+    }
+  }
+
+  .p-dialog-footer {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid #e5e7eb;
+
+    .p-button-danger {
+      width: 100%;
+      font-weight: 600;
+    }
+  }
+}
+
+@keyframes errorPulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 15px rgba(239, 68, 68, 0);
+  }
+}
+
 // Responsive
 @media (max-width: 768px) {
   .control-container {
@@ -738,4 +860,3 @@
     }
   }
 }
-

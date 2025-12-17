@@ -1,0 +1,279 @@
+<p-toast position="top-right"></p-toast>
+
+<div class="validar-container">
+  <!-- Header del Módulo -->
+  <div class="module-header">
+    <div class="header-content">
+      <div class="header-icon">
+        <i class="pi pi-shield"></i>
+      </div>
+      <div class="header-text">
+        <h1>Validación de Acceso</h1>
+        <p>Verificar identidad y permisos de ingreso de usuarios</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Panel de Búsqueda -->
+  <div class="search-panel">
+    <p-card>
+      <div class="search-section">
+        <div class="search-header">
+          <i class="pi pi-search"></i>
+          <span>Búsqueda por Identificación</span>
+        </div>
+
+        <div class="search-form">
+          <div class="form-group">
+            <label for="identificacion">
+              Número de Identificación <span class="required">*</span>
+            </label>
+            <div class="input-wrapper">
+              <span class="p-input-icon-left" style="width: 100%;">
+                <i class="pi pi-id-card"></i>
+                <input
+                  pInputText
+                  id="identificacion"
+                  [(ngModel)]="identificacion"
+                  placeholder="Ingrese cédula, pasaporte, DNI..."
+                  (keyup.enter)="validarAcceso()"
+                  [disabled]="buscando"
+                  class="w-full"
+                  autofocus
+                />
+              </span>
+            </div>
+            <small class="help-text">
+              <i class="pi pi-info-circle"></i>
+              Presione Enter o haga clic en "Validar" para buscar
+            </small>
+          </div>
+
+          <div class="button-group">
+            <button
+              pButton
+              type="button"
+              class="p-button-primary search-btn"
+              [label]="buscando ? 'Validando...' : 'Validar Acceso'"
+              [icon]="buscando ? 'pi pi-spin pi-spinner' : 'pi pi-check-circle'"
+              (click)="validarAcceso()"
+              [loading]="buscando"
+              [disabled]="!identificacion.trim() || buscando"
+            ></button>
+            <button
+              pButton
+              type="button"
+              class="p-button-outlined p-button-secondary clear-btn"
+              icon="pi pi-times"
+              label="Limpiar"
+              (click)="limpiar()"
+              [disabled]="buscando"
+            ></button>
+          </div>
+        </div>
+      </div>
+    </p-card>
+  </div>
+
+  <!-- Resultados de Validación -->
+  <div class="results-container" *ngIf="validacion || buscando">
+
+    <!-- Usuario NO encontrado -->
+    <div *ngIf="validacion && !validacion.existe" class="result-card not-found">
+      <p-card>
+        <div class="result-content">
+          <div class="result-icon error">
+            <i class="pi pi-times-circle"></i>
+          </div>
+          <div class="result-info">
+            <h3>Usuario No Encontrado</h3>
+            <p>No existe registro con la identificación: <strong>{{ identificacion }}</strong></p>
+            <div class="result-actions">
+              <button
+                pButton
+                type="button"
+                class="p-button-text"
+                icon="pi pi-refresh"
+                label="Intentar nuevamente"
+                (click)="limpiar()"
+              ></button>
+            </div>
+          </div>
+        </div>
+      </p-card>
+    </div>
+
+    <!-- Usuario ENCONTRADO -->
+    <div *ngIf="validacion && validacion.existe" class="result-card found">
+      <p-card>
+
+        <!-- Status Header -->
+        <div class="status-header"
+             [ngClass]="{
+               'status-approved': puedeAcceder(),
+               'status-denied': !validacion.activo,
+               'status-warning': validacion.activo && validacion.tieneEntradaAbierta
+             }">
+          <div class="status-icon">
+            <i class="pi"
+               [ngClass]="{
+                 'pi-check-circle': puedeAcceder(),
+                 'pi-ban': !validacion.activo,
+                 'pi-exclamation-triangle': validacion.activo && validacion.tieneEntradaAbierta
+               }">
+            </i>
+          </div>
+          <div class="status-text">
+            <h3>
+              <span *ngIf="puedeAcceder()">Acceso Autorizado</span>
+              <span *ngIf="!validacion.activo">Acceso Denegado</span>
+              <span *ngIf="validacion.activo && validacion.tieneEntradaAbierta">Entrada Pendiente</span>
+            </h3>
+            <p>
+              <span *ngIf="puedeAcceder()">El usuario puede ingresar sin restricciones</span>
+              <span *ngIf="!validacion.activo">Usuario inactivo en el sistema</span>
+              <span *ngIf="validacion.activo && validacion.tieneEntradaAbierta">Debe registrar salida primero</span>
+            </p>
+          </div>
+          <p-tag
+            [value]="validacion.activo ? 'ACTIVO' : 'INACTIVO'"
+            [severity]="validacion.activo ? 'success' : 'danger'"
+          ></p-tag>
+        </div>
+
+        <!-- Usuario Info -->
+        <div class="user-info-section">
+          <div class="user-profile">
+            <div class="user-avatar">
+              <i class="pi pi-user"></i>
+            </div>
+            <div class="user-details">
+              <h4>{{ validacion.nombreCompleto }}</h4>
+              <span class="user-username">
+                <i class="pi pi-at"></i> {{ validacion.username }}
+              </span>
+            </div>
+          </div>
+
+          <div class="info-grid">
+            <div class="info-item" *ngIf="validacion.tipoIdentificacion && validacion.identificacion">
+              <div class="info-label">
+                <i class="pi pi-id-card"></i>
+                <span>Identificación</span>
+              </div>
+              <div class="info-value">
+                <p-chip
+                  [label]="validacion.tipoIdentificacion + ': ' + validacion.identificacion"
+                  styleClass="id-chip">
+                </p-chip>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <div class="info-label">
+                <i class="pi pi-sitemap"></i>
+                <span>Sección</span>
+              </div>
+              <div class="info-value">
+                <strong>{{ validacion.seccion || 'Sin asignar' }}</strong>
+              </div>
+            </div>
+
+            <div class="info-item" *ngIf="validacion.vehiculos && validacion.vehiculos.length > 0">
+              <div class="info-label">
+                <i class="pi pi-car"></i>
+                <span>Vehículos ({{ validacion.vehiculos.length }})</span>
+              </div>
+              <div class="info-value">
+                <div class="tags-container">
+                  <p-tag
+                    *ngFor="let vehiculo of validacion.vehiculos"
+                    [value]="vehiculo.placa"
+                    severity="info"
+                    icon="pi pi-car"
+                  ></p-tag>
+                </div>
+              </div>
+            </div>
+
+            <div class="info-item" *ngIf="validacion.restricciones && validacion.restricciones.length > 0">
+              <div class="info-label">
+                <i class="pi pi-ban"></i>
+                <span>Restricciones ({{ validacion.restricciones.length }})</span>
+              </div>
+              <div class="info-value">
+                <div class="tags-container">
+                  <p-tag
+                    *ngFor="let restriccion of validacion.restricciones"
+                    [value]="restriccion"
+                    severity="danger"
+                    icon="pi pi-exclamation-triangle"
+                  ></p-tag>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Alertas Detalladas -->
+        <div class="alerts-section" *ngIf="!validacion.activo || validacion.tieneEntradaAbierta">
+
+          <div class="alert-box alert-danger" *ngIf="!validacion.activo">
+            <div class="alert-icon">
+              <i class="pi pi-ban"></i>
+            </div>
+            <div class="alert-content">
+              <strong>Usuario Inactivo</strong>
+              <p>Este usuario no tiene permisos activos para ingresar. Contacte al administrador para más información.</p>
+            </div>
+          </div>
+
+          <div class="alert-box alert-warning" *ngIf="validacion.tieneEntradaAbierta && validacion.entradaAbierta">
+            <div class="alert-icon">
+              <i class="pi pi-clock"></i>
+            </div>
+            <div class="alert-content">
+              <strong>Entrada Abierta Detectada</strong>
+              <p>
+                <strong>Hora de Entrada:</strong> {{ validacion.entradaAbierta.fechaEntrada | date:'dd/MM/yyyy HH:mm' }}
+              </p>
+              <p>
+                <strong>Guardia:</strong> {{ validacion.entradaAbierta.guardiaNombre }}
+              </p>
+              <p *ngIf="validacion.entradaAbierta.vehiculoPlaca">
+                <strong>Vehículo:</strong> {{ validacion.entradaAbierta.vehiculoPlaca }}
+              </p>
+              <p class="mb-0">
+                Debe registrar la salida antes de permitir un nuevo ingreso.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Botón de Acción -->
+        <div class="action-section" *ngIf="puedeAcceder()">
+          <button
+            pButton
+            type="button"
+            class="p-button-success p-button-lg action-button"
+            icon="pi pi-check-circle"
+            label="Autorizar Ingreso"
+            (click)="permitirAcceso()"
+          ></button>
+        </div>
+
+      </p-card>
+    </div>
+  </div>
+
+  <!-- Estado Inicial (Empty State) -->
+  <div class="empty-state" *ngIf="!validacion && !buscando">
+    <div class="empty-icon">
+      <i class="pi pi-search"></i>
+    </div>
+    <h3>Esperando búsqueda</h3>
+    <p>Ingrese el número de identificación del usuario para comenzar la validación de acceso</p>
+  </div>
+
+</div>
+

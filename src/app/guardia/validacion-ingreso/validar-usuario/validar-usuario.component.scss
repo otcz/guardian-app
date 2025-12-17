@@ -1,0 +1,529 @@
+/* Container Principal */
+.validar-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+/* Module Header */
+.module-header {
+  background: var(--surface);
+  border-radius: 12px;
+  padding: 2rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  border: 1px solid var(--border);
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.header-icon {
+  width: 70px;
+  height: 70px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-600) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 2rem;
+  box-shadow: 0 4px 12px rgba(79, 140, 255, 0.3);
+}
+
+.header-text h1 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.header-text p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 1rem;
+}
+
+/* Search Panel */
+.search-panel {
+  margin-bottom: 1.5rem;
+}
+
+.search-panel ::ng-deep .p-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.search-section {
+  padding: 1rem;
+}
+
+.search-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid var(--border);
+}
+
+.search-header i {
+  font-size: 1.5rem;
+  color: var(--primary);
+}
+
+.search-header span {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+/* Form Styles */
+.search-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-group label {
+  font-weight: 600;
+  color: var(--text);
+  font-size: 0.95rem;
+}
+
+.required {
+  color: var(--danger);
+  margin-left: 0.25rem;
+}
+
+.input-wrapper {
+  width: 100%;
+}
+
+.input-wrapper ::ng-deep input {
+  height: 48px;
+  font-size: 1rem;
+  padding-left: 3rem !important;
+}
+
+.help-text {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
+.button-group {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.75rem;
+}
+
+.search-btn {
+  height: 48px;
+  font-weight: 600;
+}
+
+.clear-btn {
+  height: 48px;
+  min-width: 120px;
+}
+
+/* Results Container */
+.results-container {
+  margin-top: 1.5rem;
+}
+
+.result-card ::ng-deep .p-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+}
+
+/* Not Found State */
+.result-card.not-found ::ng-deep .p-card {
+  border-left: 4px solid var(--danger);
+}
+
+.result-content {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1rem;
+}
+
+.result-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  flex-shrink: 0;
+}
+
+.result-icon.error {
+  background: rgba(229, 62, 62, 0.1);
+  color: var(--danger);
+}
+
+.result-info h3 {
+  margin: 0 0 0.5rem 0;
+  color: var(--text);
+  font-size: 1.3rem;
+}
+
+.result-info p {
+  margin: 0 0 1rem 0;
+  color: var(--muted);
+}
+
+.result-actions {
+  margin-top: 1rem;
+}
+
+/* Status Header */
+.status-header {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+  border-left: 4px solid;
+}
+
+.status-approved {
+  background: var(--success-100);
+  border-left-color: var(--success);
+}
+
+.status-denied {
+  background: var(--danger-100);
+  border-left-color: var(--danger);
+}
+
+.status-warning {
+  background: #fef3c7;
+  border-left-color: #f59e0b;
+}
+
+.status-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  flex-shrink: 0;
+}
+
+.status-approved .status-icon {
+  background: var(--success);
+  color: white;
+}
+
+.status-denied .status-icon {
+  background: var(--danger);
+  color: white;
+}
+
+.status-warning .status-icon {
+  background: #f59e0b;
+  color: white;
+}
+
+.status-text {
+  flex: 1;
+}
+
+.status-text h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.status-text p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+/* User Info Section */
+.user-info-section {
+  padding: 1.5rem;
+  background: var(--surface-alt);
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+}
+
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding-bottom: 1.5rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 2px solid var(--border);
+}
+
+.user-avatar {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-600) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 2rem;
+  box-shadow: 0 4px 12px rgba(79, 140, 255, 0.3);
+}
+
+.user-details h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.user-username {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--muted);
+  font-size: 1rem;
+}
+
+/* Info Grid */
+.info-grid {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.info-item {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  gap: 1rem;
+  align-items: start;
+}
+
+.info-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--muted);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.info-label i {
+  color: var(--primary);
+}
+
+.info-value {
+  color: var(--text);
+}
+
+.info-value strong {
+  font-weight: 600;
+}
+
+.info-value ::ng-deep .id-chip {
+  background: rgba(79, 140, 255, 0.1);
+  color: var(--primary);
+  font-family: 'Courier New', monospace;
+  font-weight: 600;
+  border: 1px solid rgba(79, 140, 255, 0.2);
+}
+
+.tags-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+/* Alerts Section */
+.alerts-section {
+  margin-bottom: 1.5rem;
+}
+
+.alert-box {
+  display: flex;
+  gap: 1rem;
+  padding: 1.25rem;
+  border-radius: 8px;
+  border-left: 4px solid;
+  margin-bottom: 1rem;
+}
+
+.alert-box:last-child {
+  margin-bottom: 0;
+}
+
+.alert-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.alert-content strong {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 1.05rem;
+}
+
+.alert-content p {
+  margin: 0.25rem 0;
+  line-height: 1.6;
+}
+
+.alert-danger {
+  background: var(--danger-100);
+  border-left-color: var(--danger);
+}
+
+.alert-danger .alert-icon {
+  background: var(--danger);
+  color: white;
+}
+
+.alert-danger .alert-content {
+  color: #991b1b;
+}
+
+.alert-warning {
+  background: #fef3c7;
+  border-left-color: #f59e0b;
+}
+
+.alert-warning .alert-icon {
+  background: #f59e0b;
+  color: white;
+}
+
+.alert-warning .alert-content {
+  color: #92400e;
+}
+
+/* Action Section */
+.action-section {
+  padding: 1.5rem;
+  background: var(--surface-alt);
+  border-radius: 8px;
+}
+
+.action-button {
+  width: 100%;
+  height: 56px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: var(--surface);
+  border-radius: 12px;
+  border: 2px dashed var(--border);
+}
+
+.empty-icon {
+  width: 100px;
+  height: 100px;
+  margin: 0 auto 1.5rem;
+  border-radius: 50%;
+  background: var(--surface-alt);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.empty-icon i {
+  font-size: 3rem;
+  color: var(--muted);
+}
+
+.empty-state h3 {
+  margin: 0 0 0.75rem 0;
+  font-size: 1.5rem;
+  color: var(--text);
+}
+
+.empty-state p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 1.05rem;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .validar-container {
+    padding: 1rem;
+  }
+
+  .header-content {
+    gap: 1rem;
+  }
+
+  .header-icon {
+    width: 50px;
+    height: 50px;
+    font-size: 1.5rem;
+  }
+
+  .header-text h1 {
+    font-size: 1.3rem;
+  }
+
+  .header-text p {
+    font-size: 0.9rem;
+  }
+
+  .button-group {
+    grid-template-columns: 1fr;
+  }
+
+  .info-item {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+
+  .result-content {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .status-header {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .user-profile {
+    flex-direction: column;
+    text-align: center;
+  }
+}
+

@@ -143,65 +143,67 @@
   </p-card>
 
   <!-- Formulario de Búsqueda (solo para MANUAL) -->
-  <p-card *ngIf="guardiaId && !cargandoGuardias && metodoValidacion === 'MANUAL'" styleClass="busqueda-card">
-    <div class="search-panel-content">
-      <div class="search-header">
-        <i class="pi pi-search"></i>
-        <span>Búsqueda por Documento o Placa</span>
-      </div>
+  <div *ngIf="guardiaId && !cargandoGuardias && metodoValidacion === 'MANUAL'" class="search-panel">
+    <p-card>
+      <div class="search-section">
+        <div class="search-header">
+          <i class="pi pi-search"></i>
+          <span>Búsqueda por Documento o Placa</span>
+        </div>
 
-      <div class="search-form">
-        <div class="form-group">
-          <label for="identificador">
-            Documento o Placa <span class="required">*</span>
-          </label>
-          <div class="input-wrapper">
-            <span class="p-input-icon-left" style="width: 100%;">
-              <i class="pi pi-id-card"></i>
-              <input
-                #identificadorInput
-                id="identificador"
-                type="text"
-                pInputText
-                [(ngModel)]="identificador"
-                placeholder="Ingrese cédula, DNI o placa del vehículo..."
-                (keyup.enter)="onEnterIdentificador($event)"
-                [disabled]="buscando"
-                class="w-full search-input"
-                autofocus
-              />
-            </span>
+        <div class="search-form">
+          <div class="form-group">
+            <label for="identificador">
+              Documento o Placa <span class="required">*</span>
+            </label>
+            <div class="input-wrapper">
+              <span class="p-input-icon-left" style="width: 100%;">
+                <i class="pi pi-id-card"></i>
+                <input
+                  #identificadorInput
+                  id="identificador"
+                  type="text"
+                  pInputText
+                  [(ngModel)]="identificador"
+                  placeholder="Ingrese cédula, DNI o placa del vehículo..."
+                  (keyup.enter)="onEnterIdentificador($event)"
+                  [disabled]="buscando"
+                  class="w-full"
+                  autofocus
+                />
+              </span>
+            </div>
+            <small class="help-text">
+              <i class="pi pi-info-circle"></i>
+              Presione Enter o haga clic en "Buscar" para validar
+            </small>
           </div>
-          <small class="help-text">
-            <i class="pi pi-info-circle"></i>
-            Presione Enter o haga clic en "Buscar" para validar
-          </small>
-        </div>
 
-        <div class="button-group">
-          <button
-            pButton
-            type="button"
-            class="p-button-primary search-btn"
-            [label]="buscando ? 'Buscando...' : LABELS.BTN_BUSCAR"
-            [icon]="buscando ? 'pi pi-spin pi-spinner' : 'pi pi-search'"
-            (click)="buscarUsuario()"
-            [loading]="buscando"
-            [disabled]="!identificador.trim() || buscando"
-          ></button>
-          <button
-            pButton
-            type="button"
-            class="p-button-outlined p-button-secondary clear-btn"
-            icon="pi pi-times"
-            label="Limpiar"
-            (click)="limpiarFormulario()"
-            [disabled]="buscando"
-          ></button>
+          <div class="button-group">
+            <button
+              pButton
+              type="button"
+              class="p-button-primary search-btn"
+              [label]="buscando ? 'Buscando...' : LABELS.BTN_BUSCAR"
+              [icon]="buscando ? 'pi pi-spin pi-spinner' : 'pi pi-search'"
+              (click)="buscarUsuario()"
+              [loading]="buscando"
+              [disabled]="!identificador.trim() || buscando"
+            ></button>
+            <button
+              pButton
+              type="button"
+              class="p-button-outlined p-button-secondary clear-btn"
+              icon="pi pi-times"
+              label="Limpiar"
+              (click)="limpiarFormulario()"
+              [disabled]="buscando"
+            ></button>
+          </div>
         </div>
       </div>
-    </div>
-  </p-card>
+    </p-card>
+  </div>
 
   <!-- 🆕 VEHÍCULO ENCONTRADO - Selector de Usuario -->
   <p-card *ngIf="resultadoValidacion?.tipoBusqueda === 'VEHICULO' && resultadoValidacion?.vehiculoDetalle && !validacionUsuario" styleClass="resultado-card">

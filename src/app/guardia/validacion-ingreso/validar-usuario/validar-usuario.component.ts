@@ -272,10 +272,17 @@ import { LABELS } from '../../constants/mensajes.constants';
                 <div class="alert-content">
                   <strong>Entrada Abierta Detectada</strong>
                   <p>
-                    Ingresó el {{ validacion.entradaAbierta.timestampMovimiento | date:'dd/MM/yyyy HH:mm' }}
-                    <span *ngIf="validacion.entradaAbierta.guardia"> en {{ validacion.entradaAbierta.guardia.nombre }}</span>
+                    <strong>Hora de Entrada:</strong> {{ validacion.entradaAbierta.fechaEntrada | date:'dd/MM/yyyy HH:mm' }}
                   </p>
-                  <p class="mb-0">Debe registrar la salida antes de permitir un nuevo ingreso.</p>
+                  <p>
+                    <strong>Guardia:</strong> {{ validacion.entradaAbierta.guardiaNombre }}
+                  </p>
+                  <p *ngIf="validacion.entradaAbierta.vehiculoPlaca">
+                    <strong>Vehículo:</strong> {{ validacion.entradaAbierta.vehiculoPlaca }}
+                  </p>
+                  <p class="mb-0">
+                    Debe registrar la salida antes de permitir un nuevo ingreso.
+                  </p>
                 </div>
               </div>
             </div>

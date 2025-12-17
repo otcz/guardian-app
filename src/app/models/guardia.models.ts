@@ -192,6 +192,21 @@ export interface RegistrarSalidaDTO {
  * Respuesta de validación de usuario
  * @version 2.1 - Actualizado con UUID del usuario (REQUERIMIENTO-FRONTEND-AJUSTE-API-MOVIMIENTOS-GUARDIA)
  */
+/**
+ * DTO de entrada abierta (estructura real del backend)
+ */
+export interface EntradaAbiertaDTO {
+  id: string;
+  guardiaNombre: string;
+  guardiaId: string;
+  fechaEntrada: string;  // ISO 8601
+  vehiculoPlaca?: string | null;
+  observaciones?: string | null;
+}
+
+/**
+ * Respuesta de validación de usuario
+ */
 export interface ValidacionUsuarioDTO {
   id: string;  // ⭐ NUEVO - UUID del usuario (REQUERIDO para registrar movimientos)
   existe: boolean;
@@ -205,7 +220,7 @@ export interface ValidacionUsuarioDTO {
   restricciones: string[];
   vehiculos: Vehiculo[]; // ✅ ACTUALIZADO: Cambiado de string[] a Vehiculo[]
   tieneEntradaAbierta: boolean;
-  entradaAbierta: MovimientoGuardia | null;
+  entradaAbierta: EntradaAbiertaDTO | null;  // ⭐ ACTUALIZADO: usar interfaz correcta
 }
 
 /**

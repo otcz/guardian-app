@@ -811,7 +811,7 @@ export class ControlIngresoSalidaComponent implements OnInit, AfterViewInit, OnD
       return { horas: 0, minutos: 0 };
     }
 
-    const timestamp = this.validacionUsuario.entradaAbierta.timestampMovimiento;
+    const timestamp = this.validacionUsuario.entradaAbierta.fechaEntrada;
     if (!timestamp) {
       return { horas: 0, minutos: 0 };
     }

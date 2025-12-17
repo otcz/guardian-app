@@ -120,6 +120,76 @@
   }
 }
 
+// 🚧 Card de Construcción
+::ng-deep .construccion-card {
+  .p-card-body {
+    padding: 3rem 2rem;
+  }
+
+  .p-card-content {
+    padding: 0;
+  }
+}
+
+.construccion-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 1.5rem;
+  min-height: 250px;
+
+  .construccion-icon {
+    font-size: 5rem;
+    color: #f59e0b;
+    animation: rotate 3s linear infinite;
+  }
+
+  h2 {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1e293b;
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  p {
+    margin: 0;
+    font-size: 1.1rem;
+    color: #64748b;
+    max-width: 500px;
+
+    strong {
+      color: #1e293b;
+      font-weight: 600;
+    }
+  }
+
+  small {
+    color: #94a3b8;
+    font-size: 0.95rem;
+    margin-top: -0.5rem;
+
+    strong {
+      color: #3b82f6;
+      font-weight: 600;
+    }
+  }
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 // Card de Búsqueda
 ::ng-deep .busqueda-card {
   .p-card-body {

@@ -132,8 +132,18 @@
     </div>
   </p-card>
 
-  <!-- Formulario de Búsqueda -->
-  <p-card *ngIf="guardiaId && !cargandoGuardias" styleClass="busqueda-card">
+  <!-- 🚧 En Construcción (para métodos que no son MANUAL) -->
+  <p-card *ngIf="guardiaId && !cargandoGuardias && metodoValidacion !== 'MANUAL'" styleClass="construccion-card">
+    <div class="construccion-content">
+      <i class="pi pi-wrench construccion-icon"></i>
+      <h2>Función en Construcción</h2>
+      <p>El método de validación <strong>{{ obtenerNombreMetodo() }}</strong> estará disponible próximamente.</p>
+      <small>Por favor, seleccione el método <strong>Manual</strong> para continuar.</small>
+    </div>
+  </p-card>
+
+  <!-- Formulario de Búsqueda (solo para MANUAL) -->
+  <p-card *ngIf="guardiaId && !cargandoGuardias && metodoValidacion === 'MANUAL'" styleClass="busqueda-card">
     <div class="busqueda-field">
       <label for="identificador">Documento o Placa *</label>
       <div class="p-inputgroup">

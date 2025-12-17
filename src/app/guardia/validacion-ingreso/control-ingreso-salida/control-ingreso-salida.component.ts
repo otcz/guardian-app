@@ -6,7 +6,7 @@ import { FormsModule } from '@angular/forms';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
-import { InputTextarea } from 'primeng/inputtextarea';
+import { Textarea } from 'primeng/inputtextarea';
 import { DropdownModule } from 'primeng/dropdown';
 import { CheckboxModule } from 'primeng/checkbox';
 import { MessageService } from 'primeng/api';
@@ -56,7 +56,7 @@ type TipoMovimiento = 'ENTRADA' | 'SALIDA';
     CardModule,
     ButtonModule,
     InputTextModule,
-    InputTextarea,
+    Textarea,
     DropdownModule,
     CheckboxModule,
     TagModule,
@@ -861,6 +861,19 @@ export class ControlIngresoSalidaComponent implements OnInit, AfterViewInit, OnD
     }
     const guardiaActual = this.guardias.find(g => g.id === this.guardiaId);
     return guardiaActual?.nombre || 'Guardia';
+  }
+
+  /**
+   * Obtener nombre legible del método de validación
+   */
+  obtenerNombreMetodo(): string {
+    const metodos: Record<MetodoValidacion, string> = {
+      'BIOMETRICO': 'Biométrico (Huella)',
+      'FACE_CAM': 'Face CAM',
+      'PLACA_CAM': 'Placa CAM',
+      'MANUAL': 'Manual'
+    };
+    return metodos[this.metodoValidacion] || this.metodoValidacion;
   }
 }
 

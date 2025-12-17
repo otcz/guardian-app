@@ -38,393 +38,803 @@ import { LABELS } from '../../constants/mensajes.constants';
     <p-toast position="top-right"></p-toast>
 
     <div class="validar-container">
-      <p-card>
-        <ng-template pTemplate="header">
-          <div class="card-header">
-            <h2><i class="pi pi-shield"></i> Validar Acceso de Usuario</h2>
-            <p class="subtitle">Búsqueda por Identificación (Cédula, Pasaporte, DNI, etc.)</p>
+      <!-- Header del Módulo -->
+      <div class="module-header">
+        <div class="header-content">
+          <div class="header-icon">
+            <i class="pi pi-shield"></i>
           </div>
-        </ng-template>
-
-        <!-- Formulario de Búsqueda -->
-        <div class="p-field">
-          <label for="identificacion">
-            Número de Identificación:
-            <span class="required">*</span>
-          </label>
-          <div class="p-inputgroup">
-            <input
-              pInputText
-              id="identificacion"
-              [(ngModel)]="identificacion"
-              placeholder="Ej: 1234567890, AB123456..."
-              (keyup.enter)="validarAcceso()"
-              [disabled]="buscando"
-              autofocus
-            />
-            <button
-              pButton
-              type="button"
-              label="{{ buscando ? 'Validando...' : 'Validar' }}"
-              icon="{{ buscando ? 'pi pi-spin pi-spinner' : 'pi pi-search' }}"
-              (click)="validarAcceso()"
-              [loading]="buscando"
-              [disabled]="!identificacion.trim()"
-            ></button>
-            <button
-              pButton
-              type="button"
-              class="p-button-secondary"
-              icon="pi pi-times"
-              label="Limpiar"
-              (click)="limpiar()"
-              [disabled]="buscando"
-            ></button>
+          <div class="header-text">
+            <h1>Validación de Acceso</h1>
+            <p>Verificar identidad y permisos de ingreso de usuarios</p>
           </div>
-          <small class="help-text">
-            <i class="pi pi-info-circle"></i>
-            Ingrese el número de cédula, pasaporte u otro documento y presione Enter
-          </small>
         </div>
+      </div>
+
+      <!-- Panel de Búsqueda -->
+      <div class="search-panel">
+        <p-card>
+          <div class="search-section">
+            <div class="search-header">
+              <i class="pi pi-search"></i>
+              <span>Búsqueda por Identificación</span>
+            </div>
+
+            <div class="search-form">
+              <div class="form-group">
+                <label for="identificacion">
+                  Número de Identificación <span class="required">*</span>
+                </label>
+                <div class="input-wrapper">
+                  <span class="p-input-icon-left" style="width: 100%;">
+                    <i class="pi pi-id-card"></i>
+                    <input
+                      pInputText
+                      id="identificacion"
+                      [(ngModel)]="identificacion"
+                      placeholder="Ingrese cédula, pasaporte, DNI..."
+                      (keyup.enter)="validarAcceso()"
+                      [disabled]="buscando"
+                      class="w-full"
+                      autofocus
+                    />
+                  </span>
+                </div>
+                <small class="help-text">
+                  <i class="pi pi-info-circle"></i>
+                  Presione Enter o haga clic en "Validar" para buscar
+                </small>
+              </div>
+
+              <div class="button-group">
+                <button
+                  pButton
+                  type="button"
+                  class="p-button-primary search-btn"
+                  [label]="buscando ? 'Validando...' : 'Validar Acceso'"
+                  [icon]="buscando ? 'pi pi-spin pi-spinner' : 'pi pi-check-circle'"
+                  (click)="validarAcceso()"
+                  [loading]="buscando"
+                  [disabled]="!identificacion.trim() || buscando"
+                ></button>
+                <button
+                  pButton
+                  type="button"
+                  class="p-button-outlined p-button-secondary clear-btn"
+                  icon="pi pi-times"
+                  label="Limpiar"
+                  (click)="limpiar()"
+                  [disabled]="buscando"
+                ></button>
+              </div>
+            </div>
+          </div>
+        </p-card>
+      </div>
+
+      <!-- Resultados de Validación -->
+      <div class="results-container" *ngIf="validacion || buscando">
 
         <!-- Usuario NO encontrado -->
-        <div *ngIf="validacion && !validacion.existe" class="alert alert-danger">
-          <div class="alert-header">
-            <i class="pi pi-times-circle"></i>
-            <h4>Usuario No Encontrado</h4>
-          </div>
-          <p>No existe ningún usuario registrado con la identificación: <strong>{{ identificacion }}</strong></p>
-          <p class="mb-0">Verifique el número ingresado o contacte al administrador.</p>
+        <div *ngIf="validacion && !validacion.existe" class="result-card not-found">
+          <p-card>
+            <div class="result-content">
+              <div class="result-icon error">
+                <i class="pi pi-times-circle"></i>
+              </div>
+              <div class="result-info">
+                <h3>Usuario No Encontrado</h3>
+                <p>No existe registro con la identificación: <strong>{{ identificacion }}</strong></p>
+                <div class="result-actions">
+                  <button
+                    pButton
+                    type="button"
+                    class="p-button-text"
+                    icon="pi pi-refresh"
+                    label="Intentar nuevamente"
+                    (click)="limpiar()"
+                  ></button>
+                </div>
+              </div>
+            </div>
+          </p-card>
         </div>
 
         <!-- Usuario ENCONTRADO -->
-        <div *ngIf="validacion && validacion.existe" class="resultado-panel"
-             [ngClass]="{
-               'panel-success': puedeAcceder(),
-               'panel-danger': !validacion.activo,
-               'panel-warning': validacion.activo && validacion.tieneEntradaAbierta
-             }">
+        <div *ngIf="validacion && validacion.existe" class="result-card found">
+          <p-card>
 
-          <!-- Header del Usuario -->
-          <div class="usuario-header">
-            <div class="usuario-avatar">
-              <i class="pi pi-user"></i>
+            <!-- Status Header -->
+            <div class="status-header"
+                 [ngClass]="{
+                   'status-approved': puedeAcceder(),
+                   'status-denied': !validacion.activo,
+                   'status-warning': validacion.activo && validacion.tieneEntradaAbierta
+                 }">
+              <div class="status-icon">
+                <i class="pi"
+                   [ngClass]="{
+                     'pi-check-circle': puedeAcceder(),
+                     'pi-ban': !validacion.activo,
+                     'pi-exclamation-triangle': validacion.activo && validacion.tieneEntradaAbierta
+                   }">
+                </i>
+              </div>
+              <div class="status-text">
+                <h3>
+                  <span *ngIf="puedeAcceder()">Acceso Autorizado</span>
+                  <span *ngIf="!validacion.activo">Acceso Denegado</span>
+                  <span *ngIf="validacion.activo && validacion.tieneEntradaAbierta">Entrada Pendiente</span>
+                </h3>
+                <p>
+                  <span *ngIf="puedeAcceder()">El usuario puede ingresar sin restricciones</span>
+                  <span *ngIf="!validacion.activo">Usuario inactivo en el sistema</span>
+                  <span *ngIf="validacion.activo && validacion.tieneEntradaAbierta">Debe registrar salida primero</span>
+                </p>
+              </div>
+              <p-tag
+                [value]="validacion.activo ? 'ACTIVO' : 'INACTIVO'"
+                [severity]="validacion.activo ? 'success' : 'danger'"
+              ></p-tag>
             </div>
-            <div class="usuario-title">
-              <h3>{{ validacion.nombreCompleto }}</h3>
-              <span class="username">{{ validacion.username }}</span>
-            </div>
-            <p-tag
-              [value]="validacion.activo ? 'ACTIVO' : 'INACTIVO'"
-              [severity]="validacion.activo ? 'success' : 'danger'"
-              [icon]="validacion.activo ? 'pi pi-check' : 'pi pi-ban'"
-            ></p-tag>
-          </div>
 
-          <!-- Información del Usuario -->
-          <div class="usuario-info">
-            <div class="info-row">
-              <label><i class="pi pi-user"></i> Username:</label>
-              <strong>{{ validacion.username }}</strong>
-            </div>
+            <!-- Usuario Info -->
+            <div class="user-info-section">
+              <div class="user-profile">
+                <div class="user-avatar">
+                  <i class="pi pi-user"></i>
+                </div>
+                <div class="user-details">
+                  <h4>{{ validacion.nombreCompleto }}</h4>
+                  <span class="user-username">
+                    <i class="pi pi-at"></i> {{ validacion.username }}
+                  </span>
+                </div>
+              </div>
 
-            <div class="info-row" *ngIf="validacion.tipoIdentificacion && validacion.identificacion">
-              <label><i class="pi pi-id-card"></i> Identificación:</label>
-              <div class="identificacion-badge">
-                <p-chip
-                  [label]="validacion.tipoIdentificacion + ': ' + validacion.identificacion"
-                  icon="pi pi-id-card"
-                  styleClass="custom-chip">
-                </p-chip>
+              <div class="info-grid">
+                <div class="info-item" *ngIf="validacion.tipoIdentificacion && validacion.identificacion">
+                  <div class="info-label">
+                    <i class="pi pi-id-card"></i>
+                    <span>Identificación</span>
+                  </div>
+                  <div class="info-value">
+                    <p-chip
+                      [label]="validacion.tipoIdentificacion + ': ' + validacion.identificacion"
+                      styleClass="id-chip">
+                    </p-chip>
+                  </div>
+                </div>
+
+                <div class="info-item">
+                  <div class="info-label">
+                    <i class="pi pi-sitemap"></i>
+                    <span>Sección</span>
+                  </div>
+                  <div class="info-value">
+                    <strong>{{ validacion.seccion || 'Sin asignar' }}</strong>
+                  </div>
+                </div>
+
+                <div class="info-item" *ngIf="validacion.vehiculos && validacion.vehiculos.length > 0">
+                  <div class="info-label">
+                    <i class="pi pi-car"></i>
+                    <span>Vehículos ({{ validacion.vehiculos.length }})</span>
+                  </div>
+                  <div class="info-value">
+                    <div class="tags-container">
+                      <p-tag
+                        *ngFor="let vehiculo of validacion.vehiculos"
+                        [value]="vehiculo.placa"
+                        severity="info"
+                        icon="pi pi-car"
+                      ></p-tag>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="info-item" *ngIf="validacion.restricciones && validacion.restricciones.length > 0">
+                  <div class="info-label">
+                    <i class="pi pi-ban"></i>
+                    <span>Restricciones ({{ validacion.restricciones.length }})</span>
+                  </div>
+                  <div class="info-value">
+                    <div class="tags-container">
+                      <p-tag
+                        *ngFor="let restriccion of validacion.restricciones"
+                        [value]="restriccion"
+                        severity="danger"
+                        icon="pi pi-exclamation-triangle"
+                      ></p-tag>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
-            <div class="info-row">
-              <label><i class="pi pi-sitemap"></i> Sección:</label>
-              <strong>{{ validacion.seccion || 'Sin asignar' }}</strong>
-            </div>
+            <!-- Alertas Detalladas -->
+            <div class="alerts-section" *ngIf="!validacion.activo || validacion.tieneEntradaAbierta">
 
-            <!-- Vehículos -->
-            <div class="info-row" *ngIf="validacion.vehiculos && validacion.vehiculos.length > 0">
-              <label><i class="pi pi-car"></i> Vehículos Asociados:</label>
-              <div class="vehiculos-list">
-                <p-tag
-                  *ngFor="let vehiculo of validacion.vehiculos"
-                  [value]="vehiculo.placa"
-                  severity="info"
-                  icon="pi pi-car"
-                ></p-tag>
+              <div class="alert-box alert-danger" *ngIf="!validacion.activo">
+                <div class="alert-icon">
+                  <i class="pi pi-ban"></i>
+                </div>
+                <div class="alert-content">
+                  <strong>Usuario Inactivo</strong>
+                  <p>Este usuario no tiene permisos activos para ingresar. Contacte al administrador para más información.</p>
+                </div>
+              </div>
+
+              <div class="alert-box alert-warning" *ngIf="validacion.tieneEntradaAbierta && validacion.entradaAbierta">
+                <div class="alert-icon">
+                  <i class="pi pi-clock"></i>
+                </div>
+                <div class="alert-content">
+                  <strong>Entrada Abierta Detectada</strong>
+                  <p>
+                    Ingresó el {{ validacion.entradaAbierta.timestampMovimiento | date:'dd/MM/yyyy HH:mm' }}
+                    <span *ngIf="validacion.entradaAbierta.guardia"> en {{ validacion.entradaAbierta.guardia.nombre }}</span>
+                  </p>
+                  <p class="mb-0">Debe registrar la salida antes de permitir un nuevo ingreso.</p>
+                </div>
               </div>
             </div>
 
-            <!-- Restricciones -->
-            <div class="info-row" *ngIf="validacion.restricciones && validacion.restricciones.length > 0">
-              <label><i class="pi pi-ban"></i> Restricciones Activas:</label>
-              <div class="restricciones-list">
-                <p-tag
-                  *ngFor="let restriccion of validacion.restricciones"
-                  [value]="restriccion"
-                  severity="danger"
-                  icon="pi pi-exclamation-triangle"
-                ></p-tag>
-              </div>
-            </div>
-          </div>
-
-          <!-- Alertas de Estado -->
-          <div class="alertas-estado">
-            <!-- Usuario INACTIVO -->
-            <div class="alert alert-danger" *ngIf="!validacion.activo">
-              <i class="pi pi-ban"></i>
-              <strong>ACCESO DENEGADO:</strong> El usuario está INACTIVO en el sistema. No se permite el ingreso.
+            <!-- Botón de Acción -->
+            <div class="action-section" *ngIf="puedeAcceder()">
+              <button
+                pButton
+                type="button"
+                class="p-button-success p-button-lg action-button"
+                icon="pi pi-check-circle"
+                label="Autorizar Ingreso"
+                (click)="permitirAcceso()"
+              ></button>
             </div>
 
-            <!-- Entrada ABIERTA -->
-            <div class="alert alert-warning" *ngIf="validacion.tieneEntradaAbierta && validacion.entradaAbierta">
-              <i class="pi pi-exclamation-triangle"></i>
-              <strong>ADVERTENCIA:</strong> El usuario tiene una entrada abierta desde
-              {{ validacion.entradaAbierta.timestampMovimiento | date:'short' }}
-              <span *ngIf="validacion.entradaAbierta.guardia">
-                en {{ validacion.entradaAbierta.guardia.nombre }}
-              </span>
-              <p class="mt-2 mb-0">Debe registrar la salida antes de permitir nueva entrada.</p>
-            </div>
-
-            <!-- PUEDE ACCEDER -->
-            <div class="alert alert-success" *ngIf="puedeAcceder()">
-              <i class="pi pi-check-circle"></i>
-              <strong>ACCESO PERMITIDO:</strong> El usuario puede ingresar sin restricciones.
-            </div>
-          </div>
-
-          <!-- Acciones -->
-          <div class="acciones" *ngIf="puedeAcceder()">
-            <button
-              pButton
-              type="button"
-              class="p-button-success p-button-lg"
-              icon="pi pi-check"
-              label="Permitir Acceso"
-              (click)="permitirAcceso()"
-              style="width: 100%;"
-            ></button>
-          </div>
+          </p-card>
         </div>
+      </div>
 
-        <!-- Estado inicial -->
-        <div *ngIf="!validacion && !buscando" class="empty-state">
-          <i class="pi pi-search" style="font-size: 3rem; color: #dee2e6;"></i>
-          <p>Ingrese un número de identificación para validar el acceso del usuario</p>
+      <!-- Estado Inicial (Empty State) -->
+      <div class="empty-state" *ngIf="!validacion && !buscando">
+        <div class="empty-icon">
+          <i class="pi pi-search"></i>
         </div>
-      </p-card>
+        <h3>Esperando búsqueda</h3>
+        <p>Ingrese el número de identificación del usuario para comenzar la validación de acceso</p>
+      </div>
+
     </div>
   `,
   styles: [`
+    /* Container Principal */
     .validar-container {
-      max-width: 900px;
-      margin: 2rem auto;
-      padding: 0 1rem;
-    }
-
-    .card-header {
+      max-width: 1000px;
+      margin: 0 auto;
       padding: 1.5rem;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
     }
 
-    .card-header h2 {
-      margin: 0 0 0.5rem 0;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      font-size: 1.5rem;
-    }
-
-    .subtitle {
-      margin: 0;
-      opacity: 0.9;
-      font-size: 0.95rem;
-    }
-
-    .p-field {
-      margin-bottom: 1rem;
-    }
-
-    .p-field label {
-      display: block;
-      margin-bottom: 0.5rem;
-      font-weight: 600;
-      color: #495057;
-    }
-
-    .required {
-      color: #ef4444;
-    }
-
-    .help-text {
-      display: block;
-      margin-top: 0.5rem;
-      color: #6c757d;
-      font-size: 0.875rem;
-    }
-
-    .help-text i {
-      margin-right: 0.25rem;
-    }
-
-    /* Alertas */
-    .alert {
-      padding: 1rem;
-      border-radius: 8px;
-      margin-top: 1rem;
-      border-left: 4px solid;
-    }
-
-    .alert i {
-      margin-right: 0.5rem;
-    }
-
-    .alert-danger {
-      background-color: #fee2e2;
-      border-left-color: #dc2626;
-      color: #991b1b;
-    }
-
-    .alert-danger .alert-header {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      margin-bottom: 0.5rem;
-    }
-
-    .alert-danger h4 {
-      margin: 0;
-      font-size: 1.1rem;
-    }
-
-    .alert-warning {
-      background-color: #fef3c7;
-      border-left-color: #f59e0b;
-      color: #92400e;
-    }
-
-    .alert-success {
-      background-color: #d1fae5;
-      border-left-color: #10b981;
-      color: #065f46;
-    }
-
-    /* Panel de resultados */
-    .resultado-panel {
-      margin-top: 1.5rem;
-      padding: 1.5rem;
-      background-color: #f8f9fa;
+    /* Module Header */
+    .module-header {
+      background: var(--surface);
       border-radius: 12px;
-      border: 2px solid;
+      padding: 2rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      border: 1px solid var(--border);
     }
 
-    .panel-success {
-      border-color: #10b981;
-      background-color: #f0fdf4;
-    }
-
-    .panel-danger {
-      border-color: #dc2626;
-      background-color: #fef2f2;
-    }
-
-    .panel-warning {
-      border-color: #f59e0b;
-      background-color: #fffbeb;
-    }
-
-    .usuario-header {
+    .header-content {
       display: flex;
       align-items: center;
-      gap: 1rem;
-      margin-bottom: 1.5rem;
-      padding-bottom: 1rem;
-      border-bottom: 2px solid #dee2e6;
+      gap: 1.5rem;
     }
 
-    .usuario-avatar {
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    .header-icon {
+      width: 70px;
+      height: 70px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-600) 100%);
       display: flex;
       align-items: center;
       justify-content: center;
       color: white;
-      font-size: 1.8rem;
+      font-size: 2rem;
+      box-shadow: 0 4px 12px rgba(79, 140, 255, 0.3);
     }
 
-    .usuario-title {
-      flex: 1;
+    .header-text h1 {
+      margin: 0 0 0.5rem 0;
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--text);
     }
 
-    .usuario-title h3 {
-      margin: 0 0 0.25rem 0;
-      color: #1f2937;
-      font-size: 1.4rem;
+    .header-text p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 1rem;
     }
 
-    .username {
-      color: #6b7280;
-      font-size: 0.95rem;
+    /* Search Panel */
+    .search-panel {
+      margin-bottom: 1.5rem;
     }
 
-    .usuario-info .info-row {
+    .search-panel ::ng-deep .p-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    .search-section {
+      padding: 1rem;
+    }
+
+    .search-header {
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      padding: 0.75rem 0;
-      border-bottom: 1px solid #e9ecef;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 2px solid var(--border);
     }
 
-    .usuario-info .info-row:last-child {
-      border-bottom: none;
+    .search-header i {
+      font-size: 1.5rem;
+      color: var(--primary);
     }
 
-    .usuario-info .info-row label {
-      color: #6c757d;
-      font-weight: 500;
+    .search-header span {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    /* Form Styles */
+    .search-form {
       display: flex;
-      align-items: center;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
       gap: 0.5rem;
     }
 
-    .identificacion-badge ::ng-deep .custom-chip {
-      background: rgba(79, 140, 255, 0.1);
-      color: var(--primary-color);
-      font-family: 'Courier New', monospace;
+    .form-group label {
+      font-weight: 600;
+      color: var(--text);
+      font-size: 0.95rem;
+    }
+
+    .required {
+      color: var(--danger);
+      margin-left: 0.25rem;
+    }
+
+    .input-wrapper {
+      width: 100%;
+    }
+
+    .input-wrapper ::ng-deep input {
+      height: 48px;
+      font-size: 1rem;
+      padding-left: 3rem !important;
+    }
+
+    .help-text {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--muted);
+      font-size: 0.875rem;
+    }
+
+    .button-group {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 0.75rem;
+    }
+
+    .search-btn {
+      height: 48px;
       font-weight: 600;
     }
 
-    .vehiculos-list,
-    .restricciones-list {
+    .clear-btn {
+      height: 48px;
+      min-width: 120px;
+    }
+
+    /* Results Container */
+    .results-container {
+      margin-top: 1.5rem;
+    }
+
+    .result-card ::ng-deep .p-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    }
+
+    /* Not Found State */
+    .result-card.not-found ::ng-deep .p-card {
+      border-left: 4px solid var(--danger);
+    }
+
+    .result-content {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      padding: 1rem;
+    }
+
+    .result-icon {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      flex-shrink: 0;
+    }
+
+    .result-icon.error {
+      background: rgba(229, 62, 62, 0.1);
+      color: var(--danger);
+    }
+
+    .result-info h3 {
+      margin: 0 0 0.5rem 0;
+      color: var(--text);
+      font-size: 1.3rem;
+    }
+
+    .result-info p {
+      margin: 0 0 1rem 0;
+      color: var(--muted);
+    }
+
+    .result-actions {
+      margin-top: 1rem;
+    }
+
+    /* Status Header */
+    .status-header {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      padding: 1.5rem;
+      border-radius: 12px;
+      margin-bottom: 1.5rem;
+      border-left: 4px solid;
+    }
+
+    .status-approved {
+      background: var(--success-100);
+      border-left-color: var(--success);
+    }
+
+    .status-denied {
+      background: var(--danger-100);
+      border-left-color: var(--danger);
+    }
+
+    .status-warning {
+      background: #fef3c7;
+      border-left-color: #f59e0b;
+    }
+
+    .status-icon {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      flex-shrink: 0;
+    }
+
+    .status-approved .status-icon {
+      background: var(--success);
+      color: white;
+    }
+
+    .status-denied .status-icon {
+      background: var(--danger);
+      color: white;
+    }
+
+    .status-warning .status-icon {
+      background: #f59e0b;
+      color: white;
+    }
+
+    .status-text {
+      flex: 1;
+    }
+
+    .status-text h3 {
+      margin: 0 0 0.5rem 0;
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .status-text p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    /* User Info Section */
+    .user-info-section {
+      padding: 1.5rem;
+      background: var(--surface-alt);
+      border-radius: 8px;
+      margin-bottom: 1.5rem;
+    }
+
+    .user-profile {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      padding-bottom: 1.5rem;
+      margin-bottom: 1.5rem;
+      border-bottom: 2px solid var(--border);
+    }
+
+    .user-avatar {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-600) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 2rem;
+      box-shadow: 0 4px 12px rgba(79, 140, 255, 0.3);
+    }
+
+    .user-details h4 {
+      margin: 0 0 0.5rem 0;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .user-username {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--muted);
+      font-size: 1rem;
+    }
+
+    /* Info Grid */
+    .info-grid {
+      display: grid;
+      gap: 1.25rem;
+    }
+
+    .info-item {
+      display: grid;
+      grid-template-columns: 180px 1fr;
+      gap: 1rem;
+      align-items: start;
+    }
+
+    .info-label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .info-label i {
+      color: var(--primary);
+    }
+
+    .info-value {
+      color: var(--text);
+    }
+
+    .info-value strong {
+      font-weight: 600;
+    }
+
+    .info-value ::ng-deep .id-chip {
+      background: rgba(79, 140, 255, 0.1);
+      color: var(--primary);
+      font-family: 'Courier New', monospace;
+      font-weight: 600;
+      border: 1px solid rgba(79, 140, 255, 0.2);
+    }
+
+    .tags-container {
       display: flex;
       flex-wrap: wrap;
       gap: 0.5rem;
     }
 
-    .alertas-estado {
-      margin-top: 1rem;
+    /* Alerts Section */
+    .alerts-section {
+      margin-bottom: 1.5rem;
     }
 
-    .acciones {
-      margin-top: 1.5rem;
+    .alert-box {
+      display: flex;
+      gap: 1rem;
+      padding: 1.25rem;
+      border-radius: 8px;
+      border-left: 4px solid;
+      margin-bottom: 1rem;
     }
 
+    .alert-box:last-child {
+      margin-bottom: 0;
+    }
+
+    .alert-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      flex-shrink: 0;
+    }
+
+    .alert-content strong {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-size: 1.05rem;
+    }
+
+    .alert-content p {
+      margin: 0.25rem 0;
+      line-height: 1.6;
+    }
+
+    .alert-danger {
+      background: var(--danger-100);
+      border-left-color: var(--danger);
+    }
+
+    .alert-danger .alert-icon {
+      background: var(--danger);
+      color: white;
+    }
+
+    .alert-danger .alert-content {
+      color: #991b1b;
+    }
+
+    .alert-warning {
+      background: #fef3c7;
+      border-left-color: #f59e0b;
+    }
+
+    .alert-warning .alert-icon {
+      background: #f59e0b;
+      color: white;
+    }
+
+    .alert-warning .alert-content {
+      color: #92400e;
+    }
+
+    /* Action Section */
+    .action-section {
+      padding: 1.5rem;
+      background: var(--surface-alt);
+      border-radius: 8px;
+    }
+
+    .action-button {
+      width: 100%;
+      height: 56px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
+    }
+
+    /* Empty State */
     .empty-state {
       text-align: center;
-      padding: 3rem 1rem;
-      color: #6c757d;
+      padding: 4rem 2rem;
+      background: var(--surface);
+      border-radius: 12px;
+      border: 2px dashed var(--border);
+    }
+
+    .empty-icon {
+      width: 100px;
+      height: 100px;
+      margin: 0 auto 1.5rem;
+      border-radius: 50%;
+      background: var(--surface-alt);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .empty-icon i {
+      font-size: 3rem;
+      color: var(--muted);
+    }
+
+    .empty-state h3 {
+      margin: 0 0 0.75rem 0;
+      font-size: 1.5rem;
+      color: var(--text);
     }
 
     .empty-state p {
-      margin-top: 1rem;
-      font-size: 1.1rem;
+      margin: 0;
+      color: var(--muted);
+      font-size: 1.05rem;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .validar-container {
+        padding: 1rem;
+      }
+
+      .header-content {
+        gap: 1rem;
+      }
+
+      .header-icon {
+        width: 50px;
+        height: 50px;
+        font-size: 1.5rem;
+      }
+
+      .header-text h1 {
+        font-size: 1.3rem;
+      }
+
+      .header-text p {
+        font-size: 0.9rem;
+      }
+
+      .button-group {
+        grid-template-columns: 1fr;
+      }
+
+      .info-item {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+      }
+
+      .result-content {
+        flex-direction: column;
+        text-align: center;
+      }
+
+      .status-header {
+        flex-direction: column;
+        text-align: center;
+      }
+
+      .user-profile {
+        flex-direction: column;
+        text-align: center;
+      }
     }
   `]
 })

@@ -221,6 +221,46 @@ export interface ValidacionVehiculoDTO {
 }
 
 /**
+ * 🆕 Usuario asignado a un vehículo (para dropdown de selección)
+ * @version 3.0 - Validación manual unificada
+ */
+export interface UsuarioAsignadoDTO {
+  id: string;
+  nombreCompleto: string;
+  identificacion: string;
+  tipoIdentificacion: 'CEDULA' | 'PASAPORTE' | 'DNI' | 'RUC' | 'LICENCIA' | 'OTRO';
+  activo: boolean;
+  tieneEntradaAbierta: boolean;
+}
+
+/**
+ * 🆕 Vehículo con lista de usuarios asignados
+ * @version 3.0 - Validación manual unificada
+ */
+export interface VehiculoConUsuariosDTO {
+  id: string;
+  placa: string;
+  marca: string;
+  modelo: string;
+  color: string;
+  tipo: 'AUTOMOVIL' | 'MOTOCICLETA' | 'BICICLETA' | 'CAMION' | 'OTRO';
+  activo: boolean;
+  usuariosAsignados: UsuarioAsignadoDTO[];
+}
+
+/**
+ * 🆕 Respuesta de validación manual unificada (documento O placa)
+ * @version 3.0 - Validación manual unificada
+ * @description Permite buscar por documento de usuario o placa de vehículo en un solo endpoint
+ */
+export interface ValidacionManualDTO {
+  tipoBusqueda: 'USUARIO' | 'VEHICULO' | 'NO_ENCONTRADO';
+  usuario?: ValidacionUsuarioDTO;          // Si tipoBusqueda = "USUARIO"
+  vehiculo?: ValidacionVehiculoDTO;        // Si tipoBusqueda = "VEHICULO"
+  vehiculoDetalle?: VehiculoConUsuariosDTO; // Si tipoBusqueda = "VEHICULO"
+}
+
+/**
  * Respuesta de verificación de permiso
  */
 export interface PuedeUsarGuardiaDTO {

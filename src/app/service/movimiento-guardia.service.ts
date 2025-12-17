@@ -77,6 +77,18 @@ export class MovimientoGuardiaService {
     return this.http.get<ValidacionVehiculoDTO>(`${this.API_URL}/validar-vehiculo/${vehiculoId}`);
   }
 
+  /**
+   * 🆕 Validación manual unificada (documento de usuario O placa de vehículo)
+   * @param documentoOPlaca Número de documento (cédula) o placa de vehículo
+   * @returns Observable con ValidacionManualDTO que indica si es usuario, vehículo o no encontrado
+   * @description Endpoint: GET /api/movimientos-guardia/validar-manual/{documentoOPlaca}
+   * @version 3.0 - Validación unificada con detección automática
+   */
+  validarManual(documentoOPlaca: string): Observable<any> {
+    const valor = encodeURIComponent(documentoOPlaca.trim());
+    return this.http.get<any>(`${this.API_URL}/validar-manual/${valor}`);
+  }
+
   // ========== CONSULTAS ==========
 
   /**

@@ -135,7 +135,7 @@
   <!-- Formulario de Búsqueda -->
   <p-card *ngIf="guardiaId && !cargandoGuardias" styleClass="busqueda-card">
     <div class="busqueda-field">
-      <label for="identificador">{{ LABELS.IDENTIFICADOR }} *</label>
+      <label for="identificador">Documento o Placa *</label>
       <div class="p-inputgroup">
         <input
           #identificadorInput
@@ -143,7 +143,7 @@
           type="text"
           pInputText
           [(ngModel)]="identificador"
-          placeholder="Ingrese documento, placa o código QR"
+          placeholder="Ingrese documento de usuario o placa de vehículo"
           (keyup.enter)="onEnterIdentificador($event)"
           [disabled]="buscando"
           autofocus
@@ -162,6 +162,89 @@
     </div>
   </p-card>
 
+  <!-- 🆕 VEHÍCULO ENCONTRADO - Selector de Usuario -->
+  <p-card *ngIf="resultadoValidacion?.tipoBusqueda === 'VEHICULO' && resultadoValidacion?.vehiculoDetalle && !validacionUsuario" styleClass="resultado-card">
+    <ng-template pTemplate="header">
+      <div class="resultado-header">
+        <i class="pi pi-car"></i>
+        <h3>Vehículo Encontrado</h3>
+      </div>
+    </ng-template>
+
+    <div class="usuario-info">
+      <div class="info-row">
+        <label>Placa:</label>
+        <strong>{{ resultadoValidacion?.vehiculoDetalle?.placa }}</strong>
+      </div>
+      <div class="info-row">
+        <label>Marca/Modelo:</label>
+        <span>{{ resultadoValidacion?.vehiculoDetalle?.marca }} {{ resultadoValidacion?.vehiculoDetalle?.modelo }}</span>
+      </div>
+      <div class="info-row">
+        <label>Color:</label>
+        <span>{{ resultadoValidacion?.vehiculoDetalle?.color }}</span>
+      </div>
+      <div class="info-row">
+        <label>Tipo:</label>
+        <p-tag [value]="resultadoValidacion?.vehiculoDetalle?.tipo" severity="info"></p-tag>
+      </div>
+    </div>
+
+    <p-divider></p-divider>
+
+    <!-- Selector de Usuario -->
+    <div class="p-field">
+      <label for="usuarioVehiculo">
+        <i class="pi pi-user"></i> ¿Quién conduce este vehículo? *
+      </label>
+      <p-dropdown
+        id="usuarioVehiculo"
+        [(ngModel)]="usuarioSeleccionadoId"
+        [options]="resultadoValidacion?.vehiculoDetalle?.usuariosAsignados || []"
+        optionLabel="nombreCompleto"
+        optionValue="id"
+        placeholder="Seleccione el conductor"
+        [style]="{ width: '100%' }"
+      >
+        <ng-template pTemplate="item" let-usuario>
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <strong>{{ usuario.nombreCompleto }}</strong>
+              <br>
+              <small>{{ usuario.tipoIdentificacion }}: {{ usuario.identificacion }}</small>
+            </div>
+            <p-tag
+              [value]="usuario.tieneEntradaAbierta ? 'ADENTRO' : 'AFUERA'"
+              [severity]="usuario.tieneEntradaAbierta ? 'success' : 'secondary'"
+            ></p-tag>
+          </div>
+        </ng-template>
+      </p-dropdown>
+      <small class="p-text-secondary">Seleccione quién está conduciendo el vehículo</small>
+    </div>
+
+    <!-- Botón Confirmar -->
+    <div class="acciones">
+      <button
+        pButton
+        type="button"
+        label="Confirmar"
+        icon="pi pi-check"
+        class="entrada-btn"
+        (click)="confirmarUsuarioVehiculo()"
+        [disabled]="!usuarioSeleccionadoId"
+      ></button>
+      <button
+        pButton
+        type="button"
+        label="Cancelar"
+        icon="pi pi-times"
+        class="cancelar-btn"
+        (click)="cancelar()"
+      ></button>
+    </div>
+  </p-card>
+
   <!-- ✅ Registro Automático en Progreso -->
   <p-card *ngIf="registrando && estado === 'USUARIO_ENCONTRADO'" styleClass="resultado-card registrando-card">
     <div class="registrando-content">
@@ -175,102 +258,6 @@
     </div>
   </p-card>
 
-  <!-- 🚗 Selección de Vehículo (SOLO cuando tiene vehículos y NO se ha registrado automáticamente) -->
-  <p-card *ngIf="puedeRegistrarEntrada && (validacionUsuario?.vehiculos?.length ?? 0) > 0 && !registrando" styleClass="resultado-card entrada-card">
-    <ng-template pTemplate="header">
-      <div class="resultado-header">
-        <i class="pi pi-user"></i>
-        <h3>Usuario Encontrado</h3>
-      </div>
-    </ng-template>
-
-    <div class="usuario-info">
-      <div class="info-row">
-        <label>Nombre Completo:</label>
-        <strong>{{ validacionUsuario?.nombreCompleto }}</strong>
-      </div>
-      <div class="info-row">
-        <label>Username:</label>
-        <span>{{ validacionUsuario?.username }}</span>
-      </div>
-      <div class="info-row" *ngIf="validacionUsuario?.tipoIdentificacion && validacionUsuario?.identificacion">
-        <label>Identificación:</label>
-        <span>{{ validacionUsuario?.tipoIdentificacion }}: {{ validacionUsuario?.identificacion }}</span>
-      </div>
-      <div class="info-row">
-        <label>Sección:</label>
-        <span>{{ validacionUsuario?.seccion }}</span>
-      </div>
-      <div class="info-row">
-        <label>Estado:</label>
-        <p-tag
-          [value]="validacionUsuario?.activo ? 'ACTIVO' : 'INACTIVO'"
-          [severity]="validacionUsuario?.activo ? 'success' : 'danger'"
-        ></p-tag>
-      </div>
-    </div>
-
-    <!-- Vehículos (Obligatorio cuando tiene vehículos) -->
-    <div class="vehiculos-section">
-      <p-message
-        severity="warn"
-        text="🚗 Este usuario tiene vehículo(s) registrados. Seleccione el vehículo para registrar la entrada."
-      ></p-message>
-
-      <div class="p-field-checkbox">
-        <p-checkbox
-          [(ngModel)]="incluirVehiculo"
-          [binary]="true"
-          inputId="incluirVehiculo"
-        ></p-checkbox>
-        <label for="incluirVehiculo">{{ LABELS.INCLUIR_VEHICULO }}</label>
-      </div>
-
-      <div *ngIf="incluirVehiculo" class="p-field">
-        <label for="vehiculoSelect">Vehículo *</label>
-        <p-dropdown
-          id="vehiculoSelect"
-          [(ngModel)]="vehiculoId"
-          [options]="validacionUsuario?.vehiculos ?? []"
-          optionLabel="placa"
-          optionValue="id"
-          placeholder="Seleccione un vehículo"
-          [style]="{ width: '100%' }"
-        ></p-dropdown>
-      </div>
-    </div>
-
-    <!-- Observaciones -->
-    <div class="p-field">
-      <label for="observaciones">{{ LABELS.OBSERVACIONES }}</label>
-      <textarea
-        id="observaciones"
-        pInputTextarea
-        [(ngModel)]="observaciones"
-        [rows]="2"
-        [placeholder]="LABELS.PH_OBSERVACIONES"
-      ></textarea>
-    </div>
-
-    <!-- Botones -->
-    <div class="form-actions">
-      <p-button
-        [label]="LABELS.BTN_CANCELAR"
-        icon="pi pi-times"
-        styleClass="p-button-secondary"
-        (onClick)="cancelar()"
-        [disabled]="registrando"
-      ></p-button>
-      <p-button
-        [label]="LABELS.BTN_REGISTRAR_ENTRADA"
-        icon="pi pi-sign-in"
-        styleClass="p-button-success p-button-lg"
-        (onClick)="registrarEntrada()"
-        [loading]="registrando"
-        [disabled]="incluirVehiculo && !vehiculoId"
-      ></p-button>
-    </div>
-  </p-card>
 
   <!-- Paso 3C: Usuario Bloqueado -->
   <p-card *ngIf="estaBloqueado" styleClass="resultado-card bloqueado-card">
@@ -499,13 +486,13 @@
   [closable]="true"
   [draggable]="false"
   [resizable]="false"
-  styleClass="modal-error"
-  [style]="{ width: '500px' }"
+  styleClass="error-dialog"
+  (onHide)="cerrarModalError()"
 >
   <ng-template pTemplate="header">
     <div class="error-header">
       <i class="pi pi-times-circle"></i>
-      <span>{{ tituloError }}</span>
+      <h3>{{ tituloError }}</h3>
     </div>
   </ng-template>
 
@@ -513,6 +500,13 @@
     <div class="error-icon">
       <i class="pi pi-exclamation-triangle"></i>
     </div>
+
+    <div class="user-info-modal" *ngIf="validacionUsuario">
+      <h3>{{ validacionUsuario.nombreCompleto }}</h3>
+      <p>{{ validacionUsuario.username }}</p>
+    </div>
+
+    <p-divider></p-divider>
 
     <div class="error-message">
       <p>{{ mensajeError }}</p>

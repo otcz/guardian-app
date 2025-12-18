@@ -200,7 +200,7 @@ POST /api/movimientos-guardia/entrada
 
 ## 2️⃣ REGISTRAR SALIDA
 
-### ✅ Salida CON Entrada Previa (Permanencia Calculada)
+### ✅ Salida CON Vehículo y Entrada Previa (Permanencia Calculada)
 
 **Request:**
 ```http
@@ -211,7 +211,7 @@ Content-Type: application/json
   "usuarioId": "550e8400-e29b-41d4-a716-446655440000",
   "guardiaId": "660e8400-e29b-41d4-a716-446655440001",
   "vehiculoId": "770e8400-e29b-41d4-a716-446655440002",
-  "observaciones": "Salida normal"
+  "observaciones": "Salida normal con vehículo"
 }
 ```
 
@@ -233,12 +233,48 @@ Content-Type: application/json
     "id": "770e8400-e29b-41d4-a716-446655440002",
     "placa": "ABC123"
   },
-  "observaciones": "Salida normal",
+  "observaciones": "Salida normal con vehículo",
   "permanenciaMinutos": 135
 }
 ```
 
 **Nota:** La permanencia se calcula automáticamente si existe una entrada previa: `135 minutos = 2 horas 15 minutos`
+
+---
+
+### ✅ Salida SIN Vehículo (Peatón) CON Entrada Previa
+
+**Request:**
+```http
+POST /api/movimientos-guardia/salida
+
+{
+  "usuarioId": "550e8400-e29b-41d4-a716-446655440000",
+  "guardiaId": "660e8400-e29b-41d4-a716-446655440001",
+  "vehiculoId": null,
+  "observaciones": "Salida como peatón"
+}
+```
+
+**Response:** `200 OK`
+```json
+{
+  "id": "990e8400-e29b-41d4-a716-446655440006",
+  "tipo": "SALIDA",
+  "timestampMovimiento": "2025-12-17T16:50:00.123456Z",
+  "usuario": {
+    "id": "550e8400-e29b-41d4-a716-446655440000",
+    "nombreCompleto": "Juan Pérez"
+  },
+  "guardia": {
+    "id": "660e8400-e29b-41d4-a716-446655440001",
+    "nombre": "Guardia Principal"
+  },
+  "vehiculo": null,
+  "observaciones": "Salida como peatón",
+  "permanenciaMinutos": 140
+}
+```
 
 ---
 
@@ -258,7 +294,7 @@ POST /api/movimientos-guardia/salida
 **Response:** `200 OK`
 ```json
 {
-  "id": "990e8400-e29b-41d4-a716-446655440006",
+  "id": "990e8400-e29b-41d4-a716-446655440007",
   "tipo": "SALIDA",
   "timestampMovimiento": "2025-12-17T17:00:00.123456Z",
   "usuario": {

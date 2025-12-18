@@ -413,7 +413,14 @@ export class ControlIngresoSalidaComponent implements OnInit, AfterViewInit, OnD
     this.tipoAccion = accion;
 
     if (accion === 'SALIDA') {
-      this.registrarSalidaConModal();
+      // 🚗 Verificar si tiene vehículos para mostrar modal de selección
+      const tieneVehiculos = (validacion.vehiculos?.length ?? 0) > 0;
+
+      if (tieneVehiculos) {
+        this.mostrarModalSeleccionVehiculoSalida();
+      } else {
+        this.registrarSalidaConModal();
+      }
     } else if (accion === 'ENTRADA') {
       const tieneVehiculos = (validacion.vehiculos?.length ?? 0) > 0;
       if (tieneVehiculos) {
@@ -449,7 +456,15 @@ export class ControlIngresoSalidaComponent implements OnInit, AfterViewInit, OnD
     } else if (tipoConfigurado === 'SALIDA') {
       // ✅ Intentar registrar salida - el backend validará
       this.tipoAccion = 'SALIDA';
-      this.registrarSalidaConModal();
+
+      // 🚗 Verificar si tiene vehículos para mostrar modal de selección
+      const tieneVehiculos = (this.validacionUsuario.vehiculos?.length ?? 0) > 0;
+
+      if (tieneVehiculos) {
+        this.mostrarModalSeleccionVehiculoSalida();
+      } else {
+        this.registrarSalidaConModal();
+      }
     }
   }
 
@@ -474,6 +489,26 @@ export class ControlIngresoSalidaComponent implements OnInit, AfterViewInit, OnD
   }
 
   /**
+   * 🚗 MOSTRAR MODAL DE SELECCIÓN DE VEHÍCULO PARA SALIDA
+   */
+  mostrarModalSeleccionVehiculoSalida(): void {
+    this.mostrarModalVehiculo = true;
+    this.vehiculoSeleccionado = '';
+    this.tiempoRestante = 15;
+
+    // Iniciar cuenta regresiva
+    this.intervalTimer = setInterval(() => {
+      this.tiempoRestante--;
+
+      if (this.tiempoRestante <= 0) {
+        this.clearTimer();
+        // Registrar salida SIN vehículo automáticamente
+        this.registrarSalidaConModal();
+      }
+    }, 1000);
+  }
+
+  /**
    * Limpiar temporizador
    */
   clearTimer(): void {
@@ -490,12 +525,22 @@ export class ControlIngresoSalidaComponent implements OnInit, AfterViewInit, OnD
   confirmarVehiculo(): void {
     this.clearTimer();
 
-    if (this.vehiculoSeleccionado) {
-      // Registrar CON vehículo
-      this.registrarEntradaConModal(this.vehiculoSeleccionado);
-    } else {
-      // Registrar SIN vehículo
-      this.registrarEntradaConModal();
+    if (this.tipoAccion === 'ENTRADA') {
+      if (this.vehiculoSeleccionado) {
+        // Registrar ENTRADA CON vehículo
+        this.registrarEntradaConModal(this.vehiculoSeleccionado);
+      } else {
+        // Registrar ENTRADA SIN vehículo
+        this.registrarEntradaConModal();
+      }
+    } else if (this.tipoAccion === 'SALIDA') {
+      if (this.vehiculoSeleccionado) {
+        // Registrar SALIDA CON vehículo
+        this.registrarSalidaConModal(this.vehiculoSeleccionado);
+      } else {
+        // Registrar SALIDA SIN vehículo
+        this.registrarSalidaConModal();
+      }
     }
   }
 
@@ -504,7 +549,12 @@ export class ControlIngresoSalidaComponent implements OnInit, AfterViewInit, OnD
    */
   cancelarModalVehiculo(): void {
     this.clearTimer();
-    this.registrarEntradaConModal();
+
+    if (this.tipoAccion === 'ENTRADA') {
+      this.registrarEntradaConModal();
+    } else if (this.tipoAccion === 'SALIDA') {
+      this.registrarSalidaConModal();
+    }
   }
 
   /**
@@ -576,7 +626,7 @@ export class ControlIngresoSalidaComponent implements OnInit, AfterViewInit, OnD
   /**
    * 🚀 REGISTRO AUTOMÁTICO DE SALIDA CON MODAL
    */
-  registrarSalidaConModal(): void {
+  registrarSalidaConModal(vehiculoId?: string): void {
     if (!this.usuarioId) {
       return;
     }
@@ -596,7 +646,7 @@ export class ControlIngresoSalidaComponent implements OnInit, AfterViewInit, OnD
     const dto: RegistrarSalidaDTO = {
       guardiaId: this.guardiaId,
       usuarioId: this.validacionUsuario.id,
-      vehiculoId: null,
+      vehiculoId: vehiculoId || null,
       adminGuardiaId: this.usuarioId,
       observaciones: this.observaciones || null
     };

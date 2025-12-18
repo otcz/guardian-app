@@ -34,7 +34,7 @@ interface EstadoUsuario {
 }
 
 @Component({
-  selector: 'app-movimientos-abiertos',
+  selector: 'app-entradas-abiertas',
   standalone: true,
   imports: [
     CommonModule,
@@ -48,10 +48,10 @@ interface EstadoUsuario {
     DialogModule
   ],
   providers: [MessageService],
-  templateUrl: './movimientos-abiertos.component.html',
-  styleUrls: ['./movimientos-abiertos.component.css']
+  templateUrl: './entradas-abiertas.component.html',
+  styleUrls: ['./entradas-abiertas.component.css']
 })
-export class MovimientosAbiertosComponent implements OnInit {
+export class EntradasAbiertasComponent implements OnInit {
   usuariosDentro: EstadoUsuario[] = [];
   usuariosFuera: EstadoUsuario[] = [];
   loading = false;

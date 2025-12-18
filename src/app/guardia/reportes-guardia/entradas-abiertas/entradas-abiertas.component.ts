@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 // PrimeNG
 import { TableModule } from 'primeng/table';
@@ -11,6 +12,9 @@ import { CardModule } from 'primeng/card';
 import { TooltipModule } from 'primeng/tooltip';
 import { TabViewModule } from 'primeng/tabview';
 import { DialogModule } from 'primeng/dialog';
+import { InputTextModule } from 'primeng/inputtext';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
 
 // Servicios
 import { MovimientoGuardiaService } from '../../../service/movimiento-guardia.service';
@@ -38,6 +42,7 @@ interface EstadoUsuario {
   standalone: true,
   imports: [
     CommonModule,
+    FormsModule,
     TableModule,
     ButtonModule,
     TagModule,
@@ -45,7 +50,10 @@ interface EstadoUsuario {
     CardModule,
     TooltipModule,
     TabViewModule,
-    DialogModule
+    DialogModule,
+    InputTextModule,
+    IconFieldModule,
+    InputIconModule
   ],
   providers: [MessageService],
   templateUrl: './entradas-abiertas.component.html',
@@ -57,6 +65,10 @@ export class EntradasAbiertasComponent implements OnInit {
   loading = false;
   displayDetalle = false;
   usuarioSeleccionado: EstadoUsuario | null = null;
+
+  // Filtros globales
+  searchValueDentro: string = '';
+  searchValueFuera: string = '';
 
   readonly LABELS = LABELS;
 
@@ -190,6 +202,34 @@ export class EntradasAbiertasComponent implements OnInit {
   cerrarDetalle(): void {
     this.displayDetalle = false;
     this.usuarioSeleccionado = null;
+  }
+
+  /**
+   * Filtro global para tabla de usuarios dentro
+   */
+  onGlobalFilterDentro(table: any, event: Event): void {
+    const inputElement = event.target as HTMLInputElement;
+    table.filterGlobal(inputElement.value, 'contains');
+  }
+
+  /**
+   * Filtro global para tabla de usuarios fuera
+   */
+  onGlobalFilterFuera(table: any, event: Event): void {
+    const inputElement = event.target as HTMLInputElement;
+    table.filterGlobal(inputElement.value, 'contains');
+  }
+
+  /**
+   * Limpia el filtro de búsqueda
+   */
+  clearFilter(table: any, searchType: 'dentro' | 'fuera'): void {
+    if (searchType === 'dentro') {
+      this.searchValueDentro = '';
+    } else {
+      this.searchValueFuera = '';
+    }
+    table.clear();
   }
 }
 

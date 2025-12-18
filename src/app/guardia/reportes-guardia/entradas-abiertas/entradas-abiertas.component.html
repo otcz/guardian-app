@@ -4,16 +4,19 @@
   <p-card>
     <ng-template pTemplate="header">
       <div class="card-header">
-        <div>
-          <h2><i class="pi pi-users"></i> Monitoreo de Estados - Usuarios en Guardia</h2>
+        <div class="header-content">
+          <h2><i class="pi pi-chart-line"></i> Monitoreo de Estados - Usuarios en Guardia</h2>
           <p class="subtitle">Control operativo en tiempo real según el último movimiento registrado</p>
         </div>
-        <p-button
-          label="Actualizar"
-          icon="pi pi-refresh"
-          (onClick)="cargarEstadosUsuarios()"
-          [loading]="loading"
-        ></p-button>
+        <div class="header-actions">
+          <p-button
+            label="Actualizar"
+            icon="pi pi-refresh"
+            (onClick)="cargarEstadosUsuarios()"
+            [loading]="loading"
+            styleClass="p-button-rounded"
+          ></p-button>
+        </div>
       </div>
     </ng-template>
 
@@ -23,56 +26,98 @@
       <!-- TAB 1: Usuarios que ENTRARON y NO HAN SALIDO -->
       <p-tabPanel header="Usuarios Dentro" leftIcon="pi pi-sign-in">
         <ng-template pTemplate="content">
+
+          <!-- Barra de búsqueda -->
+          <div class="search-container">
+            <p-iconField iconPosition="left" class="search-field">
+              <p-inputIcon styleClass="pi pi-search" />
+              <input
+                pInputText
+                type="text"
+                #dtDentro
+                [(ngModel)]="searchValueDentro"
+                (input)="onGlobalFilterDentro(tableDentro, $event)"
+                placeholder="Buscar por usuario, guardia u observaciones..."
+                class="search-input"
+              />
+            </p-iconField>
+            <p-button
+              *ngIf="searchValueDentro"
+              icon="pi pi-times"
+              (onClick)="clearFilter(tableDentro, 'dentro')"
+              styleClass="p-button-text p-button-rounded"
+              pTooltip="Limpiar búsqueda"
+            ></p-button>
+          </div>
+
           <p-table
+            #tableDentro
             [value]="usuariosDentro"
             [loading]="loading"
             [paginator]="true"
             [rows]="20"
-            [rowsPerPageOptions]="[20, 50, 100]"
+            [rowsPerPageOptions]="[10, 20, 50, 100]"
             [showCurrentPageReport]="true"
+            [globalFilterFields]="['nombreCompleto', 'guardiaNombre', 'observaciones', 'ultimoMovimiento.usuario.documento']"
             currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} usuario(s)"
-            styleClass="p-datatable-striped"
+            styleClass="p-datatable-gridlines p-datatable-sm"
             responsiveLayout="scroll"
+            [rowHover]="true"
           >
             <ng-template pTemplate="header">
               <tr>
-                <th pSortableColumn="nombreCompleto">
+                <th pSortableColumn="nombreCompleto" style="min-width: 200px;">
                   Usuario <p-sortIcon field="nombreCompleto"></p-sortIcon>
                 </th>
-                <th>Teléfono</th>
-                <th pSortableColumn="guardiaNombre">
+                <th style="min-width: 120px;">Teléfono</th>
+                <th pSortableColumn="guardiaNombre" style="min-width: 150px;">
                   Guardia <p-sortIcon field="guardiaNombre"></p-sortIcon>
                 </th>
-                <th pSortableColumn="fechaHoraMovimiento">
+                <th pSortableColumn="fechaHoraMovimiento" style="min-width: 160px;">
                   Fecha/Hora Entrada <p-sortIcon field="fechaHoraMovimiento"></p-sortIcon>
                 </th>
-                <th>Tiempo Transcurrido</th>
-                <th>Observaciones</th>
+                <th style="min-width: 150px;">Tiempo Transcurrido</th>
+                <th style="min-width: 200px;">Observaciones</th>
                 <th style="width: 100px; text-align: center">Acción</th>
               </tr>
             </ng-template>
 
             <ng-template pTemplate="body" let-estado>
-              <tr>
+              <tr class="table-row">
                 <td>
                   <div class="usuario-info">
-                    <strong>{{ estado.nombreCompleto }}</strong>
-                    <small *ngIf="estado.ultimoMovimiento.usuario?.documento">
-                      Doc: {{ estado.ultimoMovimiento.usuario?.documento }}
+                    <strong class="nombre-usuario">{{ estado.nombreCompleto }}</strong>
+                    <small *ngIf="estado.ultimoMovimiento.usuario?.documento" class="documento-usuario">
+                      <i class="pi pi-id-card"></i> {{ estado.ultimoMovimiento.usuario?.documento }}
                     </small>
                   </div>
                 </td>
-                <td>{{ estado.telefono || '-' }}</td>
-                <td>{{ estado.guardiaNombre }}</td>
-                <td>{{ formatearFecha(estado.fechaHoraMovimiento) }}</td>
+                <td>
+                  <span class="telefono-info">
+                    <i class="pi pi-phone"></i> {{ estado.telefono || 'Sin registrar' }}
+                  </span>
+                </td>
+                <td>
+                  <p-tag [value]="estado.guardiaNombre" severity="info" [rounded]="true">
+                    <i class="pi pi-map-marker"></i>
+                  </p-tag>
+                </td>
+                <td>
+                  <span class="fecha-info">
+                    <i class="pi pi-clock"></i> {{ formatearFecha(estado.fechaHoraMovimiento) }}
+                  </span>
+                </td>
                 <td>
                   <p-tag
                     [value]="estado.tiempoTranscurrido"
                     [severity]="getSeverityTiempo(estado.fechaHoraMovimiento)"
-                  ></p-tag>
+                    [rounded]="true"
+                  >
+                    <i class="pi pi-hourglass"></i>
+                  </p-tag>
                 </td>
                 <td>
-                  <small>{{ estado.observaciones || '-' }}</small>
+                  <small class="observaciones-text">{{ estado.observaciones || '-' }}</small>
                 </td>
                 <td style="text-align: center">
                   <p-button
@@ -80,8 +125,10 @@
                     [outlined]="true"
                     severity="info"
                     size="small"
+                    [rounded]="true"
                     (onClick)="verDetalle(estado)"
                     pTooltip="Ver detalles completos"
+                    tooltipPosition="left"
                   ></p-button>
                 </td>
               </tr>
@@ -89,11 +136,16 @@
 
             <ng-template pTemplate="emptymessage">
               <tr>
-                <td colspan="7" style="text-align: center; padding: 2rem;">
-                  <i class="pi pi-info-circle" style="font-size: 3rem; color: #2196f3"></i>
-                  <p style="margin-top: 1rem; font-size: 1.1rem;">
-                    No hay usuarios dentro en este momento
-                  </p>
+                <td colspan="7" style="text-align: center; padding: 3rem;">
+                  <div class="empty-state">
+                    <i class="pi pi-inbox" style="font-size: 4rem; color: #667eea; opacity: 0.5;"></i>
+                    <p style="margin-top: 1rem; font-size: 1.2rem; font-weight: 600; color: #495057;">
+                      No hay usuarios dentro en este momento
+                    </p>
+                    <p style="color: #6c757d; font-size: 0.95rem;">
+                      Los usuarios aparecerán aquí cuando registren una entrada
+                    </p>
+                  </div>
                 </td>
               </tr>
             </ng-template>
@@ -104,56 +156,98 @@
       <!-- TAB 2: Usuarios que SALIERON y NO HAN ENTRADO -->
       <p-tabPanel header="Usuarios Fuera" leftIcon="pi pi-sign-out">
         <ng-template pTemplate="content">
+
+          <!-- Barra de búsqueda -->
+          <div class="search-container">
+            <p-iconField iconPosition="left" class="search-field">
+              <p-inputIcon styleClass="pi pi-search" />
+              <input
+                pInputText
+                type="text"
+                #dtFuera
+                [(ngModel)]="searchValueFuera"
+                (input)="onGlobalFilterFuera(tableFuera, $event)"
+                placeholder="Buscar por usuario, guardia u observaciones..."
+                class="search-input"
+              />
+            </p-iconField>
+            <p-button
+              *ngIf="searchValueFuera"
+              icon="pi pi-times"
+              (onClick)="clearFilter(tableFuera, 'fuera')"
+              styleClass="p-button-text p-button-rounded"
+              pTooltip="Limpiar búsqueda"
+            ></p-button>
+          </div>
+
           <p-table
+            #tableFuera
             [value]="usuariosFuera"
             [loading]="loading"
             [paginator]="true"
             [rows]="20"
-            [rowsPerPageOptions]="[20, 50, 100]"
+            [rowsPerPageOptions]="[10, 20, 50, 100]"
             [showCurrentPageReport]="true"
+            [globalFilterFields]="['nombreCompleto', 'guardiaNombre', 'observaciones', 'ultimoMovimiento.usuario.documento']"
             currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} usuario(s)"
-            styleClass="p-datatable-striped"
+            styleClass="p-datatable-gridlines p-datatable-sm"
             responsiveLayout="scroll"
+            [rowHover]="true"
           >
             <ng-template pTemplate="header">
               <tr>
-                <th pSortableColumn="nombreCompleto">
+                <th pSortableColumn="nombreCompleto" style="min-width: 200px;">
                   Usuario <p-sortIcon field="nombreCompleto"></p-sortIcon>
                 </th>
-                <th>Teléfono</th>
-                <th pSortableColumn="guardiaNombre">
+                <th style="min-width: 120px;">Teléfono</th>
+                <th pSortableColumn="guardiaNombre" style="min-width: 150px;">
                   Guardia <p-sortIcon field="guardiaNombre"></p-sortIcon>
                 </th>
-                <th pSortableColumn="fechaHoraMovimiento">
+                <th pSortableColumn="fechaHoraMovimiento" style="min-width: 160px;">
                   Fecha/Hora Salida <p-sortIcon field="fechaHoraMovimiento"></p-sortIcon>
                 </th>
-                <th>Tiempo Transcurrido</th>
-                <th>Observaciones</th>
+                <th style="min-width: 150px;">Tiempo Transcurrido</th>
+                <th style="min-width: 200px;">Observaciones</th>
                 <th style="width: 100px; text-align: center">Acción</th>
               </tr>
             </ng-template>
 
             <ng-template pTemplate="body" let-estado>
-              <tr>
+              <tr class="table-row">
                 <td>
                   <div class="usuario-info">
-                    <strong>{{ estado.nombreCompleto }}</strong>
-                    <small *ngIf="estado.ultimoMovimiento.usuario?.documento">
-                      Doc: {{ estado.ultimoMovimiento.usuario?.documento }}
+                    <strong class="nombre-usuario">{{ estado.nombreCompleto }}</strong>
+                    <small *ngIf="estado.ultimoMovimiento.usuario?.documento" class="documento-usuario">
+                      <i class="pi pi-id-card"></i> {{ estado.ultimoMovimiento.usuario?.documento }}
                     </small>
                   </div>
                 </td>
-                <td>{{ estado.telefono || '-' }}</td>
-                <td>{{ estado.guardiaNombre }}</td>
-                <td>{{ formatearFecha(estado.fechaHoraMovimiento) }}</td>
+                <td>
+                  <span class="telefono-info">
+                    <i class="pi pi-phone"></i> {{ estado.telefono || 'Sin registrar' }}
+                  </span>
+                </td>
+                <td>
+                  <p-tag [value]="estado.guardiaNombre" severity="warn" [rounded]="true">
+                    <i class="pi pi-map-marker"></i>
+                  </p-tag>
+                </td>
+                <td>
+                  <span class="fecha-info">
+                    <i class="pi pi-clock"></i> {{ formatearFecha(estado.fechaHoraMovimiento) }}
+                  </span>
+                </td>
                 <td>
                   <p-tag
                     [value]="estado.tiempoTranscurrido"
                     [severity]="getSeverityTiempo(estado.fechaHoraMovimiento)"
-                  ></p-tag>
+                    [rounded]="true"
+                  >
+                    <i class="pi pi-hourglass"></i>
+                  </p-tag>
                 </td>
                 <td>
-                  <small>{{ estado.observaciones || '-' }}</small>
+                  <small class="observaciones-text">{{ estado.observaciones || '-' }}</small>
                 </td>
                 <td style="text-align: center">
                   <p-button
@@ -161,8 +255,10 @@
                     [outlined]="true"
                     severity="info"
                     size="small"
+                    [rounded]="true"
                     (onClick)="verDetalle(estado)"
                     pTooltip="Ver detalles completos"
+                    tooltipPosition="left"
                   ></p-button>
                 </td>
               </tr>
@@ -170,11 +266,16 @@
 
             <ng-template pTemplate="emptymessage">
               <tr>
-                <td colspan="7" style="text-align: center; padding: 2rem;">
-                  <i class="pi pi-info-circle" style="font-size: 3rem; color: #2196f3"></i>
-                  <p style="margin-top: 1rem; font-size: 1.1rem;">
-                    No hay usuarios fuera en este momento
-                  </p>
+                <td colspan="7" style="text-align: center; padding: 3rem;">
+                  <div class="empty-state">
+                    <i class="pi pi-inbox" style="font-size: 4rem; color: #764ba2; opacity: 0.5;"></i>
+                    <p style="margin-top: 1rem; font-size: 1.2rem; font-weight: 600; color: #495057;">
+                      No hay usuarios fuera en este momento
+                    </p>
+                    <p style="color: #6c757d; font-size: 0.95rem;">
+                      Los usuarios aparecerán aquí cuando registren una salida
+                    </p>
+                  </div>
                 </td>
               </tr>
             </ng-template>
@@ -194,29 +295,36 @@
   [dismissableMask]="true"
   [draggable]="false"
   [resizable]="false"
-  [style]="{width: '600px', maxWidth: '95vw'}"
-  header="Detalle Completo del Usuario"
+  [style]="{width: '650px', maxWidth: '95vw'}"
+  styleClass="detalle-dialog"
   (onHide)="cerrarDetalle()"
 >
+  <ng-template pTemplate="header">
+    <div class="dialog-header-custom">
+      <i class="pi pi-user-plus" style="font-size: 1.5rem; color: #667eea;"></i>
+      <span style="font-weight: 700; font-size: 1.25rem; color: #2c3e50;">Detalle Completo del Usuario</span>
+    </div>
+  </ng-template>
+
   <div *ngIf="usuarioSeleccionado" class="detalle-usuario">
 
     <!-- Información del Usuario -->
     <div class="seccion-detalle">
       <h3><i class="pi pi-user"></i> Información del Usuario</h3>
       <div class="campo-detalle">
-        <strong>Nombre Completo:</strong>
+        <strong><i class="pi pi-id-card"></i> Nombre Completo:</strong>
         <span>{{ usuarioSeleccionado.nombreCompleto }}</span>
       </div>
       <div class="campo-detalle" *ngIf="usuarioSeleccionado.ultimoMovimiento.usuario?.documento">
-        <strong>Documento:</strong>
+        <strong><i class="pi pi-credit-card"></i> Documento:</strong>
         <span>{{ usuarioSeleccionado.ultimoMovimiento.usuario?.documento }}</span>
       </div>
       <div class="campo-detalle">
-        <strong>Teléfono:</strong>
+        <strong><i class="pi pi-phone"></i> Teléfono:</strong>
         <span>{{ usuarioSeleccionado.telefono || 'No registrado' }}</span>
       </div>
       <div class="campo-detalle">
-        <strong>Guardia Actual:</strong>
+        <strong><i class="pi pi-map-marker"></i> Guardia Actual:</strong>
         <span>{{ usuarioSeleccionado.guardiaNombre }}</span>
       </div>
     </div>
@@ -225,25 +333,27 @@
     <div class="seccion-detalle">
       <h3><i class="pi pi-history"></i> Último Movimiento</h3>
       <div class="campo-detalle">
-        <strong>Tipo:</strong>
+        <strong><i class="pi pi-arrow-right-arrow-left"></i> Tipo:</strong>
         <p-tag
           [value]="(usuarioSeleccionado.ultimoMovimiento.tipoMovimiento || usuarioSeleccionado.ultimoMovimiento.tipo)"
           [severity]="(usuarioSeleccionado.ultimoMovimiento.tipoMovimiento || usuarioSeleccionado.ultimoMovimiento.tipo) === 'ENTRADA' ? 'success' : 'warn'"
+          [rounded]="true"
         ></p-tag>
       </div>
       <div class="campo-detalle">
-        <strong>Fecha y Hora:</strong>
+        <strong><i class="pi pi-calendar"></i> Fecha y Hora:</strong>
         <span>{{ formatearFecha(usuarioSeleccionado.fechaHoraMovimiento) }}</span>
       </div>
       <div class="campo-detalle">
-        <strong>Tiempo Transcurrido:</strong>
+        <strong><i class="pi pi-clock"></i> Tiempo Transcurrido:</strong>
         <p-tag
           [value]="usuarioSeleccionado.tiempoTranscurrido"
           [severity]="getSeverityTiempo(usuarioSeleccionado.fechaHoraMovimiento)"
+          [rounded]="true"
         ></p-tag>
       </div>
       <div class="campo-detalle" *ngIf="usuarioSeleccionado.observaciones">
-        <strong>Observaciones:</strong>
+        <strong><i class="pi pi-file-edit"></i> Observaciones:</strong>
         <span>{{ usuarioSeleccionado.observaciones }}</span>
       </div>
     </div>
@@ -252,42 +362,48 @@
     <div class="seccion-detalle" *ngIf="usuarioSeleccionado.ultimoMovimiento.vehiculoId && usuarioSeleccionado.ultimoMovimiento.vehiculo">
       <h3><i class="pi pi-car"></i> Información del Vehículo</h3>
       <div class="campo-detalle">
-        <strong>Placa:</strong>
-        <span>{{ usuarioSeleccionado.ultimoMovimiento.vehiculo.placa || 'N/A' }}</span>
+        <strong><i class="pi pi-tag"></i> Placa:</strong>
+        <span style="font-weight: 700; color: #667eea;">{{ usuarioSeleccionado.ultimoMovimiento.vehiculo.placa || 'N/A' }}</span>
       </div>
       <div class="campo-detalle" *ngIf="usuarioSeleccionado.ultimoMovimiento.vehiculo.tipo">
-        <strong>Tipo de Vehículo:</strong>
+        <strong><i class="pi pi-car"></i> Tipo de Vehículo:</strong>
         <span>{{ usuarioSeleccionado.ultimoMovimiento.vehiculo.tipo }}</span>
       </div>
       <div class="campo-detalle" *ngIf="usuarioSeleccionado.ultimoMovimiento.vehiculo.marca">
-        <strong>Marca/Modelo:</strong>
+        <strong><i class="pi pi-cog"></i> Marca/Modelo:</strong>
         <span>{{ usuarioSeleccionado.ultimoMovimiento.vehiculo.marca }} {{ usuarioSeleccionado.ultimoMovimiento.vehiculo.modelo || '' }}</span>
       </div>
       <div class="campo-detalle">
-        <strong>Estado Actual:</strong>
+        <strong><i class="pi pi-info-circle"></i> Estado Actual:</strong>
         <p-tag
           [value]="(usuarioSeleccionado.ultimoMovimiento.tipoMovimiento || usuarioSeleccionado.ultimoMovimiento.tipo) === 'ENTRADA' ? 'Dentro' : 'Fuera'"
           [severity]="(usuarioSeleccionado.ultimoMovimiento.tipoMovimiento || usuarioSeleccionado.ultimoMovimiento.tipo) === 'ENTRADA' ? 'success' : 'warn'"
+          [rounded]="true"
         ></p-tag>
       </div>
     </div>
 
     <!-- Mensaje si no hay vehículo -->
-    <div class="seccion-detalle" *ngIf="!usuarioSeleccionado.ultimoMovimiento.vehiculoId">
-      <p style="text-align: center; color: #666; font-style: italic;">
-        <i class="pi pi-info-circle"></i> Sin vehículo asociado en este movimiento
+    <div class="seccion-detalle sin-vehiculo" *ngIf="!usuarioSeleccionado.ultimoMovimiento.vehiculoId">
+      <p style="text-align: center; color: #6c757d; font-style: italic; margin: 0;">
+        <i class="pi pi-info-circle" style="font-size: 1.5rem; color: #667eea;"></i>
+        <br><br>
+        Sin vehículo asociado en este movimiento
       </p>
     </div>
 
   </div>
 
   <ng-template pTemplate="footer">
-    <p-button
-      label="Cerrar"
-      icon="pi pi-times"
-      (onClick)="cerrarDetalle()"
-      severity="secondary"
-    ></p-button>
+    <div class="dialog-footer-custom">
+      <p-button
+        label="Cerrar"
+        icon="pi pi-times"
+        (onClick)="cerrarDetalle()"
+        severity="secondary"
+        [rounded]="true"
+      ></p-button>
+    </div>
   </ng-template>
 </p-dialog>
 

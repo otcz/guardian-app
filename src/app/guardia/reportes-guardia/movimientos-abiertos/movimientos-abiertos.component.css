@@ -1,0 +1,135 @@
+.monitoreo-container {
+  padding: 0;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #dee2e6;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.card-header h2 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.card-header .subtitle {
+  margin: 0;
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
+
+.usuario-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.usuario-info strong {
+  font-size: 1rem;
+  color: #333;
+}
+
+.usuario-info small {
+  font-size: 0.85rem;
+  color: #666;
+}
+
+/* Estilos para el modal de detalle */
+.detalle-usuario {
+  padding: 0.5rem 0;
+}
+
+.seccion-detalle {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border-left: 4px solid #667eea;
+}
+
+.seccion-detalle:last-child {
+  margin-bottom: 0;
+}
+
+.seccion-detalle h3 {
+  margin: 0 0 1rem 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #667eea;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.campo-detalle {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.campo-detalle:last-child {
+  border-bottom: none;
+}
+
+.campo-detalle strong {
+  font-weight: 600;
+  color: #495057;
+  flex: 0 0 40%;
+}
+
+.campo-detalle span {
+  flex: 1;
+  text-align: right;
+  color: #212529;
+}
+
+/* Tabs personalización */
+::ng-deep .p-tabview .p-tabview-nav {
+  background: #f8f9fa;
+}
+
+::ng-deep .p-tabview .p-tabview-nav li .p-tabview-nav-link {
+  padding: 1rem 1.5rem;
+  font-weight: 600;
+}
+
+::ng-deep .p-tabview .p-tabview-nav li.p-highlight .p-tabview-nav-link {
+  background: #667eea;
+  border-color: #667eea;
+  color: white;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .card-header {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+
+  .campo-detalle {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .campo-detalle strong {
+    flex: 1;
+  }
+
+  .campo-detalle span {
+    text-align: left;
+  }
+}
+

@@ -79,62 +79,37 @@
   <!-- Resultados de Validación -->
   <div class="results-container" *ngIf="validacion || buscando">
 
-    <!-- Vehículo NO encontrado -->
-    <div *ngIf="validacion && !validacion.existe" class="result-card not-found">
-      <p-card>
-        <div class="result-content">
-          <div class="result-icon error">
-            <i class="pi pi-times-circle"></i>
-          </div>
-          <div class="result-info">
-            <h3>Vehículo No Encontrado</h3>
-            <p>No existe registro con la placa: <strong>{{ placa }}</strong></p>
-            <div class="result-actions">
-              <button
-                pButton
-                type="button"
-                class="p-button-text"
-                icon="pi pi-refresh"
-                label="Intentar nuevamente"
-                (click)="placa = ''; validacion = null"
-              ></button>
-            </div>
-          </div>
-        </div>
-      </p-card>
-    </div>
-
     <!-- Vehículo ENCONTRADO -->
-    <div *ngIf="validacion && validacion.existe" class="result-card found">
+    <div *ngIf="validacion" class="result-card found">
       <p-card>
 
         <!-- Status Header -->
         <div class="status-header"
              [ngClass]="{
-               'status-approved': validacion.estado === 'ACTIVO',
-               'status-denied': validacion.estado === 'BLOQUEADO',
-               'status-warning': validacion.estado !== 'ACTIVO' && validacion.estado !== 'BLOQUEADO'
+               'status-approved': !validacion.bloqueado && validacion.activo,
+               'status-denied': validacion.bloqueado,
+               'status-warning': !validacion.activo && !validacion.bloqueado
              }">
           <div class="status-icon">
             <i class="pi"
                [ngClass]="{
-                 'pi-check-circle': validacion.estado === 'ACTIVO',
-                 'pi-ban': validacion.estado === 'BLOQUEADO',
-                 'pi-exclamation-triangle': validacion.estado !== 'ACTIVO' && validacion.estado !== 'BLOQUEADO'
+                 'pi-check-circle': !validacion.bloqueado && validacion.activo,
+                 'pi-ban': validacion.bloqueado,
+                 'pi-exclamation-triangle': !validacion.activo && !validacion.bloqueado
                }">
             </i>
           </div>
           <div class="status-text">
             <h3>
-              <span *ngIf="validacion.estado === 'ACTIVO'">Vehículo Autorizado</span>
-              <span *ngIf="validacion.estado === 'BLOQUEADO'">Vehículo Bloqueado</span>
-              <span *ngIf="validacion.estado !== 'ACTIVO' && validacion.estado !== 'BLOQUEADO'">Estado: {{ validacion.estado }}</span>
+              <span *ngIf="!validacion.bloqueado && validacion.activo">Vehículo Autorizado</span>
+              <span *ngIf="validacion.bloqueado">Vehículo Bloqueado</span>
+              <span *ngIf="!validacion.activo && !validacion.bloqueado">Vehículo Inactivo</span>
             </h3>
-            <p>{{ getDescripcionEstado(validacion.estado) }}</p>
+            <p>{{ getDescripcionEstado(obtenerEstado(validacion)) }}</p>
           </div>
           <p-tag
-            [value]="validacion.estado"
-            [severity]="getSeverityEstado(validacion.estado)"
+            [value]="obtenerEstado(validacion)"
+            [severity]="getSeverityVehiculo(validacion)"
           ></p-tag>
         </div>
 
@@ -147,42 +122,128 @@
             <div class="user-details">
               <h4>{{ validacion.placa }}</h4>
               <span class="user-username">
-                <i class="pi pi-tag"></i> Placa del vehículo
+                <i class="pi pi-tag"></i> {{ validacion.marca }} {{ validacion.modelo }}
               </span>
             </div>
           </div>
 
           <div class="info-grid">
+            <!-- Información Básica del Vehículo -->
             <div class="info-item">
               <div class="info-label">
-                <i class="pi pi-user"></i>
-                <span>Usuario Asociado</span>
+                <i class="pi pi-id-card"></i>
+                <span>Tipo de Vehículo</span>
               </div>
               <div class="info-value">
-                <strong>{{ validacion.usuarioAsociado || 'Sin asignar' }}</strong>
+                <strong>{{ validacion.tipo }}</strong>
               </div>
             </div>
 
-            <div class="info-item" *ngIf="validacion.ultimaActividad">
+            <div class="info-item">
               <div class="info-label">
-                <i class="pi pi-clock"></i>
-                <span>Última Actividad</span>
+                <i class="pi pi-palette"></i>
+                <span>Color</span>
               </div>
               <div class="info-value">
-                <strong>{{ formatearFecha(validacion.ultimaActividad) }}</strong>
+                <strong>{{ validacion.color }}</strong>
               </div>
             </div>
 
             <div class="info-item">
               <div class="info-label">
                 <i class="pi pi-info-circle"></i>
-                <span>Estado Actual</span>
+                <span>Estado</span>
               </div>
               <div class="info-value">
                 <p-tag
-                  [value]="validacion.estado"
-                  [severity]="getSeverityEstado(validacion.estado)"
+                  [value]="obtenerEstado(validacion)"
+                  [severity]="getSeverityVehiculo(validacion)"
                 ></p-tag>
+              </div>
+            </div>
+
+            <!-- Usuarios Asignados -->
+            <div class="info-item" *ngIf="validacion.usuariosAsignados && validacion.usuariosAsignados.length > 0">
+              <div class="info-label">
+                <i class="pi pi-users"></i>
+                <span>Usuarios Asignados</span>
+              </div>
+              <div class="info-value">
+                <div *ngFor="let usuario of validacion.usuariosAsignados" style="margin-bottom: 0.5rem;">
+                  <strong>{{ usuario.nombreCompleto }}</strong>
+                  <span style="color: var(--muted); margin-left: 0.5rem;">
+                    ({{ usuario.identificacion }})
+                  </span>
+                  <p-tag
+                    *ngIf="usuario.tieneEntradaAbierta"
+                    value="Entrada Abierta"
+                    severity="warn"
+                    [rounded]="true"
+                    [ngStyle]="{'margin-left': '0.5rem'}"
+                  ></p-tag>
+                  <p-tag
+                    *ngIf="!usuario.activo"
+                    value="Inactivo"
+                    severity="danger"
+                    [rounded]="true"
+                    [ngStyle]="{'margin-left': '0.5rem'}"
+                  ></p-tag>
+                </div>
+              </div>
+            </div>
+
+            <div class="info-item" *ngIf="!validacion.usuariosAsignados || validacion.usuariosAsignados.length === 0">
+              <div class="info-label">
+                <i class="pi pi-users"></i>
+                <span>Usuarios Asignados</span>
+              </div>
+              <div class="info-value">
+                <strong style="color: var(--muted);">Sin usuarios asignados</strong>
+              </div>
+            </div>
+
+            <!-- Último Movimiento -->
+            <div class="info-item" *ngIf="validacion.ultimoMovimiento">
+              <div class="info-label">
+                <i class="pi pi-clock"></i>
+                <span>Último Movimiento</span>
+              </div>
+              <div class="info-value">
+                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                  <div>
+                    <p-tag
+                      [value]="validacion.ultimoMovimiento.tipo"
+                      [severity]="validacion.ultimoMovimiento.tipo === 'ENTRADA' ? 'success' : 'info'"
+                      [rounded]="true"
+                    ></p-tag>
+                    <p-tag
+                      *ngIf="validacion.ultimoMovimiento.esEntradaAbierta"
+                      value="Sin Salida"
+                      severity="warn"
+                      [rounded]="true"
+                      [ngStyle]="{'margin-left': '0.5rem'}"
+                    ></p-tag>
+                  </div>
+                  <div><strong>Fecha:</strong> {{ formatearFecha(validacion.ultimoMovimiento.fechaMovimiento) }}</div>
+                  <div><strong>Guardia:</strong> {{ validacion.ultimoMovimiento.guardiaNombre }}</div>
+                  <div><strong>Usuario:</strong> {{ validacion.ultimoMovimiento.usuarioNombre }}</div>
+                  <div *ngIf="validacion.ultimoMovimiento.observaciones">
+                    <strong>Observaciones:</strong> {{ validacion.ultimoMovimiento.observaciones }}
+                  </div>
+                  <div *ngIf="validacion.ultimoMovimiento.permanenciaMinutos !== null">
+                    <strong>Permanencia:</strong> {{ validacion.ultimoMovimiento.permanenciaMinutos }} minutos
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="info-item" *ngIf="!validacion.ultimoMovimiento">
+              <div class="info-label">
+                <i class="pi pi-clock"></i>
+                <span>Último Movimiento</span>
+              </div>
+              <div class="info-value">
+                <strong style="color: var(--muted);">Sin movimientos registrados</strong>
               </div>
             </div>
           </div>

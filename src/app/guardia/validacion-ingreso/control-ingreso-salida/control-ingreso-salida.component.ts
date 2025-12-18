@@ -354,7 +354,7 @@ export class ControlIngresoSalidaComponent implements OnInit, AfterViewInit, OnD
       activo: usuarioSeleccionado.activo,
       nombreCompleto: usuarioSeleccionado.nombreCompleto,
       username: usuarioSeleccionado.identificacion,
-      tipoIdentificacion: usuarioSeleccionado.tipoIdentificacion,
+      tipoIdentificacion: usuarioSeleccionado.tipoIdentificacion as 'CEDULA' | 'PASAPORTE' | 'DNI' | 'RUC' | 'LICENCIA' | 'OTRO' | null,
       identificacion: usuarioSeleccionado.identificacion,
       seccion: null,
       restricciones: [],

@@ -236,16 +236,46 @@ export interface ValidacionVehiculoDTO {
 }
 
 /**
- * 🆕 Usuario asignado a un vehículo (para dropdown de selección)
- * @version 3.0 - Validación manual unificada
+ * 🆕 Vehículo completo con usuarios asignados y último movimiento
+ * @version 2.0 - Búsqueda por placa con información completa
+ */
+export interface VehiculoCompletoDTO {
+  id: string;                          // UUID del vehículo
+  placa: string;                       // Placa del vehículo
+  marca: string;                       // Marca del vehículo
+  modelo: string;                      // Modelo del vehículo
+  color: string;                       // Color del vehículo
+  tipo: string;                        // AUTOMOVIL, MOTOCICLETA, CAMION, etc.
+  activo: boolean;                     // Si está activo
+  bloqueado: boolean;                  // Si está bloqueado
+  usuariosAsignados: UsuarioAsignadoDTO[];  // Usuarios autorizados
+  ultimoMovimiento: UltimoMovimientoDTO | null;  // Último movimiento (puede ser null)
+}
+
+/**
+ * Usuario asignado a un vehículo con su estado actual
  */
 export interface UsuarioAsignadoDTO {
-  id: string;
-  nombreCompleto: string;
-  identificacion: string;
-  tipoIdentificacion: 'CEDULA' | 'PASAPORTE' | 'DNI' | 'RUC' | 'LICENCIA' | 'OTRO';
-  activo: boolean;
-  tieneEntradaAbierta: boolean;
+  id: string;                          // UUID del usuario
+  nombreCompleto: string;              // Nombre completo
+  identificacion: string;              // Número de documento
+  tipoIdentificacion: string;          // CEDULA, PASAPORTE, RUC, etc.
+  activo: boolean;                     // Si está activo
+  tieneEntradaAbierta: boolean;        // Si tiene entrada sin salida
+}
+
+/**
+ * Último movimiento registrado del vehículo
+ */
+export interface UltimoMovimientoDTO {
+  id: string;                          // UUID del movimiento
+  tipo: string;                        // "ENTRADA" o "SALIDA"
+  fechaMovimiento: string;             // Timestamp ISO 8601
+  guardiaNombre: string;               // Nombre de la guardia
+  usuarioNombre: string;               // Nombre del usuario
+  observaciones: string | null;        // Observaciones
+  permanenciaMinutos: number | null;   // Minutos de permanencia (solo SALIDA)
+  esEntradaAbierta: boolean;           // Si es entrada sin salida
 }
 
 /**

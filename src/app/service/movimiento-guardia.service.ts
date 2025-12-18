@@ -89,6 +89,19 @@ export class MovimientoGuardiaService {
     return this.http.get<any>(`${this.API_URL}/validar-manual/${valor}`);
   }
 
+  /**
+   * 🆕 Buscar vehículo por placa (información completa)
+   * @param placa Placa del vehículo
+   * @returns Observable con VehiculoCompletoDTO que incluye usuarios asignados y último movimiento
+   * @description Endpoint: GET /api/movimientos-guardia/vehiculo/placa/{placa}
+   * @version 2.0 - Búsqueda por placa con información completa
+   * @permission ITEM_CONTROL_DE_INGRESO_Y_SALIDA o ITEM_VER_MOVIMIENTOS_GUARDIA
+   */
+  buscarVehiculoPorPlaca(placa: string): Observable<any> {
+    const placaNormalizada = encodeURIComponent(placa.trim().toUpperCase());
+    return this.http.get<any>(`${this.API_URL}/vehiculo/placa/${placaNormalizada}`);
+  }
+
   // ========== CONSULTAS ==========
 
   /**

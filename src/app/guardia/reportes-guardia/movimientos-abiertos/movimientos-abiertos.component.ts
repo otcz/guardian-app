@@ -30,10 +30,10 @@ import { LABELS } from '../../constants/mensajes.constants';
     TooltipModule
   ],
   providers: [MessageService],
-  templateUrl: './entradas-abiertas.component.html',
-  styleUrls: ['./entradas-abiertas.component.css']
+  templateUrl: './movimientos-abiertos.component.html',
+  styleUrls: ['./movimientos-abiertos.component.css']
 })
-export class EntradasAbiertasComponent implements OnInit {
+export class MovimientosAbiertosComponent implements OnInit {
   entradasAbiertas: MovimientoGuardia[] = [];
   loading = false;
 

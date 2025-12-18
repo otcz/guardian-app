@@ -235,7 +235,7 @@ Los componentes que usan `timestampMovimiento` ya fueron actualizados con valida
 
 **Otros componentes que usan el campo (revisar si necesitan ajustes):**
 - `validar-usuario.component.ts` - Solo muestra el valor (pipe `date`)
-- `entradas-abiertas.component.ts` - Usa en sort y formateo
+- `movimientos-abiertos.component.ts` - Usa en sort y formateo
 
 ---
 
@@ -286,7 +286,7 @@ export interface UserEntity {
    - Esto garantiza compatibilidad sin romper código existente
 
 2. **Verificar otros componentes**
-   - `entradas-abiertas.component.ts` - Revisar métodos que usan `timestampMovimiento`
+   - `movimientos-abiertos.component.ts` - Revisar métodos que usan `timestampMovimiento`
    - Agregar validaciones similares si es necesario
 
 ### Prioridad BAJA (MEJORAS FUTURAS)

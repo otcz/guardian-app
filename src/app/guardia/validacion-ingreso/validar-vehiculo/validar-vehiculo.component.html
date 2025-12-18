@@ -1,0 +1,205 @@
+<p-toast position="top-right"></p-toast>
+
+<div class="validar-container">
+  <!-- Header del Módulo -->
+  <div class="module-header">
+    <div class="header-content">
+      <div class="header-icon">
+        <i class="pi pi-car"></i>
+      </div>
+      <div class="header-text">
+        <h1>Validar Vehículo</h1>
+        <p>Solo lectura - No registra movimientos</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Panel de Búsqueda -->
+  <div class="search-panel">
+    <p-card>
+      <div class="search-section">
+        <div class="search-header">
+          <i class="pi pi-search"></i>
+          <span>Búsqueda por Placa</span>
+        </div>
+
+        <div class="search-form">
+          <div class="form-group">
+            <label for="placa">
+              Placa del Vehículo <span class="required">*</span>
+            </label>
+            <div class="input-wrapper">
+              <span class="p-input-icon-left" style="width: 100%;">
+                <i class="pi pi-car"></i>
+                <input
+                  pInputText
+                  id="placa"
+                  [(ngModel)]="placa"
+                  placeholder="Ingrese la placa del vehículo"
+                  (keyup.enter)="buscarVehiculo()"
+                  [disabled]="buscando"
+                  class="w-full"
+                  style="text-transform: uppercase"
+                  autofocus
+                />
+              </span>
+            </div>
+            <small class="help-text">
+              <i class="pi pi-info-circle"></i>
+              Presione Enter o haga clic en "Buscar" para validar
+            </small>
+          </div>
+
+          <div class="button-group">
+            <button
+              pButton
+              type="button"
+              class="p-button-primary search-btn"
+              [label]="buscando ? 'Buscando...' : 'Buscar Vehículo'"
+              [icon]="buscando ? 'pi pi-spin pi-spinner' : 'pi pi-search'"
+              (click)="buscarVehiculo()"
+              [loading]="buscando"
+              [disabled]="!placa.trim() || buscando"
+            ></button>
+            <button
+              pButton
+              type="button"
+              class="p-button-outlined p-button-secondary clear-btn"
+              icon="pi pi-times"
+              label="Limpiar"
+              (click)="placa = ''; validacion = null"
+              [disabled]="buscando"
+            ></button>
+          </div>
+        </div>
+      </div>
+    </p-card>
+  </div>
+
+  <!-- Resultados de Validación -->
+  <div class="results-container" *ngIf="validacion || buscando">
+
+    <!-- Vehículo NO encontrado -->
+    <div *ngIf="validacion && !validacion.existe" class="result-card not-found">
+      <p-card>
+        <div class="result-content">
+          <div class="result-icon error">
+            <i class="pi pi-times-circle"></i>
+          </div>
+          <div class="result-info">
+            <h3>Vehículo No Encontrado</h3>
+            <p>No existe registro con la placa: <strong>{{ placa }}</strong></p>
+            <div class="result-actions">
+              <button
+                pButton
+                type="button"
+                class="p-button-text"
+                icon="pi pi-refresh"
+                label="Intentar nuevamente"
+                (click)="placa = ''; validacion = null"
+              ></button>
+            </div>
+          </div>
+        </div>
+      </p-card>
+    </div>
+
+    <!-- Vehículo ENCONTRADO -->
+    <div *ngIf="validacion && validacion.existe" class="result-card found">
+      <p-card>
+
+        <!-- Status Header -->
+        <div class="status-header"
+             [ngClass]="{
+               'status-approved': validacion.estado === 'ACTIVO',
+               'status-denied': validacion.estado === 'BLOQUEADO',
+               'status-warning': validacion.estado !== 'ACTIVO' && validacion.estado !== 'BLOQUEADO'
+             }">
+          <div class="status-icon">
+            <i class="pi"
+               [ngClass]="{
+                 'pi-check-circle': validacion.estado === 'ACTIVO',
+                 'pi-ban': validacion.estado === 'BLOQUEADO',
+                 'pi-exclamation-triangle': validacion.estado !== 'ACTIVO' && validacion.estado !== 'BLOQUEADO'
+               }">
+            </i>
+          </div>
+          <div class="status-text">
+            <h3>
+              <span *ngIf="validacion.estado === 'ACTIVO'">Vehículo Autorizado</span>
+              <span *ngIf="validacion.estado === 'BLOQUEADO'">Vehículo Bloqueado</span>
+              <span *ngIf="validacion.estado !== 'ACTIVO' && validacion.estado !== 'BLOQUEADO'">Estado: {{ validacion.estado }}</span>
+            </h3>
+            <p>{{ getDescripcionEstado(validacion.estado) }}</p>
+          </div>
+          <p-tag
+            [value]="validacion.estado"
+            [severity]="getSeverityEstado(validacion.estado)"
+          ></p-tag>
+        </div>
+
+        <!-- Información del Vehículo -->
+        <div class="user-info-section">
+          <div class="user-profile">
+            <div class="user-avatar">
+              <i class="pi pi-car"></i>
+            </div>
+            <div class="user-details">
+              <h4>{{ validacion.placa }}</h4>
+              <span class="user-username">
+                <i class="pi pi-tag"></i> Placa del vehículo
+              </span>
+            </div>
+          </div>
+
+          <div class="info-grid">
+            <div class="info-item">
+              <div class="info-label">
+                <i class="pi pi-user"></i>
+                <span>Usuario Asociado</span>
+              </div>
+              <div class="info-value">
+                <strong>{{ validacion.usuarioAsociado || 'Sin asignar' }}</strong>
+              </div>
+            </div>
+
+            <div class="info-item" *ngIf="validacion.ultimaActividad">
+              <div class="info-label">
+                <i class="pi pi-clock"></i>
+                <span>Última Actividad</span>
+              </div>
+              <div class="info-value">
+                <strong>{{ formatearFecha(validacion.ultimaActividad) }}</strong>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <div class="info-label">
+                <i class="pi pi-info-circle"></i>
+                <span>Estado Actual</span>
+              </div>
+              <div class="info-value">
+                <p-tag
+                  [value]="validacion.estado"
+                  [severity]="getSeverityEstado(validacion.estado)"
+                ></p-tag>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </p-card>
+    </div>
+  </div>
+
+  <!-- Estado Inicial (Empty State) -->
+  <div class="empty-state" *ngIf="!validacion && !buscando">
+    <div class="empty-icon">
+      <i class="pi pi-car"></i>
+    </div>
+    <h3>Esperando búsqueda</h3>
+    <p>Ingrese la placa del vehículo para comenzar la validación</p>
+  </div>
+
+</div>
+

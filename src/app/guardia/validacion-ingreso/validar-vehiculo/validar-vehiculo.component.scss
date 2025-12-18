@@ -263,7 +263,7 @@
   font-size: 0.95rem;
 }
 
-/* User Info Section */
+/* Vehicle Info Section */
 .user-info-section {
   padding: 1.5rem;
   background: var(--surface-alt);
@@ -340,103 +340,6 @@
 
 .info-value strong {
   font-weight: 600;
-}
-
-.info-value ::ng-deep .id-chip {
-  background: rgba(79, 140, 255, 0.1);
-  color: var(--primary);
-  font-family: 'Courier New', monospace;
-  font-weight: 600;
-  border: 1px solid rgba(79, 140, 255, 0.2);
-}
-
-.tags-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-/* Alerts Section */
-.alerts-section {
-  margin-bottom: 1.5rem;
-}
-
-.alert-box {
-  display: flex;
-  gap: 1rem;
-  padding: 1.25rem;
-  border-radius: 8px;
-  border-left: 4px solid;
-  margin-bottom: 1rem;
-}
-
-.alert-box:last-child {
-  margin-bottom: 0;
-}
-
-.alert-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.5rem;
-  flex-shrink: 0;
-}
-
-.alert-content strong {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-size: 1.05rem;
-}
-
-.alert-content p {
-  margin: 0.25rem 0;
-  line-height: 1.6;
-}
-
-.alert-danger {
-  background: var(--danger-100);
-  border-left-color: var(--danger);
-}
-
-.alert-danger .alert-icon {
-  background: var(--danger);
-  color: white;
-}
-
-.alert-danger .alert-content {
-  color: #991b1b;
-}
-
-.alert-warning {
-  background: var(--surface-alt);
-  border-left-color: var(--primary);
-}
-
-.alert-warning .alert-icon {
-  background: var(--primary);
-  color: white;
-}
-
-.alert-warning .alert-content {
-  color: var(--text);
-}
-
-/* Action Section */
-.action-section {
-  padding: 1.5rem;
-  background: var(--surface-alt);
-  border-radius: 8px;
-}
-
-.action-button {
-  width: 100%;
-  height: 56px;
-  font-size: 1.1rem;
-  font-weight: 600;
-  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
 }
 
 /* Empty State */

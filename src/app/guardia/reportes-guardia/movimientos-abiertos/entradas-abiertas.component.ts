@@ -18,7 +18,7 @@ import { MovimientoGuardia } from '../../../models/guardia.models';
 import { LABELS } from '../../constants/mensajes.constants';
 
 @Component({
-  selector: 'app-entradas-abiertas',
+  selector: 'app-movimientos-abiertos',
   standalone: true,
   imports: [
     CommonModule,

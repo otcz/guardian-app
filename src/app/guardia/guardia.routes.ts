@@ -60,9 +60,9 @@ export const GUARDIA_ROUTES: Routes = [
 
   // Ver Entradas Abiertas (Admin)
   {
-    path: 'ver-entradas-abiertas',
+    path: 'ver-movimientos-abiertos',
     loadComponent: () =>
-      import('./reportes-guardia/entradas-abiertas/entradas-abiertas.component').then(
+      import('./reportes-guardia/movimientos-abiertos/entradas-abiertas.component').then(
         m => m.EntradasAbiertasComponent
       ),
     canActivate: [AuthGuard],

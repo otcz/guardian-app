@@ -106,9 +106,6 @@ export class EntradasAbiertasComponent implements OnInit {
         const totalDentro = this.usuariosDentro.length;
         const totalFuera = this.usuariosFuera.length;
 
-        console.log('%c========== RESUMEN FINAL ==========', 'color: #10b981; font-weight: bold; font-size: 14px;');
-        console.log('%c✅ Total usuarios DENTRO:', 'color: #10b981; font-weight: bold;', totalDentro);
-        console.log('%c⚠️  Total usuarios FUERA:', 'color: #f59e0b; font-weight: bold;', totalFuera);
 
         if (totalDentro > 0 || totalFuera > 0) {
           this.messageService.add({
@@ -124,44 +121,12 @@ export class EntradasAbiertasComponent implements OnInit {
     // 1️⃣ Cargar usuarios DENTRO
     this.movimientoService.getUsuariosDentro().subscribe({
       next: (usuarios) => {
-        console.log('%c========== USUARIOS DENTRO (NUEVO ENDPOINT) ==========', 'color: #10b981; font-weight: bold; font-size: 14px;');
-        console.log('%cTotal recibidos:', 'color: #10b981; font-weight: bold;', usuarios.length);
-
-        if (usuarios.length > 0) {
-          console.log('%c📋 EJEMPLO - PRIMER USUARIO DENTRO:', 'color: #10b981; font-weight: bold;');
-          console.log('%c  → nombreCompleto:', 'color: #3b82f6;', usuarios[0].nombreCompleto);
-          console.log('%c  → identificacion:', 'color: #3b82f6; font-weight: bold;', usuarios[0].identificacion);
-          console.log('%c  → email:', 'color: #3b82f6; font-weight: bold;', usuarios[0].email);
-          console.log('%c  → telefono:', 'color: #3b82f6;', usuarios[0].telefono);
-          console.log('%c  → seccionNombre:', 'color: #8b5cf6;', usuarios[0].seccionNombre);
-          console.log('%c  → activo:', 'color: #10b981;', usuarios[0].activo);
-          console.log('%c  → tieneEntradaAbierta:', 'color: #ec4899;', usuarios[0].tieneEntradaAbierta);
-          console.log('%c  → ultimoMovimiento:', 'color: #6366f1;', usuarios[0].ultimoMovimiento);
-          console.log('%c  → Objeto completo:', 'color: #64748b;', usuarios[0]);
-        }
-
         this.usuariosDentro = usuarios.map(u => this.mapearUsuarioDentro(u));
-
-        console.log('%c🟢 Usuarios DENTRO procesados:', 'color: #10b981; font-weight: bold;', this.usuariosDentro.length);
-        console.table(this.usuariosDentro.slice(0, 3).map(u => ({
-          nombre: u.nombreCompleto,
-          identificacion: u.identificacion,
-          email: u.email,
-          telefono: u.telefono,
-          seccion: u.seccionNombre,
-          guardia: u.guardiaNombre
-        })));
-
         finalizarCarga();
       },
       error: (error) => {
-        console.error('%c❌ ERROR al cargar usuarios DENTRO:', 'color: #ef4444; font-weight: bold;', error);
-        console.error('%c📍 Status:', 'color: #ef4444;', error.status);
-        console.error('%c📍 URL:', 'color: #ef4444;', error.url);
-        console.error('%c📍 Error completo:', 'color: #ef4444;', error.error);
-
+        console.error('Error al cargar usuarios DENTRO:', error);
         // 🔄 FALLBACK: Intentar con el endpoint antiguo
-        console.warn('%c⚠️  FALLBACK: Intentando con endpoint antiguo /entradas-abiertas', 'color: #f59e0b; font-weight: bold;');
         this.cargarUsuariosDentroFallback(finalizarCarga);
       }
     });
@@ -169,38 +134,11 @@ export class EntradasAbiertasComponent implements OnInit {
     // 2️⃣ Cargar usuarios FUERA
     this.movimientoService.getUsuariosFuera().subscribe({
       next: (usuarios) => {
-        console.log('%c========== USUARIOS FUERA (NUEVO ENDPOINT) ==========', 'color: #f59e0b; font-weight: bold; font-size: 14px;');
-        console.log('%cTotal recibidos:', 'color: #f59e0b; font-weight: bold;', usuarios.length);
-
-        if (usuarios.length > 0) {
-          console.log('%c📋 EJEMPLO - PRIMER USUARIO FUERA:', 'color: #f59e0b; font-weight: bold;');
-          console.log('%c  → nombreCompleto:', 'color: #3b82f6;', usuarios[0].nombreCompleto);
-          console.log('%c  → identificacion:', 'color: #3b82f6; font-weight: bold;', usuarios[0].identificacion);
-          console.log('%c  → email:', 'color: #3b82f6; font-weight: bold;', usuarios[0].email);
-          console.log('%c  → telefono:', 'color: #3b82f6;', usuarios[0].telefono);
-          console.log('%c  → seccionNombre:', 'color: #8b5cf6;', usuarios[0].seccionNombre);
-          console.log('%c  → activo:', 'color: #10b981;', usuarios[0].activo);
-          console.log('%c  → tieneEntradaAbierta:', 'color: #ec4899;', usuarios[0].tieneEntradaAbierta);
-          console.log('%c  → ultimoMovimiento:', 'color: #6366f1;', usuarios[0].ultimoMovimiento);
-          console.log('%c  → Objeto completo:', 'color: #64748b;', usuarios[0]);
-        }
-
         this.usuariosFuera = usuarios.map(u => this.mapearUsuarioFuera(u));
-
-        console.log('%c🟡 Usuarios FUERA procesados:', 'color: #f59e0b; font-weight: bold;', this.usuariosFuera.length);
-        console.table(this.usuariosFuera.slice(0, 3).map(u => ({
-          nombre: u.nombreCompleto,
-          identificacion: u.identificacion,
-          email: u.email,
-          telefono: u.telefono,
-          seccion: u.seccionNombre,
-          guardia: u.guardiaNombre
-        })));
-
         finalizarCarga();
       },
       error: (error) => {
-        console.error('%c❌ ERROR al cargar usuarios FUERA:', 'color: #ef4444; font-weight: bold;', error);
+        console.error('Error al cargar usuarios FUERA:', error);
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
@@ -219,35 +157,16 @@ export class EntradasAbiertasComponent implements OnInit {
   private cargarUsuariosDentroFallback(finalizarCarga: () => void): void {
     this.movimientoService.listarTodasEntradasAbiertas().subscribe({
       next: (movimientos) => {
-        console.log('%c========== FALLBACK: ENDPOINT ANTIGUO /entradas-abiertas ==========', 'color: #f59e0b; font-weight: bold;');
-        console.log('%cTotal movimientos recibidos:', 'color: #f59e0b;', movimientos.length);
-
         // Filtrar solo las ENTRADAS (usuarios dentro)
         const entradasAbiertas = movimientos.filter(m => m.tipo === 'ENTRADA' || m.tipoMovimiento === 'ENTRADA');
-
-        console.log('%cEntradas abiertas filtradas:', 'color: #f59e0b;', entradasAbiertas.length);
-
-        if (entradasAbiertas.length > 0) {
-          console.log('%c📋 EJEMPLO - PRIMER MOVIMIENTO:', 'color: #f59e0b;');
-          console.log(entradasAbiertas[0]);
-        }
 
         // Mapear movimientos a EstadoUsuario (con datos limitados)
         this.usuariosDentro = entradasAbiertas.map(mov => this.mapearMovimientoAEstado(mov, 'ENTRADA'));
 
-        console.log('%c🟢 Usuarios DENTRO procesados (FALLBACK):', 'color: #10b981; font-weight: bold;', this.usuariosDentro.length);
-        console.table(this.usuariosDentro.slice(0, 3).map(u => ({
-          nombre: u.nombreCompleto,
-          identificacion: u.identificacion,
-          telefono: u.telefono,
-          guardia: u.guardiaNombre
-        })));
-
-
         finalizarCarga();
       },
       error: (errorFallback) => {
-        console.error('%c❌ ERROR en FALLBACK también:', 'color: #ef4444; font-weight: bold;', errorFallback);
+        console.error('Error crítico - Ambos endpoints fallaron:', errorFallback);
         this.messageService.add({
           severity: 'error',
           summary: 'Error crítico',

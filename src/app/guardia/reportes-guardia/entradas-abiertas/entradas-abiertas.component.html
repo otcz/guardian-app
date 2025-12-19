@@ -68,7 +68,7 @@
             [rows]="20"
             [rowsPerPageOptions]="[10, 20, 50, 100]"
             [showCurrentPageReport]="true"
-            [globalFilterFields]="['nombreCompleto', 'guardiaNombre', 'observaciones', 'ultimoMovimiento.usuario.documento']"
+            [globalFilterFields]="['nombreCompleto', 'identificacion', 'email', 'telefono', 'guardiaNombre', 'observaciones', 'seccionNombre']"
             currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} usuario(s)"
             styleClass="p-datatable-gridlines p-datatable-sm"
             responsiveLayout="scroll"
@@ -97,11 +97,8 @@
                 <td>
                   <div class="usuario-info">
                     <strong class="nombre-usuario">{{ estado.nombreCompleto }}</strong>
-                    <small *ngIf="estado.ultimoMovimiento.usuarioIdentificacion" class="documento-usuario">
-                      <i class="pi pi-id-card"></i> {{ estado.ultimoMovimiento.usuarioIdentificacion }}
-                    </small>
-                    <small *ngIf="!estado.ultimoMovimiento.usuarioIdentificacion && estado.ultimoMovimiento.usuario?.documento" class="documento-usuario">
-                      <i class="pi pi-id-card"></i> {{ estado.ultimoMovimiento.usuario?.documento }}
+                    <small *ngIf="estado.identificacion" class="documento-usuario">
+                      <i class="pi pi-id-card"></i> {{ estado.identificacion }}
                     </small>
                   </div>
                 </td>
@@ -201,7 +198,7 @@
             [rows]="20"
             [rowsPerPageOptions]="[10, 20, 50, 100]"
             [showCurrentPageReport]="true"
-            [globalFilterFields]="['nombreCompleto', 'guardiaNombre', 'observaciones', 'ultimoMovimiento.usuario.documento']"
+            [globalFilterFields]="['nombreCompleto', 'identificacion', 'email', 'telefono', 'guardiaNombre', 'observaciones', 'seccionNombre']"
             currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} usuario(s)"
             styleClass="p-datatable-gridlines p-datatable-sm"
             responsiveLayout="scroll"
@@ -230,11 +227,8 @@
                 <td>
                   <div class="usuario-info">
                     <strong class="nombre-usuario">{{ estado.nombreCompleto }}</strong>
-                    <small *ngIf="estado.ultimoMovimiento.usuarioIdentificacion" class="documento-usuario">
-                      <i class="pi pi-id-card"></i> {{ estado.ultimoMovimiento.usuarioIdentificacion }}
-                    </small>
-                    <small *ngIf="!estado.ultimoMovimiento.usuarioIdentificacion && estado.ultimoMovimiento.usuario?.documento" class="documento-usuario">
-                      <i class="pi pi-id-card"></i> {{ estado.ultimoMovimiento.usuario?.documento }}
+                    <small *ngIf="estado.identificacion" class="documento-usuario">
+                      <i class="pi pi-id-card"></i> {{ estado.identificacion }}
                     </small>
                   </div>
                 </td>
@@ -332,21 +326,33 @@
         <strong><i class="pi pi-id-card"></i> Nombre Completo:</strong>
         <span>{{ usuarioSeleccionado.nombreCompleto }}</span>
       </div>
-      <div class="campo-detalle" *ngIf="usuarioSeleccionado.ultimoMovimiento.usuarioIdentificacion">
-        <strong><i class="pi pi-credit-card"></i> Identificación:</strong>
-        <span class="badge-identificacion">{{ usuarioSeleccionado.ultimoMovimiento.usuarioIdentificacion }}</span>
+      <div class="campo-detalle" *ngIf="usuarioSeleccionado.identificacion">
+        <strong><i class="pi pi-credit-card"></i> {{ usuarioSeleccionado.tipoIdentificacion }}:</strong>
+        <span class="badge-identificacion">{{ usuarioSeleccionado.identificacion }}</span>
       </div>
-      <div class="campo-detalle" *ngIf="!usuarioSeleccionado.ultimoMovimiento.usuarioIdentificacion && usuarioSeleccionado.ultimoMovimiento.usuario?.documento">
-        <strong><i class="pi pi-credit-card"></i> Documento:</strong>
-        <span>{{ usuarioSeleccionado.ultimoMovimiento.usuario?.documento }}</span>
+      <div class="campo-detalle">
+        <strong><i class="pi pi-at"></i> Email:</strong>
+        <span>{{ usuarioSeleccionado.email || 'No registrado' }}</span>
       </div>
       <div class="campo-detalle">
         <strong><i class="pi pi-phone"></i> Teléfono:</strong>
         <span>{{ usuarioSeleccionado.telefono || 'No registrado' }}</span>
       </div>
       <div class="campo-detalle">
+        <strong><i class="pi pi-building"></i> Sección:</strong>
+        <span>{{ usuarioSeleccionado.seccionNombre }}</span>
+      </div>
+      <div class="campo-detalle">
         <strong><i class="pi pi-map-marker"></i> Guardia Actual:</strong>
         <span>{{ usuarioSeleccionado.guardiaNombre }}</span>
+      </div>
+      <div class="campo-detalle">
+        <strong><i class="pi pi-info-circle"></i> Estado:</strong>
+        <p-tag
+          [value]="usuarioSeleccionado.activo ? 'Activo' : 'Inactivo'"
+          [severity]="usuarioSeleccionado.activo ? 'success' : 'danger'"
+          [rounded]="true"
+        ></p-tag>
       </div>
     </div>
 
@@ -356,8 +362,8 @@
       <div class="campo-detalle">
         <strong><i class="pi pi-arrow-right-arrow-left"></i> Tipo:</strong>
         <p-tag
-          [value]="(usuarioSeleccionado.ultimoMovimiento.tipoMovimiento || usuarioSeleccionado.ultimoMovimiento.tipo)"
-          [severity]="(usuarioSeleccionado.ultimoMovimiento.tipoMovimiento || usuarioSeleccionado.ultimoMovimiento.tipo) === 'ENTRADA' ? 'success' : 'warn'"
+          [value]="usuarioSeleccionado.tipoMovimiento"
+          [severity]="usuarioSeleccionado.tipoMovimiento === 'ENTRADA' ? 'success' : 'warn'"
           [rounded]="true"
         ></p-tag>
       </div>
@@ -373,44 +379,14 @@
           [rounded]="true"
         ></p-tag>
       </div>
+      <div class="campo-detalle" *ngIf="usuarioSeleccionado.permanenciaMinutos">
+        <strong><i class="pi pi-hourglass"></i> Permanencia:</strong>
+        <span>{{ usuarioSeleccionado.permanenciaMinutos }} minutos</span>
+      </div>
       <div class="campo-detalle" *ngIf="usuarioSeleccionado.observaciones">
         <strong><i class="pi pi-file-edit"></i> Observaciones:</strong>
         <span>{{ usuarioSeleccionado.observaciones }}</span>
       </div>
-    </div>
-
-    <!-- Información del Vehículo (si aplica) -->
-    <div class="seccion-detalle" *ngIf="usuarioSeleccionado.ultimoMovimiento.vehiculoId && usuarioSeleccionado.ultimoMovimiento.vehiculo">
-      <h3><i class="pi pi-car"></i> Información del Vehículo</h3>
-      <div class="campo-detalle">
-        <strong><i class="pi pi-tag"></i> Placa:</strong>
-        <span style="font-weight: 700; color: #3b82f6;">{{ usuarioSeleccionado.ultimoMovimiento.vehiculo.placa || 'N/A' }}</span>
-      </div>
-      <div class="campo-detalle" *ngIf="usuarioSeleccionado.ultimoMovimiento.vehiculo.tipo">
-        <strong><i class="pi pi-car"></i> Tipo de Vehículo:</strong>
-        <span>{{ usuarioSeleccionado.ultimoMovimiento.vehiculo.tipo }}</span>
-      </div>
-      <div class="campo-detalle" *ngIf="usuarioSeleccionado.ultimoMovimiento.vehiculo.marca">
-        <strong><i class="pi pi-cog"></i> Marca/Modelo:</strong>
-        <span>{{ usuarioSeleccionado.ultimoMovimiento.vehiculo.marca }} {{ usuarioSeleccionado.ultimoMovimiento.vehiculo.modelo || '' }}</span>
-      </div>
-      <div class="campo-detalle">
-        <strong><i class="pi pi-info-circle"></i> Estado Actual:</strong>
-        <p-tag
-          [value]="(usuarioSeleccionado.ultimoMovimiento.tipoMovimiento || usuarioSeleccionado.ultimoMovimiento.tipo) === 'ENTRADA' ? 'Dentro' : 'Fuera'"
-          [severity]="(usuarioSeleccionado.ultimoMovimiento.tipoMovimiento || usuarioSeleccionado.ultimoMovimiento.tipo) === 'ENTRADA' ? 'success' : 'warn'"
-          [rounded]="true"
-        ></p-tag>
-      </div>
-    </div>
-
-    <!-- Mensaje si no hay vehículo -->
-    <div class="seccion-detalle sin-vehiculo" *ngIf="!usuarioSeleccionado.ultimoMovimiento.vehiculoId">
-      <p style="text-align: center; font-style: italic; margin: 0; opacity: 0.8;">
-        <i class="pi pi-info-circle" style="font-size: 1.5rem; color: #3b82f6;"></i>
-        <br><br>
-        Sin vehículo asociado en este movimiento
-      </p>
     </div>
 
   </div>

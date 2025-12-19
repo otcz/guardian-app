@@ -7,7 +7,8 @@ import {
   RegistrarSalidaDTO,
   ValidacionUsuarioDTO,
   ValidacionVehiculoDTO,
-  ConteoEntradasDTO
+  ConteoEntradasDTO,
+  UsuarioDentroDTO
 } from '../models/guardia.models';
 
 /**
@@ -141,9 +142,30 @@ export class MovimientoGuardiaService {
 
   /**
    * Detectar todas las entradas abiertas (inconsistencias)
+   * @deprecated Usar getUsuariosDentro() en su lugar - Endpoint antiguo sin información completa
    */
   listarTodasEntradasAbiertas(): Observable<MovimientoGuardia[]> {
     return this.http.get<MovimientoGuardia[]>(`${this.API_URL}/entradas-abiertas`);
+  }
+
+  /**
+   * 🆕 Obtener usuarios que están DENTRO (tienen entrada abierta)
+   * @returns Observable con lista de usuarios con entrada sin salida
+   * @description Endpoint: GET /api/movimientos-guardia/usuarios-dentro
+   * @version 3.0 - Reemplaza el endpoint antiguo /entradas-abiertas
+   */
+  getUsuariosDentro(): Observable<UsuarioDentroDTO[]> {
+    return this.http.get<UsuarioDentroDTO[]>(`${this.API_URL}/usuarios-dentro`);
+  }
+
+  /**
+   * 🆕 Obtener usuarios que están FUERA (no tienen entrada abierta)
+   * @returns Observable con lista de usuarios sin entrada abierta
+   * @description Endpoint: GET /api/movimientos-guardia/usuarios-fuera
+   * @version 3.0 - Nuevo endpoint para monitoreo completo
+   */
+  getUsuariosFuera(): Observable<UsuarioDentroDTO[]> {
+    return this.http.get<UsuarioDentroDTO[]>(`${this.API_URL}/usuarios-fuera`);
   }
 
   /**

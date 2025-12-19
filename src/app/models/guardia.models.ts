@@ -284,6 +284,26 @@ export interface UltimoMovimientoDTO {
 }
 
 /**
+ * 🆕 DTO para usuarios dentro o fuera (nuevos endpoints unificados)
+ * @version 3.0 - Endpoints /usuarios-dentro y /usuarios-fuera
+ * @description Reemplaza el endpoint antiguo /entradas-abiertas
+ */
+export interface UsuarioDentroDTO {
+  id: string;                                // UUID del usuario
+  nombreCompleto: string;                    // Nombre completo del usuario
+  identificacion: string;                    // Número de documento
+  tipoIdentificacion: string;                // CEDULA, PASAPORTE, DNI, etc.
+  telefono: string;                          // Teléfono del usuario
+  email: string;                             // Email del usuario
+  seccionNombre: string;                     // Nombre de la sección
+  seccionId: string;                         // UUID de la sección
+  activo: boolean;                           // Si el usuario está activo
+  tieneEntradaAbierta: boolean;              // true = DENTRO, false = FUERA
+  entradaAbierta: MovimientoGuardia | null;  // Objeto completo de entrada (solo si está DENTRO)
+  ultimoMovimiento: UltimoMovimientoDTO | null; // Último movimiento formateado
+}
+
+/**
  * 🆕 Vehículo con lista de usuarios asignados
  * @version 3.0 - Validación manual unificada
  */

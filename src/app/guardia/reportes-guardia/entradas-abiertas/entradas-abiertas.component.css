@@ -313,7 +313,8 @@
 }
 
 ::ng-deep .p-tabview .p-tabview-nav li .p-tabview-nav-link,
-::ng-deep .p-tabview .p-tablist .p-tablist-tab-list li .p-tab {
+::ng-deep .p-tabview .p-tablist .p-tablist-tab-list li .p-tab,
+::ng-deep .p-tablist .p-tab {
   padding: 1rem 1.75rem;
   font-weight: 600;
   font-size: 1rem;
@@ -325,21 +326,24 @@
 }
 
 ::ng-deep .p-tabview .p-tabview-nav li .p-tabview-nav-link:hover,
-::ng-deep .p-tabview .p-tablist .p-tablist-tab-list li .p-tab:hover {
+::ng-deep .p-tabview .p-tablist .p-tablist-tab-list li .p-tab:hover,
+::ng-deep .p-tablist .p-tab:hover {
   background: rgba(79, 140, 255, 0.1) !important;
   color: var(--primary) !important;
 }
 
 ::ng-deep .p-tabview .p-tabview-nav li.p-highlight .p-tabview-nav-link,
-::ng-deep .p-tabview .p-tablist .p-tablist-tab-list li[aria-selected="true"] .p-tab {
+::ng-deep .p-tabview .p-tablist .p-tablist-tab-list li[aria-selected="true"] .p-tab,
+::ng-deep .p-tablist li[aria-selected="true"] .p-tab {
   background: linear-gradient(135deg, var(--primary) 0%, var(--primary-600) 100%) !important;
   border-color: transparent;
   color: white !important;
   box-shadow: 0 4px 12px rgba(79, 140, 255, 0.3);
 }
 
-::ng-deep .p-tabview .p-tabview-panels {
-  background: var(--surface);
+::ng-deep .p-tabview .p-tabview-panels,
+::ng-deep .p-tabpanels {
+  background: var(--surface) !important;
   padding: 1.5rem;
   border-radius: 0 0 8px 8px;
   color: var(--text) !important;
@@ -347,10 +351,6 @@
 
 /* ===== TABS - FORZAR COLORES DE TEXTO ===== */
 ::ng-deep .p-tablist-tab-list {
-  color: var(--text) !important;
-}
-
-::ng-deep .p-tabpanels {
   background: var(--surface) !important;
   color: var(--text) !important;
 }
@@ -381,13 +381,17 @@
 
 :host-context(.theme-light) ::ng-deep .p-tablist .p-tablist-tab-list li:not([aria-selected="true"]) .p-tab,
 :host-context(.theme-light) ::ng-deep .p-tablist .p-tablist-tab-list li:not([aria-selected="true"]) .p-tab *,
-:host-context(.theme-light) ::ng-deep .p-tabview .p-tabview-nav li:not(.p-highlight) .p-tabview-nav-link {
+:host-context(.theme-light) ::ng-deep .p-tablist li:not([aria-selected="true"]) .p-tab,
+:host-context(.theme-light) ::ng-deep .p-tablist li:not([aria-selected="true"]) .p-tab *,
+:host-context(.theme-light) ::ng-deep .p-tabview .p-tabview-nav li:not(.p-highlight) .p-tabview-nav-link,
+:host-context(.theme-light) ::ng-deep .p-tabview .p-tabview-nav li:not(.p-highlight) .p-tabview-nav-link * {
   color: #23272f !important;
 }
 
 :host-context(.theme-light) ::ng-deep .p-tabpanels,
 :host-context(.theme-light) ::ng-deep .p-tabpanel,
-:host-context(.theme-light) ::ng-deep .p-tabview .p-tabview-panels {
+:host-context(.theme-light) ::ng-deep .p-tabview .p-tabview-panels,
+:host-context(.theme-light) ::ng-deep .p-tabview .p-tabview-panels .p-tabview-panel {
   background: #ffffff !important;
   color: #23272f !important;
 }
@@ -401,13 +405,17 @@
 
 :host-context(.theme-dark) ::ng-deep .p-tablist .p-tablist-tab-list li:not([aria-selected="true"]) .p-tab,
 :host-context(.theme-dark) ::ng-deep .p-tablist .p-tablist-tab-list li:not([aria-selected="true"]) .p-tab *,
-:host-context(.theme-dark) ::ng-deep .p-tabview .p-tabview-nav li:not(.p-highlight) .p-tabview-nav-link {
+:host-context(.theme-dark) ::ng-deep .p-tablist li:not([aria-selected="true"]) .p-tab,
+:host-context(.theme-dark) ::ng-deep .p-tablist li:not([aria-selected="true"]) .p-tab *,
+:host-context(.theme-dark) ::ng-deep .p-tabview .p-tabview-nav li:not(.p-highlight) .p-tabview-nav-link,
+:host-context(.theme-dark) ::ng-deep .p-tabview .p-tabview-nav li:not(.p-highlight) .p-tabview-nav-link * {
   color: #e0e6ed !important;
 }
 
 :host-context(.theme-dark) ::ng-deep .p-tabpanels,
 :host-context(.theme-dark) ::ng-deep .p-tabpanel,
-:host-context(.theme-dark) ::ng-deep .p-tabview .p-tabview-panels {
+:host-context(.theme-dark) ::ng-deep .p-tabview .p-tabview-panels,
+:host-context(.theme-dark) ::ng-deep .p-tabview .p-tabview-panels .p-tabview-panel {
   background: #232336 !important;
   color: #e0e6ed !important;
 }
@@ -421,13 +429,17 @@
 
 :host-context(.theme-black) ::ng-deep .p-tablist .p-tablist-tab-list li:not([aria-selected="true"]) .p-tab,
 :host-context(.theme-black) ::ng-deep .p-tablist .p-tablist-tab-list li:not([aria-selected="true"]) .p-tab *,
-:host-context(.theme-black) ::ng-deep .p-tabview .p-tabview-nav li:not(.p-highlight) .p-tabview-nav-link {
+:host-context(.theme-black) ::ng-deep .p-tablist li:not([aria-selected="true"]) .p-tab,
+:host-context(.theme-black) ::ng-deep .p-tablist li:not([aria-selected="true"]) .p-tab *,
+:host-context(.theme-black) ::ng-deep .p-tabview .p-tabview-nav li:not(.p-highlight) .p-tabview-nav-link,
+:host-context(.theme-black) ::ng-deep .p-tabview .p-tabview-nav li:not(.p-highlight) .p-tabview-nav-link * {
   color: #e6e6e6 !important;
 }
 
 :host-context(.theme-black) ::ng-deep .p-tabpanels,
 :host-context(.theme-black) ::ng-deep .p-tabpanel,
-:host-context(.theme-black) ::ng-deep .p-tabview .p-tabview-panels {
+:host-context(.theme-black) ::ng-deep .p-tabview .p-tabview-panels,
+:host-context(.theme-black) ::ng-deep .p-tabview .p-tabview-panels .p-tabview-panel {
   background: #131313 !important;
   color: #e6e6e6 !important;
 }

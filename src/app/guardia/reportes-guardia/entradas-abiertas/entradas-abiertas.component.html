@@ -1,24 +1,34 @@
 <p-toast position="top-right"></p-toast>
 
 <div class="monitoreo-container">
-  <p-card>
-    <ng-template pTemplate="header">
-      <div class="card-header">
-        <div class="header-content">
-          <h2><i class="pi pi-chart-line"></i> Monitoreo de Estados - Usuarios en Guardia</h2>
-          <p class="subtitle">Control operativo en tiempo real según el último movimiento registrado</p>
-        </div>
-        <div class="header-actions">
-          <p-button
-            label="Actualizar"
-            icon="pi pi-refresh"
-            (onClick)="cargarEstadosUsuarios()"
-            [loading]="loading"
-            styleClass="p-button-rounded"
-          ></p-button>
-        </div>
+  <!-- Header del Módulo -->
+  <div class="module-header">
+    <div class="header-content">
+      <div class="header-icon">
+        <i class="pi pi-chart-line"></i>
       </div>
-    </ng-template>
+      <div class="header-text">
+        <h1>Monitoreo de Estados - Usuarios en Guardia</h1>
+        <p>Control operativo en tiempo real según el último movimiento registrado</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button
+        pButton
+        type="button"
+        class="p-button-primary refresh-btn"
+        [label]="loading ? 'Actualizando...' : 'Actualizar'"
+        [icon]="loading ? 'pi pi-spin pi-spinner' : 'pi pi-refresh'"
+        (click)="cargarEstadosUsuarios()"
+        [loading]="loading"
+        [disabled]="loading"
+      ></button>
+    </div>
+  </div>
+
+  <!-- Panel de Contenido -->
+  <div class="content-panel">
+    <p-card>
 
     <!-- Tabs para separar usuarios dentro y fuera -->
     <p-tabView>
@@ -87,7 +97,10 @@
                 <td>
                   <div class="usuario-info">
                     <strong class="nombre-usuario">{{ estado.nombreCompleto }}</strong>
-                    <small *ngIf="estado.ultimoMovimiento.usuario?.documento" class="documento-usuario">
+                    <small *ngIf="estado.ultimoMovimiento.usuarioIdentificacion" class="documento-usuario">
+                      <i class="pi pi-id-card"></i> {{ estado.ultimoMovimiento.usuarioIdentificacion }}
+                    </small>
+                    <small *ngIf="!estado.ultimoMovimiento.usuarioIdentificacion && estado.ultimoMovimiento.usuario?.documento" class="documento-usuario">
                       <i class="pi pi-id-card"></i> {{ estado.ultimoMovimiento.usuario?.documento }}
                     </small>
                   </div>
@@ -138,11 +151,11 @@
               <tr>
                 <td colspan="7" style="text-align: center; padding: 3rem;">
                   <div class="empty-state">
-                    <i class="pi pi-inbox" style="font-size: 4rem; color: #667eea; opacity: 0.5;"></i>
-                    <p style="margin-top: 1rem; font-size: 1.2rem; font-weight: 600; color: #495057;">
+                    <i class="pi pi-inbox" style="font-size: 4rem; color: #3b82f6; opacity: 0.5;"></i>
+                    <p style="margin-top: 1rem; font-size: 1.2rem; font-weight: 600;">
                       No hay usuarios dentro en este momento
                     </p>
-                    <p style="color: #6c757d; font-size: 0.95rem;">
+                    <p style="font-size: 0.95rem; opacity: 0.8;">
                       Los usuarios aparecerán aquí cuando registren una entrada
                     </p>
                   </div>
@@ -217,7 +230,10 @@
                 <td>
                   <div class="usuario-info">
                     <strong class="nombre-usuario">{{ estado.nombreCompleto }}</strong>
-                    <small *ngIf="estado.ultimoMovimiento.usuario?.documento" class="documento-usuario">
+                    <small *ngIf="estado.ultimoMovimiento.usuarioIdentificacion" class="documento-usuario">
+                      <i class="pi pi-id-card"></i> {{ estado.ultimoMovimiento.usuarioIdentificacion }}
+                    </small>
+                    <small *ngIf="!estado.ultimoMovimiento.usuarioIdentificacion && estado.ultimoMovimiento.usuario?.documento" class="documento-usuario">
                       <i class="pi pi-id-card"></i> {{ estado.ultimoMovimiento.usuario?.documento }}
                     </small>
                   </div>
@@ -268,11 +284,11 @@
               <tr>
                 <td colspan="7" style="text-align: center; padding: 3rem;">
                   <div class="empty-state">
-                    <i class="pi pi-inbox" style="font-size: 4rem; color: #764ba2; opacity: 0.5;"></i>
-                    <p style="margin-top: 1rem; font-size: 1.2rem; font-weight: 600; color: #495057;">
+                    <i class="pi pi-inbox" style="font-size: 4rem; color: #f59e0b; opacity: 0.5;"></i>
+                    <p style="margin-top: 1rem; font-size: 1.2rem; font-weight: 600;">
                       No hay usuarios fuera en este momento
                     </p>
-                    <p style="color: #6c757d; font-size: 0.95rem;">
+                    <p style="font-size: 0.95rem; opacity: 0.8;">
                       Los usuarios aparecerán aquí cuando registren una salida
                     </p>
                   </div>
@@ -284,7 +300,8 @@
       </p-tabPanel>
 
     </p-tabView>
-  </p-card>
+    </p-card>
+  </div>
 </div>
 
 <!-- Modal de Detalle del Usuario -->
@@ -301,8 +318,8 @@
 >
   <ng-template pTemplate="header">
     <div class="dialog-header-custom">
-      <i class="pi pi-user-plus" style="font-size: 1.5rem; color: #667eea;"></i>
-      <span style="font-weight: 700; font-size: 1.25rem; color: #2c3e50;">Detalle Completo del Usuario</span>
+      <i class="pi pi-user-plus" style="font-size: 1.5rem; color: white;"></i>
+      <span style="font-weight: 700; font-size: 1.25rem; color: white;">Detalle Completo del Usuario</span>
     </div>
   </ng-template>
 
@@ -315,7 +332,11 @@
         <strong><i class="pi pi-id-card"></i> Nombre Completo:</strong>
         <span>{{ usuarioSeleccionado.nombreCompleto }}</span>
       </div>
-      <div class="campo-detalle" *ngIf="usuarioSeleccionado.ultimoMovimiento.usuario?.documento">
+      <div class="campo-detalle" *ngIf="usuarioSeleccionado.ultimoMovimiento.usuarioIdentificacion">
+        <strong><i class="pi pi-credit-card"></i> Identificación:</strong>
+        <span class="badge-identificacion">{{ usuarioSeleccionado.ultimoMovimiento.usuarioIdentificacion }}</span>
+      </div>
+      <div class="campo-detalle" *ngIf="!usuarioSeleccionado.ultimoMovimiento.usuarioIdentificacion && usuarioSeleccionado.ultimoMovimiento.usuario?.documento">
         <strong><i class="pi pi-credit-card"></i> Documento:</strong>
         <span>{{ usuarioSeleccionado.ultimoMovimiento.usuario?.documento }}</span>
       </div>
@@ -363,7 +384,7 @@
       <h3><i class="pi pi-car"></i> Información del Vehículo</h3>
       <div class="campo-detalle">
         <strong><i class="pi pi-tag"></i> Placa:</strong>
-        <span style="font-weight: 700; color: #667eea;">{{ usuarioSeleccionado.ultimoMovimiento.vehiculo.placa || 'N/A' }}</span>
+        <span style="font-weight: 700; color: #3b82f6;">{{ usuarioSeleccionado.ultimoMovimiento.vehiculo.placa || 'N/A' }}</span>
       </div>
       <div class="campo-detalle" *ngIf="usuarioSeleccionado.ultimoMovimiento.vehiculo.tipo">
         <strong><i class="pi pi-car"></i> Tipo de Vehículo:</strong>
@@ -385,8 +406,8 @@
 
     <!-- Mensaje si no hay vehículo -->
     <div class="seccion-detalle sin-vehiculo" *ngIf="!usuarioSeleccionado.ultimoMovimiento.vehiculoId">
-      <p style="text-align: center; color: #6c757d; font-style: italic; margin: 0;">
-        <i class="pi pi-info-circle" style="font-size: 1.5rem; color: #667eea;"></i>
+      <p style="text-align: center; font-style: italic; margin: 0; opacity: 0.8;">
+        <i class="pi pi-info-circle" style="font-size: 1.5rem; color: #3b82f6;"></i>
         <br><br>
         Sin vehículo asociado en este movimiento
       </p>

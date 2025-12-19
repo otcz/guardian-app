@@ -139,21 +139,26 @@ export interface MovimientoGuardia {
   id: string;
   organizacionId?: string;  // Opcional según implementación local
   seccionId?: string;  // Opcional según implementación local
+  seccionNombre?: string;  // Nombre de la sección
   guardiaId: string;
   guardiaCodigo?: string;  // Agregado según API backend
   guardiaNombre?: string;  // Agregado según API backend
   usuarioId: string;
   usuarioNombre?: string;  // Agregado según API backend
   usuarioUsername?: string;  // Agregado según API backend
-  vehiculoId?: string;
+  usuarioIdentificacion?: string;  // Documento del usuario
+  usuarioTelefono?: string;  // Teléfono del usuario
+  vehiculoId?: string | null;
+  vehiculoPlaca?: string | null;  // Placa del vehículo
   adminGuardiaId?: string;  // Opcional según implementación local
+  adminGuardiaNombre?: string;  // Nombre del admin que registró
   tipoMovimiento?: 'ENTRADA' | 'SALIDA';  // Nombre del backend
   tipo?: 'ENTRADA' | 'SALIDA';  // Nombre local - mantener compatibilidad
   fechaHora?: string;  // ISO DateTime - nombre del backend
   timestampMovimiento?: string; // ISO 8601 - nombre local - mantener compatibilidad
-  observaciones?: string;
-  entradaAsociadaId?: string; // Solo para SALIDA
-  permanenciaMinutos?: number; // Solo para SALIDA
+  observaciones?: string | null;
+  entradaAsociadaId?: string | null; // Solo para SALIDA
+  permanenciaMinutos?: number | null; // Solo para SALIDA
   registroVehiculoIncluido?: boolean;
   createdAt?: string;
   // Datos anidados para UI

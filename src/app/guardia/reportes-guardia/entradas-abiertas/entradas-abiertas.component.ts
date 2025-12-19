@@ -86,6 +86,12 @@ export class EntradasAbiertasComponent implements OnInit {
 
     this.movimientoService.listarTodasEntradasAbiertas().subscribe({
       next: (movimientos) => {
+        // Log completo de la respuesta del backend
+        console.log('========== RESPUESTA BACKEND ENTRADAS ABIERTAS ==========');
+        console.log('Total de movimientos recibidos:', movimientos.length);
+        console.log('Datos completos del backend:', JSON.stringify(movimientos, null, 2));
+        console.log('========================================================');
+
         // Procesar movimientos y separar por tipo
         this.procesarMovimientos(movimientos);
         this.loading = false;
@@ -124,21 +130,29 @@ export class EntradasAbiertasComponent implements OnInit {
     const usuariosDentroMap = new Map<string, EstadoUsuario>();
     const usuariosFueraMap = new Map<string, EstadoUsuario>();
 
+    console.log('===== PROCESANDO MOVIMIENTOS =====');
+
     // Agrupar por usuario y determinar su último movimiento
     movimientos.forEach(mov => {
-      const tipoMovimiento = mov.tipoMovimiento || mov.tipo;
-      const fechaHora = mov.fechaHora || mov.timestampMovimiento || '';
+      // Extraer tipo de movimiento (el backend usa "tipo" directamente)
+      const tipoMovimiento = mov.tipo || mov.tipoMovimiento;
 
+      // Extraer timestamp (el backend usa "timestampMovimiento")
+      const fechaHora = mov.timestampMovimiento || mov.fechaHora || '';
+
+      // Crear estado del usuario con los datos correctos del backend
       const estado: EstadoUsuario = {
         usuarioId: mov.usuarioId,
         nombreCompleto: mov.usuarioNombre || mov.usuario?.nombreCompleto || 'N/A',
-        telefono: undefined, // El backend no proporciona teléfono en este endpoint
+        telefono: (mov as any).usuarioTelefono || undefined, // El backend SÍ proporciona teléfono
         guardiaNombre: mov.guardiaNombre || mov.guardia?.nombre || 'N/A',
         fechaHoraMovimiento: fechaHora,
         tiempoTranscurrido: this.calcularTiempoTranscurrido(fechaHora),
-        observaciones: mov.observaciones,
+        observaciones: mov.observaciones || undefined,
         ultimoMovimiento: mov
       };
+
+      console.log(`Usuario: ${estado.nombreCompleto} - Tipo: ${tipoMovimiento} - Guardia: ${estado.guardiaNombre}`);
 
       // Separar por tipo de movimiento
       if (tipoMovimiento === 'ENTRADA') {
@@ -150,6 +164,10 @@ export class EntradasAbiertasComponent implements OnInit {
 
     this.usuariosDentro = Array.from(usuariosDentroMap.values());
     this.usuariosFuera = Array.from(usuariosFueraMap.values());
+
+    console.log('===== RESULTADO PROCESAMIENTO =====');
+    console.log('Usuarios DENTRO:', this.usuariosDentro);
+    console.log('Usuarios FUERA:', this.usuariosFuera);
   }
 
 

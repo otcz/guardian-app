@@ -1,181 +1,462 @@
-<div class="page-wrap">
-  <p-card class="card user-card" *ngIf="user && !loading; else loadingTpl">
-    <!-- Header / Hero -->
-    <div class="user-hero">
-      <p-avatar [label]="userInitial" shape="circle" size="large" styleClass="user-avatar" [style]="{ background: 'linear-gradient(135deg, var(--primary), var(--secondary))', color: '#fff' }"></p-avatar>
-      <div class="user-meta">
-        <div class="title-row">
-          <h2 class="title">{{ user.nombreCompleto || user.username }}</h2>
-          <p-tag [value]="user.activo ? 'ACTIVO' : 'INACTIVO'" [severity]="user.activo ? 'success' : 'danger'" styleClass="state-tag"></p-tag>
-        </div>
-        <div class="chip-row">
-          <p-chip icon="pi pi-id-card" [label]="user.username || '-'" class="pill"></p-chip>
-          <p-chip *ngIf="lineaMando" icon="pi pi-building" [label]="lineaMando" class="pill muted"></p-chip>
-          <p-chip *ngIf="roles && roles.length" icon="pi pi-user" [label]="roles[0].rol?.nombre || (user.rolNombre || '—')" class="pill" pTooltip="Rol principal"></p-chip>
-          <p-chip *ngIf="isPresent(user.email)" icon="pi pi-envelope" [label]="user.email || ''" class="pill muted"></p-chip>
-        </div>
+<div class="card" *ngIf="user && !loading; else loadingTpl">
+  <!-- Header -->
+  <div class="card-header">
+    <h2>
+      <i class="pi pi-user"></i>
+      Gestionar Usuario
+    </h2>
+    <div class="header-actions">
+      <p-button
+        icon="pi pi-arrow-left"
+        [text]="true"
+        severity="secondary"
+        [routerLink]="['/gestion-de-usuarios/listar-usuarios']"
+        pTooltip="Volver"
+        tooltipPosition="top"
+      ></p-button>
+      <p-button
+        icon="pi pi-pencil"
+        label="Editar"
+        [outlined]="true"
+        (onClick)="toggleEdit()"
+        [disabled]="editing"
+      ></p-button>
+      <p-button
+        [label]="user.activo ? 'Desactivar' : 'Activar'"
+        [icon]="user.activo ? 'pi pi-ban' : 'pi pi-check'"
+        [outlined]="true"
+        [severity]="user.activo ? 'danger' : 'success'"
+        (onClick)="toggleActive()"
+      ></p-button>
+    </div>
+  </div>
+
+  <!-- Información del Usuario (Hero Section) -->
+  <div class="user-info-hero">
+    <div class="user-avatar-section">
+      <p-avatar
+        [label]="userInitial"
+        shape="circle"
+        size="xlarge"
+        [style]="{ 'background': 'linear-gradient(135deg, var(--primary), var(--secondary))', 'color': '#fff', 'font-size': '2.5rem', 'width': '100px', 'height': '100px' }"
+      ></p-avatar>
+    </div>
+    <div class="user-details-section">
+      <div class="user-title-row">
+        <h3>{{ user.nombreCompleto || user.username }}</h3>
+        <p-tag
+          [value]="user.activo ? 'ACTIVO' : 'INACTIVO'"
+          [severity]="user.activo ? 'success' : 'danger'"
+          [style]="{'font-size': '0.9rem', 'padding': '0.5rem 1rem'}"
+        ></p-tag>
       </div>
-      <div class="actions-toolbar">
-        <button pButton type="button" icon="pi pi-arrow-left" class="p-button p-button-text" [routerLink]="['/gestion-de-usuarios/listar-usuarios']" pTooltip="Volver" tooltipPosition="top"></button>
-        <button pButton type="button" icon="pi pi-pencil" label="Editar" class="p-button p-button-outlined" (click)="toggleEdit()" [disabled]="editing"></button>
-        <button pButton type="button" [label]="user.activo ? 'Desactivar' : 'Activar'" [icon]="user.activo ? 'pi pi-ban' : 'pi pi-check'" [class]="user.activo ? 'p-button p-button-outlined p-button-danger' : 'p-button p-button-outlined p-button-success'" (click)="toggleActive()"></button>
-        <button pButton type="button" icon="pi pi-user-plus" label="Asignar roles" class="p-button p-button-text" [routerLink]="['/gestion-de-usuarios/asignar-roles']" [queryParams]="{ id: user.id }"></button>
-        <button pButton type="button" icon="pi pi-sitemap" label="Asignar sección" class="p-button p-button-text" [routerLink]="['/gestion-de-usuarios/asignar-usuario-a-seccion']" [queryParams]="{ id: user.id }"></button>
+      <div class="user-chips-row">
+        <p-chip
+          icon="pi pi-id-card"
+          [label]="user.username || '-'"
+        ></p-chip>
+        <p-chip
+          *ngIf="lineaMando"
+          icon="pi pi-building"
+          [label]="lineaMando"
+          styleClass="chip-secondary"
+        ></p-chip>
+        <p-chip
+          *ngIf="roles && roles.length"
+          icon="pi pi-user"
+          [label]="roles[0].rol?.nombre || (user.rolNombre || '—')"
+          pTooltip="Rol principal"
+        ></p-chip>
+        <p-chip
+          *ngIf="isPresent(user.email)"
+          icon="pi pi-envelope"
+          [label]="user.email || ''"
+          styleClass="chip-secondary"
+        ></p-chip>
       </div>
     </div>
+  </div>
 
-    <!-- Formulario de edición -->
-    <form class="edit-form" (ngSubmit)="save()" *ngIf="editing" novalidate>
+  <!-- Formulario de edición -->
+  <div class="edit-section" *ngIf="editing">
+    <div class="section-header">
+      <i class="pi pi-pencil"></i>
+      <span>Editar Información del Usuario</span>
+    </div>
+
+    <form class="edit-form" (ngSubmit)="save()" novalidate>
       <div class="form-grid">
-        <div class="field-row">
-          <label class="fld-label">Username</label>
-          <div class="fld-control">
-            <div class="input-with-tools">
-              <input pInputText type="text" [(ngModel)]="draft.username" name="username" appUppercase placeholder="USUARIO" />
-              <button pButton type="button" icon="pi pi-copy" class="p-button p-button-text p-button-rounded" (click)="copy(draft.username)" pTooltip="Copiar" tooltipPosition="top"></button>
-            </div>
+        <!-- Username -->
+        <div class="field">
+          <label for="username" class="field-label">
+            <i class="pi pi-user"></i>
+            Username
+          </label>
+          <div class="input-with-actions">
+            <input
+              pInputText
+              id="username"
+              type="text"
+              [(ngModel)]="draft.username"
+              name="username"
+              appUppercase
+              placeholder="USUARIO"
+              class="w-full"
+            />
+            <p-button
+              icon="pi pi-copy"
+              [rounded]="true"
+              [text]="true"
+              size="small"
+              (onClick)="copy(draft.username)"
+              pTooltip="Copiar"
+              tooltipPosition="top"
+            ></p-button>
           </div>
         </div>
 
-        <div class="field-row">
-          <label class="fld-label">Nombre completo</label>
-          <div class="fld-control">
-            <input pInputText type="text" [(ngModel)]="draft.nombreCompleto" name="nombreCompleto" appUppercase placeholder="Nombre y Apellido" />
+        <!-- Nombre completo -->
+        <div class="field">
+          <label for="nombreCompleto" class="field-label">
+            <i class="pi pi-id-card"></i>
+            Nombre completo
+          </label>
+          <input
+            pInputText
+            id="nombreCompleto"
+            type="text"
+            [(ngModel)]="draft.nombreCompleto"
+            name="nombreCompleto"
+            appUppercase
+            placeholder="Nombre y Apellido"
+            class="w-full"
+          />
+        </div>
+
+        <!-- Email -->
+        <div class="field">
+          <label for="email" class="field-label">
+            <i class="pi pi-envelope"></i>
+            Email
+          </label>
+          <div class="input-with-actions">
+            <input
+              pInputText
+              id="email"
+              type="email"
+              [(ngModel)]="draft.email"
+              name="email"
+              placeholder="usuario@dominio.com"
+              class="w-full"
+            />
+            <p-button
+              icon="pi pi-envelope"
+              [rounded]="true"
+              [text]="true"
+              size="small"
+              (onClick)="openEmail(draft.email)"
+              pTooltip="Enviar correo"
+              tooltipPosition="top"
+              [disabled]="!draft.email"
+            ></p-button>
           </div>
         </div>
 
-        <div class="field-row">
-          <label class="fld-label">Email</label>
-          <div class="fld-control">
-            <div class="input-with-tools">
-              <input pInputText type="email" [(ngModel)]="draft.email" name="email" placeholder="usuario@dominio.com" />
-              <button pButton type="button" icon="pi pi-envelope" class="p-button p-button-text p-button-rounded" (click)="openEmail(draft.email)" pTooltip="Enviar correo" tooltipPosition="top" [disabled]="!draft.email"></button>
-            </div>
-          </div>
+        <!-- Teléfono -->
+        <div class="field">
+          <label for="telefono" class="field-label">
+            <i class="pi pi-phone"></i>
+            Teléfono
+          </label>
+          <input
+            pInputText
+            id="telefono"
+            type="tel"
+            [(ngModel)]="draft.telefono"
+            name="telefono"
+            placeholder="Ej: +57 3135331533"
+            class="w-full"
+          />
         </div>
 
-        <div class="field-row">
-          <label class="fld-label">Teléfono</label>
-          <div class="fld-control">
-            <input pInputText type="tel" [(ngModel)]="draft.telefono" name="telefono" placeholder="Ej: +57 3135331533" />
-          </div>
+        <!-- Tipo de Identificación -->
+        <div class="field">
+          <label for="tipoIdentificacion" class="field-label">
+            <i class="pi pi-bookmark"></i>
+            Tipo de Identificación
+          </label>
+          <p-dropdown
+            id="tipoIdentificacion"
+            [options]="tiposIdentificacion"
+            optionLabel="label"
+            optionValue="value"
+            [(ngModel)]="draft.tipoIdentificacion"
+            name="tipoIdentificacion"
+            placeholder="Seleccione tipo..."
+            styleClass="w-full"
+          ></p-dropdown>
         </div>
 
-        <div class="field-row">
-          <label class="fld-label">Tipo de Identificación</label>
-          <div class="fld-control">
-            <p-dropdown
-              [options]="tiposIdentificacion"
-              optionLabel="label"
-              optionValue="value"
-              [(ngModel)]="draft.tipoIdentificacion"
-              name="tipoIdentificacion"
-              placeholder="Seleccione tipo..."
-              styleClass="w-100">
-            </p-dropdown>
-          </div>
-        </div>
-
-        <div class="field-row">
-          <label class="fld-label">Número de Identificación</label>
-          <div class="fld-control">
-            <div class="input-with-tools">
-              <input pInputText type="text" [(ngModel)]="draft.identificacion" name="identificacion" maxlength="50" placeholder="Ej: 1234567890" />
-              <button pButton type="button" icon="pi pi-copy" class="p-button p-button-text p-button-rounded" (click)="copy(draft.identificacion)" pTooltip="Copiar" tooltipPosition="top"></button>
-            </div>
+        <!-- Número de Identificación -->
+        <div class="field">
+          <label for="identificacion" class="field-label">
+            <i class="pi pi-hashtag"></i>
+            Número de Identificación
+          </label>
+          <div class="input-with-actions">
+            <input
+              pInputText
+              id="identificacion"
+              type="text"
+              [(ngModel)]="draft.identificacion"
+              name="identificacion"
+              maxlength="50"
+              placeholder="Ej: 1234567890"
+              class="w-full"
+            />
+            <p-button
+              icon="pi pi-copy"
+              [rounded]="true"
+              [text]="true"
+              size="small"
+              (onClick)="copy(draft.identificacion)"
+              pTooltip="Copiar"
+              tooltipPosition="top"
+            ></p-button>
           </div>
         </div>
       </div>
-      <div class="actions footer-actions">
-        <button pButton type="submit" label="Guardar" [disabled]="saving"></button>
-        <button pButton type="button" class="p-button p-button-text" label="Cancelar" (click)="cancel()" [disabled]="saving"></button>
+
+      <div class="form-actions">
+        <p-button
+          label="Guardar"
+          icon="pi pi-check"
+          type="submit"
+          [disabled]="saving"
+          [loading]="saving"
+        ></p-button>
+        <p-button
+          label="Cancelar"
+          icon="pi pi-times"
+          [text]="true"
+          severity="secondary"
+          type="button"
+          (onClick)="cancel()"
+          [disabled]="saving"
+        ></p-button>
       </div>
     </form>
+  </div>
 
-    <!-- Vista solo lectura -->
-    <div *ngIf="!editing" class="content-grid">
-      <div class="section">
-        <h3 class="section-title">Cuenta</h3>
-        <div class="kv" *ngIf="user.username"><span>Username</span>
-          <div class="value-row">
-            <b>{{ user.username }}</b>
-            <button pButton type="button" icon="pi pi-copy" class="p-button p-button-text p-button-rounded" (click)="copy(user.username)" pTooltip="Copiar" tooltipPosition="top"></button>
-          </div>
-        </div>
-        <div class="kv" *ngIf="isPresent(user.nombreCompleto)"><span>Nombre completo</span><b>{{ user.nombreCompleto }}</b></div>
-        <div class="kv" *ngIf="isPresent(user.email)"><span>Email</span>
-          <div class="value-row">
-            <b>{{ user.email }}</b>
-            <button pButton type="button" icon="pi pi-envelope" class="p-button p-button-text p-button-rounded" (click)="openEmail(user.email)" pTooltip="Enviar correo" tooltipPosition="top"></button>
-            <button pButton type="button" icon="pi pi-copy" class="p-button p-button-text p-button-rounded" (click)="copy(user.email)" pTooltip="Copiar" tooltipPosition="top"></button>
-          </div>
-        </div>
-        <div class="kv" *ngIf="isPresent(user.telefono)"><span>Teléfono</span><b>{{ user.telefono }}</b></div>
-        <div class="kv" *ngIf="isPresent(user.tipoIdentificacion)"><span>Tipo de Identificación</span><b>{{ getTipoIdentificacionLabel(user.tipoIdentificacion) }}</b></div>
-        <div class="kv" *ngIf="isPresent(user.identificacion)"><span>Número de Identificación</span>
-          <div class="value-row">
-            <b>{{ user.identificacion }}</b>
-            <button pButton type="button" icon="pi pi-copy" class="p-button p-button-text p-button-rounded" (click)="copy(user.identificacion)" pTooltip="Copiar" tooltipPosition="top"></button>
-          </div>
-        </div>
+  <!-- Vista solo lectura -->
+  <div *ngIf="!editing" class="content-sections">
+    <!-- Sección: Información de Cuenta -->
+    <div class="info-section">
+      <div class="section-header">
+        <i class="pi pi-user"></i>
+        <span>Información de Cuenta</span>
       </div>
-
-      <div class="section">
-        <h3 class="section-title">Organización</h3>
-        <div class="kv" *ngIf="lineaMando"><span>Línea de mando</span><b>{{ lineaMando }}</b></div>
-        <div class="kv" *ngIf="isPresent(user.scopeNivel)"><span>Alcance</span><b>{{ user.scopeNivel }}</b></div>
-        <div class="kv"><span>Estado</span>
-          <b class="state-wrap"><p-tag [value]="user.activo ? 'ACTIVO' : 'INACTIVO'" [severity]="user.activo ? 'success' : 'danger'"></p-tag></b>
+      <div class="info-grid">
+        <div class="info-item" *ngIf="user.username">
+          <span class="info-label">Username</span>
+          <div class="info-value">
+            <strong>{{ user.username }}</strong>
+            <p-button
+              icon="pi pi-copy"
+              [rounded]="true"
+              [text]="true"
+              size="small"
+              (onClick)="copy(user.username)"
+              pTooltip="Copiar"
+              tooltipPosition="top"
+            ></p-button>
+          </div>
         </div>
-      </div>
 
-      <div class="section actions-quick">
-        <h3 class="section-title">Acciones rápidas</h3>
-        <div class="quick-icons">
-          <button pButton type="button" icon="pi pi-user-edit" class="p-button p-button-outlined p-button-rounded icon-btn" (click)="toggleEdit()" [disabled]="editing" pTooltip="Editar datos" tooltipPosition="top"></button>
-          <button pButton type="button" class="p-button p-button-outlined p-button-rounded icon-btn" [ngClass]="user.activo ? 'p-button-danger' : 'p-button-success'" [icon]="user.activo ? 'pi pi-ban' : 'pi pi-check'" (click)="toggleActive()" [pTooltip]="user.activo ? 'Desactivar usuario' : 'Activar usuario'" tooltipPosition="top"></button>
-          <button pButton type="button" icon="pi pi-user-plus" class="p-button p-button-text p-button-rounded icon-btn" [routerLink]="['/gestion-de-usuarios/asignar-roles']" [queryParams]="{ id: user.id }" pTooltip="Asignar roles" tooltipPosition="top"></button>
-          <button pButton type="button" icon="pi pi-sitemap" class="p-button p-button-text p-button-rounded icon-btn" [routerLink]="['/gestion-de-usuarios/asignar-usuario-a-seccion']" [queryParams]="{ id: user.id }" pTooltip="Asignar sección" tooltipPosition="top"></button>
+        <div class="info-item" *ngIf="isPresent(user.nombreCompleto)">
+          <span class="info-label">Nombre completo</span>
+          <div class="info-value">
+            <strong>{{ user.nombreCompleto }}</strong>
+          </div>
+        </div>
+
+        <div class="info-item" *ngIf="isPresent(user.email)">
+          <span class="info-label">Email</span>
+          <div class="info-value">
+            <strong>{{ user.email }}</strong>
+            <p-button
+              icon="pi pi-envelope"
+              [rounded]="true"
+              [text]="true"
+              size="small"
+              (onClick)="openEmail(user.email)"
+              pTooltip="Enviar correo"
+              tooltipPosition="top"
+            ></p-button>
+            <p-button
+              icon="pi pi-copy"
+              [rounded]="true"
+              [text]="true"
+              size="small"
+              (onClick)="copy(user.email)"
+              pTooltip="Copiar"
+              tooltipPosition="top"
+            ></p-button>
+          </div>
+        </div>
+
+        <div class="info-item" *ngIf="isPresent(user.telefono)">
+          <span class="info-label">Teléfono</span>
+          <div class="info-value">
+            <strong>{{ user.telefono }}</strong>
+          </div>
+        </div>
+
+        <div class="info-item" *ngIf="isPresent(user.tipoIdentificacion)">
+          <span class="info-label">Tipo de Identificación</span>
+          <div class="info-value">
+            <strong>{{ getTipoIdentificacionLabel(user.tipoIdentificacion) }}</strong>
+          </div>
+        </div>
+
+        <div class="info-item" *ngIf="isPresent(user.identificacion)">
+          <span class="info-label">Número de Identificación</span>
+          <div class="info-value">
+            <strong>{{ user.identificacion }}</strong>
+            <p-button
+              icon="pi pi-copy"
+              [rounded]="true"
+              [text]="true"
+              size="small"
+              (onClick)="copy(user.identificacion)"
+              pTooltip="Copiar"
+              tooltipPosition="top"
+            ></p-button>
+          </div>
         </div>
       </div>
     </div>
-  </p-card>
+
+    <!-- Sección: Organización -->
+    <div class="info-section">
+      <div class="section-header">
+        <i class="pi pi-building"></i>
+        <span>Organización y Alcance</span>
+      </div>
+      <div class="info-grid">
+        <div class="info-item" *ngIf="lineaMando">
+          <span class="info-label">Línea de mando</span>
+          <div class="info-value">
+            <strong>{{ lineaMando }}</strong>
+          </div>
+        </div>
+
+        <div class="info-item" *ngIf="isPresent(user.scopeNivel)">
+          <span class="info-label">Alcance</span>
+          <div class="info-value">
+            <strong>{{ user.scopeNivel }}</strong>
+          </div>
+        </div>
+
+        <div class="info-item">
+          <span class="info-label">Estado</span>
+          <div class="info-value">
+            <p-tag
+              [value]="user.activo ? 'ACTIVO' : 'INACTIVO'"
+              [severity]="user.activo ? 'success' : 'danger'"
+            ></p-tag>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sección: Acciones rápidas -->
+    <div class="info-section actions-section">
+      <div class="section-header">
+        <i class="pi pi-bolt"></i>
+        <span>Acciones Rápidas</span>
+      </div>
+      <div class="quick-actions">
+        <p-button
+          label="Editar datos"
+          icon="pi pi-user-edit"
+          [outlined]="true"
+          (onClick)="toggleEdit()"
+          [disabled]="editing"
+        ></p-button>
+        <p-button
+          [label]="user.activo ? 'Desactivar' : 'Activar'"
+          [icon]="user.activo ? 'pi pi-ban' : 'pi pi-check'"
+          [outlined]="true"
+          [severity]="user.activo ? 'danger' : 'success'"
+          (onClick)="toggleActive()"
+        ></p-button>
+        <p-button
+          label="Asignar roles"
+          icon="pi pi-user-plus"
+          [text]="true"
+          [routerLink]="['/gestion-de-usuarios/asignar-roles']"
+          [queryParams]="{ id: user.id }"
+        ></p-button>
+        <p-button
+          label="Asignar sección"
+          icon="pi pi-sitemap"
+          [text]="true"
+          [routerLink]="['/gestion-de-usuarios/asignar-usuario-a-seccion']"
+          [queryParams]="{ id: user.id }"
+        ></p-button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <ng-template #loadingTpl>
-  <p-card class="card user-card">
-    <div class="user-hero">
-      <p-skeleton shape="circle" size="4rem" styleClass="avatar-skeleton"></p-skeleton>
-      <div class="user-meta">
-        <div class="title-row">
-          <p-skeleton width="240px" height="24px"></p-skeleton>
-          <p-skeleton width="90px" height="24px"></p-skeleton>
-        </div>
-        <div class="chip-row">
-          <p-skeleton width="120px" height="28px"></p-skeleton>
-          <p-skeleton width="220px" height="28px"></p-skeleton>
-          <p-skeleton width="160px" height="28px"></p-skeleton>
-        </div>
+  <div class="card">
+    <div class="card-header">
+      <h2>
+        <i class="pi pi-user"></i>
+        Gestionar Usuario
+      </h2>
+    </div>
+
+    <div class="user-info-hero skeleton-hero">
+      <div class="user-avatar-section">
+        <p-skeleton shape="circle" size="100px"></p-skeleton>
       </div>
-      <div class="actions-toolbar">
-        <p-skeleton width="90px" height="36px"></p-skeleton>
-        <p-skeleton width="120px" height="36px"></p-skeleton>
-        <p-skeleton width="160px" height="36px"></p-skeleton>
+      <div class="user-details-section">
+        <div class="user-title-row">
+          <p-skeleton width="280px" height="32px"></p-skeleton>
+          <p-skeleton width="100px" height="32px"></p-skeleton>
+        </div>
+        <div class="user-chips-row">
+          <p-skeleton width="140px" height="32px" borderRadius="16px"></p-skeleton>
+          <p-skeleton width="220px" height="32px" borderRadius="16px"></p-skeleton>
+          <p-skeleton width="160px" height="32px" borderRadius="16px"></p-skeleton>
+        </div>
       </div>
     </div>
-    <div class="content-grid">
-      <div class="section">
-        <h3 class="section-title">Cuenta</h3>
-        <p-skeleton width="100%" height="18px" [ngStyle]="{ 'margin-bottom': '8px' }"></p-skeleton>
-        <p-skeleton width="100%" height="18px" [ngStyle]="{ 'margin-bottom': '8px' }"></p-skeleton>
-        <p-skeleton width="80%" height="18px"></p-skeleton>
+
+    <div class="content-sections">
+      <div class="info-section">
+        <div class="section-header">
+          <p-skeleton width="200px" height="24px"></p-skeleton>
+        </div>
+        <div class="info-grid">
+          <p-skeleton width="100%" height="48px" [style]="{'margin-bottom': '1rem'}"></p-skeleton>
+          <p-skeleton width="100%" height="48px" [style]="{'margin-bottom': '1rem'}"></p-skeleton>
+          <p-skeleton width="100%" height="48px"></p-skeleton>
+        </div>
       </div>
-      <div class="section">
-        <h3 class="section-title">Organización</h3>
-        <p-skeleton width="80%" height="18px" [ngStyle]="{ 'margin-bottom': '8px' }"></p-skeleton>
-        <p-skeleton width="70%" height="18px" [ngStyle]="{ 'margin-bottom': '8px' }"></p-skeleton>
-        <p-skeleton width="60%" height="18px"></p-skeleton>
+
+      <div class="info-section">
+        <div class="section-header">
+          <p-skeleton width="220px" height="24px"></p-skeleton>
+        </div>
+        <div class="info-grid">
+          <p-skeleton width="100%" height="48px" [style]="{'margin-bottom': '1rem'}"></p-skeleton>
+          <p-skeleton width="100%" height="48px"></p-skeleton>
+        </div>
       </div>
     </div>
-  </p-card>
+  </div>
 </ng-template>

@@ -133,39 +133,88 @@ export interface GuardiaConEstado extends Guardia {
 
 /**
  * Modelo: Movimiento de Guardia (Entrada/Salida)
- * @version 2.0 - Alineado con API-MODULO-GUARDIA-FRONTEND-2025-12-13
+ * @version 3.0 - Actualizado según documentación backend 22/12/2025
+ * Endpoint: GET /api/movimientos-guardia
  */
 export interface MovimientoGuardia {
   id: string;
-  organizacionId?: string;  // Opcional según implementación local
-  seccionId?: string;  // Opcional según implementación local
-  seccionNombre?: string;  // Nombre de la sección
+  organizacionId?: string;
+  seccionId?: string;
   guardiaId: string;
-  guardiaCodigo?: string;  // Agregado según API backend
-  guardiaNombre?: string;  // Agregado según API backend
   usuarioId: string;
-  usuarioNombre?: string;  // Agregado según API backend
-  usuarioUsername?: string;  // Agregado según API backend
-  usuarioIdentificacion?: string;  // Documento del usuario
-  usuarioTelefono?: string;  // Teléfono del usuario
   vehiculoId?: string | null;
-  vehiculoPlaca?: string | null;  // Placa del vehículo
-  adminGuardiaId?: string;  // Opcional según implementación local
-  adminGuardiaNombre?: string;  // Nombre del admin que registró
-  tipoMovimiento?: 'ENTRADA' | 'SALIDA';  // Nombre del backend
-  tipo?: 'ENTRADA' | 'SALIDA';  // Nombre local - mantener compatibilidad
-  fechaHora?: string;  // ISO DateTime - nombre del backend
-  timestampMovimiento?: string; // ISO 8601 - nombre local - mantener compatibilidad
+  adminGuardiaId?: string;
+
+  // Tipo de movimiento
+  tipo: 'ENTRADA' | 'SALIDA';
+  tipoMovimiento?: 'ENTRADA' | 'SALIDA'; // Alias para compatibilidad
+
+  // Timestamps
+  fechaMovimiento?: string; // ISO-8601 (campo principal del backend)
+  timestampMovimiento?: string; // Alias para compatibilidad con código existente
+
+  // Información adicional del movimiento
   observaciones?: string | null;
   entradaAsociadaId?: string | null; // Solo para SALIDA
-  permanenciaMinutos?: number | null; // Solo para SALIDA
+  permanenciaMinutos?: number | null; // Solo para SALIDA - Long en backend
   registroVehiculoIncluido?: boolean;
+  tieneEntradaAbierta?: boolean;
+
+  // Información de Guardia (campos planos)
+  guardiaNombre?: string;
+  guardiaCodigo?: string;
+
+  // Información de Usuario (campos planos según backend)
+  usuarioNombre?: string; // nombreCompleto en respuesta
+  usuarioIdentificacion?: string; // identificacion
+  usuarioTipoIdentificacion?: string; // tipoIdentificacion: CEDULA, PASAPORTE, etc.
+  usuarioTelefono?: string; // telefono
+  usuarioUsername?: string;
+
+  // Información de Sección
+  seccionNombre?: string;
+
+  // Información de Vehículo (campos planos)
+  vehiculoPlaca?: string | null;
+
+  // Información de Admin Guardia
+  adminGuardiaNombre?: string;
+
+  // Timestamps de auditoría
   createdAt?: string;
-  // Datos anidados para UI
-  guardia?: Guardia;
-  usuario?: Usuario;
-  vehiculo?: Vehiculo;
-  adminGuardia?: Usuario;
+
+  // Datos anidados (objetos completos cuando el backend los provee)
+  guardia?: {
+    id: string;
+    nombre: string;
+    codigo?: string;
+    ubicacion?: string;
+  };
+
+  usuario?: {
+    id: string;
+    nombreCompleto: string;
+    identificacion: string;
+    tipoIdentificacion?: string;
+    telefono?: string;
+    estadoActivo?: boolean;
+  };
+
+  vehiculo?: {
+    id: string;
+    placa: string;
+    marca?: string;
+    modelo?: string;
+    color?: string;
+    tipoVehiculo?: string;
+  } | null;
+
+  adminGuardia?: {
+    id: string;
+    nombre: string;
+    username?: string;
+  };
+
   entradaAsociada?: MovimientoGuardia;
 }
 

@@ -17,7 +17,27 @@
     </div>
 
     <div class="filtros-grid">
-      <div class="filter-group">
+      <!-- Filtro de Sección (solo para ORGADMIN) -->
+      <div class="filter-group" *ngIf="isOrgAdmin">
+        <label for="filtroSeccion">
+          <i class="pi pi-sitemap"></i>
+          Sección
+        </label>
+        <p-dropdown
+          id="filtroSeccion"
+          [(ngModel)]="filtroSeccion"
+          [options]="secciones"
+          optionLabel="nombre"
+          optionValue="id"
+          placeholder="Todas las secciones"
+          [showClear]="true"
+          (onChange)="onSeccionChange()"
+          styleClass="w-full"
+        ></p-dropdown>
+      </div>
+
+      <!-- Filtro de Punto de Control/Guardia (para ORGADMIN y ADMIN) -->
+      <div class="filter-group" *ngIf="isOrgAdmin || isSeccionAdmin">
         <label for="filtroGuardia">
           <i class="pi pi-map-marker"></i>
           Punto de Control
@@ -30,8 +50,8 @@
           optionValue="id"
           placeholder="Todas las guardias"
           [showClear]="true"
-          (onChange)="onFiltroChange()"
           styleClass="w-full"
+          [disabled]="isOrgAdmin && !filtroSeccion"
         ></p-dropdown>
       </div>
 
@@ -47,7 +67,6 @@
           optionLabel="label"
           optionValue="value"
           placeholder="Todos"
-          (onChange)="onFiltroChange()"
           styleClass="w-full"
         ></p-dropdown>
       </div>
@@ -65,14 +84,25 @@
           [iconDisplay]="'input'"
           dateFormat="dd/mm/yy"
           placeholder="Seleccione rango de fechas"
-          (onSelect)="onFiltroChange()"
-          (onClearClick)="onFiltroChange()"
           [showClear]="true"
           [showButtonBar]="true"
           styleClass="w-full"
           [readonlyInput]="true"
           appendTo="body"
         ></p-calendar>
+      </div>
+
+      <!-- Botón Consultar -->
+      <div class="filter-group filter-actions">
+        <label>&nbsp;</label>
+        <p-button
+          label="Consultar"
+          icon="pi pi-search"
+          (onClick)="consultarMovimientos()"
+          [loading]="loading"
+          styleClass="w-full"
+          severity="primary"
+        ></p-button>
       </div>
     </div>
   </div>
@@ -108,7 +138,7 @@
 
     <ng-template pTemplate="body" let-movimiento>
       <tr>
-        <td>{{ formatearFecha(movimiento.timestampMovimiento) }}</td>
+        <td>{{ formatearFecha(movimiento) }}</td>
         <td>
           <p-tag
             [value]="movimiento.tipo"
@@ -117,16 +147,19 @@
         </td>
         <td>
           <div class="usuario-info">
-            <strong>{{ movimiento.usuario?.nombreCompleto || 'N/A' }}</strong>
-            <small>{{ movimiento.usuario?.username || (movimiento.usuario?.identificacion ? (movimiento.usuario?.tipoIdentificacion + ': ' + movimiento.usuario?.identificacion) : '') }}</small>
+            <strong>{{ movimiento.usuario?.nombreCompleto || movimiento.usuarioNombre || 'N/A' }}</strong>
+            <small>{{ movimiento.usuario?.identificacion || movimiento.usuarioIdentificacion || '' }}</small>
+            <small *ngIf="movimiento.usuario?.telefono || movimiento.usuarioTelefono">
+              Tel: {{ movimiento.usuario?.telefono || movimiento.usuarioTelefono }}
+            </small>
           </div>
         </td>
-        <td>{{ movimiento.vehiculo?.placa || '-' }}</td>
-        <td>{{ movimiento.guardia?.nombre || '-' }}</td>
-        <td>{{ movimiento.adminGuardia?.nombreCompleto || '-' }}</td>
+        <td>{{ movimiento.vehiculo?.placa || movimiento.vehiculoPlaca || '-' }}</td>
+        <td>{{ movimiento.guardia?.nombre || movimiento.guardiaNombre || '-' }}</td>
+        <td>{{ movimiento.adminGuardia?.nombre || movimiento.adminGuardiaNombre || '-' }}</td>
         <td style="text-align: center">
           <span *ngIf="movimiento.permanenciaMinutos">
-            <strong>{{ movimiento.permanenciaMinutos }}</strong>
+            <strong>{{ movimiento.permanenciaMinutos }}</strong> min
           </span>
           <span *ngIf="!movimiento.permanenciaMinutos">-</span>
         </td>

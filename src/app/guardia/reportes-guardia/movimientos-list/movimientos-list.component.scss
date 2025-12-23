@@ -82,6 +82,21 @@
   grid-column: span 1;
 }
 
+.filter-actions {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+
+  ::ng-deep .p-button {
+    height: 42px;
+    font-weight: 600;
+
+    .pi-search {
+      font-size: 1rem;
+    }
+  }
+}
+
 /* Usuario Info */
 .usuario-info {
   display: flex;

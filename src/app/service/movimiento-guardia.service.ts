@@ -41,34 +41,27 @@ export class MovimientoGuardiaService {
   // ========== VALIDACIONES (SOLO LECTURA) ==========
 
   /**
-   * Validar usuario por número de identificación
+   * Validar usuario por número de identificación o UUID
    * @param identificacion Número de documento (cédula, pasaporte, DNI, etc.) o UUID
-   * @param guardiaId ID de la guardia donde se valida (opcional pero recomendado)
-   * @returns Observable con información de validación del usuario (incluye campo 'id' con UUID)
-   * @description Endpoint: GET /api/movimientos-guardia/validar-usuario-identificacion/{identificacion}
-   * @version 2.2 - Incluye guardiaId como query param para que backend determine acción permitida
+   * @returns Observable con información de validación del usuario
+   * @description Endpoint: GET /api/movimientos-guardia/validar-usuario/{usuarioIdOIdentificacion}
+   * Acepta tanto UUID como número de identificación
    */
-  validarUsuario(identificacion: string, guardiaId?: string): Observable<ValidacionUsuarioDTO> {
-    const valor = identificacion.trim();
-    let url = `${this.API_URL}/validar-usuario-identificacion/${valor}`;
-
-    // Si se proporciona guardiaId, enviarlo al backend como query param
-    if (guardiaId) {
-      url += `?guardiaId=${guardiaId}`;
-    }
-
-    return this.http.get<ValidacionUsuarioDTO>(url);
+  validarUsuario(identificacion: string): Observable<ValidacionUsuarioDTO> {
+    const valor = encodeURIComponent(identificacion.trim());
+    return this.http.get<ValidacionUsuarioDTO>(`${this.API_URL}/validar-usuario/${valor}`);
   }
 
   /**
-   * Validar usuario por número de identificación (ALIAS)
+   * Validar usuario por número de identificación específicamente
    * @param identificacion Número de documento (cédula, pasaporte, DNI, etc.)
-   * @param guardiaId ID de la guardia donde se valida (opcional)
    * @returns Observable con información de validación
-   * @description Alias del método validarUsuario() para compatibilidad con código existente
+   * @description Endpoint: GET /api/movimientos-guardia/validar-usuario-identificacion/{identificacion}
+   * Busca específicamente por número de identificación
    */
-  validarUsuarioPorIdentificacion(identificacion: string, guardiaId?: string): Observable<ValidacionUsuarioDTO> {
-    return this.validarUsuario(identificacion, guardiaId);
+  validarUsuarioPorIdentificacion(identificacion: string): Observable<ValidacionUsuarioDTO> {
+    const valor = encodeURIComponent(identificacion.trim());
+    return this.http.get<ValidacionUsuarioDTO>(`${this.API_URL}/validar-usuario-identificacion/${valor}`);
   }
 
   /**
@@ -138,6 +131,40 @@ export class MovimientoGuardiaService {
    */
   listarPorSeccion(seccionId: string): Observable<MovimientoGuardia[]> {
     return this.http.get<MovimientoGuardia[]>(`${this.API_URL}/seccion/${seccionId}`);
+  }
+
+  /**
+   * Listar movimientos con paginación y filtros
+   * Endpoint: GET /api/movimientos-guardia
+   * @param guardiaId ID de guardia (opcional, null = todas)
+   * @param tipo Tipo de movimiento: 'ENTRADA' | 'SALIDA' (opcional, null = todos)
+   * @param fechaInicio Fecha inicio en formato ISO-8601 (opcional)
+   * @param fechaFin Fecha fin en formato ISO-8601 (opcional)
+   * @param page Número de página (0-based)
+   * @param size Tamaño de página (default: 20)
+   * @param sort Ordenamiento (default: timestampMovimiento,desc)
+   */
+  listarPaginado(params: {
+    guardiaId?: string | null;
+    tipo?: string | null;
+    fechaInicio?: string | null;
+    fechaFin?: string | null;
+    page?: number;
+    size?: number;
+    sort?: string;
+  }): Observable<any> {
+    let httpParams = new HttpParams();
+
+    if (params.guardiaId) httpParams = httpParams.set('guardiaId', params.guardiaId);
+    if (params.tipo) httpParams = httpParams.set('tipo', params.tipo);
+    if (params.fechaInicio) httpParams = httpParams.set('fechaInicio', params.fechaInicio);
+    if (params.fechaFin) httpParams = httpParams.set('fechaFin', params.fechaFin);
+    if (params.page !== undefined) httpParams = httpParams.set('page', params.page.toString());
+    if (params.size !== undefined) httpParams = httpParams.set('size', params.size.toString());
+    if (params.sort) httpParams = httpParams.set('sort', params.sort);
+
+    // Endpoint correcto según documentación del backend
+    return this.http.get<any>(`${this.API_URL}`, { params: httpParams });
   }
 
   /**

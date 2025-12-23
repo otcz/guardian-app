@@ -28,7 +28,9 @@ export class GuardiaService {
   }
 
   /**
-   * Listar guardias de una sección
+   * Listar guardias de una sección específica
+   * Endpoint: GET /api/guardias/seccion/{seccionId}
+   * Permisos: ITEM_LISTAR_GUARDIAS
    */
   listarPorSeccion(seccionId: string): Observable<Guardia[]> {
     return this.http.get<Guardia[]>(`${this.API_URL}/seccion/${seccionId}`);
@@ -36,6 +38,8 @@ export class GuardiaService {
 
   /**
    * Listar solo guardias activas de una sección
+   * Endpoint: GET /api/guardias/seccion/{seccionId}/activas
+   * Permisos: ITEM_LISTAR_GUARDIAS, ITEM_CONTROL_DE_INGRESO_Y_SALIDA
    */
   listarActivasPorSeccion(seccionId: string): Observable<Guardia[]> {
     return this.http.get<Guardia[]>(`${this.API_URL}/seccion/${seccionId}/activas`);

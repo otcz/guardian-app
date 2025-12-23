@@ -1,26 +1,58 @@
 <!-- Contenedores globales de confirmación (toast global queda en AppComponent) -->
 <p-confirmDialog></p-confirmDialog>
 
-<div class="org-toolbar" *ngIf="!error || org; else errorTpl">
-  <h2>Parámetros Globales</h2>
-  <span class="spacer"></span>
-  <span class="p-input-icon-left" style="margin-right:.5rem;">
-    <i class="pi pi-search"></i>
-    <input pInputText type="text" placeholder="Filtrar" [(ngModel)]="filter" (ngModelChange)="applyFilter()" style="width:200px;" />
-  </span>
-  <button pButton type="button" label="Agregar" icon="pi pi-plus" (click)="startAdd()" [disabled]="adding || editingCode"></button>
-</div>
-
-<p-card class="params-card" *ngIf="org && !loadingOrg; else loadingOrgTpl">
-  <div class="meta">
-    <strong>{{ org.nombre }}</strong>
-    <span>• Activa: <span [ngClass]="{'text-green': org.activa, 'text-red': !org.activa}">{{ org.activa? 'Sí':'No' }}</span></span>
-    <span *ngIf="filtered.length" style="opacity:.7;">• {{ filtered.length }} parámetro(s)</span>
+<div class="card" *ngIf="!error || org; else errorTpl">
+  <!-- Header -->
+  <div class="card-header">
+    <h2>
+      <i class="pi pi-cog"></i>
+      Parámetros Globales
+    </h2>
+    <div class="header-actions">
+      <span class="p-input-icon-left search-input">
+        <i class="pi pi-search"></i>
+        <input
+          pInputText
+          type="text"
+          placeholder="Filtrar parámetros..."
+          [(ngModel)]="filter"
+          (ngModelChange)="applyFilter()"
+        />
+      </span>
+      <p-button
+        label="Agregar"
+        icon="pi pi-plus"
+        (onClick)="startAdd()"
+        [disabled]="adding || editingCode"
+        severity="success"
+      ></p-button>
+    </div>
   </div>
 
-  <div class="table-shell">
-    <table class="param-table">
-      <thead>
+  <!-- Información de la Organización -->
+  <div class="org-info" *ngIf="org && !loadingOrg">
+    <div class="info-item">
+      <i class="pi pi-building"></i>
+      <strong>{{ org.nombre }}</strong>
+    </div>
+    <div class="info-item">
+      <i class="pi pi-circle-fill" [ngClass]="{'status-active': org.activa, 'status-inactive': !org.activa}"></i>
+      <span>{{ org.activa ? 'Activa' : 'Inactiva' }}</span>
+    </div>
+    <div class="info-item" *ngIf="filtered.length">
+      <i class="pi pi-list"></i>
+      <span>{{ filtered.length }} parámetro(s)</span>
+    </div>
+  </div>
+
+  <!-- Tabla de Parámetros -->
+  <p-card class="params-card" *ngIf="org && !loadingOrg; else loadingOrgTpl">
+    <p-table
+      [value]="filtered"
+      styleClass="p-datatable-striped"
+      responsiveLayout="scroll"
+    >
+      <ng-template pTemplate="header">
         <tr>
           <th style="width:170px;">Código</th>
           <th>Descripción</th>
@@ -28,87 +60,193 @@
           <th style="width:80px; text-align:center;">Activo</th>
           <th style="width:120px; text-align:center;">Acciones</th>
         </tr>
-      </thead>
-      <tbody>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-p>
         <!-- Fila de agregado -->
-        <tr *ngIf="adding" class="row-editing">
+        <tr *ngIf="adding && !p.id" class="row-editing">
           <td>
-            <input pInputText [(ngModel)]="newDraft.codigo" (keydown)="onKeyAdd($event)" placeholder="CODIGO" style="width:100%; text-transform:uppercase;" maxlength="64" />
+            <input
+              pInputText
+              [(ngModel)]="newDraft.codigo"
+              (keydown)="onKeyAdd($event)"
+              placeholder="CODIGO"
+              style="width:100%; text-transform:uppercase;"
+              maxlength="64"
+            />
           </td>
           <td>
-            <input pInputText [(ngModel)]="newDraft.descripcion" (keydown)="onKeyAdd($event)" placeholder="Descripción" maxlength="160" />
+            <input
+              pInputText
+              [(ngModel)]="newDraft.descripcion"
+              (keydown)="onKeyAdd($event)"
+              placeholder="Descripción"
+              maxlength="160"
+              style="width:100%;"
+            />
           </td>
           <td>
-            <input pInputText [(ngModel)]="newDraft.valor" (keydown)="onKeyAdd($event)" placeholder="Valor" maxlength="120" />
+            <input
+              pInputText
+              [(ngModel)]="newDraft.valor"
+              (keydown)="onKeyAdd($event)"
+              placeholder="Valor"
+              maxlength="120"
+              style="width:100%;"
+            />
           </td>
           <td style="text-align:center;">
             <p-inputSwitch [(ngModel)]="newDraft.activo"></p-inputSwitch>
           </td>
-          <td class="actions-inline">
-            <button pButton type="button" icon="pi pi-check" class="p-button-rounded p-button-success p-button-sm" (click)="saveAdd()" [disabled]="saving"></button>
-            <button pButton type="button" icon="pi pi-times" class="p-button-rounded p-button-secondary p-button-sm" (click)="cancelAdd()" [disabled]="saving"></button>
+          <td class="actions-cell">
+            <p-button
+              icon="pi pi-check"
+              [rounded]="true"
+              severity="success"
+              size="small"
+              (onClick)="saveAdd()"
+              [disabled]="saving"
+              pTooltip="Guardar"
+              tooltipPosition="top"
+            ></p-button>
+            <p-button
+              icon="pi pi-times"
+              [rounded]="true"
+              severity="secondary"
+              [text]="true"
+              size="small"
+              (onClick)="cancelAdd()"
+              [disabled]="saving"
+              pTooltip="Cancelar"
+              tooltipPosition="top"
+            ></p-button>
           </td>
         </tr>
 
-        <!-- Fila de datos / edición -->
-        <tr *ngFor="let p of filtered" [ngClass]="{'row-editing': editingCode===p.codigo, 'row-flash': flashRowId===p.id}">
-          <!-- Código -->
-          <td *ngIf="editingCode!==p.codigo">{{ p.codigo }}</td>
-          <td *ngIf="editingCode===p.codigo">
-            <input pInputText [(ngModel)]="editDraft!.codigo" (keydown)="onKeyEdit($event)" style="width:100%; text-transform:uppercase;" maxlength="64" />
+        <!-- Fila normal -->
+        <tr *ngIf="p.id && editingCode !== p.codigo" [ngClass]="{'row-flash': flashRowId === p.id}">
+          <td><strong>{{ p.codigo }}</strong></td>
+          <td>{{ p.descripcion || '-' }}</td>
+          <td>{{ p.valor }}</td>
+          <td style="text-align:center;">
+            <p-tag
+              [value]="p.activo ? 'Sí' : 'No'"
+              [severity]="p.activo ? 'success' : 'danger'"
+            ></p-tag>
           </td>
+          <td class="actions-cell">
+            <p-button
+              icon="pi pi-pencil"
+              [rounded]="true"
+              [text]="true"
+              size="small"
+              (onClick)="startEdit(p)"
+              pTooltip="Editar"
+              tooltipPosition="top"
+            ></p-button>
+            <p-button
+              icon="pi pi-trash"
+              [rounded]="true"
+              [text]="true"
+              severity="danger"
+              size="small"
+              (onClick)="remove(p)"
+              pTooltip="Eliminar"
+              tooltipPosition="top"
+            ></p-button>
+          </td>
+        </tr>
 
-          <!-- Descripción -->
-          <td *ngIf="editingCode!==p.codigo">{{ p.descripcion || '-' }}</td>
-          <td *ngIf="editingCode===p.codigo">
-            <input pInputText [(ngModel)]="editDraft!.descripcion" (keydown)="onKeyEdit($event)" maxlength="160" />
+        <!-- Fila en edición -->
+        <tr *ngIf="p.id && editingCode === p.codigo" class="row-editing">
+          <td>
+            <input
+              pInputText
+              [(ngModel)]="editDraft!.codigo"
+              (keydown)="onKeyEdit($event)"
+              style="width:100%; text-transform:uppercase;"
+              maxlength="64"
+            />
           </td>
-
-          <!-- Valor -->
-          <td *ngIf="editingCode!==p.codigo">{{ p.valor }}</td>
-          <td *ngIf="editingCode===p.codigo">
-            <input pInputText [(ngModel)]="editDraft!.valor" (keydown)="onKeyEdit($event)" maxlength="120" />
+          <td>
+            <input
+              pInputText
+              [(ngModel)]="editDraft!.descripcion"
+              (keydown)="onKeyEdit($event)"
+              maxlength="160"
+              style="width:100%;"
+            />
           </td>
-
-          <!-- Activo -->
-          <td style="text-align:center;" *ngIf="editingCode!==p.codigo">
-            <span class="badge" [ngClass]="p.activo? 'b-green':'b-red'">{{ p.activo? 'Sí':'No' }}</span>
+          <td>
+            <input
+              pInputText
+              [(ngModel)]="editDraft!.valor"
+              (keydown)="onKeyEdit($event)"
+              maxlength="120"
+              style="width:100%;"
+            />
           </td>
-          <td style="text-align:center;" *ngIf="editingCode===p.codigo">
+          <td style="text-align:center;">
             <p-inputSwitch [(ngModel)]="editDraft!.activo"></p-inputSwitch>
           </td>
-
-          <!-- Acciones -->
-          <td class="actions-inline" *ngIf="editingCode!==p.codigo">
-            <button pButton type="button" icon="pi pi-pencil" class="p-button-rounded p-button-text p-button-sm" (click)="startEdit(p)" pTooltip="Editar" tooltipPosition="top"></button>
-            <button pButton type="button" icon="pi pi-trash" class="p-button-rounded p-button-text p-button-sm" (click)="remove(p)" pTooltip="Eliminar" tooltipPosition="top"></button>
-          </td>
-          <td class="actions-inline" *ngIf="editingCode===p.codigo">
-            <button pButton type="button" icon="pi pi-check" class="p-button-rounded p-button-success p-button-sm" (click)="saveEdit()"></button>
-            <button pButton type="button" icon="pi pi-times" class="p-button-rounded p-button-secondary p-button-sm" (click)="cancelEdit()"></button>
+          <td class="actions-cell">
+            <p-button
+              icon="pi pi-check"
+              [rounded]="true"
+              severity="success"
+              size="small"
+              (onClick)="saveEdit()"
+              pTooltip="Guardar"
+              tooltipPosition="top"
+            ></p-button>
+            <p-button
+              icon="pi pi-times"
+              [rounded]="true"
+              severity="secondary"
+              [text]="true"
+              size="small"
+              (onClick)="cancelEdit()"
+              pTooltip="Cancelar"
+              tooltipPosition="top"
+            ></p-button>
           </td>
         </tr>
-        <tr *ngIf="!adding && filtered.length===0">
-          <td colspan="5" class="audit-empty">Sin parámetros configurados</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+      </ng-template>
 
-  <div style="margin-top:1rem; display:flex; gap:.5rem;">
-    <span class="spacer"></span>
-    <small style="opacity:.6;">Enter: guardar • Esc: cancelar</small>
-  </div>
-</p-card>
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="5" class="empty-message">
+            <i class="pi pi-info-circle"></i>
+            <span>Sin parámetros configurados</span>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+
+    <div class="table-footer">
+      <small>
+        <i class="pi pi-info-circle"></i>
+        <strong>Enter:</strong> guardar • <strong>Esc:</strong> cancelar
+      </small>
+    </div>
+  </p-card>
+</div>
 
 <ng-template #loadingOrgTpl>
-  <div style="display:flex; justify-content:center; padding:2rem;">
+  <div class="loading-container">
     <p-progressSpinner></p-progressSpinner>
+    <p>Cargando parámetros...</p>
   </div>
 </ng-template>
 
 <ng-template #errorTpl>
-  <p-card header="Error">
-    <div class="messages error">{{ error }}</div>
-  </p-card>
+  <div class="card">
+    <p-card>
+      <div class="error-container">
+        <i class="pi pi-exclamation-triangle"></i>
+        <h3>Error</h3>
+        <p>{{ error }}</p>
+      </div>
+    </p-card>
+  </div>
 </ng-template>

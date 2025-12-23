@@ -2,6 +2,8 @@ import {Component, OnInit} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {Router, RouterModule, ActivatedRoute} from '@angular/router';
 import {CardModule} from 'primeng/card';
+import {TableModule} from 'primeng/table';
+import {TagModule} from 'primeng/tag';
 import {InputTextModule} from 'primeng/inputtext';
 import {InputSwitchModule} from 'primeng/inputswitch';
 import {ButtonModule} from 'primeng/button';
@@ -36,7 +38,7 @@ interface FieldConfig {
 @Component({
   selector: 'app-organization-params',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, CardModule, InputTextModule, InputSwitchModule, ButtonModule, ProgressSpinnerModule, ConfirmDialogModule, ToastModule, TooltipModule],
+  imports: [CommonModule, RouterModule, FormsModule, CardModule, TableModule, TagModule, InputTextModule, InputSwitchModule, ButtonModule, ProgressSpinnerModule, ConfirmDialogModule, ToastModule, TooltipModule],
   templateUrl: './organization-params.component.html',
   styleUrls: ['./organization-params.component.scss']
 })

@@ -128,27 +128,51 @@
           </div>
 
           <div class="info-grid">
-            <!-- Información Básica del Vehículo -->
+            <!-- Marca -->
             <div class="info-item">
               <div class="info-label">
-                <i class="pi pi-id-card"></i>
-                <span>Tipo de Vehículo</span>
+                <i class="pi pi-bookmark"></i>
+                <span>Marca</span>
               </div>
               <div class="info-value">
-                <strong>{{ validacion.tipo }}</strong>
+                <strong>{{ validacion.marca || 'N/A' }}</strong>
               </div>
             </div>
 
+            <!-- Modelo -->
+            <div class="info-item">
+              <div class="info-label">
+                <i class="pi pi-box"></i>
+                <span>Modelo</span>
+              </div>
+              <div class="info-value">
+                <strong>{{ validacion.modelo || 'N/A' }}</strong>
+              </div>
+            </div>
+
+            <!-- Color -->
             <div class="info-item">
               <div class="info-label">
                 <i class="pi pi-palette"></i>
                 <span>Color</span>
               </div>
               <div class="info-value">
-                <strong>{{ validacion.color }}</strong>
+                <strong>{{ validacion.color || 'N/A' }}</strong>
               </div>
             </div>
 
+            <!-- Tipo de Vehículo -->
+            <div class="info-item">
+              <div class="info-label">
+                <i class="pi pi-id-card"></i>
+                <span>Tipo de Vehículo</span>
+              </div>
+              <div class="info-value">
+                <strong>{{ validacion.tipo || 'No especificado' }}</strong>
+              </div>
+            </div>
+
+            <!-- Estado -->
             <div class="info-item">
               <div class="info-label">
                 <i class="pi pi-info-circle"></i>
@@ -163,87 +187,106 @@
             </div>
 
             <!-- Usuarios Asignados -->
-            <div class="info-item" *ngIf="validacion.usuariosAsignados && validacion.usuariosAsignados.length > 0">
+            <div class="info-item full-width" *ngIf="validacion.usuariosAsignados && validacion.usuariosAsignados.length > 0">
               <div class="info-label">
                 <i class="pi pi-users"></i>
-                <span>Usuarios Asignados</span>
+                <span>Usuarios Autorizados ({{ validacion.usuariosAsignados.length }})</span>
               </div>
               <div class="info-value">
-                <div *ngFor="let usuario of validacion.usuariosAsignados" style="margin-bottom: 0.5rem;">
+                <div *ngFor="let usuario of validacion.usuariosAsignados" style="margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
                   <strong>{{ usuario.nombreCompleto }}</strong>
-                  <span style="color: var(--muted); margin-left: 0.5rem;">
-                    ({{ usuario.identificacion }})
+                  <span style="color: var(--muted);">
+                    {{ usuario.tipoIdentificacion }}: {{ usuario.identificacion }}
                   </span>
                   <p-tag
                     *ngIf="usuario.tieneEntradaAbierta"
-                    value="Entrada Abierta"
-                    severity="warning"
+                    value="Dentro"
+                    severity="success"
+                    icon="pi pi-sign-in"
                     [rounded]="true"
-                    [ngStyle]="{'margin-left': '0.5rem'}"
                   ></p-tag>
                   <p-tag
                     *ngIf="!usuario.activo"
                     value="Inactivo"
                     severity="danger"
                     [rounded]="true"
-                    [ngStyle]="{'margin-left': '0.5rem'}"
+                  ></p-tag>
+                  <p-tag
+                    *ngIf="usuario.activo && !usuario.tieneEntradaAbierta"
+                    value="Fuera"
+                    severity="info"
+                    icon="pi pi-sign-out"
+                    [rounded]="true"
                   ></p-tag>
                 </div>
               </div>
             </div>
 
-            <div class="info-item" *ngIf="!validacion.usuariosAsignados || validacion.usuariosAsignados.length === 0">
+            <div class="info-item full-width" *ngIf="!validacion.usuariosAsignados || validacion.usuariosAsignados.length === 0">
               <div class="info-label">
                 <i class="pi pi-users"></i>
-                <span>Usuarios Asignados</span>
+                <span>Usuarios Autorizados</span>
               </div>
               <div class="info-value">
-                <strong style="color: var(--muted);">Sin usuarios asignados</strong>
+                <span style="color: var(--muted); display: flex; align-items: center; gap: 0.5rem;">
+                  <i class="pi pi-exclamation-triangle"></i>
+                  <strong>Sin usuarios asignados</strong>
+                </span>
               </div>
             </div>
 
             <!-- Último Movimiento -->
-            <div class="info-item" *ngIf="validacion.ultimoMovimiento">
+            <div class="info-item full-width" *ngIf="validacion.ultimoMovimiento">
               <div class="info-label">
-                <i class="pi pi-clock"></i>
-                <span>Último Movimiento</span>
+                <i class="pi pi-history"></i>
+                <span>Último Movimiento Registrado</span>
               </div>
               <div class="info-value">
                 <div style="display: flex; flex-direction: column; gap: 0.5rem;">
-                  <div>
+                  <div style="display: flex; align-items: center; gap: 0.5rem;">
                     <p-tag
                       [value]="validacion.ultimoMovimiento.tipo"
                       [severity]="validacion.ultimoMovimiento.tipo === 'ENTRADA' ? 'success' : 'info'"
+                      [icon]="validacion.ultimoMovimiento.tipo === 'ENTRADA' ? 'pi pi-sign-in' : 'pi pi-sign-out'"
                       [rounded]="true"
                     ></p-tag>
                     <p-tag
                       *ngIf="validacion.ultimoMovimiento.esEntradaAbierta"
-                      value="Sin Salida"
+                      value="Entrada Sin Cerrar"
                       severity="warning"
+                      icon="pi pi-exclamation-triangle"
                       [rounded]="true"
-                      [ngStyle]="{'margin-left': '0.5rem'}"
                     ></p-tag>
                   </div>
-                  <div><strong>Fecha:</strong> {{ formatearFecha(validacion.ultimoMovimiento.fechaMovimiento) }}</div>
-                  <div><strong>Guardia:</strong> {{ validacion.ultimoMovimiento.guardiaNombre }}</div>
-                  <div><strong>Usuario:</strong> {{ validacion.ultimoMovimiento.usuarioNombre }}</div>
+                  <div>
+                    <strong>Fecha y Hora:</strong> {{ validacion.ultimoMovimiento.fechaMovimiento }}
+                  </div>
+                  <div>
+                    <strong>Punto de Control:</strong> {{ validacion.ultimoMovimiento.guardiaNombre }}
+                  </div>
+                  <div>
+                    <strong>Usuario:</strong> {{ validacion.ultimoMovimiento.usuarioNombre }}
+                  </div>
                   <div *ngIf="validacion.ultimoMovimiento.observaciones">
                     <strong>Observaciones:</strong> {{ validacion.ultimoMovimiento.observaciones }}
                   </div>
-                  <div *ngIf="validacion.ultimoMovimiento.permanenciaMinutos !== null">
+                  <div *ngIf="validacion.ultimoMovimiento.permanenciaMinutos !== null && validacion.ultimoMovimiento.permanenciaMinutos !== undefined">
                     <strong>Permanencia:</strong> {{ validacion.ultimoMovimiento.permanenciaMinutos }} minutos
                   </div>
                 </div>
               </div>
             </div>
 
-            <div class="info-item" *ngIf="!validacion.ultimoMovimiento">
+            <div class="info-item full-width" *ngIf="!validacion.ultimoMovimiento">
               <div class="info-label">
-                <i class="pi pi-clock"></i>
+                <i class="pi pi-history"></i>
                 <span>Último Movimiento</span>
               </div>
               <div class="info-value">
-                <strong style="color: var(--muted);">Sin movimientos registrados</strong>
+                <span style="color: var(--muted); display: flex; align-items: center; gap: 0.5rem;">
+                  <i class="pi pi-info-circle"></i>
+                  <strong>Sin movimientos registrados</strong>
+                </span>
               </div>
             </div>
           </div>

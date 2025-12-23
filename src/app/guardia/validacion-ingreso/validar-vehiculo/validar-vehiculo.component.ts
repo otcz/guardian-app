@@ -15,7 +15,7 @@ import { MessageService } from 'primeng/api';
 import { MovimientoGuardiaService } from '../../../service/movimiento-guardia.service';
 
 // Modelos
-import { VehiculoCompletoDTO, UsuarioAsignadoDTO, UltimoMovimientoDTO } from '../../../models/guardia.models';
+import { VehiculoCompletoDTO } from '../../../models/guardia.models';
 import { LABELS } from '../../constants/mensajes.constants';
 
 /**

@@ -56,6 +56,13 @@
           [label]="user.username || '-'"
         ></p-chip>
         <p-chip
+          *ngIf="user.tipoIdentificacion && user.identificacion"
+          icon="pi pi-hashtag"
+          [label]="getTipoIdentificacionLabel(user.tipoIdentificacion) + ': ' + user.identificacion"
+          styleClass="chip-secondary"
+          pTooltip="Documento de identidad"
+        ></p-chip>
+        <p-chip
           *ngIf="lineaMando"
           icon="pi pi-building"
           [label]="lineaMando"
@@ -71,6 +78,12 @@
           *ngIf="isPresent(user.email)"
           icon="pi pi-envelope"
           [label]="user.email || ''"
+          styleClass="chip-secondary"
+        ></p-chip>
+        <p-chip
+          *ngIf="isPresent(user.telefono)"
+          icon="pi pi-phone"
+          [label]="user.telefono || ''"
           styleClass="chip-secondary"
         ></p-chip>
       </div>
@@ -366,6 +379,47 @@
               [severity]="user.activo ? 'success' : 'danger'"
             ></p-tag>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sección: Roles y Permisos -->
+    <div class="info-section">
+      <div class="section-header">
+        <i class="pi pi-shield"></i>
+        <span>Roles y Permisos</span>
+      </div>
+      <div class="roles-section-content">
+        <div *ngIf="rolesLoading" class="roles-loading">
+          <p-progressSpinner [style]="{width: '30px', height: '30px'}"></p-progressSpinner>
+          <span>Cargando roles...</span>
+        </div>
+
+        <div *ngIf="!rolesLoading && roles && roles.length > 0" class="roles-list">
+          <p-tag
+            *ngFor="let roleAssignment of roles"
+            [value]="roleAssignment.rol?.nombre || 'Rol sin nombre'"
+            severity="info"
+            [style]="{'margin-right': '0.5rem', 'margin-bottom': '0.5rem'}"
+          >
+            <span class="role-name">
+              <i class="pi pi-shield"></i>
+              {{ roleAssignment.rol?.nombre || 'Sin nombre' }}
+            </span>
+          </p-tag>
+        </div>
+
+        <div *ngIf="!rolesLoading && (!roles || roles.length === 0)" class="roles-empty">
+          <i class="pi pi-info-circle"></i>
+          <span>Este usuario no tiene roles asignados</span>
+          <p-button
+            label="Asignar roles"
+            icon="pi pi-plus"
+            [text]="true"
+            size="small"
+            [routerLink]="['/gestion-de-usuarios/asignar-roles']"
+            [queryParams]="{ id: user.id }"
+          ></p-button>
         </div>
       </div>
     </div>

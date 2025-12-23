@@ -178,6 +178,70 @@
       }
     }
   }
+
+  // Contenido específico de la sección de roles
+  .roles-section-content {
+    padding: 1.5rem;
+  }
+
+  .roles-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: 2rem;
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+
+  .roles-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+
+    ::ng-deep .p-tag {
+      font-size: 0.9rem;
+      padding: 0.5rem 1rem;
+      background: color-mix(in srgb, var(--primary) 15%, transparent);
+      color: var(--text);
+      border: 1px solid color-mix(in srgb, var(--primary) 30%, transparent);
+
+      .role-name {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+
+        i {
+          color: var(--primary);
+          font-size: 0.85rem;
+        }
+      }
+    }
+  }
+
+  .roles-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: 2rem;
+    text-align: center;
+    color: var(--muted);
+    background: color-mix(in srgb, var(--muted) 5%, transparent);
+    border-radius: 8px;
+    border: 1px dashed var(--border);
+
+    i {
+      font-size: 2rem;
+      color: var(--muted);
+    }
+
+    span {
+      font-size: 0.95rem;
+      font-style: italic;
+    }
+  }
 }
 
 /* Sección de Acciones Rápidas */

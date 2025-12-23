@@ -114,11 +114,43 @@ export class UsuarioGestionarComponent implements OnInit {
   }
 
   private loadRoles() {
-    this.roles = []; this.rolesLoading = true;
-    if (!this.user?.id) { this.rolesLoading = false; return; }
+    this.roles = [];
+    this.rolesLoading = true;
+
+    if (!this.user?.id) {
+      console.log('🔴 [GestionarUsuario] No hay user.id para cargar roles');
+      this.rolesLoading = false;
+      return;
+    }
+
+    console.log('🔄 [GestionarUsuario] Cargando roles para usuario:', this.user.id);
+
     this.rolesSvc.listUserRoles(this.user.id).subscribe({
-      next: (arr) => { this.roles = Array.isArray(arr) ? arr : []; this.rolesLoading = false; this.enrichRolesWithCatalog(); },
-      error: () => { this.roles = []; this.rolesLoading = false; }
+      next: (arr) => {
+        console.log('✅ [GestionarUsuario] Roles recibidos:', arr);
+        console.log('📊 [GestionarUsuario] Cantidad de roles:', arr?.length || 0);
+
+        this.roles = Array.isArray(arr) ? arr : [];
+        this.rolesLoading = false;
+
+        if (this.roles.length > 0) {
+          console.log('📋 [GestionarUsuario] Roles procesados:', this.roles.map(r => ({
+            id: r.id,
+            rolId: r.rolId,
+            rolNombre: r.rol?.nombre || 'Sin nombre',
+            usuarioId: r.usuarioId
+          })));
+        } else {
+          console.log('⚠️ [GestionarUsuario] Usuario sin roles asignados');
+        }
+
+        this.enrichRolesWithCatalog();
+      },
+      error: (err) => {
+        console.error('❌ [GestionarUsuario] Error cargando roles:', err);
+        this.roles = [];
+        this.rolesLoading = false;
+      }
     });
   }
 

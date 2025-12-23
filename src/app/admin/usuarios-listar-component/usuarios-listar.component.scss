@@ -275,6 +275,24 @@
   }
 }
 
+/* Celda de Teléfono */
+.phone-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text);
+
+  .phone-icon {
+    color: var(--primary);
+    font-size: 0.9rem;
+  }
+
+  .phone-number {
+    font-weight: 500;
+    font-size: 0.9rem;
+  }
+}
+
 .text-muted {
   color: var(--muted);
   font-style: italic;

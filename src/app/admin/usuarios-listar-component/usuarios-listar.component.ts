@@ -372,6 +372,11 @@ export class UsuariosListarComponent implements OnInit {
   }
 
   sectionName(u: UserEntity): string {
+    // Priorizar seccionNombre si viene del backend
+    if (u.seccionNombre) {
+      return u.seccionNombre;
+    }
+
     const sid = (u as any)?.seccionId;
     if (!sid) return '-';
 
@@ -398,6 +403,22 @@ export class UsuariosListarComponent implements OnInit {
     }
 
     return String(sid);
+  }
+
+  /**
+   * Obtiene el label amigable del tipo de identificación
+   */
+  getTipoIdentificacionLabel(tipo: string | null | undefined): string {
+    if (!tipo) return '-';
+    const labels: Record<string, string> = {
+      'CEDULA': 'Cédula',
+      'PASAPORTE': 'Pasaporte',
+      'DNI': 'DNI',
+      'RUC': 'RUC',
+      'LICENCIA': 'Licencia',
+      'OTRO': 'Otro'
+    };
+    return labels[tipo] || tipo;
   }
 
   mandoNombre(u: UserEntity): string {

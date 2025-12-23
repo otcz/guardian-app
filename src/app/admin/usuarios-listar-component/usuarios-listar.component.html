@@ -76,6 +76,13 @@
           </div>
           <p-sortIcon field="identificacion"></p-sortIcon>
         </th>
+        <th pSortableColumn="telefono" style="min-width: 140px">
+          <div class="th-content">
+            <i class="pi pi-phone"></i>
+            <span>Teléfono</span>
+          </div>
+          <p-sortIcon field="telefono"></p-sortIcon>
+        </th>
         <th pSortableColumn="activo" style="min-width: 120px; text-align: center">
           <div class="th-content">
             <i class="pi pi-power-off"></i>
@@ -178,7 +185,7 @@
           <div class="id-cell">
             <ng-container *ngIf="u.tipoIdentificacion && u.identificacion; else noId">
               <p-chip icon="pi pi-id-card">
-                <span class="id-type">{{ u.tipoIdentificacion }}</span>
+                <span class="id-type">{{ getTipoIdentificacionLabel(u.tipoIdentificacion) }}</span>
                 <span class="id-separator">:</span>
                 <span class="id-number">{{ u.identificacion }}</span>
               </p-chip>
@@ -187,6 +194,17 @@
               <span class="text-muted">—</span>
             </ng-template>
           </div>
+        </td>
+
+        <!-- Teléfono -->
+        <td>
+          <div class="phone-cell" *ngIf="u.telefono; else noPhone">
+            <i class="pi pi-phone phone-icon"></i>
+            <span class="phone-number">{{ u.telefono }}</span>
+          </div>
+          <ng-template #noPhone>
+            <span class="text-muted">—</span>
+          </ng-template>
         </td>
 
         <!-- Estado -->
@@ -225,7 +243,7 @@
 
     <ng-template pTemplate="emptymessage">
       <tr>
-        <td colspan="6" class="empty-message">
+        <td colspan="7" class="empty-message">
           <i class="pi pi-inbox"></i>
           <span>No hay usuarios para mostrar</span>
         </td>

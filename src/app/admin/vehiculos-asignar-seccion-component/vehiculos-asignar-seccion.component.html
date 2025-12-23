@@ -24,7 +24,7 @@
         <ng-template pTemplate="body" let-row>
           <tr>
             <td>{{ row.placa }}</td>
-            <td><p-tag [severity]="row.activo ? 'success' : 'warn'" [value]="row.activo ? 'ACTIVO' : 'INACTIVO'"></p-tag></td>
+            <td><p-tag [severity]="row.activo ? 'success' : 'warning'" [value]="row.activo ? 'ACTIVO' : 'INACTIVO'"></p-tag></td>
             <td>{{ row.seccionNombre || '—' }}</td>
             <td>
               <button pButton type="button" label="Seleccionar" (click)="seleccionar(row)"></button>
@@ -47,7 +47,7 @@
     <div class="summary">
       <div class="row">
         <label>Vehículo</label>
-        <span>{{ v.placa }} <p-tag [severity]="v.activo ? 'success' : 'warn'" [value]="v.activo ? 'ACTIVO' : 'INACTIVO'"></p-tag></span>
+        <span>{{ v.placa }} <p-tag [severity]="v.activo ? 'success' : 'warning'" [value]="v.activo ? 'ACTIVO' : 'INACTIVO'"></p-tag></span>
       </div>
       <div class="row">
         <label>Sección actual</label>

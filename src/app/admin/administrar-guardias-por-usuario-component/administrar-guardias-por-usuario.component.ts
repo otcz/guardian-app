@@ -18,11 +18,11 @@ import { TooltipModule } from 'primeng/tooltip';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { TagModule } from 'primeng/tag';
 import { BadgeModule } from 'primeng/badge';
-import { Message } from 'primeng/message';
-import { ConfirmDialog } from 'primeng/confirmdialog';
+import { MessageModule } from 'primeng/message';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { TabViewModule } from 'primeng/tabview';
 import { DropdownModule } from 'primeng/dropdown';
-import { InputTextarea } from 'primeng/inputtextarea';
+import { InputTextareaModule } from 'primeng/inputtextarea';
 
 import { OrgContextService } from '../../service/org-context.service';
 import { UsersService, UserEntity } from '../../service/users.service';
@@ -68,11 +68,11 @@ import {
     TooltipModule,
     TagModule,
     BadgeModule,
-    Message,
-    ConfirmDialog,
+    MessageModule,
+    ConfirmDialogModule,
     TabViewModule,
     DropdownModule,
-    InputTextarea
+    InputTextareaModule
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './administrar-guardias-por-usuario.component.html',

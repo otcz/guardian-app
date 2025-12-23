@@ -7,7 +7,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
-import { InputTextarea } from 'primeng/inputtextarea';
+import { InputTextareaModule } from 'primeng/inputtextarea';
 import { DropdownModule } from 'primeng/dropdown';
 import { CheckboxModule } from 'primeng/checkbox';
 import { MessageService } from 'primeng/api';
@@ -36,7 +36,7 @@ interface Seccion {
     CardModule,
     ButtonModule,
     InputTextModule,
-    InputTextarea,
+    InputTextareaModule,
     DropdownModule,
     CheckboxModule,
     ProgressSpinnerModule

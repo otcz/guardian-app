@@ -57,7 +57,7 @@ export class ValidarUsuarioComponent implements OnInit {
   validarAcceso(): void {
     if (!this.identificacion.trim()) {
       this.messageService.add({
-        severity: 'warn',
+        severity: 'warning',
         summary: 'Atención',
         detail: 'Debe ingresar un número de identificación',
         life: 3000

@@ -83,7 +83,7 @@ export class ValidarVehiculoComponent implements OnInit {
   buscarVehiculo(): void {
     if (!this.placa.trim()) {
       this.messageService.add({
-        severity: 'warn',
+        severity: 'warning',
         summary: 'Campo Requerido',
         detail: 'Debe ingresar una placa de vehículo',
         life: 3000
@@ -160,7 +160,7 @@ export class ValidarVehiculoComponent implements OnInit {
    * @param estado Estado calculado (ACTIVO, INACTIVO, BLOQUEADO)
    * @returns Severity para el componente p-tag
    */
-  getSeverityEstado(estado: string): 'success' | 'warn' | 'danger' | 'info' {
+  getSeverityEstado(estado: string): 'success' | 'warning' | 'danger' | 'info' {
     if (!estado) return 'info';
 
     switch (estado.toUpperCase()) {
@@ -169,7 +169,7 @@ export class ValidarVehiculoComponent implements OnInit {
       case 'BLOQUEADO':
         return 'danger';
       case 'INACTIVO':
-        return 'warn';
+        return 'warning';
       default:
         return 'info';
     }
@@ -180,7 +180,7 @@ export class ValidarVehiculoComponent implements OnInit {
    * @param vehiculo Vehículo completo
    * @returns Severity para el componente p-tag
    */
-  getSeverityVehiculo(vehiculo: VehiculoCompletoDTO): 'success' | 'warn' | 'danger' | 'info' {
+  getSeverityVehiculo(vehiculo: VehiculoCompletoDTO): 'success' | 'warning' | 'danger' | 'info' {
     const estado = this.obtenerEstado(vehiculo);
     return this.getSeverityEstado(estado);
   }

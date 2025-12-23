@@ -78,7 +78,7 @@ export class OrganizationFormComponent implements OnInit, OnDestroy {
     const validation = this.validateForm();
     if (validation) {
       this.error = validation;
-      this.messages.add({ severity: 'warn', summary: 'Validación', detail: validation, life: 3500 });
+      this.messages.add({ severity: 'warning', summary: 'Validación', detail: validation, life: 3500 });
       this.form.markAllAsTouched();
       return;
     }

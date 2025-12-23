@@ -27,7 +27,6 @@
     <p-message
       severity="info"
       styleClass="mb-4 w-full"
-      [closable]="false"
     >
       <div class="flex align-items-center">
         <i class="pi pi-info-circle mr-2"></i>
@@ -103,7 +102,7 @@
             <!-- Advertencia de código duplicado -->
             <p-message
               *ngIf="codigoExiste && !verificandoCodigo"
-              severity="warn"
+              severity="warning"
               text="⚠️ Ya existe un punto de control con este código"
               styleClass="mt-2 w-full"
             ></p-message>
@@ -262,7 +261,7 @@
             <!-- Mensaje si no hay usuarios con rol GUARDIA -->
             <p-message
               *ngIf="usuariosGuardia.length === 0"
-              severity="warn"
+              severity="warning"
               styleClass="mt-2 w-full"
             >
               <div class="flex align-items-start">

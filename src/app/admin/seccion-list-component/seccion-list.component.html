@@ -201,7 +201,7 @@
                   (onChange)="onToggleAutonomia(row, $event.checked)"
                   [disabled]="saving">
                 </p-inputSwitch>
-                <p-tag [severity]="row.autonomiaConfigurada ? 'success' : 'warn'" [value]="row.autonomiaConfigurada ? 'CONFIGURADA' : 'NO'"></p-tag>
+                <p-tag [severity]="row.autonomiaConfigurada ? 'success' : 'warning'" [value]="row.autonomiaConfigurada ? 'CONFIGURADA' : 'NO'"></p-tag>
               </div>
             </ng-template>
           </td>

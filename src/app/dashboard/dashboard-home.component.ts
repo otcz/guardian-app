@@ -140,10 +140,10 @@ export class DashboardHomeComponent implements OnInit, OnDestroy {
     const u = this.data?.usuario as any;
     return (u?.documentoIdentidad ?? this.getDocFromLocal() ?? '') as string;
   }
-  get scopeBadge(): { text: string; severity: 'info' | 'success' | 'warn' | 'secondary' } {
+  get scopeBadge(): { text: string; severity: 'info' | 'success' | 'warning' | 'secondary' } {
     if (this.canViewGlobal) return { text: 'Vista global (sistema)', severity: 'info' };
     if (this.canViewOrgWide) return { text: 'Alcance: organización', severity: 'success' };
-    if (this.canViewSectionWide) return { text: 'Alcance: secciones asignadas', severity: 'warn' };
+    if (this.canViewSectionWide) return { text: 'Alcance: secciones asignadas', severity: 'warning' };
     return { text: 'Alcance: personal', severity: 'secondary' };
   }
 

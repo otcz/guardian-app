@@ -6,8 +6,6 @@ import { provideRouter } from '@angular/router';
 import { appRoutes } from './app/app-routing.module';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { authInterceptor } from './app/service/auth.interceptor';
-import { providePrimeNG } from 'primeng/config';
-import Nora from '@primeng/themes/nora';
 import { MessageService } from 'primeng/api';
 import { ConfirmationService } from 'primeng/api';
 
@@ -18,7 +16,6 @@ bootstrapApplication(AppComponent, {
       withInterceptors([authInterceptor])
     ),
     provideAnimations(),
-    providePrimeNG({ theme: { preset: Nora } }),
     MessageService,
     ConfirmationService
   ]

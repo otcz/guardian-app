@@ -202,7 +202,7 @@ export class OrganizationParamsComponent implements OnInit {
     const err = this.validate(this.newDraft, null);
     if (err) {
       this.error = err;
-      this.messageService.add({severity: 'warn', summary: 'Validación', detail: err, life: 3500});
+      this.messageService.add({severity: 'warning', summary: 'Validación', detail: err, life: 3500});
       return;
     }
     const payload = {
@@ -244,7 +244,7 @@ export class OrganizationParamsComponent implements OnInit {
             this.error = e2?.error?.message || 'No se pudo agregar el valor DEFAULT';
             this.saving = false;
             const combined = this.success ? `${this.success}. ${this.error}` : this.error;
-            this.messageService.add({severity: 'warn', summary: 'Atención', detail: combined || undefined, life: 5000});
+            this.messageService.add({severity: 'warning', summary: 'Atención', detail: combined || undefined, life: 5000});
             this.params.push({
               id: created.id,
               codigo: created.codigo,
@@ -287,7 +287,7 @@ export class OrganizationParamsComponent implements OnInit {
     const err = this.validate(this.editDraft, this.editingCode);
     if (err) {
       this.error = err;
-      this.messageService.add({severity: 'warn', summary: 'Validación', detail: err, life: 3500});
+      this.messageService.add({severity: 'warning', summary: 'Validación', detail: err, life: 3500});
       return;
     }
     const paramId = this.editDraft.id!;
@@ -344,7 +344,7 @@ export class OrganizationParamsComponent implements OnInit {
                 error: (e3: any) => {
                   const msg = e3?.error?.message || 'Parámetro actualizado, pero no se pudo crear el valor';
                   this.error = msg;
-                  this.messageService.add({severity: 'warn', summary: 'Atención', detail: msg, life: 4500});
+                  this.messageService.add({severity: 'warning', summary: 'Atención', detail: msg, life: 4500});
                   this.postEditCommit(true);
                 }
               });

@@ -1,4 +1,4 @@
-<p-popover #pop [dismissable]="true" [showCloseIcon]="true" styleClass="user-popover">
+<p-overlayPanel #pop [dismissable]="true" [showCloseIcon]="true" styleClass="user-popover">
   <div class="panel">
     <div class="hero">
       <div class="ring"><div class="inner">{{ initials() }}</div></div>
@@ -35,7 +35,7 @@
       </div>
     </div>
   </div>
-</p-popover>
+</p-overlayPanel>
 
 <div class="chip" (click)="pop.toggle($event)">
   <div class="initials">{{ initials() }}</div>

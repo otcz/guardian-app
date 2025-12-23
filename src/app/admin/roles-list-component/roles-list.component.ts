@@ -377,7 +377,7 @@ export class RolesListComponent implements OnInit, OnDestroy {
   }
   flash(id: string) { this.flashRowId = id; setTimeout(() => this.flashRowId = null, 1200); }
   toastSuccess(summary: string) { if (summary) this.messages.add({ severity: 'success', summary, life: 3500 }); }
-  toastWarn(summary: string) { if (summary) this.messages.add({ severity: 'warn', summary, life: 3500 }); }
+  toastWarn(summary: string) { if (summary) this.messages.add({ severity: 'warning', summary, life: 3500 }); }
   toastError(summary: string) { if (summary) this.messages.add({ severity: 'error', summary, life: 4500 }); }
 
   get rows(): RoleEntity[] { return this.adding ? [this.newDraft, ...this.filtered] : this.filtered; }

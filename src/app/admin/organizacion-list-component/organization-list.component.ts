@@ -109,7 +109,7 @@ export class OrganizationListComponent implements OnInit {
   cancelAdd() { this.adding = false; this.newDraft = this.blank(); }
   saveAdd() {
     const err = this.validate(this.newDraft);
-    if (err) { this.messages.add({ severity: 'warn', summary: 'Validación', detail: err, life: 3500 }); return; }
+    if (err) { this.messages.add({ severity: 'warning', summary: 'Validación', detail: err, life: 3500 }); return; }
     this.saving = true;
     const body = { nombre: (this.newDraft.nombre || '').trim(), activa: !!this.newDraft.activa };
     this.orgService.create(body).subscribe({
@@ -133,7 +133,7 @@ export class OrganizationListComponent implements OnInit {
   saveEdit() {
     if (!this.editDraft || !this.editingId) return;
     const err = this.validate(this.editDraft);
-    if (err) { this.messages.add({ severity: 'warn', summary: 'Validación', detail: err, life: 3500 }); return; }
+    if (err) { this.messages.add({ severity: 'warning', summary: 'Validación', detail: err, life: 3500 }); return; }
     this.saving = true;
     const desiredName = (this.editDraft.nombre || '').trim();
     const desiredActive = !!this.editDraft.activa;
@@ -262,8 +262,8 @@ export class OrganizationListComponent implements OnInit {
   }
 
   confirmAssignAdmin() {
-    if (!this.adminOrgId) { this.messages.add({ severity: 'warn', summary: 'Organización', detail: 'Falta organización', life: 3000 }); return; }
-    if (!this.adminSelectedUserId) { this.messages.add({ severity: 'warn', summary: 'Usuario', detail: 'Seleccione usuario', life: 3000 }); return; }
+    if (!this.adminOrgId) { this.messages.add({ severity: 'warning', summary: 'Organización', detail: 'Falta organización', life: 3000 }); return; }
+    if (!this.adminSelectedUserId) { this.messages.add({ severity: 'warning', summary: 'Usuario', detail: 'Seleccione usuario', life: 3000 }); return; }
     this.adminSaving = true;
 
     this.orgService.assignOrgAdmin(this.adminOrgId!, this.adminSelectedUserId!).subscribe({
@@ -279,17 +279,17 @@ export class OrganizationListComponent implements OnInit {
         this.adminSaving = false;
         const st = e?.status;
         const msg = e?.error?.message || e?.message || '';
-        if (st === 401) return this.messages.add({ severity: 'warn', summary: 'No autenticado', detail: 'Inicie sesión para continuar', life: 4000 });
-        if (st === 403) return this.messages.add({ severity: 'warn', summary: 'No autorizado', detail: 'Solo SYSADMIN puede asignar administrador', life: 4500 });
+        if (st === 401) return this.messages.add({ severity: 'warning', summary: 'No autenticado', detail: 'Inicie sesión para continuar', life: 4000 });
+        if (st === 403) return this.messages.add({ severity: 'warning', summary: 'No autorizado', detail: 'Solo SYSADMIN puede asignar administrador', life: 4500 });
         if (st === 404) return this.messages.add({ severity: 'error', summary: 'No encontrado', detail: msg || 'Organización o usuario no encontrado', life: 5000 });
-        if (st === 400) return this.messages.add({ severity: 'warn', summary: 'Solicitud inválida', detail: msg || 'Datos de entrada inválidos', life: 4500 });
+        if (st === 400) return this.messages.add({ severity: 'warning', summary: 'Solicitud inválida', detail: msg || 'Datos de entrada inválidos', life: 4500 });
         this.messages.add({ severity: 'error', summary: 'Error', detail: msg || 'No se pudo asignar el administrador', life: 5000 });
       }
     });
   }
 
   removeAdmin() {
-    if (!this.adminOrgId) { this.messages.add({ severity: 'warn', summary: 'Organización', detail: 'Falta organización', life: 3000 }); return; }
+    if (!this.adminOrgId) { this.messages.add({ severity: 'warning', summary: 'Organización', detail: 'Falta organización', life: 3000 }); return; }
     this.adminSaving = true;
     this.orgService.removeOrgAdmin(this.adminOrgId!).subscribe({
       next: (res) => {
@@ -304,8 +304,8 @@ export class OrganizationListComponent implements OnInit {
         this.adminSaving = false;
         const st = e?.status;
         const msg = e?.error?.message || e?.message || '';
-        if (st === 401) return this.messages.add({ severity: 'warn', summary: 'No autenticado', detail: 'Inicie sesión para continuar', life: 4000 });
-        if (st === 403) return this.messages.add({ severity: 'warn', summary: 'No autorizado', detail: 'Solo SYSADMIN puede remover administrador', life: 4500 });
+        if (st === 401) return this.messages.add({ severity: 'warning', summary: 'No autenticado', detail: 'Inicie sesión para continuar', life: 4000 });
+        if (st === 403) return this.messages.add({ severity: 'warning', summary: 'No autorizado', detail: 'Solo SYSADMIN puede remover administrador', life: 4500 });
         if (st === 404) {
           // Idempotente: si ya no existía, tratar como éxito suave
           this.messages.add({ severity: 'info', summary: 'Sin cambios', detail: 'La organización no tiene administrador asignado', life: 3500 });

@@ -2,7 +2,7 @@ import { Component, computed, effect, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { AvatarModule } from 'primeng/avatar';
-import { PopoverModule } from 'primeng/popover';
+import { OverlayPanelModule } from 'primeng/overlaypanel';
 import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
 import { AuthService } from '../service/auth.service';
@@ -13,7 +13,7 @@ import { SeccionService, SeccionEntity } from '../service/seccion.service';
 @Component({
   selector: 'app-user-avatar-pro',
   standalone: true,
-  imports: [CommonModule, RouterModule, AvatarModule, PopoverModule, ButtonModule, TagModule],
+  imports: [CommonModule, RouterModule, AvatarModule, OverlayPanelModule, ButtonModule, TagModule],
   templateUrl: './user-avatar-pro.component.html',
   styleUrls: ['./user-avatar-pro.component.scss']
 })

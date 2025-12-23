@@ -6,7 +6,7 @@ import { FormsModule } from '@angular/forms';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
-import { Textarea } from 'primeng/inputtextarea';
+import { InputTextareaModule } from 'primeng/inputtextarea';
 import { DropdownModule } from 'primeng/dropdown';
 import { CheckboxModule } from 'primeng/checkbox';
 import { MessageService } from 'primeng/api';
@@ -56,7 +56,7 @@ type TipoMovimiento = 'ENTRADA' | 'SALIDA';
     CardModule,
     ButtonModule,
     InputTextModule,
-    Textarea,
+    InputTextareaModule,
     DropdownModule,
     CheckboxModule,
     TagModule,

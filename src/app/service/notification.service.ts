@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { MessageService } from 'primeng/api';
 
-export type Severity = 'success' | 'info' | 'warn' | 'error';
+export type Severity = 'success' | 'info' | 'warning' | 'error';
 export interface UIMessage { severity?: Severity; summary?: string; detail?: string; life?: number; key?: string; sticky?: boolean; }
 
 @Injectable({ providedIn: 'root' })
@@ -11,7 +11,7 @@ export class NotificationService {
   show(msg: UIMessage) { this.messages.add({ life: msg.life ?? 3500, ...msg }); }
   success(summary: string, detail?: string) { this.show({ severity: 'success', summary, detail }); }
   info(summary: string, detail?: string) { this.show({ severity: 'info', summary, detail }); }
-  warn(summary: string, detail?: string) { this.show({ severity: 'warn', summary, detail }); }
+  warn(summary: string, detail?: string) { this.show({ severity: 'warning', summary, detail }); }
   error(summary: string, detail?: string) { this.show({ severity: 'error', summary, detail, life: 5000 }); }
 
   // helper para mensajes estándar de CRUD

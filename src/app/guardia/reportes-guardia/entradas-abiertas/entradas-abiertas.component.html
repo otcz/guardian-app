@@ -238,7 +238,7 @@
                   </span>
                 </td>
                 <td>
-                  <p-tag [value]="estado.guardiaNombre" severity="warn" [rounded]="true">
+                  <p-tag [value]="estado.guardiaNombre" severity="warning" [rounded]="true">
                     <i class="pi pi-map-marker"></i>
                   </p-tag>
                 </td>
@@ -363,7 +363,7 @@
         <strong><i class="pi pi-arrow-right-arrow-left"></i> Tipo:</strong>
         <p-tag
           [value]="usuarioSeleccionado.tipoMovimiento"
-          [severity]="usuarioSeleccionado.tipoMovimiento === 'ENTRADA' ? 'success' : 'warn'"
+          [severity]="usuarioSeleccionado.tipoMovimiento === 'ENTRADA' ? 'success' : 'warning'"
           [rounded]="true"
         ></p-tag>
       </div>

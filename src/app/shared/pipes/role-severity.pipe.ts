@@ -1,7 +1,7 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
 // Tipo de severidad compatible con p-tag de PrimeNG
-export type TagSeverity = 'success' | 'secondary' | 'info' | 'warn' | 'danger' | 'contrast';
+export type TagSeverity = 'success' | 'secondary' | 'info' | 'warning' | 'danger' | 'contrast';
 
 @Pipe({
   name: 'roleSeverity',
@@ -14,10 +14,10 @@ export class RoleSeverityPipe implements PipeTransform {
     ['administrator', 'danger'],
     ['superadmin', 'danger'],
     ['owner', 'danger'],
-    ['manager', 'warn'],
-    ['responsable', 'warn'],
-    ['moderator', 'warn'],
-    ['mod', 'warn'],
+    ['manager', 'warning'],
+    ['responsable', 'warning'],
+    ['moderator', 'warning'],
+    ['mod', 'warning'],
     ['user', 'success'],
     ['usuario', 'success'],
     ['guest', 'info'],

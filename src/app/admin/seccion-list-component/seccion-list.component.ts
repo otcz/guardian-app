@@ -332,7 +332,7 @@ export class SeccionListComponent implements OnInit, OnDestroy {
   toastWarn(summary: string, detail?: string) {
     const s = (summary || '').toString().toUpperCase();
     const d = (detail || '').toString().toUpperCase();
-    this.messages.add({severity: 'warn', summary: s, detail: d, life: 3500});
+    this.messages.add({severity: 'warning', summary: s, detail: d, life: 3500});
   }
 
   toastError(summary: string, detail?: string) {

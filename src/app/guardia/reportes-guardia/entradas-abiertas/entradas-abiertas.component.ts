@@ -276,7 +276,7 @@ export class EntradasAbiertasComponent implements OnInit {
     return `${horas}h ${minutos}m`;
   }
 
-  getSeverityTiempo(timestampEntrada: string): 'success' | 'warn' | 'danger' | 'info' {
+  getSeverityTiempo(timestampEntrada: string): 'success' | 'warning' | 'danger' | 'info' {
     if (!timestampEntrada) return 'info';
 
     const entrada = new Date(timestampEntrada);
@@ -284,7 +284,7 @@ export class EntradasAbiertasComponent implements OnInit {
     const horasTranscurridas = (ahora.getTime() - entrada.getTime()) / 3600000;
 
     if (horasTranscurridas < 12) return 'success';
-    if (horasTranscurridas < 24) return 'warn';
+    if (horasTranscurridas < 24) return 'warning';
     return 'danger';
   }
 

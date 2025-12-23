@@ -8,7 +8,7 @@ import { ButtonModule } from 'primeng/button';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { CheckboxModule } from 'primeng/checkbox';
 import { InputTextModule } from 'primeng/inputtext';
-import { InputTextarea } from 'primeng/inputtextarea';
+import { InputTextareaModule } from 'primeng/inputtextarea';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { MessageModule } from 'primeng/message';
 import { MessageService } from 'primeng/api';
@@ -41,7 +41,7 @@ interface Usuario {
     AutoCompleteModule,
     CheckboxModule,
     InputTextModule,
-    InputTextarea,
+    InputTextareaModule,
     ProgressSpinnerModule,
     MessageModule
   ],

@@ -8,7 +8,7 @@ import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
-import { InputTextarea } from 'primeng/inputtextarea';
+import { InputTextareaModule } from 'primeng/inputtextarea';
 import { DropdownModule } from 'primeng/dropdown';
 import { MessageModule } from 'primeng/message';
 import { ToastModule } from 'primeng/toast';
@@ -34,7 +34,7 @@ import { CrearGuardiaConGestorDTO } from '../../models/guardia.models';
     ButtonModule,
     CardModule,
     InputTextModule,
-    InputTextarea,
+    InputTextareaModule,
     DropdownModule,
     MessageModule,
     ToastModule,
@@ -475,7 +475,7 @@ export class PuntoControlCrearComponent implements OnInit, OnDestroy {
 
   private mostrarAdvertencia(mensaje: string): void {
     this.messageService.add({
-      severity: 'warn',
+      severity: 'warning',
       summary: 'Advertencia',
       detail: mensaje,
       life: 5000

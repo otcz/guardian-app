@@ -1,261 +1,236 @@
-<div class="page-container">
-  <p-card class="modern-card">
-    <!-- Header con gradiente -->
+<div class="card">
+  <!-- Header -->
+  <div class="card-header">
+    <h2>
+      <i class="pi pi-users"></i>
+      Gestión de Usuarios
+    </h2>
+    <div class="header-actions">
+      <span class="p-input-icon-left search-input">
+        <i class="pi pi-search"></i>
+        <input
+          pInputText
+          type="text"
+          placeholder="Buscar usuarios..."
+          [(ngModel)]="filter"
+          (ngModelChange)="applyFilter()"
+        />
+      </span>
+      <p-button
+        label="Nuevo Usuario"
+        icon="pi pi-plus"
+        severity="success"
+        [routerLink]="['/gestion-de-usuarios/crear-usuario']"
+      ></p-button>
+    </div>
+  </div>
+
+  <!-- Información estadística -->
+  <div class="stats-info" *ngIf="filtered.length > 0">
+    <div class="stat-item">
+      <i class="pi pi-users"></i>
+      <span>Mostrando <strong>{{ filtered.length }}</strong> usuario(s)</span>
+    </div>
+  </div>
+
+  <!-- Tabla de Usuarios -->
+  <p-table
+    [value]="filtered"
+    [loading]="loading"
+    [paginator]="true"
+    [rows]="pageSize"
+    [rowsPerPageOptions]="rowsOptions"
+    [(first)]="first"
+    [showCurrentPageReport]="true"
+    currentPageReportTemplate="Mostrando {first}-{last} de {totalRecords} usuarios"
+    styleClass="p-datatable-striped"
+    responsiveLayout="scroll"
+  >
+
     <ng-template pTemplate="header">
-      <div class="card-header">
-        <div class="header-content">
-          <i class="pi pi-users header-icon"></i>
-          <h2>Gestión de Usuarios</h2>
-        </div>
-      </div>
+      <tr>
+        <th pSortableColumn="nombreCompleto" style="min-width: 250px">
+          <div class="th-content">
+            <i class="pi pi-user"></i>
+            <span>Usuario</span>
+          </div>
+          <p-sortIcon field="nombreCompleto"></p-sortIcon>
+        </th>
+        <th pSortableColumn="orgNombre" style="min-width: 200px">
+          <div class="th-content">
+            <i class="pi pi-building"></i>
+            <span>Organización/Sección</span>
+          </div>
+          <p-sortIcon field="orgNombre"></p-sortIcon>
+        </th>
+        <th style="min-width: 180px">
+          <div class="th-content">
+            <i class="pi pi-shield"></i>
+            <span>Roles</span>
+          </div>
+        </th>
+        <th pSortableColumn="identificacion" style="min-width: 160px">
+          <div class="th-content">
+            <i class="pi pi-id-card"></i>
+            <span>Identificación</span>
+          </div>
+          <p-sortIcon field="identificacion"></p-sortIcon>
+        </th>
+        <th pSortableColumn="activo" style="min-width: 120px; text-align: center">
+          <div class="th-content">
+            <i class="pi pi-power-off"></i>
+            <span>Estado</span>
+          </div>
+          <p-sortIcon field="activo"></p-sortIcon>
+        </th>
+        <th style="width: 140px; text-align: center">
+          <div class="th-content">
+            <i class="pi pi-cog"></i>
+            <span>Acciones</span>
+          </div>
+        </th>
+      </tr>
     </ng-template>
 
-    <!-- Toolbar -->
-    <div class="toolbar">
-      <div class="toolbar-left">
-        <h3 class="section-title">Listado de Usuarios</h3>
-      </div>
-      <div class="toolbar-right">
-        <!-- Buscador -->
-        <div class="control-container search-container">
-          <label class="control-label">
-            <i class="pi pi-search"></i>
-            Buscar:
-          </label>
-          <input
-            pInputText
-            type="text"
-            placeholder="Buscar por username, nombre, email..."
-            [(ngModel)]="filter"
-            (ngModelChange)="applyFilter()"
-            class="search-input"
-          />
-        </div>
+    <ng-template pTemplate="body" let-u>
+      <tr>
+        <!-- Usuario -->
+        <td>
+          <div class="user-cell">
+            <p-avatar
+              icon="pi pi-user"
+              shape="circle"
+              size="large"
+              [style]="{ 'background': 'linear-gradient(135deg, var(--primary), var(--secondary))', 'color': '#fff' }"
+            ></p-avatar>
+            <div class="user-info">
+              <div class="user-name">{{ u.nombreCompleto || u.username }}</div>
+              <div class="user-details">
+                <span class="username">
+                  <i class="pi pi-at"></i>
+                  {{ u.username }}
+                </span>
+                <span *ngIf="u.email" class="email">
+                  <i class="pi pi-envelope"></i>
+                  {{ u.email }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </td>
 
-        <!-- Botón crear -->
-        <button
-          pButton
-          type="button"
-          label="Nuevo Usuario"
-          icon="pi pi-plus"
-          class="p-button-success"
-          [routerLink]="['/gestion-de-usuarios/crear-usuario']">
-        </button>
-      </div>
-    </div>
+        <!-- Organización/Sección -->
+        <td>
+          <div class="org-stack">
+            <p-chip
+              icon="pi pi-building"
+              [label]="u.orgNombre || orgName || '-'"
+            ></p-chip>
+            <p-chip
+              *ngIf="u.seccionNombre || u.seccionId"
+              icon="pi pi-sitemap"
+              [label]="u.seccionNombre || sectionName(u)"
+              styleClass="chip-secondary"
+            ></p-chip>
+          </div>
+        </td>
 
-    <!-- Estadísticas -->
-    <div class="stats-bar" *ngIf="filtered.length > 0">
-      <div class="stat-item">
-        <i class="pi pi-users"></i>
-        <span>Mostrando <strong>{{ filtered.length }}</strong> usuario(s)</span>
-      </div>
-    </div>
-
-    <!-- Tabla moderna -->
-    <div class="table-container" *ngIf="filtered.length > 0">
-      <p-table
-        [value]="filtered"
-        styleClass="modern-table"
-        [loading]="loading"
-        [paginator]="true"
-        [rows]="pageSize"
-        [rowsPerPageOptions]="rowsOptions"
-        [(first)]="first"
-        responsiveLayout="scroll"
-        [showCurrentPageReport]="true"
-        currentPageReportTemplate="Mostrando {first}-{last} de {totalRecords}">
-
-        <ng-template pTemplate="header">
-          <tr>
-            <th style="width: 280px">
-              <div class="th-content">
-                <i class="pi pi-user"></i>
-                <span>Usuario</span>
-              </div>
-            </th>
-            <th style="width: 220px">
-              <div class="th-content">
-                <i class="pi pi-building"></i>
-                <span>Organización/Sección</span>
-              </div>
-            </th>
-            <th style="width: 200px">
-              <div class="th-content">
-                <i class="pi pi-shield"></i>
-                <span>Roles</span>
-              </div>
-            </th>
-            <th style="width: 180px">
-              <div class="th-content">
-                <i class="pi pi-id-card"></i>
-                <span>Identificación</span>
-              </div>
-            </th>
-            <th style="width: 120px">
-              <div class="th-content">
-                <i class="pi pi-power-off"></i>
-                <span>Estado</span>
-              </div>
-            </th>
-            <th style="width: 140px">
-              <div class="th-content">
-                <i class="pi pi-cog"></i>
-                <span>Acciones</span>
-              </div>
-            </th>
-          </tr>
-        </ng-template>
-
-        <ng-template pTemplate="body" let-u>
-          <tr>
-            <!-- Usuario -->
-            <td>
-              <div class="user-cell">
-                <p-avatar
-                  icon="pi pi-user"
-                  shape="circle"
-                  size="large"
-                  [style]="{ 'background-color': 'rgba(79, 140, 255, 0.1)', 'color': 'var(--primary)' }">
-                </p-avatar>
-                <div class="user-info">
-                  <div class="user-name">{{ u.nombreCompleto || u.username }}</div>
-                  <div class="user-details">
-                    <span class="username">{{ u.username }}</span>
-                    <span *ngIf="u.email" class="separator">·</span>
-                    <span *ngIf="u.email" class="email">{{ u.email }}</span>
+        <!-- Roles -->
+        <td>
+          <ng-container *ngIf="rolesFor(u) as rs">
+            <div class="roles-container" *ngIf="rs.length > 0; else noRoles">
+              <p-tag
+                [value]="rs[0] | roleLabel"
+                [severity]="rs[0] | roleSeverity"
+              ></p-tag>
+              <p-button
+                *ngIf="rs.length > 1"
+                [label]="'+' + (rs.length - 1)"
+                [text]="true"
+                [rounded]="true"
+                size="small"
+                (onClick)="op.toggle($event)"
+              ></p-button>
+              <p-overlayPanel #op [dismissable]="true" [showCloseIcon]="true">
+                <div class="roles-overlay">
+                  <h4>
+                    <i class="pi pi-shield"></i>
+                    Roles del usuario
+                  </h4>
+                  <div class="roles-grid">
+                    <p-tag
+                      *ngFor="let r of rs"
+                      [value]="r | roleLabel"
+                      [severity]="r | roleSeverity"
+                    ></p-tag>
                   </div>
                 </div>
-              </div>
-            </td>
+              </p-overlayPanel>
+            </div>
+            <ng-template #noRoles>
+              <p-tag value="Sin roles" severity="secondary"></p-tag>
+            </ng-template>
+          </ng-container>
+        </td>
 
-            <!-- Organización/Sección -->
-            <td>
-              <div class="org-stack">
-                <p-chip
-                  icon="pi pi-building"
-                  [label]="u.orgNombre || orgName || '-'"
-                  styleClass="org-chip">
-                </p-chip>
-                <p-chip
-                  *ngIf="u.seccionNombre || u.seccionId"
-                  icon="pi pi-sitemap"
-                  [label]="u.seccionNombre || sectionName(u)"
-                  styleClass="section-chip">
-                </p-chip>
-              </div>
-            </td>
+        <!-- Identificación -->
+        <td>
+          <div class="id-cell">
+            <ng-container *ngIf="u.tipoIdentificacion && u.identificacion; else noId">
+              <p-chip icon="pi pi-id-card">
+                <span class="id-type">{{ u.tipoIdentificacion }}</span>
+                <span class="id-separator">:</span>
+                <span class="id-number">{{ u.identificacion }}</span>
+              </p-chip>
+            </ng-container>
+            <ng-template #noId>
+              <span class="text-muted">—</span>
+            </ng-template>
+          </div>
+        </td>
 
-            <!-- Roles -->
-            <td>
-              <ng-container *ngIf="rolesFor(u) as rs">
-                <div class="roles-container" *ngIf="rs.length > 0; else noRoles">
-                  <p-tag
-                    [value]="rs[0] | roleLabel"
-                    [severity]="rs[0] | roleSeverity">
-                  </p-tag>
-                  <button
-                    *ngIf="rs.length > 1"
-                    pButton
-                    type="button"
-                    class="p-button-text p-button-sm more-roles-btn"
-                    [label]="'+' + (rs.length - 1)"
-                    (click)="op.toggle($event)">
-                  </button>
-                  <p-overlayPanel #op [dismissable]="true" [showCloseIcon]="true">
-                    <div class="roles-overlay">
-                      <h4>
-                        <i class="pi pi-shield"></i>
-                        Roles del usuario
-                      </h4>
-                      <div class="roles-grid">
-                        <p-tag
-                          *ngFor="let r of rs"
-                          [value]="r | roleLabel"
-                          [severity]="r | roleSeverity">
-                        </p-tag>
-                      </div>
-                    </div>
-                  </p-overlayPanel>
-                </div>
-                <ng-template #noRoles>
-                  <p-tag value="Sin roles" severity="secondary"></p-tag>
-                </ng-template>
-              </ng-container>
-            </td>
+        <!-- Estado -->
+        <td style="text-align: center">
+          <p-tag
+            [value]="u.activo ? 'ACTIVO' : 'INACTIVO'"
+            [severity]="u.activo ? 'success' : 'danger'"
+          ></p-tag>
+        </td>
 
-            <!-- Identificación (REQ-001) -->
-            <td>
-              <div class="id-cell">
-                <ng-container *ngIf="u.tipoIdentificacion && u.identificacion; else noId">
-                  <p-chip
-                    [icon]="'pi pi-id-card'"
-                    styleClass="id-chip">
-                    <span class="id-type">{{ u.tipoIdentificacion }}</span>
-                    <span class="id-separator">:</span>
-                    <span class="id-number">{{ u.identificacion }}</span>
-                  </p-chip>
-                </ng-container>
-                <ng-template #noId>
-                  <span class="text-muted">—</span>
-                </ng-template>
-              </div>
-            </td>
+        <!-- Acciones -->
+        <td>
+          <div class="action-buttons">
+            <p-button
+              icon="pi pi-cog"
+              [rounded]="true"
+              [text]="true"
+              [routerLink]="['/gestion-de-usuarios/gestionar-usuario']"
+              [queryParams]="{ id: u.id }"
+              pTooltip="Gestionar usuario"
+              tooltipPosition="top"
+            ></p-button>
+            <p-button
+              [icon]="u.activo ? 'pi pi-ban' : 'pi pi-check'"
+              [rounded]="true"
+              [text]="true"
+              [severity]="u.activo ? 'danger' : 'success'"
+              (onClick)="toggle(u)"
+              [pTooltip]="u.activo ? 'Desactivar' : 'Activar'"
+              tooltipPosition="top"
+            ></p-button>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
 
-            <!-- Estado -->
-            <td>
-              <p-tag
-                [value]="u.activo ? 'ACTIVO' : 'INACTIVO'"
-                [severity]="u.activo ? 'success' : 'danger'">
-              </p-tag>
-            </td>
-
-            <!-- Acciones -->
-            <td>
-              <div class="action-buttons">
-                <button
-                  pButton
-                  type="button"
-                  icon="pi pi-cog"
-                  class="action-btn manage-btn"
-                  [routerLink]="['/gestion-de-usuarios/gestionar-usuario']"
-                  [queryParams]="{ id: u.id }"
-                  pTooltip="Gestionar usuario"
-                  tooltipPosition="top">
-                </button>
-                <button
-                  pButton
-                  type="button"
-                  [icon]="u.activo ? 'pi pi-ban' : 'pi pi-check'"
-                  [class]="u.activo ? 'action-btn deactivate-btn' : 'action-btn activate-btn'"
-                  (click)="toggle(u)"
-                  [pTooltip]="u.activo ? 'Desactivar' : 'Activar'"
-                  tooltipPosition="top">
-                </button>
-              </div>
-            </td>
-          </tr>
-        </ng-template>
-
-        <ng-template pTemplate="emptymessage">
-          <tr>
-            <td colspan="6" class="empty-message">
-              <div class="empty-state-inline">
-                <i class="pi pi-inbox"></i>
-                <p>No hay usuarios para mostrar</p>
-              </div>
-            </td>
-          </tr>
-        </ng-template>
-      </p-table>
-    </div>
-
-    <!-- Estado vacío -->
-    <div class="empty-state" *ngIf="!loading && filtered.length === 0">
-      <i class="pi pi-users"></i>
-      <p>No hay usuarios registrados</p>
-      <small>Crea tu primer usuario para comenzar</small>
-    </div>
-  </p-card>
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="6" class="empty-message">
+          <i class="pi pi-inbox"></i>
+          <span>No hay usuarios para mostrar</span>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
 </div>
 

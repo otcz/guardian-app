@@ -9,7 +9,7 @@
       </div>
       <div class="header-text">
         <h1>Validación de Acceso</h1>
-        <p>Verificar identidad y permisos de ingreso de usuarios</p>
+        <p>Verificar identidad y permisos - Solo consulta, no registra movimientos</p>
       </div>
     </div>
   </div>
@@ -249,19 +249,6 @@
             </div>
           </div>
         </div>
-
-        <!-- Botón de Acción -->
-        <div class="action-section" *ngIf="puedeAcceder()">
-          <button
-            pButton
-            type="button"
-            class="p-button-success p-button-lg action-button"
-            icon="pi pi-check-circle"
-            label="Autorizar Ingreso"
-            (click)="permitirAcceso()"
-          ></button>
-        </div>
-
       </p-card>
     </div>
   </div>

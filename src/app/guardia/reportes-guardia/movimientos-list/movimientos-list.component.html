@@ -118,6 +118,7 @@
     currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} movimientos"
     styleClass="p-datatable-striped"
     responsiveLayout="scroll"
+    [globalFilterFields]="['tipo', 'usuario.nombreCompleto', 'usuarioNombre', 'usuario.identificacion', 'usuarioIdentificacion', 'vehiculo.placa', 'vehiculoPlaca', 'guardia.nombre', 'guardiaNombre', 'adminGuardia.nombre', 'adminGuardiaNombre', 'observaciones']"
   >
     <ng-template pTemplate="header">
       <tr>
@@ -127,12 +128,61 @@
         <th pSortableColumn="tipo">
           Tipo <p-sortIcon field="tipo"></p-sortIcon>
         </th>
-        <th>Usuario</th>
-        <th>Vehículo</th>
-        <th>Guardia</th>
-        <th>Admin Guardia</th>
-        <th style="text-align: center">Permanencia (min)</th>
+        <th pSortableColumn="usuario.nombreCompleto">
+          Usuario <p-sortIcon field="usuario.nombreCompleto"></p-sortIcon>
+        </th>
+        <th pSortableColumn="vehiculo.placa">
+          Vehículo <p-sortIcon field="vehiculo.placa"></p-sortIcon>
+        </th>
+        <th pSortableColumn="guardia.nombre">
+          Guardia <p-sortIcon field="guardia.nombre"></p-sortIcon>
+        </th>
+        <th pSortableColumn="adminGuardia.nombre">
+          Admin Guardia <p-sortIcon field="adminGuardia.nombre"></p-sortIcon>
+        </th>
+        <th pSortableColumn="permanenciaMinutos" style="text-align: center">
+          Permanencia <p-sortIcon field="permanenciaMinutos"></p-sortIcon>
+        </th>
         <th>Observaciones</th>
+      </tr>
+      <tr>
+        <th>
+          <p-columnFilter type="date" field="timestampMovimiento" display="menu"></p-columnFilter>
+        </th>
+        <th>
+          <p-columnFilter field="tipo" matchMode="equals" display="menu">
+            <ng-template pTemplate="filter" let-value let-filter="filterCallback">
+              <p-dropdown
+                [ngModel]="value"
+                [options]="tipoOptions"
+                (onChange)="filter($event.value)"
+                placeholder="Filtrar"
+                [showClear]="true"
+                optionLabel="label"
+                optionValue="value"
+              >
+              </p-dropdown>
+            </ng-template>
+          </p-columnFilter>
+        </th>
+        <th>
+          <p-columnFilter type="text" field="usuario.nombreCompleto" display="menu" placeholder="Buscar por nombre"></p-columnFilter>
+        </th>
+        <th>
+          <p-columnFilter type="text" field="vehiculo.placa" display="menu" placeholder="Buscar por placa"></p-columnFilter>
+        </th>
+        <th>
+          <p-columnFilter type="text" field="guardia.nombre" display="menu" placeholder="Buscar por guardia"></p-columnFilter>
+        </th>
+        <th>
+          <p-columnFilter type="text" field="adminGuardia.nombre" display="menu" placeholder="Buscar por admin"></p-columnFilter>
+        </th>
+        <th>
+          <p-columnFilter type="numeric" field="permanenciaMinutos" display="menu"></p-columnFilter>
+        </th>
+        <th>
+          <!-- Sin filtro -->
+        </th>
       </tr>
     </ng-template>
 
@@ -158,8 +208,8 @@
         <td>{{ movimiento.guardia?.nombre || movimiento.guardiaNombre || '-' }}</td>
         <td>{{ movimiento.adminGuardia?.nombre || movimiento.adminGuardiaNombre || '-' }}</td>
         <td style="text-align: center">
-          <span *ngIf="movimiento.permanenciaMinutos">
-            <strong>{{ movimiento.permanenciaMinutos }}</strong> min
+          <span *ngIf="movimiento.permanenciaMinutos" style="font-weight: 500; color: var(--primary-color);">
+            {{ formatearPermanencia(movimiento.permanenciaMinutos) }}
           </span>
           <span *ngIf="!movimiento.permanenciaMinutos">-</span>
         </td>

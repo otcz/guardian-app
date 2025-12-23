@@ -404,6 +404,34 @@ export class MovimientosListComponent implements OnInit {
     });
   }
 
+  /**
+   * Formatea la permanencia de minutos a formato DHM (días, horas, minutos)
+   * Ejemplo: 6543 minutos = 4d 13h 3m
+   */
+  formatearPermanencia(minutos: number | null | undefined): string {
+    if (!minutos || minutos === 0) {
+      return '-';
+    }
+
+    const dias = Math.floor(minutos / 1440); // 1440 minutos = 1 día
+    const horas = Math.floor((minutos % 1440) / 60);
+    const mins = minutos % 60;
+
+    const partes: string[] = [];
+
+    if (dias > 0) {
+      partes.push(`${dias}d`);
+    }
+    if (horas > 0) {
+      partes.push(`${horas}h`);
+    }
+    if (mins > 0 || partes.length === 0) {
+      partes.push(`${mins}m`);
+    }
+
+    return partes.join(' ');
+  }
+
   exportarExcel(): void {
     // TODO: Implementar exportación a Excel
     this.messageService.add({

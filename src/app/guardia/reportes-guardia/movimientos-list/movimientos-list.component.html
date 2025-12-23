@@ -11,9 +11,17 @@
 
   <!-- Filtros -->
   <div class="filtros-container">
-    <div class="p-fluid p-formgrid p-grid">
-      <div class="p-field p-col-12 p-md-4">
-        <label for="filtroGuardia">Guardia</label>
+    <div class="filtros-header">
+      <i class="pi pi-filter"></i>
+      <span>Filtros de Búsqueda</span>
+    </div>
+
+    <div class="filtros-grid">
+      <div class="filter-group">
+        <label for="filtroGuardia">
+          <i class="pi pi-map-marker"></i>
+          Punto de Control
+        </label>
         <p-dropdown
           id="filtroGuardia"
           [(ngModel)]="filtroGuardia"
@@ -23,11 +31,15 @@
           placeholder="Todas las guardias"
           [showClear]="true"
           (onChange)="onFiltroChange()"
+          styleClass="w-full"
         ></p-dropdown>
       </div>
 
-      <div class="p-field p-col-12 p-md-3">
-        <label for="filtroTipo">Tipo</label>
+      <div class="filter-group">
+        <label for="filtroTipo">
+          <i class="pi pi-tag"></i>
+          Tipo de Movimiento
+        </label>
         <p-dropdown
           id="filtroTipo"
           [(ngModel)]="filtroTipo"
@@ -36,21 +48,29 @@
           optionValue="value"
           placeholder="Todos"
           (onChange)="onFiltroChange()"
+          styleClass="w-full"
         ></p-dropdown>
       </div>
 
-      <div class="p-field p-col-12 p-md-5">
-        <label for="rangeFechas">Rango de Fechas</label>
+      <div class="filter-group filter-group-wide">
+        <label for="rangeFechas">
+          <i class="pi pi-calendar"></i>
+          Rango de Fechas
+        </label>
         <p-calendar
           id="rangeFechas"
           [(ngModel)]="rangeFechas"
           selectionMode="range"
           [showIcon]="true"
+          [iconDisplay]="'input'"
           dateFormat="dd/mm/yy"
-          placeholder="Seleccione rango"
+          placeholder="Seleccione rango de fechas"
           (onSelect)="onFiltroChange()"
           (onClearClick)="onFiltroChange()"
           [showClear]="true"
+          [showButtonBar]="true"
+          styleClass="w-full"
+          [readonlyInput]="true"
         ></p-calendar>
       </div>
     </div>

@@ -1,5 +1,8 @@
 .card {
   padding: 1.5rem;
+  background: var(--surface);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .card-header {
@@ -7,48 +10,220 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid var(--border);
 }
 
 .card-header h2 {
   margin: 0;
-  color: #495057;
+  color: var(--text);
+  font-size: 1.5rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
+/* Filtros Section */
 .filtros-container {
   margin-bottom: 1.5rem;
-  padding: 1rem;
-  background-color: #f8f9fa;
-  border-radius: 6px;
+  padding: 1.25rem;
+  background: linear-gradient(135deg, var(--surface-alt) 0%, var(--surface) 100%);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
+.filtros-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+  font-weight: 600;
+  font-size: 1rem;
+
+  i {
+    color: var(--primary);
+    font-size: 1.1rem;
+  }
+}
+
+.filtros-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.25rem;
+  align-items: end;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+    color: var(--text);
+    font-size: 0.9rem;
+
+    i {
+      color: var(--primary);
+      font-size: 0.9rem;
+    }
+  }
+}
+
+.filter-group-wide {
+  grid-column: span 1;
+}
+
+/* Usuario Info */
 .usuario-info {
   display: flex;
   flex-direction: column;
+  gap: 0.25rem;
 }
 
 .usuario-info strong {
-  color: #495057;
+  color: var(--text);
+  font-weight: 500;
 }
 
 .usuario-info small {
-  color: #6c757d;
-  font-size: 0.875rem;
+  color: var(--muted);
+  font-size: 0.85rem;
 }
 
+/* Table Styling */
 ::ng-deep {
-  .p-datatable .p-datatable-thead > tr > th {
-    background-color: #f8f9fa;
-    color: #495057;
-    font-weight: 600;
+  .p-datatable {
+    .p-datatable-thead > tr > th {
+      background: var(--surface-alt);
+      color: var(--text);
+      font-weight: 600;
+      border-bottom: 2px solid var(--border);
+      padding: 1rem;
+    }
+
+    .p-datatable-tbody > tr {
+      transition: background-color 0.2s;
+
+      &:hover {
+        background: var(--surface-alt);
+      }
+
+      > td {
+        padding: 0.875rem 1rem;
+        border-bottom: 1px solid var(--border);
+      }
+    }
+  }
+
+  // Calendar improvements
+  .p-calendar {
+    .p-inputtext {
+      padding: 0.625rem 0.875rem;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      transition: all 0.2s;
+
+      &:enabled:hover {
+        border-color: var(--primary);
+      }
+
+      &:enabled:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(79, 140, 255, 0.1);
+      }
+    }
+
+    .p-datepicker {
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+  }
+
+  // Dropdown improvements
+  .p-dropdown {
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    transition: all 0.2s;
+
+    &:not(.p-disabled):hover {
+      border-color: var(--primary);
+    }
+
+    &.p-focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(79, 140, 255, 0.1);
+    }
+
+    .p-dropdown-label {
+      padding: 0.625rem 0.875rem;
+      color: var(--text);
+    }
+  }
+
+  // Button improvements
+  .p-button {
+    border-radius: 6px;
+    padding: 0.625rem 1.25rem;
+    font-weight: 500;
+    transition: all 0.2s;
+
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
   }
 }
 
 /* Responsive */
 @media (max-width: 768px) {
+  .card {
+    padding: 1rem;
+  }
+
   .card-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 1rem;
+  }
+
+  .card-header h2 {
+    font-size: 1.25rem;
+  }
+
+  .filtros-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .filter-group-wide {
+    grid-column: span 1;
+  }
+}
+
+@media (min-width: 1200px) {
+  .filtros-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .filter-group-wide {
+    grid-column: span 1;
   }
 }
 

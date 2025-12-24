@@ -42,80 +42,96 @@
   }
 }
 
-/* Hero Section del Usuario */
-.user-info-hero {
-  display: flex;
-  align-items: center;
-  gap: 2rem;
-  padding: 2rem;
-  background: linear-gradient(135deg, var(--surface-alt) 0%, var(--surface) 100%);
-  border-bottom: 1px solid var(--border);
-
-  .user-avatar-section {
-    flex-shrink: 0;
-  }
-
-  .user-details-section {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-
-    .user-title-row {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      flex-wrap: wrap;
-
-      h3 {
-        margin: 0;
-        font-size: 1.75rem;
-        font-weight: 600;
-        color: var(--text);
-      }
-    }
-
-    .user-chips-row {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      flex-wrap: wrap;
-
-      ::ng-deep .p-chip {
-        background: color-mix(in srgb, var(--primary) 15%, transparent);
-        color: var(--text);
-        font-weight: 500;
-
-        .p-chip-icon {
-          color: var(--primary);
-        }
-
-        &.chip-secondary {
-          background: color-mix(in srgb, var(--muted) 15%, transparent);
-          color: var(--muted);
-
-          .p-chip-icon {
-            color: var(--muted);
-          }
-        }
-      }
-    }
-  }
-}
-
-/* Skeleton Hero */
-.skeleton-hero {
-  .user-chips-row {
-    gap: 0.5rem;
-  }
-}
-
 /* Secciones de Contenido */
 .content-sections {
   padding: 2rem;
   display: flex;
   flex-direction: column;
   gap: 2rem;
+}
+
+/* Sección Destacada de Identificación */
+.info-section-highlight {
+  background: linear-gradient(135deg,
+    color-mix(in srgb, var(--primary) 5%, var(--surface)) 0%,
+    var(--surface) 100%);
+  border: 2px solid color-mix(in srgb, var(--primary) 20%, transparent);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+
+  .section-header-highlight {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1.25rem 1.5rem;
+    background: linear-gradient(135deg, var(--primary), color-mix(in srgb, var(--primary) 85%, #000));
+    color: white;
+    font-weight: 600;
+    font-size: 1.1rem;
+
+    i {
+      font-size: 1.3rem;
+    }
+  }
+
+  .id-info-card {
+    padding: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+
+    .id-info-main {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+
+      .id-info-type,
+      .id-info-number {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .id-info-type-label,
+      .id-info-number-label {
+        font-size: 0.8rem;
+        color: var(--muted);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .id-info-type-value {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--primary);
+      }
+
+      .id-info-number-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--text);
+        letter-spacing: 1px;
+        font-family: 'Courier New', monospace;
+      }
+
+      .id-info-divider {
+        width: 2px;
+        height: 60px;
+        background: linear-gradient(to bottom,
+          transparent,
+          var(--border),
+          transparent);
+      }
+    }
+
+    .id-info-actions {
+      display: flex;
+      align-items: center;
+    }
+  }
 }
 
 .info-section {
@@ -198,6 +214,7 @@
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
+
 
     ::ng-deep .p-tag {
       font-size: 0.9rem;
@@ -422,6 +439,44 @@
       }
     }
   }
+
+  /* Sección Destacada de Identificación - Responsive */
+  .info-section-highlight {
+    .id-info-card {
+      flex-direction: column;
+      padding: 1.5rem;
+
+      .id-info-main {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1.5rem;
+        width: 100%;
+
+        .id-info-divider {
+          width: 100%;
+          height: 2px;
+          background: linear-gradient(to right,
+            transparent,
+            var(--border),
+            transparent);
+        }
+
+        .id-info-type,
+        .id-info-number {
+          width: 100%;
+        }
+
+        .id-info-number-value {
+          font-size: 1.3rem;
+        }
+      }
+
+      .id-info-actions {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+  }
 }
 
 /* Ajustes por tema */
@@ -432,8 +487,11 @@
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
   }
 
-  .user-info-hero {
-    background: linear-gradient(135deg, color-mix(in srgb, var(--surface-alt) 50%, #000) 0%, var(--surface) 100%);
+  .info-section-highlight {
+    background: linear-gradient(135deg,
+      color-mix(in srgb, var(--primary) 8%, var(--surface)) 0%,
+      color-mix(in srgb, var(--surface) 95%, #000) 100%);
+    border-color: color-mix(in srgb, var(--primary) 30%, transparent);
   }
 
   .info-section {

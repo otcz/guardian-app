@@ -19,7 +19,7 @@
         <i class="pi pi-map-marker mr-2"></i>
         <span>
           <strong>Contexto:</strong>
-          <span class="ml-2">{{ nombreOrganizacion || 'Organizaci�n' }}</span>
+          <span class="ml-2">{{ nombreOrganizacion || 'Organización' }}</span>
           <i class="pi pi-angle-right mx-2"></i>
           <span>{{ nombreSeccion }}</span>
         </span>
@@ -153,7 +153,7 @@
                           <i class="pi pi-map-marker mr-2"></i>{{ relacion.guardiaNombre }}
                         </div>
                         <div class="text-sm text-color-secondary mt-1">
-                          C�digo: {{ relacion.guardiaCodigo }}
+                          Código: {{ relacion.guardiaCodigo }}
                         </div>
                         <div *ngIf="relacion.observaciones" class="text-sm text-color-secondary mt-1">
                           <i class="pi pi-info-circle mr-1"></i>{{ relacion.observaciones }}
@@ -198,7 +198,7 @@
                           <i class="pi pi-ban mr-2"></i>{{ relacion.guardiaNombre }}
                         </div>
                         <div class="text-sm text-color-secondary mt-1">
-                          C�digo: {{ relacion.guardiaCodigo }}
+                          Código: {{ relacion.guardiaCodigo }}
                         </div>
                         <div *ngIf="relacion.motivoRestriccion" class="text-sm danger-color mt-1">
                           <i class="pi pi-exclamation-triangle mr-1"></i>Motivo: {{ relacion.motivoRestriccion }}
@@ -209,7 +209,7 @@
                           icon="pi pi-check"
                           severity="success"
                           [text]="true"
-                          label="Quitar Restricci�n"
+                          label="Quitar Restricción"
                           (onClick)="onQuitarRestriccionUsuario(relacion)"
                         ></p-button>
                       </div>
@@ -233,17 +233,18 @@
                       [options]="getGuardiasNoAsignadas()"
                       [(ngModel)]="guardiasSeleccionadasParaAsignar"
                       optionLabel="nombre"
-                      placeholder="?? Buscar y seleccionar guardias..."
+                      placeholder="Buscar y seleccionar guardias..."
                       [filter]="true"
                       [filterMatchMode]="'contains'"
                       filterBy="nombre,codigo"
-                      filterPlaceHolder="Buscar por nombre o c�digo..."
+                      filterPlaceHolder="Buscar por nombre o código..."
                       emptyFilterMessage="No se encontraron guardias"
                       emptyMessage="No hay guardias disponibles"
                       [showToggleAll]="true"
                       [showHeader]="true"
                       styleClass="flex-1 w-full"
                       [panelStyle]="{ 'min-width': '400px', 'max-width': '600px' }"
+                      appendTo="body"
                     >
                       <ng-template let-guardia pTemplate="item">
                         <div class="flex align-items-center gap-2">
@@ -264,7 +265,7 @@
                   </div>
                 </div>
 
-                <!-- Bot�n de Exportaci�n -->
+                <!-- Botón de Exportación -->
                 <div *ngIf="!loadingGuardiasUsuario" class="mt-4 flex justify-content-center">
                   <p-button
                     [icon]="descargandoReporteUsuario ? 'pi pi-spin pi-spinner' : 'pi pi-file-excel'"
@@ -388,7 +389,7 @@
                       severity="secondary"
                       [outlined]="true"
                       (onClick)="onAbrirConfiguracionGuardia(guardiaSeleccionadaDetalle)"
-                      pTooltip="Ver y editar configuraci�n completa de la guardia"
+                      pTooltip="Ver y editar configuración completa de la guardia"
                       tooltipPosition="left"
                     ></p-button>
                   </div>
@@ -470,7 +471,7 @@
                           icon="pi pi-check"
                           severity="success"
                           [text]="true"
-                          label="Quitar Restricci�n"
+                          label="Quitar Restricción"
                           (onClick)="onQuitarRestriccionGuardia(relacion)"
                         ></p-button>
                       </div>
@@ -494,7 +495,7 @@
                       [options]="getUsuariosNoAsignados()"
                       [(ngModel)]="usuariosSeleccionadosParaAsignar"
                       optionLabel="nombreCompleto"
-                      placeholder="?? Buscar y seleccionar usuarios..."
+                      placeholder="Buscar y seleccionar usuarios..."
                       [filter]="true"
                       [filterMatchMode]="'contains'"
                       filterBy="nombreCompleto,username,email"
@@ -505,6 +506,7 @@
                       [showHeader]="true"
                       styleClass="flex-1 w-full"
                       [panelStyle]="{ 'min-width': '400px', 'max-width': '600px' }"
+                      appendTo="body"
                     >
                       <ng-template let-usuario pTemplate="item">
                         <div class="flex align-items-center gap-2">
@@ -525,7 +527,7 @@
                   </div>
                 </div>
 
-                <!-- Bot�n de Exportaci�n -->
+                <!-- Botón de Exportación -->
                 <div *ngIf="!loadingUsuariosGuardia" class="mt-4 flex justify-content-center">
                   <p-button
                     [icon]="descargandoReporteGuardia ? 'pi pi-spin pi-spinner' : 'pi pi-file-excel'"
@@ -550,7 +552,7 @@
   </p-tabView>
 </div>
 
-<!-- Modal de Restricci�n -->
+<!-- Modal de Restricción -->
 <p-dialog
   [(visible)]="mostrarModalRestriccion"
   [modal]="true"
@@ -558,14 +560,14 @@
   header="Restringir Acceso"
 >
   <div class="field">
-    <label for="motivoRestriccion">Motivo de la Restricci�n *</label>
+    <label for="motivoRestriccion">Motivo de la Restricción *</label>
     <textarea
       id="motivoRestriccion"
       pInputTextarea
       [(ngModel)]="motivoRestriccionInput"
       rows="4"
       class="w-full"
-      placeholder="Ej: Usuario en per�odo de prueba, Sanci�n disciplinaria, etc."
+      placeholder="Ej: Usuario en período de prueba, Sanción disciplinaria, etc."
     ></textarea>
   </div>
 
@@ -577,7 +579,7 @@
       (onClick)="mostrarModalRestriccion = false"
     ></p-button>
     <p-button
-      label="Confirmar Restricci�n"
+      label="Confirmar Restricción"
       icon="pi pi-check"
       severity="warning"
       (onClick)="confirmarRestriccionNuevo()"
@@ -587,11 +589,11 @@
 </p-dialog>
 
 <!-- ============================================ -->
-<!-- MODAL: Configuraci�n de Guardia -->
+<!-- MODAL: Configuración de Guardia -->
 <!-- ============================================ -->
 <p-dialog
   [(visible)]="mostrarModalConfigGuardia"
-  header="Configuraci�n de Guardia"
+  header="Configuración de Guardia"
   [modal]="true"
   [draggable]="false"
   [resizable]="false"
@@ -635,10 +637,10 @@
         />
       </div>
 
-      <!-- C�digo (solo lectura) -->
+      <!-- Código (solo lectura) -->
       <div class="col-12 md:col-6">
         <label for="guardiaCodigo" class="font-semibold block mb-2">
-          <i class="pi pi-tag mr-2"></i>C�digo
+          <i class="pi pi-tag mr-2"></i>Código
         </label>
         <input
           id="guardiaCodigo"
@@ -648,13 +650,13 @@
           class="w-full"
           [disabled]="true"
         />
-        <small class="text-color-secondary">El c�digo no se puede modificar</small>
+        <small class="text-color-secondary">El código no se puede modificar</small>
       </div>
 
-      <!-- Ubicaci�n -->
+      <!-- Ubicación -->
       <div class="col-12 md:col-6">
         <label for="guardiaUbicacion" class="font-semibold block mb-2">
-          <i class="pi pi-map mr-2"></i>Ubicaci�n
+          <i class="pi pi-map mr-2"></i>Ubicación
         </label>
         <input
           id="guardiaUbicacion"
@@ -666,10 +668,10 @@
         />
       </div>
 
-      <!-- Descripci�n -->
+      <!-- Descripción -->
       <div class="col-12">
         <label for="guardiaDescripcion" class="font-semibold block mb-2">
-          <i class="pi pi-info-circle mr-2"></i>Descripci�n
+          <i class="pi pi-info-circle mr-2"></i>Descripción
         </label>
         <textarea
           id="guardiaDescripcion"
@@ -687,7 +689,7 @@
           <i class="pi pi-user-edit mr-2"></i>Usuario Administrador de Guardia
         </label>
         <p class="text-sm text-color-secondary mb-3">
-          El usuario administrador puede gestionar esta guardia espec�fica
+          El usuario administrador puede gestionar esta guardia específica
         </p>
 
         <!-- Usuario actual -->
@@ -724,6 +726,7 @@
             styleClass="w-full"
             emptyMessage="No hay usuarios administradores disponibles"
             [loading]="cargandoUsuariosAdmin"
+            appendTo="body"
           >
             <ng-template let-usuario pTemplate="item">
               <div class="flex flex-column">
@@ -746,7 +749,7 @@
         Zona de Peligro
       </h5>
       <p class="text-sm mb-3" style="color: #856404;">
-        La eliminaci�n de la guardia es permanente y no se puede deshacer. Solo se puede eliminar si no tiene movimientos registrados.
+        La eliminación de la guardia es permanente y no se puede deshacer. Solo se puede eliminar si no tiene movimientos registrados.
       </p>
       <p-button
         label="Eliminar Guardia Permanentemente"

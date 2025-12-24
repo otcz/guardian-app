@@ -46,7 +46,6 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const ctx = inject(OrgContextService);
   const router = inject(Router);
   const auth = inject(AuthService);
-  const notify = inject(NotificationService);
 
   // Normalizar path sin origen (para URLs absolutas)
   const urlPath = req.url.replace(/^https?:\/\/[^/]+/i, '');
@@ -80,11 +79,6 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
         router.navigate(['/login']);
       } else if (status === 403) {
         router.navigate(['/no-autorizado']);
-      } else if (status === 400) {
-        if (!quietHeader && !isVehiculosMis) {
-          const msg = err?.error?.message || err?.message || 'Solicitud inválida';
-          notify.warn('Solicitud inválida', msg);
-        }
       }
       return throwError(() => err);
     })

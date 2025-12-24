@@ -31,64 +31,7 @@
     </div>
   </div>
 
-  <!-- Información del Usuario (Hero Section) -->
-  <div class="user-info-hero">
-    <div class="user-avatar-section">
-      <p-avatar
-        [label]="userInitial"
-        shape="circle"
-        size="xlarge"
-        [style]="{ 'background': 'linear-gradient(135deg, var(--primary), var(--secondary))', 'color': '#fff', 'font-size': '2.5rem', 'width': '100px', 'height': '100px' }"
-      ></p-avatar>
-    </div>
-    <div class="user-details-section">
-      <div class="user-title-row">
-        <h3>{{ user.nombreCompleto || user.username }}</h3>
-        <p-tag
-          [value]="user.activo ? 'ACTIVO' : 'INACTIVO'"
-          [severity]="user.activo ? 'success' : 'danger'"
-          [style]="{'font-size': '0.9rem', 'padding': '0.5rem 1rem'}"
-        ></p-tag>
-      </div>
-      <div class="user-chips-row">
-        <p-chip
-          icon="pi pi-id-card"
-          [label]="user.username || '-'"
-        ></p-chip>
-        <p-chip
-          *ngIf="user.tipoIdentificacion && user.identificacion"
-          icon="pi pi-hashtag"
-          [label]="getTipoIdentificacionLabel(user.tipoIdentificacion) + ': ' + user.identificacion"
-          styleClass="chip-secondary"
-          pTooltip="Documento de identidad"
-        ></p-chip>
-        <p-chip
-          *ngIf="lineaMando"
-          icon="pi pi-building"
-          [label]="lineaMando"
-          styleClass="chip-secondary"
-        ></p-chip>
-        <p-chip
-          *ngIf="roles && roles.length"
-          icon="pi pi-user"
-          [label]="roles[0].rol?.nombre || (user.rolNombre || '—')"
-          pTooltip="Rol principal"
-        ></p-chip>
-        <p-chip
-          *ngIf="isPresent(user.email)"
-          icon="pi pi-envelope"
-          [label]="user.email || ''"
-          styleClass="chip-secondary"
-        ></p-chip>
-        <p-chip
-          *ngIf="isPresent(user.telefono)"
-          icon="pi pi-phone"
-          [label]="user.telefono || ''"
-          styleClass="chip-secondary"
-        ></p-chip>
-      </div>
-    </div>
-  </div>
+
 
   <!-- Formulario de edición -->
   <div class="edit-section" *ngIf="editing">
@@ -263,13 +206,20 @@
 
   <!-- Vista solo lectura -->
   <div *ngIf="!editing" class="content-sections">
-    <!-- Sección: Información de Cuenta -->
+    <!-- Sección: Información Básica -->
     <div class="info-section">
       <div class="section-header">
         <i class="pi pi-user"></i>
-        <span>Información de Cuenta</span>
+        <span>Información Básica</span>
       </div>
       <div class="info-grid">
+        <div class="info-item" *ngIf="user.nombreCompleto">
+          <span class="info-label">Nombre completo</span>
+          <div class="info-value">
+            <strong>{{ user.nombreCompleto }}</strong>
+          </div>
+        </div>
+
         <div class="info-item" *ngIf="user.username">
           <span class="info-label">Username</span>
           <div class="info-value">
@@ -286,13 +236,58 @@
           </div>
         </div>
 
-        <div class="info-item" *ngIf="isPresent(user.nombreCompleto)">
-          <span class="info-label">Nombre completo</span>
+        <div class="info-item">
+          <span class="info-label">Estado</span>
           <div class="info-value">
-            <strong>{{ user.nombreCompleto }}</strong>
+            <p-tag
+              [value]="user.activo ? 'ACTIVO' : 'INACTIVO'"
+              [severity]="user.activo ? 'success' : 'danger'"
+            ></p-tag>
           </div>
         </div>
+      </div>
+    </div>
 
+    <!-- Sección: Identificación (Destacada) -->
+    <div class="info-section-highlight" *ngIf="user.tipoIdentificacion && user.identificacion">
+      <div class="section-header-highlight">
+        <i class="pi pi-id-card"></i>
+        <span>Identificación Personal</span>
+      </div>
+      <div class="id-info-card">
+        <div class="id-info-main">
+          <div class="id-info-type">
+            <span class="id-info-type-label">Tipo de Documento</span>
+            <span class="id-info-type-value">{{ getTipoIdentificacionLabel(user.tipoIdentificacion) }}</span>
+          </div>
+          <div class="id-info-divider"></div>
+          <div class="id-info-number">
+            <span class="id-info-number-label">Número</span>
+            <span class="id-info-number-value">{{ user.identificacion }}</span>
+          </div>
+        </div>
+        <div class="id-info-actions">
+          <p-button
+            icon="pi pi-copy"
+            [rounded]="true"
+            severity="secondary"
+            [outlined]="true"
+            size="small"
+            (onClick)="copy(user.identificacion)"
+            pTooltip="Copiar número de identificación"
+            tooltipPosition="top"
+          ></p-button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sección: Información de Contacto -->
+    <div class="info-section">
+      <div class="section-header">
+        <i class="pi pi-envelope"></i>
+        <span>Información de Contacto</span>
+      </div>
+      <div class="info-grid">
         <div class="info-item" *ngIf="isPresent(user.email)">
           <span class="info-label">Email</span>
           <div class="info-value">
@@ -322,29 +317,6 @@
           <span class="info-label">Teléfono</span>
           <div class="info-value">
             <strong>{{ user.telefono }}</strong>
-          </div>
-        </div>
-
-        <div class="info-item" *ngIf="isPresent(user.tipoIdentificacion)">
-          <span class="info-label">Tipo de Identificación</span>
-          <div class="info-value">
-            <strong>{{ getTipoIdentificacionLabel(user.tipoIdentificacion) }}</strong>
-          </div>
-        </div>
-
-        <div class="info-item" *ngIf="isPresent(user.identificacion)">
-          <span class="info-label">Número de Identificación</span>
-          <div class="info-value">
-            <strong>{{ user.identificacion }}</strong>
-            <p-button
-              icon="pi pi-copy"
-              [rounded]="true"
-              [text]="true"
-              size="small"
-              (onClick)="copy(user.identificacion)"
-              pTooltip="Copiar"
-              tooltipPosition="top"
-            ></p-button>
           </div>
         </div>
       </div>
@@ -473,23 +445,6 @@
       </h2>
     </div>
 
-    <div class="user-info-hero skeleton-hero">
-      <div class="user-avatar-section">
-        <p-skeleton shape="circle" size="100px"></p-skeleton>
-      </div>
-      <div class="user-details-section">
-        <div class="user-title-row">
-          <p-skeleton width="280px" height="32px"></p-skeleton>
-          <p-skeleton width="100px" height="32px"></p-skeleton>
-        </div>
-        <div class="user-chips-row">
-          <p-skeleton width="140px" height="32px" borderRadius="16px"></p-skeleton>
-          <p-skeleton width="220px" height="32px" borderRadius="16px"></p-skeleton>
-          <p-skeleton width="160px" height="32px" borderRadius="16px"></p-skeleton>
-        </div>
-      </div>
-    </div>
-
     <div class="content-sections">
       <div class="info-section">
         <div class="section-header">
@@ -497,6 +452,16 @@
         </div>
         <div class="info-grid">
           <p-skeleton width="100%" height="48px" [style]="{'margin-bottom': '1rem'}"></p-skeleton>
+          <p-skeleton width="100%" height="48px" [style]="{'margin-bottom': '1rem'}"></p-skeleton>
+          <p-skeleton width="100%" height="48px"></p-skeleton>
+        </div>
+      </div>
+
+      <div class="info-section">
+        <div class="section-header">
+          <p-skeleton width="220px" height="24px"></p-skeleton>
+        </div>
+        <div class="info-grid">
           <p-skeleton width="100%" height="48px" [style]="{'margin-bottom': '1rem'}"></p-skeleton>
           <p-skeleton width="100%" height="48px"></p-skeleton>
         </div>

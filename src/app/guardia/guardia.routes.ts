@@ -72,40 +72,6 @@ export const GUARDIA_ROUTES: Routes = [
     }
   },
 
-  // Gestión de Guardias (CRUD)
-  {
-    path: 'gestion',
-    canActivate: [AuthGuard],
-    data: {
-      roles: ['ADMIN', 'ORGADMIN']
-    },
-    children: [
-      {
-        path: '',
-        loadComponent: () =>
-          import('./gestion-guardias/guardia-list/guardia-list.component').then(
-            m => m.GuardiaListComponent
-          ),
-        data: { permission: 'ITEM_LISTAR_GUARDIAS' }
-      },
-      {
-        path: 'nuevo',
-        loadComponent: () =>
-          import('./gestion-guardias/guardia-form/guardia-form.component').then(
-            m => m.GuardiaFormComponent
-          ),
-        data: { permission: 'ITEM_CREAR_GUARDIA' }
-      },
-      {
-        path: ':id/editar',
-        loadComponent: () =>
-          import('./gestion-guardias/guardia-form/guardia-form.component').then(
-            m => m.GuardiaFormComponent
-          ),
-        data: { permission: 'ITEM_GESTIONAR_GUARDIA' }
-      }
-    ]
-  },
 
   // Administrar Guardias por Usuario
   {

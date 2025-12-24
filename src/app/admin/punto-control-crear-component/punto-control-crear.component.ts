@@ -217,10 +217,6 @@ export class PuntoControlCrearComponent implements OnInit, OnDestroy {
    * Cargar usuarios con rol GUARDIA de la sección
    */
   private cargarUsuariosGuardia(): void {
-    console.log('🔵 Iniciando carga de usuarios GUARDIA');
-    console.log('   - Organización ID:', this.organizacionId);
-    console.log('   - Sección ID:', this.seccionId);
-
     if (!this.organizacionId || !this.seccionId) {
       console.warn('⚠️ No hay organización o sección, no se pueden cargar usuarios');
       return;
@@ -232,23 +228,15 @@ export class PuntoControlCrearComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (usuarios: UserEntity[]) => {
-          console.log('✅ Usuarios recibidos del backend:', usuarios.length);
-
           // Filtrar usuarios con rol GUARDIA
           this.usuariosGuardia = usuarios.filter(u => {
             const rolesStr = (u.rolNombres || []).join(',').toUpperCase();
-            const tieneRol = rolesStr.includes('GUARDIA') || u.rolNombre?.toUpperCase() === 'GUARDIA';
-            if (tieneRol) {
-              console.log('   ✓ Usuario con rol GUARDIA encontrado:', u.username, u.nombreCompleto);
-            }
-            return tieneRol;
+            return rolesStr.includes('GUARDIA') || u.rolNombre?.toUpperCase() === 'GUARDIA';
           });
 
-          console.log('🟢 Total usuarios con rol GUARDIA:', this.usuariosGuardia.length);
           this.loading = false;
 
           if (this.usuariosGuardia.length === 0) {
-            console.warn('⚠️ No hay usuarios con rol GUARDIA en esta sección');
             this.mostrarAdvertencia(
               '⚠️ No hay usuarios con rol GUARDIA en esta sección. ' +
               'Debe crear usuarios con rol GUARDIA antes de crear puntos de control.'
@@ -256,7 +244,6 @@ export class PuntoControlCrearComponent implements OnInit, OnDestroy {
           }
         },
         error: (err) => {
-          console.error('❌ Error al cargar usuarios:', err);
           this.loading = false;
           this.mostrarError('Error al cargar usuarios: ' + (err?.error?.message || 'Error desconocido'));
         }

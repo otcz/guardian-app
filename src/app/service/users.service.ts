@@ -337,9 +337,6 @@ export class UsersService {
     const queryParams: any = {};
     if (params?.seccionId) {
       queryParams.seccionId = params.seccionId;
-      try {
-        console.log('[UsersService] ℹ️ Parámetro seccionId enviado:', params.seccionId, '(puede ser ignorado por backend para admins de sección)');
-      } catch {}
     }
     if (params?.excludeAdmins !== undefined) {
       queryParams.excludeAdmins = params.excludeAdmins;

@@ -93,12 +93,10 @@ export class ValidarVehiculoComponent implements OnInit {
 
     this.buscando = true;
     const placaBusqueda = this.placa.trim().toUpperCase();
-    console.log('🔍 Buscando vehículo con placa:', placaBusqueda);
 
     // Usar el nuevo endpoint que busca por placa
     this.movimientoService.buscarVehiculoPorPlaca(placaBusqueda).subscribe({
       next: (vehiculo: VehiculoCompletoDTO) => {
-        console.log('✅ Vehículo encontrado:', vehiculo);
         this.buscando = false;
         this.validacion = vehiculo;
 

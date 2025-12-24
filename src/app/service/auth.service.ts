@@ -134,7 +134,6 @@ export class AuthService {
               if (userIdRaw != null) {
                 localStorage.setItem('userId', String(userIdRaw));
                 localStorage.setItem('currentUserId', String(userIdRaw)); // alias para compatibilidad
-                console.log('[AuthService] ✅ Usuario ID guardado:', userIdRaw);
               }
             } catch (e) {
               console.error('[AuthService] Error al guardar userId:', e);

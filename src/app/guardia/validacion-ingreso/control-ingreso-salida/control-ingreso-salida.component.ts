@@ -595,16 +595,6 @@ export class ControlIngresoSalidaComponent implements OnInit, AfterViewInit, OnD
       observaciones: this.observaciones || null
     };
 
-    // 🔍 DEBUG: Logs detallados
-    console.log('🔵 === REGISTRO DE ENTRADA ===');
-    console.log('🔵 guardiaId:', this.guardiaId);
-    console.log('🔵 usuarioId:', this.validacionUsuario.id);
-    console.log('🔵 vehiculoId:', vehiculoId);
-    console.log('🔵 adminGuardiaId:', this.usuarioId);
-    console.log('🔵 tipoMovimientoConfig:', this.tipoMovimientoConfig);
-    console.log('🔵 permiteEntrada:', guardiaSeleccionada?.permiteEntrada);
-    console.log('🔵 DTO completo:', dto);
-    console.log('🔵 Endpoint: POST /api/movimientos-guardia/entrada');
 
     this.movimientoService.registrarEntrada(dto).subscribe({
       next: (movimiento) => {
@@ -672,15 +662,6 @@ export class ControlIngresoSalidaComponent implements OnInit, AfterViewInit, OnD
       observaciones: this.observaciones || null
     };
 
-    // 🔍 DEBUG: Logs detallados
-    console.log('🟢 === REGISTRO DE SALIDA ===');
-    console.log('🟢 guardiaId:', this.guardiaId);
-    console.log('🟢 usuarioId:', this.validacionUsuario.id);
-    console.log('🟢 vehiculoId:', vehiculoId);
-    console.log('🟢 adminGuardiaId:', this.usuarioId);
-    console.log('🟢 permiteSalida:', guardiaSeleccionada?.permiteSalida);
-    console.log('🟢 DTO completo:', dto);
-    console.log('🟢 Endpoint: POST /api/movimientos-guardia/salida');
 
     this.movimientoService.registrarSalida(dto).subscribe({
       next: (movimiento) => {

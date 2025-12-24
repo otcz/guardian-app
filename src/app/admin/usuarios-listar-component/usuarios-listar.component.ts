@@ -81,7 +81,6 @@ export class UsuariosListarComponent implements OnInit {
 
   private sectionNameCache: Record<string, string> = {};
   private sectionFetchInFlight = new Set<string>();
-  private isDevelopment = !environment.production;
 
   constructor(
     private orgCtx: OrgContextService,
@@ -271,24 +270,9 @@ export class UsuariosListarComponent implements OnInit {
     if (!this.orgId) return;
     this.loading = true;
 
-    if (this.isDevelopment) {
-      console.log('[UsuariosListar] 📡 Cargando usuarios desde backend');
-      console.log('[UsuariosListar] ℹ️ Backend aplica filtrado automático desde JWT del usuario');
-    }
-
     // ⚠️ NO enviar params.seccionId - el backend lo detecta automáticamente desde el JWT
     this.users.list(this.orgId).subscribe({
       next: list => {
-        if (this.isDevelopment) {
-          console.log(`[UsuariosListar] ✅ Recibidos ${list.length} usuarios del backend (ya filtrados)`);
-          const seccionesMap = new Map<string, number>();
-          list.forEach(u => {
-            const secNombre = u.seccionNombre || 'Sin sección';
-            seccionesMap.set(secNombre, (seccionesMap.get(secNombre) || 0) + 1);
-          });
-          console.log('[UsuariosListar] 📊 Distribución por sección:', Object.fromEntries(seccionesMap));
-        }
-
         // ✅ El backend YA retorna usuarios filtrados - NO aplicar filtro manual
         this.usuarios = list;
         this.applyFilter();
@@ -307,27 +291,18 @@ export class UsuariosListarComponent implements OnInit {
         switch (status) {
           case 403:
             errorMsg = 'No tiene permisos para listar usuarios';
-            if (this.isDevelopment) {
-              console.error('[UsuariosListar] ❌ 403 Forbidden - Sin permisos');
-            }
             break;
           case 404:
             errorMsg = 'Organización no encontrada';
-            if (this.isDevelopment) {
-              console.error('[UsuariosListar] ❌ 404 Not Found - Organización inexistente');
-            }
             break;
           case 500:
             errorMsg = 'Error del servidor. Intente nuevamente';
-            if (this.isDevelopment) {
-              console.error('[UsuariosListar] ❌ 500 Internal Server Error');
-            }
             break;
           default:
             errorMsg = e?.error?.message || errorMsg;
         }
 
-        console.error('[UsuariosListar] ❌ Error al cargar usuarios:', e);
+        console.error('[UsuariosListar] Error al cargar usuarios:', e);
         this.notify.error('Error', errorMsg);
       }
     });
@@ -438,22 +413,12 @@ export class UsuariosListarComponent implements OnInit {
     });
 
     if (usersWithoutRoles.length === 0) {
-      if (this.isDevelopment) {
-        console.log('[UsuariosListar] ✅ Todos los usuarios tienen roles asignados');
-      }
       return;
-    }
-
-    if (this.isDevelopment) {
-      console.log(`[UsuariosListar] 🔄 Cargando roles para ${usersWithoutRoles.length} usuarios sin roles`);
     }
 
     const requests = usersWithoutRoles.map(u =>
       this.rolesSvc.listUserRoles(u.id).pipe(
         catchError(err => {
-          if (this.isDevelopment) {
-            console.error(`[UsuariosListar] ❌ Error cargando roles de ${u.username}:`, err);
-          }
           return of([]);
         })
       )
@@ -461,20 +426,12 @@ export class UsuariosListarComponent implements OnInit {
 
     forkJoin(requests).subscribe({
       next: results => {
-        if (this.isDevelopment) {
-          console.log('[UsuariosListar] ✅ Roles cargados exitosamente');
-        }
-
         results.forEach((roles, index) => {
           const user = usersWithoutRoles[index];
           if (roles && roles.length > 0) {
             const rolesNombres = roles.map(r => r.rolNombre || r.rol?.nombre || '').filter(Boolean);
             (user as any).rolNombres = rolesNombres;
             (user as any).rolNombre = rolesNombres[0] || null;
-
-            if (this.isDevelopment) {
-              console.log(`[UsuariosListar] ✅ ${user.username} → roles:`, rolesNombres);
-            }
           }
         });
 
@@ -482,7 +439,7 @@ export class UsuariosListarComponent implements OnInit {
         this.applyFilter();
       },
       error: err => {
-        console.error('[UsuariosListar] ❌ Error cargando roles faltantes:', err);
+        console.error('[UsuariosListar] Error cargando roles faltantes:', err);
       }
     });
   }
@@ -497,14 +454,6 @@ export class UsuariosListarComponent implements OnInit {
     const single: string[] = (u as any).rolNombre ? [String((u as any).rolNombre)] : [];
     const fallbackCtx: string[] = this.roleByUserId[u.id] ? [this.roleByUserId[u.id]] : [];
 
-    if (this.isDevelopment && u.scopeNivel === 'ORGANIZACION' && !fromNames.length && !fromOrg.length && !single.length && !fallbackCtx.length) {
-      console.warn('[UsuariosListar] ⚠️ Usuario ORGANIZACION sin roles:', {
-        username: u.username,
-        scopeNivel: u.scopeNivel,
-        rolNombres: (u as any).rolNombres,
-        rolesOrganizacion: (u as any).rolesOrganizacion
-      });
-    }
 
     const preferred: string[] = fromNames.length
       ? fromNames

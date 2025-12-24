@@ -11,6 +11,7 @@ import { DropdownModule } from 'primeng/dropdown';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ToastModule } from 'primeng/toast';
 import { ConfirmationService, MessageService } from 'primeng/api';
 
 // Servicios
@@ -39,9 +40,10 @@ interface Seccion {
     DropdownModule,
     TagModule,
     TooltipModule,
-    ConfirmDialogModule
+    ConfirmDialogModule,
+    ToastModule
   ],
-  providers: [ConfirmationService],
+  providers: [ConfirmationService, MessageService],
   templateUrl: './guardia-list.component.html',
   styleUrls: ['./guardia-list.component.scss']
 })
@@ -248,6 +250,82 @@ export class GuardiaListComponent implements OnInit {
                   detail: MENSAJES_ERROR.ERROR_GENERICO
                 });
               }
+            });
+          }
+        });
+      }
+    });
+  }
+
+  /**
+   * Toggle del permiso de entrada
+   */
+  togglePermiteEntrada(guardia: Guardia): void {
+    const nuevoEstado = !guardia.permiteEntrada;
+    const mensaje = nuevoEstado
+      ? '¿Desea habilitar las entradas en esta guardia?'
+      : '¿Desea bloquear las entradas en esta guardia? Los usuarios no podrán registrar ingresos.';
+
+    this.confirmationService.confirm({
+      message: mensaje,
+      header: nuevoEstado ? 'Habilitar Entradas' : 'Bloquear Entradas',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        this.guardiaService.modificarPermiteEntrada(guardia.id, nuevoEstado).subscribe({
+          next: (guardiaActualizada) => {
+            // Actualización optimista
+            guardia.permiteEntrada = guardiaActualizada.permiteEntrada;
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Éxito',
+              detail: nuevoEstado
+                ? 'Entradas habilitadas correctamente'
+                : 'Entradas bloqueadas correctamente'
+            });
+          },
+          error: (err) => {
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: err?.error?.message || MENSAJES_ERROR.ERROR_GENERICO
+            });
+          }
+        });
+      }
+    });
+  }
+
+  /**
+   * Toggle del permiso de salida
+   */
+  togglePermiteSalida(guardia: Guardia): void {
+    const nuevoEstado = !guardia.permiteSalida;
+    const mensaje = nuevoEstado
+      ? '¿Desea habilitar las salidas en esta guardia?'
+      : '¿Desea bloquear las salidas en esta guardia? Los usuarios no podrán registrar egresos.';
+
+    this.confirmationService.confirm({
+      message: mensaje,
+      header: nuevoEstado ? 'Habilitar Salidas' : 'Bloquear Salidas',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        this.guardiaService.modificarPermiteSalida(guardia.id, nuevoEstado).subscribe({
+          next: (guardiaActualizada) => {
+            // Actualización optimista
+            guardia.permiteSalida = guardiaActualizada.permiteSalida;
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Éxito',
+              detail: nuevoEstado
+                ? 'Salidas habilitadas correctamente'
+                : 'Salidas bloqueadas correctamente'
+            });
+          },
+          error: (err) => {
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: err?.error?.message || MENSAJES_ERROR.ERROR_GENERICO
             });
           }
         });

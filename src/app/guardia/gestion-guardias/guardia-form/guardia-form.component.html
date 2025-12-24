@@ -1,4 +1,4 @@
-as compo<div class="form-container">
+<div class="form-container">
   <p-card>
     <ng-template pTemplate="header">
       <div class="card-header">
@@ -122,9 +122,15 @@ as compo<div class="form-container">
         </small>
       </div>
 
-      <!-- Permisos (solo en edición) -->
-      <div *ngIf="modoEdicion" class="permisos-section">
-        <h3>Permisos de Operación</h3>
+      <!-- Permisos de Operación (Creación y Edición) -->
+      <div class="permisos-section">
+        <h3>
+          Permisos de Operación
+          <i class="pi pi-info-circle"
+             pTooltip="Configure qué tipos de movimientos se pueden registrar en esta guardia"
+             tooltipPosition="right"
+             style="font-size: 0.9rem; margin-left: 0.5rem; color: var(--primary-color);"></i>
+        </h3>
         <div class="p-field-checkbox">
           <p-checkbox
             id="permiteEntrada"
@@ -132,7 +138,13 @@ as compo<div class="form-container">
             [binary]="true"
             inputId="permiteEntrada"
           ></p-checkbox>
-          <label for="permiteEntrada">{{ LABELS.PERMITE_ENTRADA }}</label>
+          <label for="permiteEntrada">
+            {{ LABELS.PERMITE_ENTRADA }}
+            <i class="pi pi-info-circle"
+               pTooltip="Si está desactivado, no se podrán registrar entradas en esta guardia"
+               tooltipPosition="right"
+               style="font-size: 0.8rem; margin-left: 0.3rem; color: var(--text-color-secondary);"></i>
+          </label>
         </div>
 
         <div class="p-field-checkbox">
@@ -142,7 +154,13 @@ as compo<div class="form-container">
             [binary]="true"
             inputId="permiteSalida"
           ></p-checkbox>
-          <label for="permiteSalida">{{ LABELS.PERMITE_SALIDA }}</label>
+          <label for="permiteSalida">
+            {{ LABELS.PERMITE_SALIDA }}
+            <i class="pi pi-info-circle"
+               pTooltip="Si está desactivado, no se podrán registrar salidas en esta guardia"
+               tooltipPosition="right"
+               style="font-size: 0.8rem; margin-left: 0.3rem; color: var(--text-color-secondary);"></i>
+          </label>
         </div>
       </div>
 

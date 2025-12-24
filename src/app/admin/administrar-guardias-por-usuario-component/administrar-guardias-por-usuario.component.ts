@@ -1655,4 +1655,98 @@ export class AdministrarGuardiasPorUsuarioComponent implements OnInit {
       }
     });
   }
+
+  /**
+   * Toggle del permiso de entrada en el modal de configuración
+   */
+  onTogglePermiteEntrada(): void {
+    if (!this.guardiaEditando) return;
+
+    const nuevoEstado = !this.guardiaEditando.permiteEntrada;
+    const mensaje = nuevoEstado
+      ? '¿Desea habilitar las entradas en esta guardia? Los usuarios podrán registrar ingresos.'
+      : '¿Desea bloquear las entradas en esta guardia? Los usuarios NO podrán registrar ingresos.';
+
+    this.confirmationService.confirm({
+      message: mensaje,
+      header: nuevoEstado ? 'Habilitar Entradas' : 'Bloquear Entradas',
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Sí, confirmar',
+      rejectLabel: 'Cancelar',
+      accept: () => {
+        this.guardiaService.modificarPermiteEntrada(this.guardiaEditando!.id, nuevoEstado).subscribe({
+          next: (guardiaActualizada) => {
+            this.guardiaEditando!.permiteEntrada = guardiaActualizada.permiteEntrada;
+
+            // Actualizar en la lista local
+            const index = this.guardias.findIndex(g => g.id === guardiaActualizada.id);
+            if (index !== -1) {
+              this.guardias[index] = guardiaActualizada;
+            }
+
+            // Si es la guardia seleccionada actualmente, actualizarla
+            if (this.guardiaSeleccionadaDetalle?.id === guardiaActualizada.id) {
+              this.guardiaSeleccionadaDetalle = guardiaActualizada;
+            }
+
+            this.mostrarExito(
+              nuevoEstado
+                ? '✅ Entradas habilitadas correctamente'
+                : '✅ Entradas bloqueadas correctamente'
+            );
+          },
+          error: (err) => {
+            this.mostrarError('Error al cambiar permisos de entrada: ' + (err?.error?.message || 'Error desconocido'));
+          }
+        });
+      }
+    });
+  }
+
+  /**
+   * Toggle del permiso de salida en el modal de configuración
+   */
+  onTogglePermiteSalida(): void {
+    if (!this.guardiaEditando) return;
+
+    const nuevoEstado = !this.guardiaEditando.permiteSalida;
+    const mensaje = nuevoEstado
+      ? '¿Desea habilitar las salidas en esta guardia? Los usuarios podrán registrar egresos.'
+      : '¿Desea bloquear las salidas en esta guardia? Los usuarios NO podrán registrar egresos.';
+
+    this.confirmationService.confirm({
+      message: mensaje,
+      header: nuevoEstado ? 'Habilitar Salidas' : 'Bloquear Salidas',
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Sí, confirmar',
+      rejectLabel: 'Cancelar',
+      accept: () => {
+        this.guardiaService.modificarPermiteSalida(this.guardiaEditando!.id, nuevoEstado).subscribe({
+          next: (guardiaActualizada) => {
+            this.guardiaEditando!.permiteSalida = guardiaActualizada.permiteSalida;
+
+            // Actualizar en la lista local
+            const index = this.guardias.findIndex(g => g.id === guardiaActualizada.id);
+            if (index !== -1) {
+              this.guardias[index] = guardiaActualizada;
+            }
+
+            // Si es la guardia seleccionada actualmente, actualizarla
+            if (this.guardiaSeleccionadaDetalle?.id === guardiaActualizada.id) {
+              this.guardiaSeleccionadaDetalle = guardiaActualizada;
+            }
+
+            this.mostrarExito(
+              nuevoEstado
+                ? '✅ Salidas habilitadas correctamente'
+                : '✅ Salidas bloqueadas correctamente'
+            );
+          },
+          error: (err) => {
+            this.mostrarError('Error al cambiar permisos de salida: ' + (err?.error?.message || 'Error desconocido'));
+          }
+        });
+      }
+    });
+  }
 }

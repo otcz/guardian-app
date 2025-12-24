@@ -335,6 +335,25 @@
                       <div *ngIf="guardia.ubicacion" class="text-sm text-color-secondary">
                         <i class="pi pi-map-marker mr-1"></i>{{ guardia.ubicacion }}
                       </div>
+
+                      <!-- Indicadores de Permisos -->
+                      <div class="flex gap-2 mt-2">
+                        <p-tag
+                          [value]="guardia.permiteEntrada ? 'Entrada' : 'Sin Entrada'"
+                          [severity]="guardia.permiteEntrada ? 'success' : 'danger'"
+                          [icon]="guardia.permiteEntrada ? 'pi pi-sign-in' : 'pi pi-lock'"
+                          [pTooltip]="guardia.permiteEntrada ? 'Permite registrar entradas' : 'Entradas bloqueadas'"
+                          tooltipPosition="top"
+                        ></p-tag>
+                        <p-tag
+                          [value]="guardia.permiteSalida ? 'Salida' : 'Sin Salida'"
+                          [severity]="guardia.permiteSalida ? 'success' : 'danger'"
+                          [icon]="guardia.permiteSalida ? 'pi pi-sign-out' : 'pi pi-lock'"
+                          [pTooltip]="guardia.permiteSalida ? 'Permite registrar salidas' : 'Salidas bloqueadas'"
+                          tooltipPosition="top"
+                        ></p-tag>
+                      </div>
+
                       <!-- Usuario Gestor -->
                       <div *ngIf="guardia.usuarioGestorId" class="text-sm mt-2 p-2 border-round" style="background-color: #f0f9ff; border-left: 3px solid #0ea5e9;">
                         <div class="flex align-items-center gap-2">
@@ -738,6 +757,88 @@
           <small class="text-color-secondary mt-2 block">
             Solo usuarios con rol GUARDIA pueden gestionar este punto de control
           </small>
+        </div>
+      </div>
+
+      <!-- Permisos de Operación -->
+      <div class="col-12 mt-3">
+        <div class="p-3 border-round" style="background-color: var(--surface-50); border: 1px solid var(--surface-200);">
+          <label class="font-semibold block mb-3">
+            <i class="pi pi-lock mr-2"></i>Permisos de Operación
+          </label>
+          <p class="text-sm text-color-secondary mb-3">
+            Configure qué tipos de movimientos se pueden registrar en esta guardia
+          </p>
+
+          <div class="grid">
+            <!-- Permite Entrada -->
+            <div class="col-12 md:col-6">
+              <div class="flex align-items-center justify-content-between p-3 border-round"
+                   [style.background-color]="guardiaEditando.permiteEntrada ? '#d4edda' : '#f8d7da'"
+                   [style.border]="guardiaEditando.permiteEntrada ? '1px solid #c3e6cb' : '1px solid #f5c6cb'">
+                <div class="flex-1">
+                  <div class="flex align-items-center gap-2 mb-2">
+                    <i [class]="guardiaEditando.permiteEntrada ? 'pi pi-check-circle' : 'pi pi-times-circle'"
+                       [style.color]="guardiaEditando.permiteEntrada ? '#28a745' : '#dc3545'"></i>
+                    <span class="font-semibold" [style.color]="guardiaEditando.permiteEntrada ? '#155724' : '#721c24'">
+                      Permite Entrada
+                    </span>
+                  </div>
+                  <p class="text-sm m-0" [style.color]="guardiaEditando.permiteEntrada ? '#155724' : '#721c24'">
+                    {{ guardiaEditando.permiteEntrada
+                      ? 'Se pueden registrar ingresos'
+                      : 'Entradas bloqueadas' }}
+                  </p>
+                </div>
+                <p-button
+                  [label]="guardiaEditando.permiteEntrada ? 'Bloquear' : 'Habilitar'"
+                  [icon]="guardiaEditando.permiteEntrada ? 'pi pi-lock' : 'pi pi-lock-open'"
+                  [severity]="guardiaEditando.permiteEntrada ? 'danger' : 'success'"
+                  [outlined]="true"
+                  size="small"
+                  (onClick)="onTogglePermiteEntrada()"
+                  [pTooltip]="guardiaEditando.permiteEntrada
+                    ? 'Click para bloquear entradas'
+                    : 'Click para habilitar entradas'"
+                  tooltipPosition="top"
+                ></p-button>
+              </div>
+            </div>
+
+            <!-- Permite Salida -->
+            <div class="col-12 md:col-6">
+              <div class="flex align-items-center justify-content-between p-3 border-round"
+                   [style.background-color]="guardiaEditando.permiteSalida ? '#d4edda' : '#f8d7da'"
+                   [style.border]="guardiaEditando.permiteSalida ? '1px solid #c3e6cb' : '1px solid #f5c6cb'">
+                <div class="flex-1">
+                  <div class="flex align-items-center gap-2 mb-2">
+                    <i [class]="guardiaEditando.permiteSalida ? 'pi pi-check-circle' : 'pi pi-times-circle'"
+                       [style.color]="guardiaEditando.permiteSalida ? '#28a745' : '#dc3545'"></i>
+                    <span class="font-semibold" [style.color]="guardiaEditando.permiteSalida ? '#155724' : '#721c24'">
+                      Permite Salida
+                    </span>
+                  </div>
+                  <p class="text-sm m-0" [style.color]="guardiaEditando.permiteSalida ? '#155724' : '#721c24'">
+                    {{ guardiaEditando.permiteSalida
+                      ? 'Se pueden registrar egresos'
+                      : 'Salidas bloqueadas' }}
+                  </p>
+                </div>
+                <p-button
+                  [label]="guardiaEditando.permiteSalida ? 'Bloquear' : 'Habilitar'"
+                  [icon]="guardiaEditando.permiteSalida ? 'pi pi-lock' : 'pi pi-lock-open'"
+                  [severity]="guardiaEditando.permiteSalida ? 'danger' : 'success'"
+                  [outlined]="true"
+                  size="small"
+                  (onClick)="onTogglePermiteSalida()"
+                  [pTooltip]="guardiaEditando.permiteSalida
+                    ? 'Click para bloquear salidas'
+                    : 'Click para habilitar salidas'"
+                  tooltipPosition="top"
+                ></p-button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

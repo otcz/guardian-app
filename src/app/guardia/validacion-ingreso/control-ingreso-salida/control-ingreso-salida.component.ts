@@ -575,6 +575,16 @@ export class ControlIngresoSalidaComponent implements OnInit, AfterViewInit, OnD
       return;
     }
 
+    // ✅ VALIDAR PERMISO DE ENTRADA EN LA GUARDIA
+    const guardiaSeleccionada = this.guardias.find(g => g.id === this.guardiaId);
+    if (guardiaSeleccionada && !guardiaSeleccionada.permiteEntrada) {
+      this.tituloError = 'Entrada Bloqueada';
+      this.mensajeError = 'La guardia seleccionada tiene las entradas BLOQUEADAS. No se pueden registrar ingresos en este momento. Contacte al administrador.';
+      this.mostrarModalError = true;
+      this.registrando = false;
+      return;
+    }
+
     this.registrando = true;
 
     const dto: RegistrarEntradaDTO = {
@@ -592,6 +602,7 @@ export class ControlIngresoSalidaComponent implements OnInit, AfterViewInit, OnD
     console.log('🔵 vehiculoId:', vehiculoId);
     console.log('🔵 adminGuardiaId:', this.usuarioId);
     console.log('🔵 tipoMovimientoConfig:', this.tipoMovimientoConfig);
+    console.log('🔵 permiteEntrada:', guardiaSeleccionada?.permiteEntrada);
     console.log('🔵 DTO completo:', dto);
     console.log('🔵 Endpoint: POST /api/movimientos-guardia/entrada');
 
@@ -641,6 +652,16 @@ export class ControlIngresoSalidaComponent implements OnInit, AfterViewInit, OnD
       return;
     }
 
+    // ✅ VALIDAR PERMISO DE SALIDA EN LA GUARDIA
+    const guardiaSeleccionada = this.guardias.find(g => g.id === this.guardiaId);
+    if (guardiaSeleccionada && !guardiaSeleccionada.permiteSalida) {
+      this.tituloError = 'Salida Bloqueada';
+      this.mensajeError = 'La guardia seleccionada tiene las salidas BLOQUEADAS. No se pueden registrar egresos en este momento. Contacte al administrador.';
+      this.mostrarModalError = true;
+      this.registrando = false;
+      return;
+    }
+
     this.registrando = true;
 
     const dto: RegistrarSalidaDTO = {
@@ -650,6 +671,16 @@ export class ControlIngresoSalidaComponent implements OnInit, AfterViewInit, OnD
       adminGuardiaId: this.usuarioId,
       observaciones: this.observaciones || null
     };
+
+    // 🔍 DEBUG: Logs detallados
+    console.log('🟢 === REGISTRO DE SALIDA ===');
+    console.log('🟢 guardiaId:', this.guardiaId);
+    console.log('🟢 usuarioId:', this.validacionUsuario.id);
+    console.log('🟢 vehiculoId:', vehiculoId);
+    console.log('🟢 adminGuardiaId:', this.usuarioId);
+    console.log('🟢 permiteSalida:', guardiaSeleccionada?.permiteSalida);
+    console.log('🟢 DTO completo:', dto);
+    console.log('🟢 Endpoint: POST /api/movimientos-guardia/salida');
 
     this.movimientoService.registrarSalida(dto).subscribe({
       next: (movimiento) => {

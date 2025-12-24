@@ -119,6 +119,26 @@ export class GuardiaService {
   }
 
   /**
+   * Modificar permiso de entrada de una guardia
+   * Endpoint: PUT /api/guardias/{guardiaId}/permite-entrada?permite={boolean}
+   * Permisos: ITEM_GESTIONAR_GUARDIA
+   */
+  modificarPermiteEntrada(guardiaId: string, permite: boolean): Observable<Guardia> {
+    const params = new HttpParams().set('permite', permite.toString());
+    return this.http.put<Guardia>(`${this.API_URL}/${guardiaId}/permite-entrada`, {}, { params });
+  }
+
+  /**
+   * Modificar permiso de salida de una guardia
+   * Endpoint: PUT /api/guardias/{guardiaId}/permite-salida?permite={boolean}
+   * Permisos: ITEM_GESTIONAR_GUARDIA
+   */
+  modificarPermiteSalida(guardiaId: string, permite: boolean): Observable<Guardia> {
+    const params = new HttpParams().set('permite', permite.toString());
+    return this.http.put<Guardia>(`${this.API_URL}/${guardiaId}/permite-salida`, {}, { params });
+  }
+
+  /**
    * Eliminar guardia (solo si no tiene movimientos)
    */
   eliminar(guardiaId: string): Observable<void> {

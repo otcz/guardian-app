@@ -235,14 +235,13 @@
   .usuario-item,
   .guardia-item {
     cursor: pointer;
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
     border-radius: 10px;
     margin-bottom: 0.5rem;
     border: 1px solid transparent;
 
     &:hover {
       background: var(--bg);
-      transform: translateX(6px);
       border-color: var(--border);
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
     }
@@ -251,7 +250,6 @@
       background: linear-gradient(90deg, var(--bg) 0%, var(--surface) 100%);
       border-left: 4px solid var(--primary);
       box-shadow: 0 2px 12px rgba(79, 140, 255, 0.15);
-      transform: translateX(4px);
 
       .font-semibold {
         color: var(--primary);
@@ -276,12 +274,11 @@
 
     .pi-chevron-right {
       color: var(--muted);
-      transition: all 0.3s ease;
+      transition: color 0.2s ease;
     }
 
     &:hover .pi-chevron-right {
       color: var(--primary);
-      transform: translateX(4px);
     }
   }
 
@@ -658,11 +655,10 @@
           min-height: 3.5rem;
           display: flex;
           align-items: center;
-          transition: all 0.2s ease;
+          transition: background 0.2s ease;
 
           &:hover {
             background: var(--bg);
-            transform: translateX(4px);
           }
 
           &.p-highlight {

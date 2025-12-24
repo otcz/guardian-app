@@ -102,14 +102,26 @@
           ></p-tag>
         </td>
         <td style="text-align: center">
-          <i
-            [class]="guardia.permiteEntrada ? 'pi pi-check text-success' : 'pi pi-times text-danger'"
-          ></i>
+          <p-button
+            [icon]="guardia.permiteEntrada ? 'pi pi-check-circle' : 'pi pi-times-circle'"
+            [styleClass]="guardia.permiteEntrada
+              ? 'p-button-rounded p-button-text p-button-success'
+              : 'p-button-rounded p-button-text p-button-danger'"
+            [pTooltip]="guardia.permiteEntrada ? 'Entrada habilitada - Click para bloquear' : 'Entrada bloqueada - Click para habilitar'"
+            tooltipPosition="top"
+            (onClick)="togglePermiteEntrada(guardia)"
+          ></p-button>
         </td>
         <td style="text-align: center">
-          <i
-            [class]="guardia.permiteSalida ? 'pi pi-check text-success' : 'pi pi-times text-danger'"
-          ></i>
+          <p-button
+            [icon]="guardia.permiteSalida ? 'pi pi-check-circle' : 'pi pi-times-circle'"
+            [styleClass]="guardia.permiteSalida
+              ? 'p-button-rounded p-button-text p-button-success'
+              : 'p-button-rounded p-button-text p-button-danger'"
+            [pTooltip]="guardia.permiteSalida ? 'Salida habilitada - Click para bloquear' : 'Salida bloqueada - Click para habilitar'"
+            tooltipPosition="top"
+            (onClick)="togglePermiteSalida(guardia)"
+          ></p-button>
         </td>
         <td style="text-align: center">
           <div class="action-buttons">
@@ -150,5 +162,6 @@
   </p-table>
 </div>
 
+<p-toast></p-toast>
 <p-confirmDialog></p-confirmDialog>
 

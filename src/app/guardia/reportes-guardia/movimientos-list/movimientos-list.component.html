@@ -118,12 +118,14 @@
     currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} movimientos"
     styleClass="p-datatable-striped"
     responsiveLayout="scroll"
-    [globalFilterFields]="['tipo', 'usuario.nombreCompleto', 'usuarioNombre', 'usuario.identificacion', 'usuarioIdentificacion', 'vehiculo.placa', 'vehiculoPlaca', 'guardia.nombre', 'guardiaNombre', 'adminGuardia.nombre', 'adminGuardiaNombre', 'observaciones']"
+    dataKey="id"
+    [expandedRowKeys]="expandedRows"
   >
     <ng-template pTemplate="header">
       <tr>
-        <th pSortableColumn="timestampMovimiento">
-          Fecha/Hora <p-sortIcon field="timestampMovimiento"></p-sortIcon>
+        <th style="width: 3rem"></th>
+        <th pSortableColumn="fechaMovimiento">
+          Fecha/Hora <p-sortIcon field="fechaMovimiento"></p-sortIcon>
         </th>
         <th pSortableColumn="tipo">
           Tipo <p-sortIcon field="tipo"></p-sortIcon>
@@ -137,91 +139,198 @@
         <th pSortableColumn="guardia.nombre">
           Guardia <p-sortIcon field="guardia.nombre"></p-sortIcon>
         </th>
-        <th pSortableColumn="adminGuardia.nombre">
-          Admin Guardia <p-sortIcon field="adminGuardia.nombre"></p-sortIcon>
-        </th>
-        <th pSortableColumn="permanenciaMinutos" style="text-align: center">
-          Permanencia <p-sortIcon field="permanenciaMinutos"></p-sortIcon>
-        </th>
-        <th>Observaciones</th>
-      </tr>
-      <tr>
-        <th>
-          <p-columnFilter type="date" field="timestampMovimiento" display="menu"></p-columnFilter>
-        </th>
-        <th>
-          <p-columnFilter field="tipo" matchMode="equals" display="menu">
-            <ng-template pTemplate="filter" let-value let-filter="filterCallback">
-              <p-dropdown
-                [ngModel]="value"
-                [options]="tipoOptions"
-                (onChange)="filter($event.value)"
-                placeholder="Filtrar"
-                [showClear]="true"
-                optionLabel="label"
-                optionValue="value"
-              >
-              </p-dropdown>
-            </ng-template>
-          </p-columnFilter>
-        </th>
-        <th>
-          <p-columnFilter type="text" field="usuario.nombreCompleto" display="menu" placeholder="Buscar por nombre"></p-columnFilter>
-        </th>
-        <th>
-          <p-columnFilter type="text" field="vehiculo.placa" display="menu" placeholder="Buscar por placa"></p-columnFilter>
-        </th>
-        <th>
-          <p-columnFilter type="text" field="guardia.nombre" display="menu" placeholder="Buscar por guardia"></p-columnFilter>
-        </th>
-        <th>
-          <p-columnFilter type="text" field="adminGuardia.nombre" display="menu" placeholder="Buscar por admin"></p-columnFilter>
-        </th>
-        <th>
-          <p-columnFilter type="numeric" field="permanenciaMinutos" display="menu"></p-columnFilter>
-        </th>
-        <th>
-          <!-- Sin filtro -->
+        <th pSortableColumn="duracionDesdeAnteriorMinutos" style="text-align: center">
+          Duración <p-sortIcon field="duracionDesdeAnteriorMinutos"></p-sortIcon>
         </th>
       </tr>
     </ng-template>
 
-    <ng-template pTemplate="body" let-movimiento>
+    <ng-template pTemplate="body" let-movimiento let-expanded="expanded">
       <tr>
-        <td>{{ formatearFecha(movimiento) }}</td>
+        <td>
+          <button
+            type="button"
+            pButton
+            pRipple
+            [pRowToggler]="movimiento"
+            class="p-button-text p-button-rounded p-button-plain"
+            [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+          ></button>
+        </td>
+        <td>
+          <div style="font-weight: 500;">{{ formatearFecha(movimiento) }}</div>
+        </td>
         <td>
           <p-tag
             [value]="movimiento.tipo"
             [severity]="getSeverityTipo(movimiento.tipo)"
+            [icon]="movimiento.tipo === 'ENTRADA' ? 'pi pi-sign-in' : 'pi pi-sign-out'"
           ></p-tag>
         </td>
         <td>
-          <div class="usuario-info">
-            <strong>{{ movimiento.usuario?.nombreCompleto || movimiento.usuarioNombre || 'N/A' }}</strong>
-            <small>{{ movimiento.usuario?.identificacion || movimiento.usuarioIdentificacion || '' }}</small>
-            <small *ngIf="movimiento.usuario?.telefono || movimiento.usuarioTelefono">
-              Tel: {{ movimiento.usuario?.telefono || movimiento.usuarioTelefono }}
-            </small>
+          <div>
+            <strong>{{ movimiento.usuario?.nombreCompleto || 'N/A' }}</strong>
           </div>
-        </td>
-        <td>{{ movimiento.vehiculo?.placa || movimiento.vehiculoPlaca || '-' }}</td>
-        <td>{{ movimiento.guardia?.nombre || movimiento.guardiaNombre || '-' }}</td>
-        <td>{{ movimiento.adminGuardia?.nombre || movimiento.adminGuardiaNombre || '-' }}</td>
-        <td style="text-align: center">
-          <span *ngIf="movimiento.permanenciaMinutos" style="font-weight: 500; color: var(--primary-color);">
-            {{ formatearPermanencia(movimiento.permanenciaMinutos) }}
-          </span>
-          <span *ngIf="!movimiento.permanenciaMinutos">-</span>
+          <small style="color: var(--text-color-secondary);">
+            <i class="pi pi-id-card mr-1"></i>{{ movimiento.usuario?.identificacion || '-' }}
+          </small>
         </td>
         <td>
-          <small>{{ movimiento.observaciones || '-' }}</small>
+          <div *ngIf="movimiento.vehiculo" class="flex align-items-center gap-2">
+            <i class="pi pi-car" style="color: var(--primary-color);"></i>
+            <strong>{{ movimiento.vehiculo.placa }}</strong>
+          </div>
+          <small *ngIf="!movimiento.vehiculo" style="color: var(--text-color-secondary);">Sin vehículo</small>
+        </td>
+        <td>
+          <div>{{ movimiento.guardia?.nombre || '-' }}</div>
+        </td>
+        <td style="text-align: center">
+          <span *ngIf="movimiento.duracionDesdeAnteriorMinutos !== null && movimiento.duracionDesdeAnteriorMinutos !== undefined"
+                style="font-weight: 500; color: var(--blue-500);">
+            {{ formatearDuracion(movimiento.duracionDesdeAnteriorMinutos) }}
+          </span>
+          <span *ngIf="movimiento.duracionDesdeAnteriorMinutos === null || movimiento.duracionDesdeAnteriorMinutos === undefined">-</span>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="rowexpansion" let-movimiento>
+      <tr>
+        <td colspan="7">
+          <div class="p-3" style="background-color: var(--surface-50);">
+            <div class="grid">
+              <!-- Información del Movimiento Actual -->
+              <div class="col-12 md:col-6">
+                <p-panel [header]="'Movimiento Actual: ' + movimiento.tipo" [toggleable]="false">
+                  <div class="flex flex-column gap-2">
+                    <!-- Usuario -->
+                    <div class="flex align-items-start gap-2">
+                      <i class="pi pi-user" style="color: var(--primary-color); margin-top: 0.25rem;"></i>
+                      <div class="flex-1">
+                        <div class="font-semibold">{{ movimiento.usuario?.nombreCompleto }}</div>
+                        <small class="text-color-secondary">
+                          {{ movimiento.usuario?.tipoIdentificacion }}: {{ movimiento.usuario?.identificacion }}
+                        </small>
+                        <small class="text-color-secondary block" *ngIf="movimiento.usuario?.telefono">
+                          <i class="pi pi-phone mr-1"></i>{{ movimiento.usuario?.telefono }}
+                        </small>
+                      </div>
+                    </div>
+
+                    <!-- Vehículo -->
+                    <div class="flex align-items-start gap-2" *ngIf="movimiento.vehiculo">
+                      <i class="pi pi-car" style="color: var(--primary-color); margin-top: 0.25rem;"></i>
+                      <div class="flex-1">
+                        <div class="font-semibold">Placa: {{ movimiento.vehiculo?.placa }}</div>
+                      </div>
+                    </div>
+
+                    <!-- Guardia -->
+                    <div class="flex align-items-start gap-2">
+                      <i class="pi pi-map-marker" style="color: var(--primary-color); margin-top: 0.25rem;"></i>
+                      <div class="flex-1">
+                        <div class="font-semibold">{{ movimiento.guardia?.nombre }}</div>
+                      </div>
+                    </div>
+
+                    <!-- Admin Guardia -->
+                    <div class="flex align-items-start gap-2">
+                      <i class="pi pi-user-edit" style="color: var(--primary-color); margin-top: 0.25rem;"></i>
+                      <div class="flex-1">
+                        <div class="font-semibold">Registrado por:</div>
+                        <small class="text-color-secondary">{{ movimiento.adminGuardia?.nombre }}</small>
+                      </div>
+                    </div>
+
+                    <!-- Observaciones -->
+                    <div class="flex align-items-start gap-2" *ngIf="movimiento.observaciones">
+                      <i class="pi pi-comment" style="color: var(--primary-color); margin-top: 0.25rem;"></i>
+                      <div class="flex-1">
+                        <div class="font-semibold">Observaciones:</div>
+                        <small class="text-color-secondary">{{ movimiento.observaciones }}</small>
+                      </div>
+                    </div>
+                  </div>
+                </p-panel>
+              </div>
+
+              <!-- Movimiento Relacionado (Anterior) -->
+              <div class="col-12 md:col-6">
+                <p-panel
+                  *ngIf="movimiento.movimientoAnterior"
+                  [header]="'Movimiento Relacionado: ' + movimiento.movimientoAnterior.tipo"
+                  [toggleable]="false">
+                  <div class="flex flex-column gap-3">
+                    <!-- Info del movimiento anterior -->
+                    <div>
+                      <p-tag
+                        [value]="movimiento.movimientoAnterior.tipo"
+                        [severity]="getSeverityTipo(movimiento.movimientoAnterior.tipo)"
+                        [icon]="movimiento.movimientoAnterior.tipo === 'ENTRADA' ? 'pi pi-sign-in' : 'pi pi-sign-out'"
+                        styleClass="mb-2"
+                      ></p-tag>
+                    </div>
+
+                    <!-- Fecha del movimiento anterior -->
+                    <div class="flex align-items-start gap-2">
+                      <i class="pi pi-clock" style="color: var(--blue-500); margin-top: 0.25rem;"></i>
+                      <div class="flex-1">
+                        <div class="font-semibold">Fecha:</div>
+                        <small class="text-color-secondary">{{ formatearFechaISO(movimiento.movimientoAnterior.fechaMovimiento) }}</small>
+                      </div>
+                    </div>
+
+                    <!-- Guardia del movimiento anterior -->
+                    <div class="flex align-items-start gap-2">
+                      <i class="pi pi-map-marker" style="color: var(--blue-500); margin-top: 0.25rem;"></i>
+                      <div class="flex-1">
+                        <div class="font-semibold">Guardia:</div>
+                        <small class="text-color-secondary">{{ movimiento.movimientoAnterior.guardiaNombre || '-' }}</small>
+                      </div>
+                    </div>
+
+                    <!-- Duración -->
+                    <div class="flex align-items-start gap-2">
+                      <i class="pi pi-history" style="color: var(--blue-500); margin-top: 0.25rem;"></i>
+                      <div class="flex-1">
+                        <div class="font-semibold">Tiempo transcurrido:</div>
+                        <small class="text-color-secondary">{{ formatearDuracion(movimiento.duracionDesdeAnteriorMinutos) }}</small>
+                      </div>
+                    </div>
+
+                    <!-- Relación -->
+                    <div class="p-3 border-round" style="background-color: var(--blue-50); border-left: 3px solid var(--blue-500);">
+                      <div class="flex align-items-center gap-2">
+                        <i class="pi pi-info-circle" style="color: var(--blue-500);"></i>
+                        <small style="color: var(--blue-600);">
+                          {{ getTextoRelacion(movimiento) }}
+                        </small>
+                      </div>
+                    </div>
+                  </div>
+                </p-panel>
+
+                <!-- Sin movimiento anterior -->
+                <p-panel
+                  *ngIf="!movimiento.movimientoAnterior"
+                  header="Movimiento Relacionado"
+                  [toggleable]="false">
+                  <div class="text-center py-4">
+                    <i class="pi pi-inbox text-4xl mb-3 text-color-secondary"></i>
+                    <p class="text-color-secondary m-0">Sin movimiento anterior registrado</p>
+                  </div>
+                </p-panel>
+              </div>
+            </div>
+          </div>
         </td>
       </tr>
     </ng-template>
 
     <ng-template pTemplate="emptymessage">
       <tr>
-        <td colspan="8" style="text-align: center">No se encontraron movimientos</td>
+        <td colspan="7" style="text-align: center">No se encontraron movimientos</td>
       </tr>
     </ng-template>
   </p-table>

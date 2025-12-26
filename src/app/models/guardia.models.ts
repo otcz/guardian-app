@@ -132,8 +132,21 @@ export interface GuardiaConEstado extends Guardia {
 }
 
 /**
+ * Información del Movimiento Anterior
+ * @version 3.1 - Agregado 26/12/2025
+ * Contiene datos del movimiento previo del usuario
+ */
+export interface MovimientoAnteriorInfo {
+  id: string; // UUID del movimiento anterior
+  tipo: 'ENTRADA' | 'SALIDA'; // Tipo del movimiento anterior
+  fechaMovimiento: string; // Timestamp ISO-8601
+  guardiaNombre?: string; // Nombre de la guardia donde ocurrió
+  guardiaCodigo?: string; // Código de la guardia
+}
+
+/**
  * Modelo: Movimiento de Guardia (Entrada/Salida)
- * @version 3.0 - Actualizado según documentación backend 22/12/2025
+ * @version 3.1 - Actualizado 26/12/2025 con movimientoAnterior
  * Endpoint: GET /api/movimientos-guardia
  */
 export interface MovimientoGuardia {
@@ -159,6 +172,10 @@ export interface MovimientoGuardia {
   permanenciaMinutos?: number | null; // Solo para SALIDA - Long en backend
   registroVehiculoIncluido?: boolean;
   tieneEntradaAbierta?: boolean;
+
+  // 🆕 Campos agregados en v3.1 (26/12/2025)
+  duracionDesdeAnteriorMinutos?: number | null; // Tiempo transcurrido desde el movimiento anterior
+  movimientoAnterior?: MovimientoAnteriorInfo | null; // Información del movimiento previo
 
   // Información de Guardia (campos planos)
   guardiaNombre?: string;

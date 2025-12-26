@@ -9,6 +9,8 @@ import { TagModule } from 'primeng/tag';
 import { CalendarModule } from 'primeng/calendar';
 import { DropdownModule } from 'primeng/dropdown';
 import { AutoCompleteModule } from 'primeng/autocomplete';
+import { TooltipModule } from 'primeng/tooltip';
+import { PanelModule } from 'primeng/panel';
 import { MessageService } from 'primeng/api';
 
 // Servicios
@@ -35,7 +37,9 @@ import { LABELS } from '../../constants/mensajes.constants';
     TagModule,
     CalendarModule,
     DropdownModule,
-    AutoCompleteModule
+    AutoCompleteModule,
+    TooltipModule,
+    PanelModule
   ],
   templateUrl: './movimientos-list.component.html',
   styleUrls: ['./movimientos-list.component.scss']
@@ -46,6 +50,9 @@ export class MovimientosListComponent implements OnInit {
   guardias: Guardia[] = [];
   secciones: SeccionEntity[] = [];
   loading = false;
+
+  // Control de expansión de filas
+  expandedRows: { [key: string]: boolean } = {};
 
   // Detectar rol del usuario
   isOrgAdmin = false;
@@ -280,8 +287,15 @@ export class MovimientosListComponent implements OnInit {
 
     this.movimientoService.listarPaginado(params).subscribe({
       next: response => {
+        console.log('========================================');
+        console.log('📦 RESPUESTA COMPLETA DEL BACKEND:');
+        console.log('========================================');
+        console.log(JSON.stringify(response, null, 2));
+        console.log('========================================');
+
         // El endpoint paginado retorna un objeto con content
         this.movimientos = response.content || response || [];
+
         this.aplicarFiltros();
         this.loading = false;
       },
@@ -430,6 +444,109 @@ export class MovimientosListComponent implements OnInit {
     }
 
     return partes.join(' ');
+  }
+
+  /**
+   * 🆕 Formatea la duración desde el movimiento anterior
+   * Similar a formatearPermanencia pero para duracionDesdeAnteriorMinutos
+   * @param minutos Minutos transcurridos desde el movimiento anterior
+   */
+  formatearDuracion(minutos: number | null | undefined): string {
+    if (minutos === null || minutos === undefined) {
+      return '-';
+    }
+
+    if (minutos === 0) {
+      return '0m';
+    }
+
+    const dias = Math.floor(minutos / 1440);
+    const horas = Math.floor((minutos % 1440) / 60);
+    const mins = minutos % 60;
+
+    const partes: string[] = [];
+
+    if (dias > 0) {
+      partes.push(`${dias}d`);
+    }
+    if (horas > 0) {
+      partes.push(`${horas}h`);
+    }
+    if (mins > 0 || partes.length === 0) {
+      partes.push(`${mins}m`);
+    }
+
+    return partes.join(' ');
+  }
+
+  /**
+   * 🆕 Genera el tooltip con información del movimiento anterior
+   * @param movimiento Movimiento actual con información del anterior
+   */
+  getTooltipMovimientoAnterior(movimiento: MovimientoGuardia): string {
+    if (!movimiento.movimientoAnterior) {
+      return 'Sin movimiento anterior registrado';
+    }
+
+    const anterior = movimiento.movimientoAnterior;
+    const fechaAnterior = new Date(anterior.fechaMovimiento).toLocaleString('es-ES', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+
+    const tipoIcono = anterior.tipo === 'ENTRADA' ? '↓' : '↑';
+    const guardiaInfo = anterior.guardiaNombre
+      ? ` en ${anterior.guardiaNombre}`
+      : (anterior.guardiaCodigo ? ` (${anterior.guardiaCodigo})` : '');
+
+    return `${tipoIcono} Movimiento anterior: ${anterior.tipo} ${guardiaInfo} - ${fechaAnterior}`;
+  }
+
+  /**
+   * 🆕 Formatea fecha ISO a formato legible
+   * @param fechaISO Fecha en formato ISO-8601
+   */
+  formatearFechaISO(fechaISO: string): string {
+    if (!fechaISO) return 'N/A';
+
+    return new Date(fechaISO).toLocaleString('es-ES', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
+    });
+  }
+
+  /**
+   * 🆕 Genera texto de relación entre movimientos
+   * @param movimiento Movimiento actual
+   */
+  getTextoRelacion(movimiento: MovimientoGuardia): string {
+    if (!movimiento.movimientoAnterior) {
+      return 'Primer movimiento registrado';
+    }
+
+    const actual = movimiento.tipo;
+    const anterior = movimiento.movimientoAnterior.tipo;
+
+    if (actual === 'SALIDA' && anterior === 'ENTRADA') {
+      const duracion = this.formatearDuracion(movimiento.duracionDesdeAnteriorMinutos);
+      return `El usuario estuvo dentro durante ${duracion}`;
+    } else if (actual === 'ENTRADA' && anterior === 'SALIDA') {
+      const duracion = this.formatearDuracion(movimiento.duracionDesdeAnteriorMinutos);
+      return `El usuario estuvo fuera durante ${duracion}`;
+    } else if (actual === 'ENTRADA' && anterior === 'ENTRADA') {
+      return 'Entrada duplicada (posible inconsistencia)';
+    } else if (actual === 'SALIDA' && anterior === 'SALIDA') {
+      return 'Salida duplicada (posible inconsistencia)';
+    }
+
+    return 'Relación no determinada';
   }
 
   exportarExcel(): void {

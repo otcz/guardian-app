@@ -242,7 +242,6 @@ export class VehiculosCrearComponent implements OnInit {
         if (userRole === 'SYSADMIN' || userRole === 'ORGADMIN') {
           // Ver todas las secciones de la organización
           this.secciones = list;
-          console.log('[VehiculosCrear] 📋 ORGADMIN: Cargadas', list.length, 'secciones de la organización');
         } else if (userRole === 'ADMIN' && scope === 'SECCION') {
           // Ver solo la sección que administra
           const seccionId = this.orgCtx.seccion;
@@ -260,19 +259,15 @@ export class VehiculosCrearComponent implements OnInit {
           const existeEnLista = this.secciones.some(s => s.id === seccionPreSeleccionada);
           if (existeEnLista) {
             this.model.seccionId = seccionPreSeleccionada;
-            console.log('[VehiculosCrear] ��� Sección mantenida después de filtrar:', seccionPreSeleccionada);
           } else {
-            console.warn('[VehiculosCrear] ⚠️ Sección pre-seleccionada no está en lista filtrada');
             // Si solo hay 1 sección en la lista, auto-seleccionarla
             if (this.secciones.length === 1) {
               this.model.seccionId = this.secciones[0].id;
-              console.log('[VehiculosCrear] ✅ Auto-seleccionada única sección disponible:', this.secciones[0].id);
             }
           }
         } else if (this.secciones.length === 1) {
           // Si no había sección pre-seleccionada pero solo hay 1 disponible, auto-seleccionarla
           this.model.seccionId = this.secciones[0].id;
-          console.log('[VehiculosCrear] ✅ Auto-seleccionada única sección disponible:', this.secciones[0].id);
         }
 
         this.loading = false;
@@ -280,12 +275,7 @@ export class VehiculosCrearComponent implements OnInit {
         // ✅ MEJORADO: Cargar usuarios automáticamente si hay una sección seleccionada
         // Esto cubre el caso cuando es ORGADMIN y se auto-selecciona o mantiene una sección
         if (this.isAdmin && this.model.seccionId) {
-          console.log('[VehiculosCrear] 📋 Cargando usuarios para sección:', this.model.seccionId);
           this.loadUsuarios();
-        } else if (this.isAdmin && !this.model.seccionId) {
-          console.log('[VehiculosCrear] ⚠️ Admin sin sección seleccionada, esperando selección manual');
-        } else if (!this.isAdmin) {
-          console.log('[VehiculosCrear] ⏭️ Usuario regular: saltando carga de usuarios (ya auto-seleccionado)');
         }
       },
       error: (e) => {
@@ -309,23 +299,8 @@ export class VehiculosCrearComponent implements OnInit {
       params.seccionId = seccionIdSeleccionada;
     }
 
-    console.log('[VehiculosCrear] 🔄 Solicitando usuarios, seccionId:', seccionIdSeleccionada);
-
     this.users.list(this.orgId, params).subscribe({
       next: (arr) => {
-        console.log('[VehiculosCrear] 📦 Usuarios recibidos del backend:', arr.length);
-
-        // ✅ DEBUG: Mostrar información del primer usuario para verificar que el backend envía los campos
-        if (arr.length > 0) {
-          const sample = arr[0] as any;
-          console.log('[VehiculosCrear] 🔍 Muestra de usuario:', {
-            username: sample.username,
-            seccionId: sample.seccionId,
-            seccionNombre: sample.seccionNombre,
-            seccionPrincipalId: sample.seccionPrincipalId
-          });
-        }
-
         // ✅ El backend AHORA filtra correctamente, pero aplicamos filtro adicional por seguridad
         if (seccionIdSeleccionada && arr.length > 0) {
           // Verificar si el backend ya filtró correctamente
@@ -337,24 +312,16 @@ export class VehiculosCrearComponent implements OnInit {
           if (todosPertenecenASeccion) {
             // ✅ Backend filtró correctamente
             this.usuarios = arr;
-            console.log('[VehiculosCrear] ✅ Backend filtró correctamente:', arr.length, 'usuarios de la sección');
           } else {
             // ⚠️ Fallback: Filtrar en frontend si el backend no filtró
-            console.warn('[VehiculosCrear] ⚠️ Backend no filtró correctamente, aplicando filtro en frontend');
             const usuariosFiltrados = arr.filter(u => {
               const userSeccionId = (u as any).seccionId || (u as any).seccionPrincipalId;
-              const perteneceASeccion = userSeccionId === seccionIdSeleccionada;
-              if (!perteneceASeccion) {
-                console.log('[VehiculosCrear] 🚫 Usuario filtrado:', u.username, 'seccionId:', userSeccionId);
-              }
-              return perteneceASeccion;
+              return userSeccionId === seccionIdSeleccionada;
             });
             this.usuarios = usuariosFiltrados;
-            console.log('[VehiculosCrear] ✅ Usuarios filtrados en frontend:', usuariosFiltrados.length, 'de', arr.length);
           }
         } else {
           this.usuarios = arr;
-          console.log('[VehiculosCrear] ℹ️ Sin filtrado de sección (mostrando todos)');
         }
 
         // Intentar resolver currentUserId por username
@@ -366,15 +333,12 @@ export class VehiculosCrearComponent implements OnInit {
       error: (e) => {
         // ✅ Si es error 403 (sin permisos), manejarlo completamente en silencio
         if (e?.status === 403) {
-          if (localStorage.getItem('debugMode') === 'true') {
-            console.log('[VehiculosCrear] Usuario sin permisos para listar usuarios de la sección');
-          }
           this.usuarios = [];
           if (!this.isAdmin) {
             this.autoSelectCurrentUser();
           }
         } else {
-          console.error('[VehiculosCrear] Error al cargar usuarios:', e);
+          console.error('Error al cargar usuarios:', e);
           this.notify.warn('Usuarios', e?.error?.message || 'No se pudieron cargar usuarios');
         }
       }
@@ -388,7 +352,6 @@ export class VehiculosCrearComponent implements OnInit {
     // Intentar obtener el ID del usuario actual desde diferentes fuentes
     if (this.currentUserId) {
       this.model.usuarioIds = [this.currentUserId];
-      console.log('[VehiculosCrear] ✅ Auto-seleccionado usuario actual:', this.currentUserId);
       return;
     }
 
@@ -398,7 +361,6 @@ export class VehiculosCrearComponent implements OnInit {
       if (userId) {
         this.currentUserId = userId;
         this.model.usuarioIds = [userId];
-        console.log('[VehiculosCrear] ✅ Auto-seleccionado usuario desde localStorage:', userId);
         return;
       }
     } catch {}
@@ -406,8 +368,6 @@ export class VehiculosCrearComponent implements OnInit {
     // ✅ FALLBACK: Intentar buscar al usuario por username directamente con el backend
     // Esto funciona incluso cuando el usuario no tiene permisos para listar todos los usuarios
     if (this.currentUsername && this.orgId) {
-      console.log('[VehiculosCrear] 🔄 Intentando buscar usuario por username:', this.currentUsername);
-
       // Hacer una petición al backend para buscar el usuario actual
       this.users.list(this.orgId, {}).subscribe({
         next: (arr) => {
@@ -420,36 +380,27 @@ export class VehiculosCrearComponent implements OnInit {
               localStorage.setItem('userId', me.id);
               localStorage.setItem('currentUserId', me.id);
             } catch {}
-            console.log('[VehiculosCrear] ✅ Usuario encontrado y auto-seleccionado:', me.id);
-          } else {
-            console.warn('[VehiculosCrear] ⚠️ Usuario no encontrado en la lista del backend');
           }
         },
         error: (err) => {
-          console.warn('[VehiculosCrear] ⚠️ No se pudo buscar usuario por username:', err);
+          // Error silencioso
         }
       });
       return;
     }
-
-    console.warn('[VehiculosCrear] ⚠️ No se pudo auto-seleccionar usuario actual');
   }
 
   /**
    * ✅ Cuando cambia la sección, recargar usuarios de esa sección
    */
   onSeccionChange() {
-    console.log('[VehiculosCrear] 🔄 Cambio de sección detectado:', this.model.seccionId);
-
     if (this.model.seccionId) {
       // Limpiar usuarios seleccionados al cambiar de sección
       this.model.usuarioIds = [];
-      console.log('[VehiculosCrear] 🧹 Usuarios limpiados, cargando usuarios de la sección:', this.model.seccionId);
 
       // Recargar usuarios de la nueva sección
       this.loadUsuarios();
     } else {
-      console.log('[VehiculosCrear] ⚠️ No hay sección seleccionada, limpiando usuarios');
       this.usuarios = [];
       this.model.usuarioIds = [];
     }
@@ -524,11 +475,8 @@ export class VehiculosCrearComponent implements OnInit {
     if (!isNaN(anio as any) && anio != null) body.anio = anio;
     if (color) body.color = color;
 
-    console.log('[VehiculosCrearComponent] 📡 POST body:', body);
-
     this.vehiculos.create(this.orgId, body).subscribe({
       next: (res) => {
-        console.log('[VehiculosCrearComponent] ✅ POST /vehiculos respuesta:', res);
         this.saving = false;
 
         // ✅ NUEVO: Mensaje personalizado con cantidad de usuarios
@@ -542,7 +490,7 @@ export class VehiculosCrearComponent implements OnInit {
         this.router.navigate(['/gestion-de-vehiculos/mis-vehiculos']);
       },
       error: (e) => {
-        console.error('[VehiculosCrearComponent] ❌ POST /vehiculos error:', e?.status, e?.error || e);
+        console.error('Error al crear vehículo:', e);
         this.saving = false;
 
         // ✅ Manejo de errores según especificación del backend
@@ -598,13 +546,6 @@ export class VehiculosCrearComponent implements OnInit {
     const seccionId = this.model.seccionId || null;
     const usarFiltroSeccion = this.shouldUseSeccionFilter();
 
-    console.log('[VehiculosCrear] 🔍 Buscando vehículo:', {
-      placa,
-      seccionId: usarFiltroSeccion ? seccionId : 'N/A (búsqueda global)',
-      isAdmin: this.isAdmin,
-      usarFiltro: usarFiltroSeccion
-    });
-
     this.vehiculos.buscarPorPlaca(this.orgId, placa, usarFiltroSeccion ? seccionId : null).subscribe({
       next: (v) => {
         if (v == null) {
@@ -612,11 +553,9 @@ export class VehiculosCrearComponent implements OnInit {
             ? `No se encontró un vehículo con esa placa en la sección actual`
             : `No se encontró un vehículo con esa placa en la organización`;
           this.existente = { status: 'notfound', vehiculo: null, message: mensaje };
-          console.log('[VehiculosCrear] ℹ️ Vehículo no encontrado');
         } else {
           this.existente = { status: 'found', vehiculo: v };
           this.fillFromVehiculo(v);
-          console.log('[VehiculosCrear] ✅ Vehículo encontrado:', v.placa);
         }
         this.buscando = false;
       },
@@ -625,7 +564,7 @@ export class VehiculosCrearComponent implements OnInit {
         const st = e?.status;
         const msg = e?.error?.message || e?.message || (st === 403 ? 'PROHIBIDO' : 'Error buscando vehículo');
         this.existente = { status: 'error', vehiculo: null, message: msg } as any;
-        console.error('[VehiculosCrear] ❌ Error al buscar vehículo:', e);
+        console.error('Error al buscar vehículo:', e);
         if (st === 403) this.notify.warn('Sin permisos', msg); else this.notify.error('Error', msg);
       }
     });

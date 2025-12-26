@@ -74,9 +74,8 @@ export class VehiculosCrearComponent implements OnInit {
       return;
     }
 
-    // ���� MEJORADO: Intentar obtener userId ANTES de cargar secciones
+    // 🔍 MEJORADO: Intentar obtener userId ANTES de cargar secciones
     this.currentUserId = this.obtenerUserIdActual();
-    console.log('[VehiculosCrear] 👤 Usuario actual:', this.currentUserId);
 
     // ✅ CRÍTICO: Obtener sección desde loginSeccionImmutable (NO llamar al backend todavía)
     let seccionDelUsuario: string | null = null;
@@ -87,8 +86,6 @@ export class VehiculosCrearComponent implements OnInit {
       if (seccionImmutable) {
         seccionDelUsuario = seccionImmutable;
         this.model.seccionId = seccionImmutable;
-        console.log('[VehiculosCrear] ✅ Sección desde loginSeccionImmutable:', seccionImmutable);
-        console.log('[VehiculosCrear] 🔄 Cargando nombre de sección desde backend...');
 
         // ✅ CRÍTICO: Cargar secciones desde backend para obtener el nombre real
         // pero solo mostrar la sección inmutable del usuario
@@ -100,7 +97,6 @@ export class VehiculosCrearComponent implements OnInit {
 
             if (seccionUsuario) {
               this.secciones = [seccionUsuario];
-              console.log('[VehiculosCrear] ✅ Sección encontrada:', seccionUsuario.nombre);
             } else {
               // Si no se encuentra (caso excepcional), usar nombre genérico
               this.secciones = [{
@@ -109,7 +105,6 @@ export class VehiculosCrearComponent implements OnInit {
                 organizacionId: this.orgId,
                 activo: true
               } as SeccionEntity];
-              console.warn('[VehiculosCrear] ⚠️ Sección no encontrada en lista, usando nombre genérico');
             }
 
             this.loading = false;
@@ -118,9 +113,6 @@ export class VehiculosCrearComponent implements OnInit {
             // Los usuarios regulares ya tienen su userId auto-seleccionado
             if (this.isAdmin && this.model.seccionId) {
               this.loadUsuarios();
-              console.log('[VehiculosCrear] 📋 Cargando usuarios para sección:', this.model.seccionId);
-            } else if (!this.isAdmin) {
-              console.log('[VehiculosCrear] ⏭️ Usuario regular: saltando carga de usuarios (ya auto-seleccionado)');
             }
           },
           error: (e) => {
@@ -144,7 +136,6 @@ export class VehiculosCrearComponent implements OnInit {
         // ✅ CRÍTICO: Si NO es admin, auto-seleccionar usuario actual SIN cargar lista
         if (!this.isAdmin && this.currentUserId) {
           this.model.usuarioIds = [this.currentUserId];
-          console.log('[VehiculosCrear] ✅ Usuario regular auto-seleccionado:', this.currentUserId);
         }
 
         // Salir del ngOnInit después de configurar el flujo de sección inmutable
@@ -179,13 +170,11 @@ export class VehiculosCrearComponent implements OnInit {
     // Asignar sección encontrada si no se asignó desde loginSeccionImmutable
     if (seccionDelUsuario && !this.model.seccionId) {
       this.model.seccionId = seccionDelUsuario;
-      console.log('[VehiculosCrear] ✅ Sección auto-seleccionada:', seccionDelUsuario);
     }
 
     // ✅ CRÍTICO: Si NO es admin, auto-seleccionar usuario actual SIN cargar lista
     if (!this.isAdmin && this.currentUserId) {
       this.model.usuarioIds = [this.currentUserId];
-      console.log('[VehiculosCrear] ✅ Usuario regular auto-seleccionado:', this.currentUserId);
     }
 
     // ✅ CRÍTICO: SOLO cargar secciones desde backend si:
@@ -194,19 +183,12 @@ export class VehiculosCrearComponent implements OnInit {
     const haySeccionInmutable = !!localStorage.getItem('loginSeccionImmutable');
 
     if (!haySeccionInmutable && this.isAdmin) {
-      console.log('[VehiculosCrear] 📋 Cargando secciones desde backend (usuario sin sección inmutable)');
       this.loadSecciones();
     } else {
-      console.log('[VehiculosCrear] ⏭️ NO se cargan secciones desde backend');
-      console.log('[VehiculosCrear] ✅ Usando sección de localStorage:', this.model.seccionId);
-
       // ✅ CRÍTICO: Cargar usuarios de la sección SOLO si es admin
       // Usuario regular ya está auto-seleccionado arriba
       if (this.isAdmin && this.model.seccionId) {
-        console.log('[VehiculosCrear] 📋 Cargando usuarios para sección:', this.model.seccionId);
         this.loadUsuarios();
-      } else if (!this.isAdmin) {
-        console.log('[VehiculosCrear] ⏭️ Usuario regular: NO se cargan usuarios (ya auto-seleccionado)');
       }
     }
   }
@@ -222,12 +204,10 @@ export class VehiculosCrearComponent implements OnInit {
         || localStorage.getItem('loginUserId');
 
       if (userId) {
-        console.log('[VehiculosCrear] ✅ userId encontrado en localStorage:', userId);
         return userId;
       }
     } catch {}
 
-    console.warn('[VehiculosCrear] ⚠️ No se pudo obtener userId del localStorage');
     return null;
   }
 

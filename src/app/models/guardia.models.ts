@@ -137,11 +137,12 @@ export interface GuardiaConEstado extends Guardia {
  * Contiene datos del movimiento previo del usuario
  */
 export interface MovimientoAnteriorInfo {
-  id: string; // UUID del movimiento anterior
-  tipo: 'ENTRADA' | 'SALIDA'; // Tipo del movimiento anterior
-  fechaMovimiento: string; // Timestamp ISO-8601
-  guardiaNombre?: string; // Nombre de la guardia donde ocurrió
-  guardiaCodigo?: string; // Código de la guardia
+  id: string | null; // UUID del movimiento anterior (null si mensaje="S/M")
+  tipo: 'ENTRADA' | 'SALIDA' | null; // Tipo del movimiento anterior (null si mensaje="S/M")
+  fechaMovimiento: string | null; // Timestamp ISO-8601 (null si mensaje="S/M")
+  guardiaNombre?: string | null; // Nombre de la guardia donde ocurrió
+  guardiaCodigo?: string | null; // Código de la guardia
+  mensaje?: string | null; // "S/M" = Sin Movimiento anterior
 }
 
 /**

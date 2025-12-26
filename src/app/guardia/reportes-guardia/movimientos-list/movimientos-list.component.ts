@@ -287,11 +287,6 @@ export class MovimientosListComponent implements OnInit {
 
     this.movimientoService.listarPaginado(params).subscribe({
       next: response => {
-        console.log('========================================');
-        console.log('📦 RESPUESTA COMPLETA DEL BACKEND:');
-        console.log('========================================');
-        console.log(JSON.stringify(response, null, 2));
-        console.log('========================================');
 
         // El endpoint paginado retorna un objeto con content
         this.movimientos = response.content || response || [];
@@ -452,6 +447,7 @@ export class MovimientosListComponent implements OnInit {
    * @param minutos Minutos transcurridos desde el movimiento anterior
    */
   formatearDuracion(minutos: number | null | undefined): string {
+    // Si es null, undefined o 0 cuando no hay movimiento anterior válido
     if (minutos === null || minutos === undefined) {
       return '-';
     }
@@ -489,6 +485,12 @@ export class MovimientosListComponent implements OnInit {
     }
 
     const anterior = movimiento.movimientoAnterior;
+
+    // Si es mensaje S/M (Sin Movimiento)
+    if (anterior.mensaje === 'S/M' || !anterior.fechaMovimiento) {
+      return 'Sin movimiento anterior registrado';
+    }
+
     const fechaAnterior = new Date(anterior.fechaMovimiento).toLocaleString('es-ES', {
       day: '2-digit',
       month: '2-digit',
@@ -509,7 +511,7 @@ export class MovimientosListComponent implements OnInit {
    * 🆕 Formatea fecha ISO a formato legible
    * @param fechaISO Fecha en formato ISO-8601
    */
-  formatearFechaISO(fechaISO: string): string {
+  formatearFechaISO(fechaISO: string | null): string {
     if (!fechaISO) return 'N/A';
 
     return new Date(fechaISO).toLocaleString('es-ES', {
@@ -529,6 +531,15 @@ export class MovimientosListComponent implements OnInit {
   getTextoRelacion(movimiento: MovimientoGuardia): string {
     if (!movimiento.movimientoAnterior) {
       return 'Primer movimiento registrado';
+    }
+
+    // Verificar si el movimiento anterior tiene mensaje "S/M" (Sin Movimiento)
+    if (movimiento.movimientoAnterior.mensaje === 'S/M') {
+      if (movimiento.tipo === 'ENTRADA') {
+        return 'Primera entrada registrada del usuario';
+      } else {
+        return 'Salida sin entrada previa registrada (inconsistencia)';
+      }
     }
 
     const actual = movimiento.tipo;

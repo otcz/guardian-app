@@ -186,11 +186,12 @@
           <div>{{ movimiento.guardia?.nombre || '-' }}</div>
         </td>
         <td style="text-align: center">
-          <span *ngIf="movimiento.duracionDesdeAnteriorMinutos !== null && movimiento.duracionDesdeAnteriorMinutos !== undefined"
+          <span *ngIf="movimiento.movimientoAnterior?.mensaje === 'S/M'">-</span>
+          <span *ngIf="movimiento.movimientoAnterior?.mensaje !== 'S/M' && movimiento.duracionDesdeAnteriorMinutos !== null && movimiento.duracionDesdeAnteriorMinutos !== undefined"
                 style="font-weight: 500; color: var(--blue-500);">
             {{ formatearDuracion(movimiento.duracionDesdeAnteriorMinutos) }}
           </span>
-          <span *ngIf="movimiento.duracionDesdeAnteriorMinutos === null || movimiento.duracionDesdeAnteriorMinutos === undefined">-</span>
+          <span *ngIf="!movimiento.movimientoAnterior || (movimiento.movimientoAnterior?.mensaje !== 'S/M' && (movimiento.duracionDesdeAnteriorMinutos === null || movimiento.duracionDesdeAnteriorMinutos === undefined))">-</span>
         </td>
       </tr>
     </ng-template>
@@ -257,8 +258,9 @@
 
               <!-- Movimiento Relacionado (Anterior) -->
               <div class="col-12 md:col-6">
+                <!-- Con movimiento anterior válido -->
                 <p-panel
-                  *ngIf="movimiento.movimientoAnterior"
+                  *ngIf="movimiento.movimientoAnterior && movimiento.movimientoAnterior.mensaje !== 'S/M'"
                   [header]="'Movimiento Relacionado: ' + movimiento.movimientoAnterior.tipo"
                   [toggleable]="false">
                   <div class="flex flex-column gap-3">
@@ -311,7 +313,21 @@
                   </div>
                 </p-panel>
 
-                <!-- Sin movimiento anterior -->
+                <!-- Sin movimiento anterior (mensaje S/M) -->
+                <p-panel
+                  *ngIf="movimiento.movimientoAnterior && movimiento.movimientoAnterior.mensaje === 'S/M'"
+                  header="Movimiento Relacionado"
+                  [toggleable]="false">
+                  <div class="text-center py-4">
+                    <i class="pi pi-info-circle text-4xl mb-3" style="color: var(--orange-500);"></i>
+                    <p class="font-semibold mb-2" style="color: var(--orange-600);">Sin Movimiento Anterior</p>
+                    <p class="text-color-secondary m-0 text-sm">
+                      {{ getTextoRelacion(movimiento) }}
+                    </p>
+                  </div>
+                </p-panel>
+
+                <!-- Sin movimiento anterior (null) -->
                 <p-panel
                   *ngIf="!movimiento.movimientoAnterior"
                   header="Movimiento Relacionado"

@@ -878,6 +878,7 @@
       severity="primary"
       (onClick)="onGuardarConfiguracionGuardia()"
       [loading]="guardandoGuardia"
+      [disabled]="!hayCambiosPendientesGuardia"
     ></p-button>
   </ng-template>
 </p-dialog>

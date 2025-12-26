@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { forkJoin } from 'rxjs';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
+import { Observable } from 'rxjs';
 
 // PrimeNG Imports
 import { ButtonModule } from 'primeng/button';
@@ -160,6 +162,21 @@ export class AdministrarGuardiasPorUsuarioComponent implements OnInit {
   usuariosDisponiblesAdmin: UserEntity[] = [];
   usuarioAdminSeleccionado: UserEntity | null = null;
   cargandoUsuariosAdmin = false;
+
+  // Sistema de cambios pendientes para guardia
+  cambiosPendientesGuardia: {
+    adminAnterior: string | null;
+    adminNuevo: string | null;
+    permiteEntrada: boolean | null;
+    permiteSalida: boolean | null;
+    datosBasicos: ActualizarGuardiaDTO | null;
+  } = {
+    adminAnterior: null,
+    adminNuevo: null,
+    permiteEntrada: null,
+    permiteSalida: null,
+    datosBasicos: null
+  };
 
   constructor(
     private orgContext: OrgContextService,
@@ -839,6 +856,38 @@ export class AdministrarGuardiasPorUsuarioComponent implements OnInit {
     return this.cambiosLocales.size > 0;
   }
 
+  /**
+   * Verificar si hay cambios pendientes en la guardia
+   */
+  get hayCambiosPendientesGuardia(): boolean {
+    if (!this.guardiaEditando || !this.guardiaParaConfigurar) return false;
+
+    // 1. Cambio en nombre
+    const nombreCambio = this.guardiaEditando.nombre !== this.guardiaParaConfigurar.nombre;
+
+    // 2. Cambio en descripción
+    const descripcionCambio = (this.guardiaEditando.descripcion || '') !== (this.guardiaParaConfigurar.descripcion || '');
+
+    // 3. Cambio en ubicación
+    const ubicacionCambio = (this.guardiaEditando.ubicacion || '') !== (this.guardiaParaConfigurar.ubicacion || '');
+
+    // 4. Cambio en usuario administrador
+    // IMPORTANTE: Solo se considera cambio si hay un NUEVO administrador seleccionado
+    // Si solo se quita el admin (sin seleccionar nuevo), NO se habilita el botón
+    const adminActualId = this.guardiaParaConfigurar.usuarioGestorId;
+    const adminNuevoId = this.usuarioAdminSeleccionado?.id || null;
+    const adminCambio = adminNuevoId !== null && adminActualId !== adminNuevoId;
+
+    // 5. Cambio en permiteEntrada (si fue toggleado)
+    const entradaCambio = this.cambiosPendientesGuardia.permiteEntrada !== null;
+
+    // 6. Cambio en permiteSalida (si fue toggleado)
+    const salidaCambio = this.cambiosPendientesGuardia.permiteSalida !== null;
+
+    // Retornar true si HAY AL MENOS UN CAMBIO
+    return nombreCambio || descripcionCambio || ubicacionCambio || adminCambio || entradaCambio || salidaCambio;
+  }
+
   // ============================================
   // MÉTODOS PRIVADOS - Helpers
   // ============================================
@@ -1443,6 +1492,9 @@ export class AdministrarGuardiasPorUsuarioComponent implements OnInit {
     this.guardiaEditando = { ...guardia }; // Clonar para edición
     this.mostrarModalConfigGuardia = true;
 
+    // Limpiar cambios pendientes
+    this.limpiarCambiosPendientesGuardia();
+
     // Cargar usuarios disponibles para asignar como admin
     this.cargarUsuariosDisponiblesAdmin();
 
@@ -1525,46 +1577,178 @@ export class AdministrarGuardiasPorUsuarioComponent implements OnInit {
 
   /**
    * Guardar cambios en la configuración de la guardia
+   * Procesa todos los cambios pendientes en paralelo
    */
   onGuardarConfiguracionGuardia(): void {
-    if (!this.guardiaEditando) return;
+    if (!this.guardiaEditando || !this.guardiaParaConfigurar) return;
 
-    // Validaciones
+    // Validación: nombre obligatorio
     if (!this.guardiaEditando.nombre || this.guardiaEditando.nombre.trim() === '') {
       this.mostrarError('El nombre de la guardia es obligatorio');
       return;
     }
 
+    // Validación: debe haber al menos un cambio (el botón está deshabilitado pero validamos por seguridad)
+    if (!this.hayCambiosPendientesGuardia) {
+      this.mostrarInfo('No hay cambios para guardar');
+      return;
+    }
+
     this.guardandoGuardia = true;
 
-    const dto: ActualizarGuardiaDTO = {
-      nombre: this.guardiaEditando.nombre.trim(),
-      descripcion: this.guardiaEditando.descripcion?.trim() || undefined,
-      ubicacion: this.guardiaEditando.ubicacion?.trim() || undefined,
-      usuarioGestorId: this.usuarioAdminSeleccionado?.id || null
-    };
+    // Array para almacenar todas las operaciones
+    const operaciones: Observable<any>[] = [];
 
-    this.guardiaService.actualizar(this.guardiaEditando.id, dto).subscribe({
-      next: (guardiaActualizada) => {
+    // 1. Detectar cambios en usuario administrador
+    const adminActualId = this.guardiaParaConfigurar.usuarioGestorId;
+    const adminNuevoId = this.usuarioAdminSeleccionado?.id || null;
+    const adminCambio = adminActualId !== adminNuevoId;
+
+    console.log('🔍 Verificando cambios de administrador:', {
+      guardiaId: this.guardiaEditando.id,
+      adminActual: adminActualId,
+      adminNuevo: adminNuevoId,
+      adminCambio: adminCambio,
+      usuarioSeleccionado: this.usuarioAdminSeleccionado
+    });
+
+    // 2. Detectar cambios en datos básicos
+    const nombreCambio = this.guardiaEditando.nombre !== this.guardiaParaConfigurar.nombre;
+    const descripcionCambio = (this.guardiaEditando.descripcion || '') !== (this.guardiaParaConfigurar.descripcion || '');
+    const ubicacionCambio = (this.guardiaEditando.ubicacion || '') !== (this.guardiaParaConfigurar.ubicacion || '');
+    const datosBasicosCambiaron = nombreCambio || descripcionCambio || ubicacionCambio;
+
+    // 3. Quitar admin anterior si cambió
+    if (adminCambio && adminActualId) {
+      console.log('❌ OPERACIÓN: Quitar admin anterior', { guardiaId: this.guardiaEditando.id, usuarioId: adminActualId });
+      operaciones.push(
+        this.guardiaUsuarioService.revocar(this.guardiaEditando.id, adminActualId).pipe(
+          catchError(error => {
+            console.error('❌ Error al quitar admin anterior:', error);
+            return of(null);
+          })
+        )
+      );
+    }
+
+    // 4. Agregar nuevo admin si cambió
+    if (adminCambio && adminNuevoId) {
+      console.log('✅ OPERACIÓN: Asignar nuevo admin', {
+        guardiaId: this.guardiaEditando.id,
+        usuarioId: adminNuevoId,
+        username: this.usuarioAdminSeleccionado?.username
+      });
+      operaciones.push(
+        this.guardiaUsuarioService.asignar(this.guardiaEditando.id, adminNuevoId, {
+          observaciones: 'Administrador de la guardia'
+        }).pipe(
+          catchError(error => {
+            console.error('❌ Error al asignar nuevo admin:', error);
+            return of(null);
+          })
+        )
+      );
+    }
+
+    // 5. Actualizar permiteEntrada si cambió
+    if (this.cambiosPendientesGuardia.permiteEntrada !== null) {
+      operaciones.push(
+        this.guardiaService.modificarPermiteEntrada(
+          this.guardiaEditando.id,
+          this.cambiosPendientesGuardia.permiteEntrada
+        ).pipe(
+          catchError(error => {
+            console.error('❌ Error al actualizar permiteEntrada:', error);
+            return of(null);
+          })
+        )
+      );
+    }
+
+    // 6. Actualizar permiteSalida si cambió
+    if (this.cambiosPendientesGuardia.permiteSalida !== null) {
+      operaciones.push(
+        this.guardiaService.modificarPermiteSalida(
+          this.guardiaEditando.id,
+          this.cambiosPendientesGuardia.permiteSalida
+        ).pipe(
+          catchError(error => {
+            console.error('❌ Error al actualizar permiteSalida:', error);
+            return of(null);
+          })
+        )
+      );
+    }
+
+    // 7. Actualizar datos básicos si cambiaron o si cambió el admin
+    if (datosBasicosCambiaron || adminCambio) {
+      const dto: ActualizarGuardiaDTO = {
+        nombre: this.guardiaEditando.nombre.trim(),
+        descripcion: this.guardiaEditando.descripcion?.trim() || undefined,
+        ubicacion: this.guardiaEditando.ubicacion?.trim() || undefined,
+        usuarioGestorId: adminNuevoId
+      };
+
+      operaciones.push(
+        this.guardiaService.actualizar(this.guardiaEditando.id, dto).pipe(
+          catchError(error => {
+            console.error('Error al actualizar datos básicos:', error);
+            return of(null);
+          })
+        )
+      );
+    }
+
+    // Ejecutar TODAS las operaciones en paralelo
+    if (operaciones.length === 0) {
+      this.guardandoGuardia = false;
+      this.mostrarInfo('No hay cambios para guardar');
+      return;
+    }
+
+    forkJoin(operaciones).subscribe({
+      next: (resultados) => {
         this.guardandoGuardia = false;
-        this.mostrarExito('✅ Configuración de guardia actualizada correctamente');
 
-        // Actualizar en la lista local
-        const index = this.guardias.findIndex(g => g.id === guardiaActualizada.id);
-        if (index !== -1) {
-          this.guardias[index] = guardiaActualizada;
+        // Verificar si hubo algún error
+        const errores = resultados.filter(r => r === null).length;
+        const exitosas = resultados.filter(r => r !== null).length;
+
+        if (exitosas > 0) {
+          this.mostrarExito(
+            `✅ Configuración actualizada correctamente${errores > 0 ? ` (${errores} operación(es) fallida(s))` : ''}`
+          );
+
+          // Recargar guardia actualizada
+          this.guardiaService.obtenerPorId(this.guardiaEditando!.id).subscribe({
+            next: (guardiaActualizada) => {
+              // Actualizar en la lista local
+              const index = this.guardias.findIndex(g => g.id === guardiaActualizada.id);
+              if (index !== -1) {
+                this.guardias[index] = guardiaActualizada;
+              }
+
+              // Si es la guardia seleccionada actualmente, actualizarla
+              if (this.guardiaSeleccionadaDetalle?.id === guardiaActualizada.id) {
+                this.guardiaSeleccionadaDetalle = guardiaActualizada;
+              }
+
+              this.limpiarCambiosPendientesGuardia();
+              this.onCerrarConfiguracionGuardia();
+            },
+            error: () => {
+              this.limpiarCambiosPendientesGuardia();
+              this.onCerrarConfiguracionGuardia();
+            }
+          });
+        } else {
+          this.mostrarError('No se pudieron guardar los cambios');
         }
-
-        // Si es la guardia seleccionada actualmente, actualizarla
-        if (this.guardiaSeleccionadaDetalle?.id === guardiaActualizada.id) {
-          this.guardiaSeleccionadaDetalle = guardiaActualizada;
-        }
-
-        this.onCerrarConfiguracionGuardia();
       },
-      error: (err) => {
+      error: (error) => {
         this.guardandoGuardia = false;
-        this.mostrarError('Error al actualizar guardia: ' + (err?.error?.message || 'Error desconocido'));
+        console.error('Error al guardar cambios:', error);
+        this.mostrarError('Error al guardar cambios: ' + (error?.error?.message || 'Error desconocido'));
       }
     });
   }
@@ -1658,95 +1842,93 @@ export class AdministrarGuardiasPorUsuarioComponent implements OnInit {
 
   /**
    * Toggle del permiso de entrada en el modal de configuración
+   * Acumula el cambio sin ejecutarlo inmediatamente
    */
   onTogglePermiteEntrada(): void {
     if (!this.guardiaEditando) return;
 
-    const nuevoEstado = !this.guardiaEditando.permiteEntrada;
-    const mensaje = nuevoEstado
-      ? '¿Desea habilitar las entradas en esta guardia? Los usuarios podrán registrar ingresos.'
-      : '¿Desea bloquear las entradas en esta guardia? Los usuarios NO podrán registrar ingresos.';
+    // Invertir el valor actual
+    this.guardiaEditando.permiteEntrada = !this.guardiaEditando.permiteEntrada;
 
-    this.confirmationService.confirm({
-      message: mensaje,
-      header: nuevoEstado ? 'Habilitar Entradas' : 'Bloquear Entradas',
-      icon: 'pi pi-exclamation-triangle',
-      acceptLabel: 'Sí, confirmar',
-      rejectLabel: 'Cancelar',
-      accept: () => {
-        this.guardiaService.modificarPermiteEntrada(this.guardiaEditando!.id, nuevoEstado).subscribe({
-          next: (guardiaActualizada) => {
-            this.guardiaEditando!.permiteEntrada = guardiaActualizada.permiteEntrada;
+    // Registrar el cambio pendiente
+    this.cambiosPendientesGuardia.permiteEntrada = this.guardiaEditando.permiteEntrada;
 
-            // Actualizar en la lista local
-            const index = this.guardias.findIndex(g => g.id === guardiaActualizada.id);
-            if (index !== -1) {
-              this.guardias[index] = guardiaActualizada;
-            }
+    // Mostrar feedback visual
+    const mensaje = this.guardiaEditando.permiteEntrada
+      ? 'Entradas habilitadas (cambio pendiente)'
+      : 'Entradas bloqueadas (cambio pendiente)';
 
-            // Si es la guardia seleccionada actualmente, actualizarla
-            if (this.guardiaSeleccionadaDetalle?.id === guardiaActualizada.id) {
-              this.guardiaSeleccionadaDetalle = guardiaActualizada;
-            }
-
-            this.mostrarExito(
-              nuevoEstado
-                ? '✅ Entradas habilitadas correctamente'
-                : '✅ Entradas bloqueadas correctamente'
-            );
-          },
-          error: (err) => {
-            this.mostrarError('Error al cambiar permisos de entrada: ' + (err?.error?.message || 'Error desconocido'));
-          }
-        });
-      }
-    });
+    this.mostrarInfo(mensaje);
   }
 
   /**
    * Toggle del permiso de salida en el modal de configuración
+   * Acumula el cambio sin ejecutarlo inmediatamente
    */
   onTogglePermiteSalida(): void {
     if (!this.guardiaEditando) return;
 
-    const nuevoEstado = !this.guardiaEditando.permiteSalida;
-    const mensaje = nuevoEstado
-      ? '¿Desea habilitar las salidas en esta guardia? Los usuarios podrán registrar egresos.'
-      : '¿Desea bloquear las salidas en esta guardia? Los usuarios NO podrán registrar egresos.';
+    // Invertir el valor actual
+    this.guardiaEditando.permiteSalida = !this.guardiaEditando.permiteSalida;
+
+    // Registrar el cambio pendiente
+    this.cambiosPendientesGuardia.permiteSalida = this.guardiaEditando.permiteSalida;
+
+    // Mostrar feedback visual
+    const mensaje = this.guardiaEditando.permiteSalida
+      ? 'Salidas habilitadas (cambio pendiente)'
+      : 'Salidas bloqueadas (cambio pendiente)';
+
+    this.mostrarInfo(mensaje);
+  }
+
+  /**
+   * Limpiar cambios pendientes de guardia
+   */
+  private limpiarCambiosPendientesGuardia(): void {
+    this.cambiosPendientesGuardia = {
+      adminAnterior: null,
+      adminNuevo: null,
+      permiteEntrada: null,
+      permiteSalida: null,
+      datosBasicos: null
+    };
+  }
+
+  /**
+   * Cancelar cambios pendientes de guardia
+   */
+  onCancelarCambiosGuardia(): void {
+    if (!this.guardiaParaConfigurar) return;
 
     this.confirmationService.confirm({
-      message: mensaje,
-      header: nuevoEstado ? 'Habilitar Salidas' : 'Bloquear Salidas',
-      icon: 'pi pi-exclamation-triangle',
-      acceptLabel: 'Sí, confirmar',
-      rejectLabel: 'Cancelar',
+      message: '¿Desea descartar todos los cambios realizados?',
+      header: 'Confirmar Cancelación',
+      icon: 'pi pi-question-circle',
+      acceptLabel: 'Sí, descartar',
+      rejectLabel: 'No',
       accept: () => {
-        this.guardiaService.modificarPermiteSalida(this.guardiaEditando!.id, nuevoEstado).subscribe({
-          next: (guardiaActualizada) => {
-            this.guardiaEditando!.permiteSalida = guardiaActualizada.permiteSalida;
+        // Restaurar valores originales
+        this.guardiaEditando = { ...this.guardiaParaConfigurar! };
 
-            // Actualizar en la lista local
-            const index = this.guardias.findIndex(g => g.id === guardiaActualizada.id);
-            if (index !== -1) {
-              this.guardias[index] = guardiaActualizada;
-            }
+        // Limpiar cambios pendientes
+        this.limpiarCambiosPendientesGuardia();
 
-            // Si es la guardia seleccionada actualmente, actualizarla
-            if (this.guardiaSeleccionadaDetalle?.id === guardiaActualizada.id) {
-              this.guardiaSeleccionadaDetalle = guardiaActualizada;
-            }
+        // Restaurar usuario admin original
+        if (this.guardiaParaConfigurar!.usuarioGestorId) {
+          this.cargarUsuarioAdmin(this.guardiaParaConfigurar!.usuarioGestorId);
+        } else {
+          this.usuarioAdminSeleccionado = null;
+        }
 
-            this.mostrarExito(
-              nuevoEstado
-                ? '✅ Salidas habilitadas correctamente'
-                : '✅ Salidas bloqueadas correctamente'
-            );
-          },
-          error: (err) => {
-            this.mostrarError('Error al cambiar permisos de salida: ' + (err?.error?.message || 'Error desconocido'));
-          }
-        });
+        this.mostrarInfo('Cambios descartados');
       }
     });
   }
 }
+
+
+
+
+
+

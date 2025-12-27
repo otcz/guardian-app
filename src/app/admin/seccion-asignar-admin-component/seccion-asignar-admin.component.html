@@ -92,27 +92,110 @@
                 </div>
               </ng-template>
               <ng-template pTemplate="item" let-option>
-                <div class="dropdown-item">
-                  <i class="pi pi-user item-icon"></i>
-                  <div class="item-info">
-                    <span class="username">{{ option.username }}</span>
-                    <small *ngIf="option.nombreCompleto">{{ option.nombreCompleto }}</small>
+                <div class="dropdown-item user-candidate-item">
+                  <div class="user-main-info">
+                    <i class="pi pi-user item-icon"></i>
+                    <div class="item-info">
+                      <span class="username">{{ option.username }}</span>
+                      <small *ngIf="option.nombreCompleto">{{ option.nombreCompleto }}</small>
+                    </div>
                   </div>
+                  <span class="user-role-badge">
+                    <i class="pi pi-shield"></i>
+                    ADMIN
+                  </span>
                 </div>
               </ng-template>
             </p-dropdown>
             <small class="info-message" *ngIf="!seccionId">
               <i class="pi pi-info-circle"></i>
-              Selecciona primero una sección
+              Selecciona primero una sección para ver candidatos
             </small>
             <small class="info-message success" *ngIf="seccionId && usuarios.length > 0">
               <i class="pi pi-check-circle"></i>
-              Solo se muestran usuarios de la misma organización
+              {{ usuarios.length }} {{ usuarios.length === 1 ? 'candidato disponible' : 'candidatos disponibles' }} (usuarios con rol ADMIN de esta sección)
             </small>
             <small class="info-message warning" *ngIf="seccionId && usuarios.length === 0 && !loading">
               <i class="pi pi-exclamation-triangle"></i>
-              No hay usuarios disponibles para esta sección
+              No hay usuarios con rol ADMIN disponibles en esta sección
             </small>
+            <small class="info-message info" *ngIf="loading">
+              <i class="pi pi-spin pi-spinner"></i>
+              Cargando candidatos...
+            </small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Administrador Actual -->
+      <div class="current-admin-section" *ngIf="seccionId && !loadingCurrentAdmin">
+        <div class="current-admin-header">
+          <i class="pi pi-user-edit"></i>
+          <h4>Administrador Actual</h4>
+        </div>
+        <div class="current-admin-card" *ngIf="currentAdmin; else noCurrentAdmin">
+          <div class="admin-badge current">
+            <i class="pi pi-user"></i>
+          </div>
+          <div class="admin-info">
+            <span class="admin-label">Administrador</span>
+            <strong>{{ currentAdmin.nombreCompleto || currentAdmin.username }}</strong>
+            <small *ngIf="currentAdmin.username">{{ '@' + currentAdmin.username }}</small>
+            <small *ngIf="currentAdmin.identificacion">{{ currentAdmin.tipoIdentificacion || 'CC' }}: {{ currentAdmin.identificacion }}</small>
+          </div>
+        </div>
+        <ng-template #noCurrentAdmin>
+          <div class="no-admin-card">
+            <i class="pi pi-exclamation-circle"></i>
+            <div class="no-admin-info">
+              <strong>Sin administrador asignado</strong>
+              <small>Esta sección no tiene un administrador principal</small>
+            </div>
+          </div>
+        </ng-template>
+      </div>
+
+      <!-- Transición del Cambio -->
+      <div class="transition-section" *ngIf="seccionId && usuarioId && selectedSection">
+        <div class="transition-header">
+          <i class="pi pi-arrow-right-arrow-left"></i>
+          <h4>Cambio de Administrador</h4>
+        </div>
+        <div class="transition-content">
+          <!-- Administrador actual -->
+          <div class="transition-admin from">
+            <div class="transition-label">
+              <i class="pi pi-minus-circle"></i>
+              <span>Actual</span>
+            </div>
+            <div class="admin-card-mini" *ngIf="selectedSection.adminNombre; else noCurrentFromAdmin">
+              <i class="pi pi-user"></i>
+              <strong>{{ selectedSection.adminNombre }}</strong>
+            </div>
+            <ng-template #noCurrentFromAdmin>
+              <div class="admin-card-mini empty">
+                <i class="pi pi-ban"></i>
+                <strong>Sin asignar</strong>
+              </div>
+            </ng-template>
+          </div>
+
+          <!-- Flecha de transición -->
+          <div class="transition-arrow">
+            <i class="pi pi-arrow-right"></i>
+          </div>
+
+          <!-- Nuevo administrador -->
+          <div class="transition-admin to">
+            <div class="transition-label">
+              <i class="pi pi-check-circle"></i>
+              <span>Nuevo</span>
+            </div>
+            <div class="admin-card-mini new" *ngIf="selectedUser">
+              <i class="pi pi-user"></i>
+              <strong>{{ selectedUser.username }}</strong>
+              <small *ngIf="selectedUser.nombreCompleto">{{ selectedUser.nombreCompleto }}</small>
+            </div>
           </div>
         </div>
       </div>
@@ -123,37 +206,15 @@
         <div class="info-content">
           <strong>Requisitos del administrador:</strong>
           <ul>
-            <li>Debe pertenecer a la misma organización que la sección</li>
+            <li>Debe tener <strong>rol ADMIN</strong></li>
+            <li>Debe ser <strong>usuario de esta sección</strong></li>
+            <li>Debe pertenecer a la misma organización</li>
             <li>Debe tener alcance de SECCION (no ORGANIZACION)</li>
           </ul>
-        </div>
-      </div>
-
-      <!-- Preview de selección -->
-      <div class="preview-section" *ngIf="selectedSection || selectedUser">
-        <div class="preview-header">
-          <i class="pi pi-eye"></i>
-          <h4>Vista Previa</h4>
-        </div>
-        <div class="preview-grid">
-          <div class="preview-card" *ngIf="selectedSection">
-            <div class="preview-icon">
-              <i class="pi pi-th-large"></i>
-            </div>
-            <div class="preview-content">
-              <span class="preview-label">Sección</span>
-              <strong>{{ selectedSection.nombre }}</strong>
-            </div>
-          </div>
-          <div class="preview-card" *ngIf="selectedUser">
-            <div class="preview-icon">
-              <i class="pi pi-user"></i>
-            </div>
-            <div class="preview-content">
-              <span class="preview-label">Usuario</span>
-              <strong>{{ selectedUser.username }}</strong>
-            </div>
-          </div>
+          <p class="info-note">
+            <i class="pi pi-lightbulb"></i>
+            Solo se listan usuarios que cumplen estos requisitos
+          </p>
         </div>
       </div>
     </div>

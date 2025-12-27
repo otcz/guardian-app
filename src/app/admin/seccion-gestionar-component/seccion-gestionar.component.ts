@@ -30,6 +30,11 @@ export class SeccionGestionarComponent implements OnInit, OnDestroy {
   loadingSecciones = false;
   isAdminRole = false; // True si el usuario es ADMIN (de sección)
   showSeccionSelector = true; // False si el usuario es ADMIN (tiene sección fija)
+
+  // Información del administrador actual
+  currentAdmin: any | null = null;
+  loadingAdmin = false;
+
   private sub?: Subscription;
 
   constructor(
@@ -111,8 +116,35 @@ export class SeccionGestionarComponent implements OnInit, OnDestroy {
     if (!this.orgId || !this.seccionId) return;
     this.loading = true;
     this.seccionService.get(this.orgId, this.seccionId).subscribe({
-      next: (s) => { this.seccion = s; this.loading = false; },
-      error: (e) => { this.notify.error('Error', e?.error?.message || 'No se pudo cargar la sección'); this.loading = false; }
+      next: (s) => {
+        this.seccion = s;
+        this.loading = false;
+        // Cargar información del administrador
+        this.loadAdminInfo();
+      },
+      error: (e) => {
+        this.notify.error('Error', e?.error?.message || 'No se pudo cargar la sección');
+        this.loading = false;
+      }
+    });
+  }
+
+  loadAdminInfo() {
+    if (!this.orgId || !this.seccionId) return;
+
+    this.loadingAdmin = true;
+    this.currentAdmin = null;
+
+    this.seccionService.getSectionAdmin(this.orgId, this.seccionId).subscribe({
+      next: (response) => {
+        this.currentAdmin = response.data;
+        this.loadingAdmin = false;
+      },
+      error: (e) => {
+        console.error('Error al cargar administrador:', e);
+        this.currentAdmin = null;
+        this.loadingAdmin = false;
+      }
     });
   }
 
@@ -135,8 +167,6 @@ export class SeccionGestionarComponent implements OnInit, OnDestroy {
     this.router.navigate(['/listar-lugares'], { queryParams: { id: this.orgId } });
   }
 
-  asignarAdmin() {
-  }
 
   volver() { this.router.navigate(['/listar-secciones'], { queryParams: this.orgId ? { id: this.orgId } : undefined }); }
 }

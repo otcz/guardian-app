@@ -142,6 +142,129 @@
         </div>
         </div>
 
+        <!-- Información del Administrador -->
+        <div class="admin-section" *ngIf="!loadingAdmin">
+          <h3 class="section-title">
+            <i class="pi pi-user-edit"></i>
+            Administrador de la Sección
+          </h3>
+
+          <!-- Con Administrador -->
+          <div class="admin-card" *ngIf="currentAdmin; else noAdminAssigned">
+            <div class="admin-header">
+              <div class="admin-avatar">
+                <i class="pi pi-user"></i>
+              </div>
+              <div class="admin-info-header">
+                <h4>{{ currentAdmin.nombreCompleto || currentAdmin.username }}</h4>
+                <div class="admin-badges">
+                  <span class="role-badge" *ngFor="let role of currentAdmin.roles">
+                    <i class="pi pi-shield"></i>
+                    {{ role }}
+                  </span>
+                  <span class="scope-badge" *ngIf="currentAdmin.scopeNivel">
+                    <i class="pi pi-sitemap"></i>
+                    {{ currentAdmin.scopeNivel }}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div class="admin-details">
+              <div class="detail-item">
+                <div class="detail-icon">
+                  <i class="pi pi-at"></i>
+                </div>
+                <div class="detail-content">
+                  <span class="detail-label">Usuario</span>
+                  <strong>{{ currentAdmin.username }}</strong>
+                </div>
+              </div>
+
+              <div class="detail-item" *ngIf="currentAdmin.email">
+                <div class="detail-icon">
+                  <i class="pi pi-envelope"></i>
+                </div>
+                <div class="detail-content">
+                  <span class="detail-label">Correo Electrónico</span>
+                  <strong>{{ currentAdmin.email }}</strong>
+                </div>
+              </div>
+
+              <div class="detail-item" *ngIf="currentAdmin.identificacion">
+                <div class="detail-icon">
+                  <i class="pi pi-id-card"></i>
+                </div>
+                <div class="detail-content">
+                  <span class="detail-label">Documento</span>
+                  <strong>{{ currentAdmin.tipoIdentificacion || 'CC' }}: {{ currentAdmin.identificacion }}</strong>
+                </div>
+              </div>
+
+              <div class="detail-item" *ngIf="currentAdmin.telefono">
+                <div class="detail-icon">
+                  <i class="pi pi-phone"></i>
+                </div>
+                <div class="detail-content">
+                  <span class="detail-label">Teléfono</span>
+                  <strong>{{ currentAdmin.telefono }}</strong>
+                </div>
+              </div>
+
+              <div class="detail-item" *ngIf="currentAdmin.seccionNombre">
+                <div class="detail-icon">
+                  <i class="pi pi-th-large"></i>
+                </div>
+                <div class="detail-content">
+                  <span class="detail-label">Sección Asignada</span>
+                  <strong>{{ currentAdmin.seccionNombre }}</strong>
+                </div>
+              </div>
+
+              <div class="detail-item">
+                <div class="detail-icon">
+                  <i class="pi pi-power-off"></i>
+                </div>
+                <div class="detail-content">
+                  <span class="detail-label">Estado</span>
+                  <p-tag
+                    [value]="currentAdmin.activo ? 'ACTIVO' : 'INACTIVO'"
+                    [severity]="currentAdmin.activo ? 'success' : 'danger'">
+                  </p-tag>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sin Administrador -->
+          <ng-template #noAdminAssigned>
+            <div class="no-admin-card">
+              <div class="no-admin-icon">
+                <i class="pi pi-exclamation-circle"></i>
+              </div>
+              <div class="no-admin-content">
+                <h4>Sin Administrador Asignado</h4>
+                <p>Esta sección no tiene un administrador principal asignado.</p>
+                <button
+                  pButton
+                  type="button"
+                  label="Asignar Administrador"
+                  icon="pi pi-user-plus"
+                  class="p-button-primary"
+                  [routerLink]="['/asignar-administrador-de-seccion']"
+                  [queryParams]="{ seccionId: seccionId }">
+                </button>
+              </div>
+            </div>
+          </ng-template>
+        </div>
+
+        <!-- Loading Administrador -->
+        <div class="admin-loading" *ngIf="loadingAdmin">
+          <p-progressSpinner [style]="{ width: '50px', height: '50px' }"></p-progressSpinner>
+          <p>Cargando información del administrador...</p>
+        </div>
+
         <!-- Acciones disponibles -->
         <div class="actions-section">
         <h3 class="section-title">

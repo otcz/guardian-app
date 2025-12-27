@@ -32,6 +32,10 @@ export class SeccionAsignarAdminComponent implements OnInit {
   seccionId: string | null = null;
   usuarioId: string | null = null;
 
+  // Administrador actual
+  currentAdmin: any | null = null;
+  loadingCurrentAdmin = false;
+
   // filtros de búsqueda
   seccionQuery = '';
   usuarioQuery = '';
@@ -123,7 +127,30 @@ export class SeccionAsignarAdminComponent implements OnInit {
   onSeccionChange() {
     // Limpiar usuario seleccionado al cambiar de sección
     this.usuarioId = null;
+    this.currentAdmin = null;
     this.loadCandidates();
+    this.loadCurrentAdmin();
+  }
+
+  private loadCurrentAdmin() {
+    if (!this.orgId || !this.seccionId) {
+      this.currentAdmin = null;
+      return;
+    }
+
+    this.loadingCurrentAdmin = true;
+    this.seccionesSrv.getSectionAdmin(this.orgId, this.seccionId).subscribe({
+      next: (response) => {
+        this.currentAdmin = response.data;
+        this.loadingCurrentAdmin = false;
+        console.log('Administrador actual cargado:', this.currentAdmin);
+      },
+      error: (e) => {
+        console.error('Error al cargar administrador actual:', e);
+        this.currentAdmin = null;
+        this.loadingCurrentAdmin = false;
+      }
+    });
   }
 
   private loadCandidates() {

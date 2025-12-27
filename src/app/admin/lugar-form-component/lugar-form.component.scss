@@ -1,36 +1,92 @@
+// Contenedor principal
+.page-container {
+  padding: 0;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
 // Tarjeta principal
 .lugar-card {
   display: block;
-  max-width: 1200px;
-  margin: 0 auto;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--border);
+  overflow: hidden;
+
+  ::ng-deep .p-card-body {
+    padding: 0;
+  }
+
+  ::ng-deep .p-card-content {
+    padding: 0;
+  }
 }
 
-// Header personalizado
+// Header con gradiente naranja (consistente con lugares)
 .card-header {
-  background: linear-gradient(135deg, #4f8cff 0%, #2563eb 50%, #203a43 100%);
+  background: linear-gradient(135deg, #f97316 0%, #ea580c 50%, #c2410c 100%);
   padding: 1.5rem 2rem;
-  border-radius: 8px 8px 0 0;
-  box-shadow: 0 4px 12px rgba(79, 140, 255, 0.2);
+  box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
 
   .header-content {
     display: flex;
     align-items: center;
     gap: 12px;
-
-    h2 {
-      margin: 0;
-      color: white;
-      font-size: 1.5rem;
-      font-weight: 600;
-      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
+    flex: 1;
 
     .header-icon {
-      font-size: 1.8rem;
+      font-size: 2rem;
       color: white;
       filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+    }
+
+    .header-text {
+      flex: 1;
+
+      h2 {
+        margin: 0 0 0.5rem 0;
+        color: white;
+        font-size: 1.5rem;
+        font-weight: 600;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .subtitle {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 0;
+        color: rgba(255, 255, 255, 0.95);
+        font-size: 0.95rem;
+
+        i {
+          font-size: 0.9rem;
+        }
+
+        span {
+          font-weight: 500;
+        }
+      }
+    }
+  }
+
+  .back-button {
+    background: rgba(255, 255, 255, 0.15) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    color: white !important;
+    font-weight: 600;
+    padding: 0.75rem 1.25rem;
+    transition: all 0.2s ease;
+
+    &:hover:not(:disabled) {
+      background: rgba(255, 255, 255, 0.25) !important;
+      border-color: rgba(255, 255, 255, 0.5) !important;
+      transform: translateX(-4px);
     }
   }
 }

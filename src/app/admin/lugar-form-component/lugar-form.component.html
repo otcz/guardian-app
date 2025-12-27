@@ -1,12 +1,27 @@
-<p-card class="lugar-card">
-  <ng-template pTemplate="header">
-    <div class="card-header">
-      <div class="header-content">
-        <i class="pi pi-map-marker header-icon"></i>
-        <h2>Crear Lugar</h2>
+<div class="page-container">
+  <p-card class="lugar-card">
+    <ng-template pTemplate="header">
+      <div class="card-header">
+        <div class="header-content">
+          <i class="pi pi-map-marker header-icon"></i>
+          <div class="header-text">
+            <h2>Crear Lugar</h2>
+            <p class="subtitle" *ngIf="seccionId && secciones.length > 0">
+              <i class="pi pi-th-large"></i>
+              <span>{{ getSeccionNombre(seccionId) }}</span>
+            </p>
+          </div>
+        </div>
+        <button
+          pButton
+          type="button"
+          icon="pi pi-arrow-left"
+          label="Volver"
+          class="back-button"
+          (click)="cancel()">
+        </button>
       </div>
-    </div>
-  </ng-template>
+    </ng-template>
 
   <form [formGroup]="form" (ngSubmit)="submit()" class="edit-form">
     <div class="form-grid">
@@ -110,11 +125,12 @@
         pButton
         type="button"
         label="Cancelar"
-        class="p-button-secondary"
         icon="pi pi-times"
+        class="p-button-secondary"
         (click)="cancel()"
         [disabled]="loading"
       ></button>
     </div>
   </form>
-</p-card>
+  </p-card>
+</div>

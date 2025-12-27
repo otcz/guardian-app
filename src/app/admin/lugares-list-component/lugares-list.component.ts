@@ -7,6 +7,7 @@ import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { DropdownModule } from 'primeng/dropdown';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { TooltipModule } from 'primeng/tooltip';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { Subscription, combineLatest } from 'rxjs';
 import { OrgContextService } from '../../service/org-context.service';
@@ -15,11 +16,12 @@ import { LugarEntity, LugarTipo } from '../../models/lugar.models';
 import { LugarService } from '../../service/lugar.service';
 import { SeccionService, SeccionEntity } from '../../service/seccion.service';
 import { LugaresImportDialogComponent } from './lugares-import-dialog.component';
+import { AuthService } from '../../service/auth.service';
 
 @Component({
   selector: 'app-lugares-list',
   standalone: true,
-  imports: [CommonModule, RouterModule, TableModule, ButtonModule, InputTextModule, FormsModule, DropdownModule, ReactiveFormsModule, ConfirmDialogModule, LugaresImportDialogComponent],
+  imports: [CommonModule, RouterModule, TableModule, ButtonModule, InputTextModule, FormsModule, DropdownModule, ReactiveFormsModule, ConfirmDialogModule, TooltipModule, LugaresImportDialogComponent],
   templateUrl: './lugares-list.component.html',
   styleUrls: ['./lugares-list.component.scss']
 })
@@ -30,6 +32,8 @@ export class LugaresListComponent implements OnInit, OnDestroy {
   loading = false;
   saving = false;
   loadingSecciones = false;
+  isAdminRole = false; // True si el usuario es ADMIN (de sección)
+  showSeccionSelector = true; // False si el usuario es ADMIN (tiene sección fija)
 
   // Secciones disponibles
   secciones: SeccionEntity[] = [];
@@ -61,10 +65,14 @@ export class LugaresListComponent implements OnInit, OnDestroy {
     private svc: LugarService,
     private seccionesService: SeccionService,
     private confirm: ConfirmationService,
-    private messages: MessageService
+    private messages: MessageService,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
+    // Detectar si el usuario es ADMIN (tiene sección fija)
+    this.isAdminRole = this.authService.hasRole('ADMIN') && !this.authService.hasRole('ORGADMIN');
+
     this.sub = combineLatest([this.route.paramMap, this.route.queryParamMap]).subscribe(([pm, qm]) => {
       const pId = pm.get('id');
       const qId = qm.get('id');
@@ -79,17 +87,42 @@ export class LugaresListComponent implements OnInit, OnDestroy {
         this.orgId = nextOrgId;
         this.loadOrgName(nextOrgId);
 
-        // Si cambió la organización, cargar las secciones
-        if (orgChanged) {
+        // Si cambió la organización, cargar las secciones solo si es ORGADMIN
+        if (orgChanged && !this.isAdminRole) {
           this.loadSecciones(nextOrgId);
         }
       }
 
-      // Si viene seccionId por query params, usarlo
-      if (nextSeccionId && nextSeccionId !== this.seccionId) {
-        this.seccionId = nextSeccionId;
-        if (this.orgId) {
-          this.load();
+      // Si es ADMIN, cargar su sección automáticamente
+      if (this.isAdminRole) {
+        const seccionInmutable = localStorage.getItem('loginSeccionImmutable');
+
+        if (seccionInmutable && seccionInmutable !== this.seccionId) {
+          this.seccionId = seccionInmutable;
+          this.showSeccionSelector = false;
+
+          // Cargar la sección en el array para mostrar el nombre
+          if (this.orgId) {
+            this.loadSeccionDetails(this.orgId, seccionInmutable);
+          }
+
+          if (this.orgId) {
+            this.load();
+          }
+        } else if (seccionInmutable) {
+          // Ya está cargada la sección
+          this.showSeccionSelector = false;
+        }
+      } else {
+        // Es ORGADMIN - permitir selección
+        this.showSeccionSelector = true;
+
+        // Si viene seccionId por query params, usarlo
+        if (nextSeccionId && nextSeccionId !== this.seccionId) {
+          this.seccionId = nextSeccionId;
+          if (this.orgId) {
+            this.load();
+          }
         }
       }
     });
@@ -124,6 +157,24 @@ export class LugaresListComponent implements OnInit, OnDestroy {
         this.secciones = [];
         this.seccionOptions = [];
         this.loadingSecciones = false;
+      }
+    });
+  }
+
+  private loadSeccionDetails(orgId: string, seccionId: string) {
+    // Cargar solo la sección específica para mostrar su nombre
+    this.seccionesService.get(orgId, seccionId).subscribe({
+      next: (seccion) => {
+        this.secciones = [seccion];
+        this.seccionOptions = [{
+          label: seccion.nombre || 'Mi Sección',
+          value: String(seccion.id)
+        }];
+      },
+      error: (e) => {
+        console.error('Error al cargar detalles de sección:', e);
+        this.secciones = [];
+        this.seccionOptions = [];
       }
     });
   }
@@ -289,6 +340,23 @@ export class LugaresListComponent implements OnInit, OnDestroy {
     };
 
     importNext(0);
+  }
+
+  volverAGestionSeccion() {
+    if (!this.orgId) {
+      this.toastWarn('Sin organización', 'No se puede navegar sin una organización seleccionada');
+      return;
+    }
+
+    // Navegar a gestión de sección con los parámetros correctos
+    const queryParams: any = { id: this.orgId };
+
+    // Si tiene una sección seleccionada, pasarla como parámetro
+    if (this.seccionId) {
+      queryParams.seccionId = this.seccionId;
+    }
+
+    this.router.navigate(['/gestion-de-secciones/gestionar-seccion'], { queryParams });
   }
 
   // Toast helpers

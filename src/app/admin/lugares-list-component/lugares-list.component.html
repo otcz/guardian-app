@@ -1,31 +1,83 @@
 <div class="page">
-  <div class="toolbar">
-    <div class="left">
-      <h2>Lugares <small *ngIf="orgName">/ {{ orgName }}</small></h2>
-    </div>
-    <div class="right">
-      <!-- Selector de Sección -->
-      <div class="control-container seccion-selector" *ngIf="seccionOptions.length > 0">
-        <label for="seccionSelect" class="control-label">
-          <i class="pi pi-sitemap"></i>
-          Sección:
-        </label>
-        <p-dropdown
-          id="seccionSelect"
-          [(ngModel)]="seccionId"
-          [options]="seccionOptions"
-          (onChange)="onSeccionChange()"
-          placeholder="Selecciona una sección"
-          [showClear]="false"
-          [filter]="seccionOptions.length > 5"
-          filterBy="label"
-          styleClass="control-dropdown"
-          [loading]="loadingSecciones"
-        ></p-dropdown>
+  <!-- Header con título -->
+  <div class="page-header">
+    <div class="header-content">
+      <i class="pi pi-map-marker header-icon"></i>
+      <div class="header-text">
+        <h2>Gestión de Lugares</h2>
+        <p class="subtitle" *ngIf="orgName">
+          <i class="pi pi-building"></i>
+          <span>{{ orgName }}</span>
+        </p>
       </div>
+    </div>
+    <button
+      pButton
+      type="button"
+      icon="pi pi-arrow-left"
+      label="Volver"
+      class="back-button"
+      (click)="volverAGestionSeccion()"
+      pTooltip="Volver a Gestión de Sección"
+      tooltipPosition="top">
+    </button>
+  </div>
 
+  <!-- Selector de Sección Prominente (solo para ORGADMIN) -->
+  <div class="selector-section" *ngIf="!loadingSecciones && seccionOptions.length > 0 && showSeccionSelector">
+    <div class="selector-card">
+      <div class="selector-header">
+        <i class="pi pi-th-large"></i>
+        <h3>Seleccionar Sección</h3>
+      </div>
+      <div class="selector-body">
+        <div class="selector-wrapper">
+          <label for="seccionSelect" class="selector-label">
+            <i class="pi pi-sitemap"></i>
+            Sección a gestionar
+          </label>
+          <p-dropdown
+            id="seccionSelect"
+            [(ngModel)]="seccionId"
+            [options]="seccionOptions"
+            (onChange)="onSeccionChange()"
+            placeholder="Selecciona una sección..."
+            [showClear]="false"
+            [filter]="seccionOptions.length > 5"
+            filterBy="label"
+            styleClass="custom-dropdown"
+            [loading]="loadingSecciones"
+            appendTo="body"
+          ></p-dropdown>
+        </div>
+        <div class="selector-info" *ngIf="seccionOptions.length > 0">
+          <i class="pi pi-info-circle"></i>
+          <span>{{ seccionOptions.length }} {{ seccionOptions.length === 1 ? 'sección disponible' : 'secciones disponibles' }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mensaje para ADMIN (sección fija) -->
+  <div class="admin-seccion-info" *ngIf="isAdminRole && seccionId && !showSeccionSelector">
+    <div class="info-card">
+      <i class="pi pi-shield"></i>
+      <div class="info-content">
+        <h4>Tu Sección Asignada</h4>
+        <p class="seccion-name">
+          <i class="pi pi-th-large"></i>
+          {{ seccionOptions.length > 0 ? seccionOptions[0].label : 'Cargando...' }}
+        </p>
+        <small>Como administrador de sección, gestionas únicamente los lugares de esta sección.</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toolbar de acciones (solo visible cuando hay sección seleccionada) -->
+  <div class="toolbar" *ngIf="seccionId">
+    <div class="left">
       <!-- Buscador -->
-      <div class="control-container search-container" *ngIf="seccionId">
+      <div class="control-container search-container">
         <label for="searchInput" class="control-label">
           <i class="pi pi-search"></i>
           Buscar:
@@ -39,13 +91,15 @@
           class="search-input"
         />
       </div>
+    </div>
+    <div class="right">
 
       <div class="control-container button-container">
-        <button pButton label="Nuevo Lugar" icon="pi pi-plus" (click)="startAdd()" [disabled]="adding || !!editingId || !seccionId" class="btn-primary"></button>
+        <button pButton label="Nuevo Lugar" icon="pi pi-plus" (click)="startAdd()" [disabled]="adding || !!editingId" class="btn-primary"></button>
       </div>
 
       <div class="control-container button-container">
-        <button pButton label="Importar Excel" icon="pi pi-upload" (click)="openImportDialog()" [disabled]="!seccionId" class="btn-secondary"></button>
+        <button pButton label="Importar Excel" icon="pi pi-upload" (click)="openImportDialog()" class="btn-secondary"></button>
       </div>
     </div>
   </div>

@@ -16,28 +16,82 @@
                 {{ seccion.estado || 'ACTIVA' }}
               </span>
             </p>
+            <p class="subtitle" *ngIf="!seccion && !loadingSecciones">
+              <i class="pi pi-arrow-down"></i>
+              <span>Selecciona una sección para gestionar</span>
+            </p>
           </div>
         </div>
-        <button
-          pButton
-          type="button"
-          icon="pi pi-arrow-left"
-          label="Volver"
-          class="back-button"
-          (click)="volver()"
-          pTooltip="Volver al listado"
-          tooltipPosition="top">
-        </button>
       </div>
     </ng-template>
 
     <div class="card-body">
-      <!-- Información de la sección -->
-      <div class="info-section" *ngIf="seccion">
+      <!-- Selector de Sección (solo visible para ORGADMIN) -->
+      <div class="selector-section" *ngIf="!loadingSecciones && showSeccionSelector">
         <h3 class="section-title">
-          <i class="pi pi-info-circle"></i>
-          Información de la Sección
+          <i class="pi pi-search"></i>
+          Seleccionar Sección
         </h3>
+
+        <div class="selector-container">
+          <div class="selector-wrapper">
+            <label for="seccion-dropdown" class="selector-label">
+              <i class="pi pi-th-large"></i>
+              Sección a gestionar
+            </label>
+            <p-dropdown
+              id="seccion-dropdown"
+              [options]="secciones"
+              [(ngModel)]="seccionId"
+              (onChange)="onSeccionChange($event.value)"
+              optionLabel="nombre"
+              optionValue="id"
+              placeholder="Selecciona una sección..."
+              [filter]="true"
+              filterBy="nombre,descripcion"
+              [showClear]="false"
+              styleClass="custom-dropdown"
+              appendTo="body">
+              <ng-template pTemplate="selectedItem">
+                <div class="selected-item" *ngIf="seccionId">
+                  <i class="pi pi-th-large"></i>
+                  <span>{{ seccion?.nombre || 'Cargando...' }}</span>
+                </div>
+              </ng-template>
+              <ng-template let-seccion pTemplate="item">
+                <div class="dropdown-item">
+                  <div class="item-header">
+                    <i class="pi pi-th-large"></i>
+                    <strong>{{ seccion.nombre }}</strong>
+                    <span class="item-badge"
+                          [class.active]="['ACTIVA','ACTIVO'].includes((seccion.estado||'').toUpperCase())"
+                          [class.inactive]="!['ACTIVA','ACTIVO'].includes((seccion.estado||'').toUpperCase())">
+                      {{ seccion.estado || 'ACTIVA' }}
+                    </span>
+                  </div>
+                  <div class="item-description" *ngIf="seccion.descripcion">
+                    {{ seccion.descripcion }}
+                  </div>
+                </div>
+              </ng-template>
+            </p-dropdown>
+          </div>
+
+          <div class="selector-info" *ngIf="secciones.length > 0">
+            <i class="pi pi-info-circle"></i>
+            <span>{{ secciones.length }} {{ secciones.length === 1 ? 'sección disponible' : 'secciones disponibles' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contenido principal (solo se muestra cuando hay una sección seleccionada) -->
+      <div *ngIf="seccion">
+        <!-- Información de la sección -->
+        <div class="info-section">
+          <h3 class="section-title">
+            <i class="pi pi-info-circle"></i>
+            Información de la Sección
+          </h3>
 
         <div class="info-grid">
           <div class="info-card">
@@ -86,10 +140,10 @@
             </div>
           </div>
         </div>
-      </div>
+        </div>
 
-      <!-- Acciones disponibles -->
-      <div class="actions-section">
+        <!-- Acciones disponibles -->
+        <div class="actions-section">
         <h3 class="section-title">
           <i class="pi pi-bolt"></i>
           Acciones Disponibles
@@ -146,6 +200,7 @@
             </div>
           </div>
           -->
+        </div>
         </div>
       </div>
 

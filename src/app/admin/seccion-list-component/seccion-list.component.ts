@@ -10,7 +10,7 @@ import {TooltipModule} from 'primeng/tooltip';
 import {Subscription, combineLatest} from 'rxjs';
 import {SeccionEntity, SeccionService, UpdateSeccionRequest} from '../../service/seccion.service';
 import {OrgContextService} from '../../service/org-context.service';
-import {OrganizationService} from '../../service/organization.service';
+import {OrganizationService, AdminInfo} from '../../service/organization.service';
 import {InputSwitchModule} from 'primeng/inputswitch';
 import {ConfirmDialogModule} from 'primeng/confirmdialog';
 import {ConfirmationService, MessageService} from 'primeng/api';
@@ -91,16 +91,121 @@ export class SeccionListComponent implements OnInit, OnDestroy {
     if (!this.orgId) return;
     this.loading = true;
     this.error = null;
+    console.log('🔍 [SeccionList] Cargando secciones para orgId:', this.orgId);
     this.svc.list(this.orgId).subscribe({
       next: (data) => {
+        console.log('✅ [SeccionList] Respuesta del backend - Total secciones:', data?.length || 0);
+        console.log('📦 [SeccionList] Datos completos recibidos:', JSON.stringify(data, null, 2));
+
+        // Analizar cada sección
+        if (data && data.length > 0) {
+          data.forEach((seccion, index) => {
+            console.log(`\n📋 [SeccionList] Sección ${index + 1}:`, {
+              id: seccion.id,
+              nombre: seccion.nombre,
+              descripcion: seccion.descripcion,
+              estado: seccion.estado,
+              autonomiaConfigurada: seccion.autonomiaConfigurada,
+              seccionPadreId: seccion.seccionPadreId,
+              // Campos de administrador
+              adminId: seccion.adminId,
+              adminNombre: seccion.adminNombre,
+              adminInfo: seccion.adminInfo,
+              // Mostrar estructura completa si existe
+              adminInfoCompleto: seccion.adminInfo ? JSON.stringify(seccion.adminInfo, null, 2) : 'NO EXISTE'
+            });
+          });
+        }
+
         this.items = data || [];
         this.applyFilter();
         this.loading = false;
+        // Cargar información completa de administradores
+        this.loadAdminDetails();
       },
       error: (e) => {
+        console.error('❌ [SeccionList] Error al cargar secciones:', e);
         this.error = e?.error?.message || 'Error al cargar secciones';
         this.loading = false;
       }
+    });
+  }
+
+  /**
+   * Carga la información completa de los administradores para todas las secciones.
+   *
+   * ⚠️ IMPORTANTE: El backend NO envía información del administrador en el endpoint
+   * GET /orgs/{orgId}/secciones, por lo que debemos hacer una llamada adicional
+   * para CADA sección para obtener esta información.
+   */
+  loadAdminDetails() {
+    if (!this.orgId) return;
+
+    // ⚠️ CAMBIO: Cargar para TODAS las secciones, no solo las que tienen adminId
+    // porque el backend no envía adminId en el listado inicial
+    const seccionesParaCargar = this.items.filter(s => !s.adminInfo);
+
+    console.log(`\n🔄 [SeccionList] Cargando información completa de administradores...`);
+    console.log(`📊 [SeccionList] Total secciones: ${this.items.length}`);
+    console.log(`📊 [SeccionList] Secciones sin adminInfo: ${seccionesParaCargar.length}`);
+    console.log(`⚠️ [SeccionList] NOTA: Backend NO envía adminId en listado, cargando para todas las secciones...`);
+
+    if (seccionesParaCargar.length === 0) {
+      console.log('✅ [SeccionList] Todas las secciones ya tienen adminInfo cargado');
+      return;
+    }
+
+    console.log(`🚀 [SeccionList] Cargando info de administrador para ${seccionesParaCargar.length} sección(es)...`);
+
+    // Cargar información de cada administrador
+    seccionesParaCargar.forEach((seccion, index) => {
+      console.log(`\n📡 [SeccionList] [${index + 1}/${seccionesParaCargar.length}] Cargando admin de "${seccion.nombre}"...`);
+      console.log(`   URL: GET /orgs/${this.orgId}/secciones/${seccion.id}/administrador`);
+
+      this.svc.getSectionAdmin(this.orgId!, seccion.id).subscribe({
+        next: (response) => {
+          console.log(`✅ [SeccionList] Admin cargado para "${seccion.nombre}":`, response.data);
+
+          if (response.data) {
+            // Actualizar la sección con la información completa
+            const idx = this.items.findIndex(s => s.id === seccion.id);
+            if (idx >= 0) {
+              this.items[idx] = {
+                ...this.items[idx],
+                adminInfo: {
+                  id: response.data.id,
+                  username: response.data.username,
+                  nombreCompleto: response.data.nombreCompleto,
+                  email: response.data.email,
+                  telefono: response.data.telefono,
+                  activo: response.data.activo,
+                  scopeNivel: response.data.scopeNivel,
+                  tipoIdentificacion: response.data.tipoIdentificacion,
+                  identificacion: response.data.identificacion,
+                  seccionId: response.data.seccionId,
+                  seccionNombre: response.data.seccionNombre,
+                  roles: response.data.roles
+                }
+              };
+
+              console.log(`💾 [SeccionList] Sección actualizada con adminInfo:`, {
+                seccionNombre: this.items[idx].nombre,
+                adminUsername: this.items[idx].adminInfo?.username,
+                adminEmail: this.items[idx].adminInfo?.email
+              });
+
+              this.applyFilter();
+            }
+          }
+        },
+        error: (e) => {
+          console.warn(`⚠️ [SeccionList] No se pudo cargar info del admin de sección "${seccion.nombre}":`, {
+            status: e?.status,
+            message: e?.error?.message || e?.message,
+            error: e
+          });
+        }
+      });
     });
   }
 
@@ -309,6 +414,45 @@ export class SeccionListComponent implements OnInit, OnDestroy {
   gotoAssignAdmin(row: SeccionEntity) {
     if (!row?.id) return;
     this.router.navigate(['/asignar-administrador-de-seccion'], { queryParams: { seccionId: row.id } });
+  }
+
+  /**
+   * Generar tooltip HTML con información completa del administrador de sección
+   * @param row - Entidad de sección que contiene adminInfo
+   * @returns String HTML con formato para tooltip
+   */
+  getAdminTooltip(row: SeccionEntity): string {
+    if (!row.adminInfo) return 'Sin información adicional';
+
+    const lines: string[] = [];
+    lines.push(`<strong>${row.adminInfo.nombreCompleto}</strong>`);
+    lines.push(`<strong>Usuario:</strong> ${row.adminInfo.username}`);
+
+    if (row.adminInfo.email) {
+      lines.push(`<strong>Email:</strong> ${row.adminInfo.email}`);
+    }
+
+    if (row.adminInfo.telefono) {
+      lines.push(`<strong>Teléfono:</strong> ${row.adminInfo.telefono}`);
+    }
+
+    if (row.adminInfo.tipoIdentificacion && row.adminInfo.identificacion) {
+      lines.push(`<strong>Identificación:</strong> ${row.adminInfo.tipoIdentificacion} ${row.adminInfo.identificacion}`);
+    }
+
+    if (row.adminInfo.scopeNivel) {
+      lines.push(`<strong>Alcance:</strong> ${row.adminInfo.scopeNivel}`);
+    }
+
+    if (row.adminInfo.roles && row.adminInfo.roles.length > 0) {
+      lines.push(`<strong>Roles:</strong> ${row.adminInfo.roles.join(', ')}`);
+    }
+
+    if (row.adminInfo.activo !== undefined) {
+      lines.push(`<strong>Estado:</strong> ${row.adminInfo.activo ? 'ACTIVO' : 'INACTIVO'}`);
+    }
+
+    return lines.join('<br/>');
   }
 
   // Utils

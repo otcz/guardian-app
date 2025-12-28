@@ -53,6 +53,17 @@
         <button
           pButton
           type="button"
+          icon="pi pi-user-edit"
+          label="Cargar Admins"
+          class="p-button-help p-button-text"
+          (click)="loadAdminDetails()"
+          [disabled]="loading"
+          pTooltip="Cargar información de administradores"
+          tooltipPosition="top">
+        </button>
+        <button
+          pButton
+          type="button"
           icon="pi pi-refresh"
           class="p-button-text"
           (click)="load()"
@@ -107,10 +118,10 @@
                 <span>Descripción</span>
               </div>
             </th>
-            <th style="width: 180px">
+            <th style="width: 280px">
               <div class="th-content">
                 <i class="pi pi-user"></i>
-                <span>Administrador</span>
+                <span>Administrador de Sección</span>
               </div>
             </th>
             <th style="width: 130px">
@@ -125,7 +136,7 @@
                 <span>Autonomía</span>
               </div>
             </th>
-            <th style="width: 360px">
+            <th style="width: 400px">
               <div class="th-content">
                 <i class="pi pi-cog"></i>
                 <span>Acciones</span>
@@ -169,10 +180,59 @@
 
           <!-- Columna Administrador -->
           <td>
-            <div class="flex ai-center gap-xs">
-              <p-tag *ngIf="row.adminNombre; else noAdmin" icon="pi pi-user" severity="info" [value]="row.adminNombre!" pTooltip="Administrador actual" tooltipPosition="top"></p-tag>
-              <ng-template #noAdmin>
-                <span class="fs-sm text-muted">Sin administrador</span>
+            <div class="admin-cell">
+              <ng-container *ngIf="row.adminInfo; else noAdminInfo">
+                <div class="admin-info">
+                  <div class="admin-header">
+                    <p-tag
+                      icon="pi pi-user"
+                      severity="info"
+                      [value]="row.adminInfo.username"
+                      styleClass="admin-tag">
+                    </p-tag>
+                    <button
+                      pButton
+                      type="button"
+                      icon="pi pi-info-circle"
+                      class="p-button-text p-button-sm admin-info-btn"
+                      [pTooltip]="getAdminTooltip(row)"
+                      tooltipPosition="left"
+                      [escape]="false">
+                    </button>
+                  </div>
+                  <div class="admin-details">
+                    <small class="text-muted">{{ row.adminInfo.nombreCompleto }}</small>
+                    <small class="text-muted" *ngIf="row.adminInfo.email">
+                      <i class="pi pi-envelope"></i> {{ row.adminInfo.email }}
+                    </small>
+                  </div>
+                </div>
+              </ng-container>
+              <ng-template #noAdminInfo>
+                <ng-container *ngIf="row.adminNombre; else noAdmin">
+                  <p-tag
+                    icon="pi pi-user"
+                    severity="info"
+                    [value]="row.adminNombre!"
+                    pTooltip="Administrador actual"
+                    tooltipPosition="top">
+                  </p-tag>
+                </ng-container>
+                <ng-template #noAdmin>
+                  <div class="no-admin">
+                    <span class="fs-sm text-muted">Sin administrador</span>
+                    <button
+                      pButton
+                      type="button"
+                      icon="pi pi-user-plus"
+                      class="p-button-text p-button-sm p-button-warning"
+                      (click)="gotoAssignAdmin(row)"
+                      pTooltip="Asignar administrador"
+                      tooltipPosition="top"
+                      *ngIf="canAssignAdmin">
+                    </button>
+                  </div>
+                </ng-template>
               </ng-template>
             </div>
           </td>
@@ -259,6 +319,17 @@
 
               <!-- Botones para modo vista -->
               <ng-container *ngIf="!adding && editingId !== row.id">
+                <button
+                  pButton
+                  type="button"
+                  icon="pi pi-user-edit"
+                  class="action-btn assign-admin-btn"
+                  (click)="gotoAssignAdmin(row)"
+                  [disabled]="saving"
+                  pTooltip="Asignar/Cambiar administrador"
+                  tooltipPosition="top"
+                  *ngIf="canAssignAdmin">
+                </button>
                 <button
                   pButton
                   type="button"

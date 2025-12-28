@@ -16,6 +16,21 @@ export interface SeccionEntity {
   /** Admin principal de la sección (si el backend lo provee). */
   adminId?: string | null;
   adminNombre?: string | null;
+  /** Información completa del administrador (nuevo) */
+  adminInfo?: {
+    id: string;
+    username: string;
+    nombreCompleto: string;
+    email?: string;
+    telefono?: string;
+    activo?: boolean;
+    scopeNivel?: string;
+    tipoIdentificacion?: string;
+    identificacion?: string;
+    seccionId?: string;
+    seccionNombre?: string;
+    roles?: string[];
+  } | null;
 }
 
 export interface CreateSeccionRequest {
@@ -101,21 +116,76 @@ export class SeccionService {
     const urlFallback = `${environment.backendHost}${this.base}${path}`;
 
     const mapResponse = (resp: ApiResponse<any>): SeccionEntity[] => {
+      console.log('🔍 [SeccionService] Respuesta RAW del backend:', JSON.stringify(resp, null, 2));
+
       if (!resp || resp.success === false) {
         throw { error: { message: resp?.message || 'No se pudieron obtener las secciones' }, status: 400 };
       }
       const arr = Array.isArray(resp.data) ? resp.data : [];
-      return arr.map((d: any) => ({
-        id: String(d.id),
-        nombre: String(d.nombre),
-        descripcion: d.descripcion || undefined,
-        estado: d.estado || undefined,
-        autonomiaConfigurada: !!(d.autonomiaConfigurada ?? d.autonomiaConfigurada === true),
-        seccionPadreId: d.seccionPadreId ?? d.idSeccionPadre ?? null,
-        // Nuevos campos si vienen en respuesta
-        adminId: (d.administradorId ?? d.administradorPrincipal ?? d.adminId ?? d?.administradorEntity?.id) != null ? String(d.administradorId ?? d.administradorPrincipal ?? d.adminId ?? d?.administradorEntity?.id) : null,
-        adminNombre: (d.administradorNombre ?? d.administradorUsername ?? d?.administradorEntity?.nombre ?? d?.administradorEntity?.username) != null ? String(d.administradorNombre ?? d.administradorUsername ?? d?.administradorEntity?.nombre ?? d?.administradorEntity?.username) : null
-      })) as SeccionEntity[];
+
+      console.log('📦 [SeccionService] Array de secciones a mapear:', arr.length, 'secciones');
+
+      return arr.map((d: any, index: number) => {
+        console.log(`\n🔧 [SeccionService] Mapeando sección ${index + 1}:`, {
+          raw: JSON.stringify(d, null, 2)
+        });
+
+        const seccion: SeccionEntity = {
+          id: String(d.id),
+          nombre: String(d.nombre),
+          descripcion: d.descripcion || undefined,
+          estado: d.estado || undefined,
+          autonomiaConfigurada: !!(d.autonomiaConfigurada ?? d.autonomiaConfigurada === true),
+          seccionPadreId: d.seccionPadreId ?? d.idSeccionPadre ?? null,
+          // Campos legacy (mantener por compatibilidad)
+          adminId: (d.administradorId ?? d.administradorPrincipal ?? d.adminId ?? d?.administradorEntity?.id) != null ? String(d.administradorId ?? d.administradorPrincipal ?? d.adminId ?? d?.administradorEntity?.id) : null,
+          adminNombre: (d.administradorNombre ?? d.administradorUsername ?? d?.administradorEntity?.nombre ?? d?.administradorEntity?.username) != null ? String(d.administradorNombre ?? d.administradorUsername ?? d?.administradorEntity?.nombre ?? d?.administradorEntity?.username) : null
+        };
+
+        console.log('   ➡️ adminId encontrado:', seccion.adminId);
+        console.log('   ➡️ adminNombre encontrado:', seccion.adminNombre);
+
+        // Mapear adminInfo si viene información completa del administrador
+        const adminData = d.administradorEntity ?? d.adminInfo ?? null;
+        console.log('   🔍 Buscando adminData en:', {
+          'administradorEntity': d.administradorEntity ? 'EXISTE' : 'NO',
+          'adminInfo': d.adminInfo ? 'EXISTE' : 'NO',
+          'adminData final': adminData ? 'ENCONTRADO' : 'NO ENCONTRADO'
+        });
+
+        if (adminData && adminData.id) {
+          console.log('   ✅ AdminInfo completo encontrado:', JSON.stringify(adminData, null, 2));
+
+          seccion.adminInfo = {
+            id: String(adminData.id),
+            username: String(adminData.username || adminData.userName || ''),
+            nombreCompleto: String(adminData.nombreCompleto || adminData.nombre || ''),
+            email: adminData.email || undefined,
+            telefono: adminData.telefono || adminData.phone || undefined,
+            activo: adminData.activo ?? adminData.active ?? true,
+            scopeNivel: adminData.scopeNivel || adminData.scope || undefined,
+            tipoIdentificacion: adminData.tipoIdentificacion || adminData.idType || undefined,
+            identificacion: adminData.identificacion || adminData.idNumber || undefined,
+            seccionId: adminData.seccionId || undefined,
+            seccionNombre: adminData.seccionNombre || undefined,
+            roles: Array.isArray(adminData.roles) ? adminData.roles : undefined
+          };
+
+          console.log('   💾 AdminInfo mapeado:', seccion.adminInfo);
+        } else {
+          console.log('   ⚠️ NO se encontró adminInfo completo en el backend');
+        }
+
+        console.log('   ✅ Sección mapeada:', {
+          id: seccion.id,
+          nombre: seccion.nombre,
+          adminId: seccion.adminId,
+          adminNombre: seccion.adminNombre,
+          tieneAdminInfo: !!seccion.adminInfo
+        });
+
+        return seccion;
+      }) as SeccionEntity[];
     };
 
     return this.http.get<ApiResponse<any>>(urlPrimary, { headers: this.accept }).pipe(
@@ -145,7 +215,7 @@ export class SeccionService {
         throw { error: { message: resp?.message || 'No se pudo obtener la sección' }, status: 400 };
       }
       const d = resp.data || {};
-      return {
+      const seccion: SeccionEntity = {
         id: String(d.id),
         nombre: String(d.nombre),
         descripcion: d.descripcion || undefined,
@@ -154,7 +224,28 @@ export class SeccionService {
         seccionPadreId: d.seccionPadreId ?? d.idSeccionPadre ?? null,
         adminId: (d.administradorId ?? d.administradorPrincipal ?? d.adminId ?? d?.administradorEntity?.id) != null ? String(d.administradorId ?? d.administradorPrincipal ?? d.adminId ?? d?.administradorEntity?.id) : null,
         adminNombre: (d.administradorNombre ?? d.administradorUsername ?? d?.administradorEntity?.nombre ?? d?.administradorEntity?.username) != null ? String(d.administradorNombre ?? d.administradorUsername ?? d?.administradorEntity?.nombre ?? d?.administradorEntity?.username) : null
-      } as SeccionEntity;
+      };
+
+      // Mapear adminInfo si viene información completa del administrador
+      const adminData = d.administradorEntity ?? d.adminInfo ?? null;
+      if (adminData && adminData.id) {
+        seccion.adminInfo = {
+          id: String(adminData.id),
+          username: String(adminData.username || adminData.userName || ''),
+          nombreCompleto: String(adminData.nombreCompleto || adminData.nombre || ''),
+          email: adminData.email || undefined,
+          telefono: adminData.telefono || adminData.phone || undefined,
+          activo: adminData.activo ?? adminData.active ?? true,
+          scopeNivel: adminData.scopeNivel || adminData.scope || undefined,
+          tipoIdentificacion: adminData.tipoIdentificacion || adminData.idType || undefined,
+          identificacion: adminData.identificacion || adminData.idNumber || undefined,
+          seccionId: adminData.seccionId || undefined,
+          seccionNombre: adminData.seccionNombre || undefined,
+          roles: Array.isArray(adminData.roles) ? adminData.roles : undefined
+        };
+      }
+
+      return seccion;
     };
 
     return this.http.get<ApiResponse<any>>(urlPrimary, { headers: this.accept }).pipe(
@@ -188,12 +279,33 @@ export class SeccionService {
         if (d.estado !== undefined) seccion.estado = d.estado || undefined;
         if (d.autonomiaConfigurada !== undefined) seccion.autonomiaConfigurada = !!d.autonomiaConfigurada;
         if (d.seccionPadreId !== undefined || d.idSeccionPadre !== undefined) seccion.seccionPadreId = d.seccionPadreId ?? d.idSeccionPadre ?? null;
-        // Admin si viene en respuesta
+
+        // Admin si viene en respuesta (legacy)
         if (d.administradorId != null || d.administradorPrincipal != null || d.adminId != null || (d.administradorEntity && d.administradorEntity.id != null)) {
           seccion.adminId = String(d.administradorId ?? d.administradorPrincipal ?? d.adminId ?? d?.administradorEntity?.id);
         }
         const admNombre = d.administradorNombre ?? d.administradorUsername ?? d?.administradorEntity?.nombre ?? d?.administradorEntity?.username;
         if (admNombre != null) seccion.adminNombre = String(admNombre);
+
+        // Mapear adminInfo si viene información completa del administrador
+        const adminData = d.administradorEntity ?? d.adminInfo ?? null;
+        if (adminData && adminData.id) {
+          seccion.adminInfo = {
+            id: String(adminData.id),
+            username: String(adminData.username || adminData.userName || ''),
+            nombreCompleto: String(adminData.nombreCompleto || adminData.nombre || ''),
+            email: adminData.email || undefined,
+            telefono: adminData.telefono || adminData.phone || undefined,
+            activo: adminData.activo ?? adminData.active ?? true,
+            scopeNivel: adminData.scopeNivel || adminData.scope || undefined,
+            tipoIdentificacion: adminData.tipoIdentificacion || adminData.idType || undefined,
+            identificacion: adminData.identificacion || adminData.idNumber || undefined,
+            seccionId: adminData.seccionId || undefined,
+            seccionNombre: adminData.seccionNombre || undefined,
+            roles: Array.isArray(adminData.roles) ? adminData.roles : undefined
+          };
+        }
+
         return { seccion: seccion as SeccionEntity, message: resp.message };
       }),
       catchError((err) => throwError(() => ({ error: { message: err?.error?.message || err?.message || 'No se pudo actualizar la sección' }, status: err?.status })))

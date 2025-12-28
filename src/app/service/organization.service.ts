@@ -28,6 +28,14 @@ export interface AdminInfo {
   username: string;
   nombreCompleto: string;
   email: string;
+  telefono?: string;
+  activo?: boolean;
+  scopeNivel?: string;
+  tipoIdentificacion?: string;
+  identificacion?: string;
+  seccionId?: string;
+  seccionNombre?: string;
+  roles?: string[];
 }
 
 export interface AdminResponse {

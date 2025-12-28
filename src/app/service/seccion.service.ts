@@ -116,20 +116,12 @@ export class SeccionService {
     const urlFallback = `${environment.backendHost}${this.base}${path}`;
 
     const mapResponse = (resp: ApiResponse<any>): SeccionEntity[] => {
-      console.log('🔍 [SeccionService] Respuesta RAW del backend:', JSON.stringify(resp, null, 2));
-
       if (!resp || resp.success === false) {
         throw { error: { message: resp?.message || 'No se pudieron obtener las secciones' }, status: 400 };
       }
       const arr = Array.isArray(resp.data) ? resp.data : [];
 
-      console.log('📦 [SeccionService] Array de secciones a mapear:', arr.length, 'secciones');
-
-      return arr.map((d: any, index: number) => {
-        console.log(`\n🔧 [SeccionService] Mapeando sección ${index + 1}:`, {
-          raw: JSON.stringify(d, null, 2)
-        });
-
+      return arr.map((d: any) => {
         const seccion: SeccionEntity = {
           id: String(d.id),
           nombre: String(d.nombre),
@@ -142,20 +134,9 @@ export class SeccionService {
           adminNombre: (d.administradorNombre ?? d.administradorUsername ?? d?.administradorEntity?.nombre ?? d?.administradorEntity?.username) != null ? String(d.administradorNombre ?? d.administradorUsername ?? d?.administradorEntity?.nombre ?? d?.administradorEntity?.username) : null
         };
 
-        console.log('   ➡️ adminId encontrado:', seccion.adminId);
-        console.log('   ➡️ adminNombre encontrado:', seccion.adminNombre);
-
         // Mapear adminInfo si viene información completa del administrador
         const adminData = d.administradorEntity ?? d.adminInfo ?? null;
-        console.log('   🔍 Buscando adminData en:', {
-          'administradorEntity': d.administradorEntity ? 'EXISTE' : 'NO',
-          'adminInfo': d.adminInfo ? 'EXISTE' : 'NO',
-          'adminData final': adminData ? 'ENCONTRADO' : 'NO ENCONTRADO'
-        });
-
         if (adminData && adminData.id) {
-          console.log('   ✅ AdminInfo completo encontrado:', JSON.stringify(adminData, null, 2));
-
           seccion.adminInfo = {
             id: String(adminData.id),
             username: String(adminData.username || adminData.userName || ''),
@@ -170,19 +151,7 @@ export class SeccionService {
             seccionNombre: adminData.seccionNombre || undefined,
             roles: Array.isArray(adminData.roles) ? adminData.roles : undefined
           };
-
-          console.log('   💾 AdminInfo mapeado:', seccion.adminInfo);
-        } else {
-          console.log('   ⚠️ NO se encontró adminInfo completo en el backend');
         }
-
-        console.log('   ✅ Sección mapeada:', {
-          id: seccion.id,
-          nombre: seccion.nombre,
-          adminId: seccion.adminId,
-          adminNombre: seccion.adminNombre,
-          tieneAdminInfo: !!seccion.adminInfo
-        });
 
         return seccion;
       }) as SeccionEntity[];

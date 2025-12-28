@@ -10,7 +10,7 @@ import {TooltipModule} from 'primeng/tooltip';
 import {Subscription, combineLatest} from 'rxjs';
 import {SeccionEntity, SeccionService, UpdateSeccionRequest} from '../../service/seccion.service';
 import {OrgContextService} from '../../service/org-context.service';
-import {OrganizationService, AdminInfo} from '../../service/organization.service';
+import {OrganizationService} from '../../service/organization.service';
 import {InputSwitchModule} from 'primeng/inputswitch';
 import {ConfirmDialogModule} from 'primeng/confirmdialog';
 import {ConfirmationService, MessageService} from 'primeng/api';
@@ -91,32 +91,8 @@ export class SeccionListComponent implements OnInit, OnDestroy {
     if (!this.orgId) return;
     this.loading = true;
     this.error = null;
-    console.log('🔍 [SeccionList] Cargando secciones para orgId:', this.orgId);
     this.svc.list(this.orgId).subscribe({
       next: (data) => {
-        console.log('✅ [SeccionList] Respuesta del backend - Total secciones:', data?.length || 0);
-        console.log('📦 [SeccionList] Datos completos recibidos:', JSON.stringify(data, null, 2));
-
-        // Analizar cada sección
-        if (data && data.length > 0) {
-          data.forEach((seccion, index) => {
-            console.log(`\n📋 [SeccionList] Sección ${index + 1}:`, {
-              id: seccion.id,
-              nombre: seccion.nombre,
-              descripcion: seccion.descripcion,
-              estado: seccion.estado,
-              autonomiaConfigurada: seccion.autonomiaConfigurada,
-              seccionPadreId: seccion.seccionPadreId,
-              // Campos de administrador
-              adminId: seccion.adminId,
-              adminNombre: seccion.adminNombre,
-              adminInfo: seccion.adminInfo,
-              // Mostrar estructura completa si existe
-              adminInfoCompleto: seccion.adminInfo ? JSON.stringify(seccion.adminInfo, null, 2) : 'NO EXISTE'
-            });
-          });
-        }
-
         this.items = data || [];
         this.applyFilter();
         this.loading = false;
@@ -124,7 +100,6 @@ export class SeccionListComponent implements OnInit, OnDestroy {
         this.loadAdminDetails();
       },
       error: (e) => {
-        console.error('❌ [SeccionList] Error al cargar secciones:', e);
         this.error = e?.error?.message || 'Error al cargar secciones';
         this.loading = false;
       }
@@ -145,27 +120,14 @@ export class SeccionListComponent implements OnInit, OnDestroy {
     // porque el backend no envía adminId en el listado inicial
     const seccionesParaCargar = this.items.filter(s => !s.adminInfo);
 
-    console.log(`\n🔄 [SeccionList] Cargando información completa de administradores...`);
-    console.log(`📊 [SeccionList] Total secciones: ${this.items.length}`);
-    console.log(`📊 [SeccionList] Secciones sin adminInfo: ${seccionesParaCargar.length}`);
-    console.log(`⚠️ [SeccionList] NOTA: Backend NO envía adminId en listado, cargando para todas las secciones...`);
-
     if (seccionesParaCargar.length === 0) {
-      console.log('✅ [SeccionList] Todas las secciones ya tienen adminInfo cargado');
       return;
     }
 
-    console.log(`🚀 [SeccionList] Cargando info de administrador para ${seccionesParaCargar.length} sección(es)...`);
-
     // Cargar información de cada administrador
-    seccionesParaCargar.forEach((seccion, index) => {
-      console.log(`\n📡 [SeccionList] [${index + 1}/${seccionesParaCargar.length}] Cargando admin de "${seccion.nombre}"...`);
-      console.log(`   URL: GET /orgs/${this.orgId}/secciones/${seccion.id}/administrador`);
-
+    seccionesParaCargar.forEach((seccion) => {
       this.svc.getSectionAdmin(this.orgId!, seccion.id).subscribe({
         next: (response) => {
-          console.log(`✅ [SeccionList] Admin cargado para "${seccion.nombre}":`, response.data);
-
           if (response.data) {
             // Actualizar la sección con la información completa
             const idx = this.items.findIndex(s => s.id === seccion.id);
@@ -188,22 +150,12 @@ export class SeccionListComponent implements OnInit, OnDestroy {
                 }
               };
 
-              console.log(`💾 [SeccionList] Sección actualizada con adminInfo:`, {
-                seccionNombre: this.items[idx].nombre,
-                adminUsername: this.items[idx].adminInfo?.username,
-                adminEmail: this.items[idx].adminInfo?.email
-              });
-
               this.applyFilter();
             }
           }
         },
         error: (e) => {
-          console.warn(`⚠️ [SeccionList] No se pudo cargar info del admin de sección "${seccion.nombre}":`, {
-            status: e?.status,
-            message: e?.error?.message || e?.message,
-            error: e
-          });
+          // Silenciosamente ignorar errores (la sección seguirá mostrando solo el nombre)
         }
       });
     });

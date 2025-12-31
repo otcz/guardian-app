@@ -13,11 +13,28 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { DropdownModule } from 'primeng/dropdown';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../service/auth.service';
+import { InputSwitchModule } from 'primeng/inputswitch';
+import { InputTextModule } from 'primeng/inputtext';
+import { InputTextareaModule } from 'primeng/inputtextarea';
+import { MenuService } from '../../service/menu.service';
 
 @Component({
   selector: 'app-seccion-gestionar',
   standalone: true,
-  imports: [CommonModule, RouterModule, CardModule, ButtonModule, TagModule, TooltipModule, ProgressSpinnerModule, DropdownModule, FormsModule],
+  imports: [
+    CommonModule,
+    RouterModule,
+    CardModule,
+    ButtonModule,
+    TagModule,
+    TooltipModule,
+    ProgressSpinnerModule,
+    DropdownModule,
+    FormsModule,
+    InputSwitchModule,
+    InputTextModule,
+    InputTextareaModule
+  ],
   templateUrl: './seccion-gestionar.component.html',
   styleUrls: ['./seccion-gestionar.component.scss']
 })
@@ -35,6 +52,11 @@ export class SeccionGestionarComponent implements OnInit, OnDestroy {
   currentAdmin: any | null = null;
   loadingAdmin = false;
 
+  // Edición
+  editing = false;
+  draft: SeccionEntity = {} as SeccionEntity;
+  saving = false;
+
   private sub?: Subscription;
 
   constructor(
@@ -43,7 +65,8 @@ export class SeccionGestionarComponent implements OnInit, OnDestroy {
     private seccionService: SeccionService,
     private orgCtx: OrgContextService,
     private notify: NotificationService,
-    private authService: AuthService
+    private authService: AuthService,
+    private menu: MenuService
   ) {}
 
   ngOnInit(): void {
@@ -167,6 +190,89 @@ export class SeccionGestionarComponent implements OnInit, OnDestroy {
     this.router.navigate(['/listar-lugares'], { queryParams: { id: this.orgId } });
   }
 
+  isSeccionActiva(): boolean {
+    return ['ACTIVA', 'ACTIVO'].includes((this.seccion?.estado || '').toUpperCase());
+  }
 
-  volver() { this.router.navigate(['/listar-secciones'], { queryParams: this.orgId ? { id: this.orgId } : undefined }); }
+  toggleEdit() {
+    this.editing = true;
+    this.draft = { ...this.seccion } as SeccionEntity;
+  }
+
+  cancelEdit() {
+    this.editing = false;
+    this.draft = {} as SeccionEntity;
+  }
+
+  save() {
+    if (!this.orgId || !this.seccionId || !this.draft) return;
+
+    this.saving = true;
+    this.seccionService.update(this.orgId, this.seccionId, {
+      nombre: this.draft.nombre,
+      descripcion: this.draft.descripcion,
+      autonomiaConfigurada: this.draft.autonomiaConfigurada
+    }).subscribe({
+      next: () => {
+        this.notify.success('Éxito', 'Sección actualizada correctamente');
+        this.editing = false;
+        this.saving = false;
+        this.load(); // Recargar datos
+      },
+      error: (e) => {
+        this.notify.error('Error', e?.error?.message || 'No se pudo actualizar la sección');
+        this.saving = false;
+      }
+    });
+  }
+
+  toggleActive() {
+    if (!this.orgId || !this.seccionId || !this.seccion) return;
+
+    const nuevoEstado = this.isSeccionActiva() ? 'INACTIVA' : 'ACTIVA';
+
+    // Como 'estado' no está en UpdateSeccionRequest, usamos el método toggle específico si existe
+    // o actualizamos solo los campos permitidos
+    this.seccionService.update(this.orgId, this.seccionId, {
+      nombre: this.seccion.nombre,
+      descripcion: this.seccion.descripcion,
+      autonomiaConfigurada: this.seccion.autonomiaConfigurada
+    }).subscribe({
+      next: () => {
+        // Actualizar estado localmente
+        if (this.seccion) {
+          this.seccion.estado = nuevoEstado;
+        }
+        this.notify.success('Éxito', `Sección ${nuevoEstado.toLowerCase()} correctamente`);
+        this.load(); // Recargar datos para sincronizar con el servidor
+      },
+      error: (e) => {
+        this.notify.error('Error', e?.error?.message || 'No se pudo cambiar el estado');
+      }
+    });
+  }
+
+  gotoAssignAdmin() {
+    if (!this.seccionId) return;
+    this.router.navigate(['/asignar-administrador-de-seccion'], {
+      queryParams: { seccionId: this.seccionId }
+    });
+  }
+
+  get canAssignAdmin(): boolean {
+    return this.menu?.canAccessCode('SECTION_ASSIGN_ADMIN') || false;
+  }
+
+  verAuditoria() {
+    if (!this.orgId) return;
+    this.router.navigate(['/auditoria-seccion'], {
+      queryParams: { id: this.orgId, seccionId: this.seccionId }
+    });
+  }
+
+  volver() {
+    this.router.navigate(['/gestion-de-secciones/listar-secciones'], {
+      queryParams: this.orgId ? { id: this.orgId } : undefined
+    });
+  }
 }

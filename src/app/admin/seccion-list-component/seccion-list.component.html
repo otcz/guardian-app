@@ -145,7 +145,7 @@
         <tr [class.flash]="seccion.id === flashRowId">
           <!-- Sección (nombre con icono) -->
           <td>
-            <ng-container *ngIf="editingId === seccion.id; else viewMode">
+            <ng-container *ngIf="editingId === seccion.id; else viewNombre">
               <input
                 pInputText
                 [ngModel]="editDraft?.nombre"
@@ -154,7 +154,7 @@
                 class="w-100"
               />
             </ng-container>
-            <ng-template #viewMode>
+            <ng-template #viewNombre>
               <div class="seccion-cell">
                 <p-chip
                   icon="pi pi-sitemap"

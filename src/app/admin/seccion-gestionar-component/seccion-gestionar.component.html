@@ -1,338 +1,291 @@
-<div class="page-container">
-  <p-card class="modern-card">
-    <!-- Header con gradiente -->
-    <ng-template pTemplate="header">
-      <div class="card-header">
-        <div class="header-content">
-          <i class="pi pi-cog header-icon"></i>
-          <div class="header-text">
-            <h2>Gestionar Sección</h2>
-            <p class="subtitle" *ngIf="seccion">
-              <i class="pi pi-th-large"></i>
-              <span>{{ seccion.nombre }}</span>
-              <span class="status-badge" [class.active]="['ACTIVA','ACTIVO'].includes((seccion.estado||'').toUpperCase())"
-                    [class.inactive]="!['ACTIVA','ACTIVO'].includes((seccion.estado||'').toUpperCase())">
-                <i class="pi" [ngClass]="['ACTIVA','ACTIVO'].includes((seccion.estado||'').toUpperCase()) ? 'pi-check-circle' : 'pi-times-circle'"></i>
-                {{ seccion.estado || 'ACTIVA' }}
-              </span>
-            </p>
-            <p class="subtitle" *ngIf="!seccion && !loadingSecciones">
-              <i class="pi pi-arrow-down"></i>
-              <span>Selecciona una sección para gestionar</span>
-            </p>
-          </div>
-        </div>
+<div class="card" *ngIf="seccion && !loadingSecciones; else loadingTpl">
+  <!-- Header -->
+  <div class="card-header">
+    <h2>
+      <i class="pi pi-cog"></i>
+      Gestionar Sección
+    </h2>
+    <div class="header-actions">
+      <p-button
+        icon="pi pi-arrow-left"
+        [text]="true"
+        severity="secondary"
+        [routerLink]="['/gestion-de-secciones/listar-secciones']"
+        [queryParams]="{ id: orgId }"
+        pTooltip="Volver al listado"
+        tooltipPosition="top"
+      ></p-button>
+      <p-button
+        icon="pi pi-user-edit"
+        label="Asignar Admin"
+        [outlined]="true"
+        (onClick)="gotoAssignAdmin()"
+        *ngIf="canAssignAdmin"
+      ></p-button>
+      <p-button
+        icon="pi pi-pencil"
+        label="Editar"
+        [outlined]="true"
+        (onClick)="toggleEdit()"
+        [disabled]="editing"
+      ></p-button>
+      <p-button
+        [label]="isSeccionActiva() ? 'Desactivar' : 'Activar'"
+        [icon]="isSeccionActiva() ? 'pi pi-ban' : 'pi pi-check'"
+        [outlined]="true"
+        [severity]="isSeccionActiva() ? 'danger' : 'success'"
+        (onClick)="toggleActive()"
+      ></p-button>
+    </div>
+  </div>
+
+  <!-- Contenido -->
+  <div class="content-sections">
+    <!-- Sección Destacada de Información Principal -->
+    <div class="info-section-highlight">
+      <div class="section-header-highlight">
+        <i class="pi pi-th-large"></i>
+        <span>Información de la Sección</span>
       </div>
-    </ng-template>
-
-    <div class="card-body">
-      <!-- Selector de Sección (solo visible para ORGADMIN) -->
-      <div class="selector-section" *ngIf="!loadingSecciones && showSeccionSelector">
-        <h3 class="section-title">
-          <i class="pi pi-search"></i>
-          Seleccionar Sección
-        </h3>
-
-        <div class="selector-container">
-          <div class="selector-wrapper">
-            <label for="seccion-dropdown" class="selector-label">
-              <i class="pi pi-th-large"></i>
-              Sección a gestionar
-            </label>
-            <p-dropdown
-              id="seccion-dropdown"
-              [options]="secciones"
-              [(ngModel)]="seccionId"
-              (onChange)="onSeccionChange($event.value)"
-              optionLabel="nombre"
-              optionValue="id"
-              placeholder="Selecciona una sección..."
-              [filter]="true"
-              filterBy="nombre,descripcion"
-              [showClear]="false"
-              styleClass="custom-dropdown"
-              appendTo="body">
-              <ng-template pTemplate="selectedItem">
-                <div class="selected-item" *ngIf="seccionId">
-                  <i class="pi pi-th-large"></i>
-                  <span>{{ seccion?.nombre || 'Cargando...' }}</span>
-                </div>
-              </ng-template>
-              <ng-template let-seccion pTemplate="item">
-                <div class="dropdown-item">
-                  <div class="item-header">
-                    <i class="pi pi-th-large"></i>
-                    <strong>{{ seccion.nombre }}</strong>
-                    <span class="item-badge"
-                          [class.active]="['ACTIVA','ACTIVO'].includes((seccion.estado||'').toUpperCase())"
-                          [class.inactive]="!['ACTIVA','ACTIVO'].includes((seccion.estado||'').toUpperCase())">
-                      {{ seccion.estado || 'ACTIVA' }}
-                    </span>
-                  </div>
-                  <div class="item-description" *ngIf="seccion.descripcion">
-                    {{ seccion.descripcion }}
-                  </div>
-                </div>
-              </ng-template>
-            </p-dropdown>
+      <div class="id-info-card">
+        <div class="id-info-main">
+          <div class="id-info-type">
+            <span class="id-info-type-label">NOMBRE</span>
+            <strong class="id-info-type-value">{{ seccion.nombre }}</strong>
           </div>
-
-          <div class="selector-info" *ngIf="secciones.length > 0">
-            <i class="pi pi-info-circle"></i>
-            <span>{{ secciones.length }} {{ secciones.length === 1 ? 'sección disponible' : 'secciones disponibles' }}</span>
+          <div class="id-info-number" *ngIf="seccion.descripcion">
+            <span class="id-info-number-label">DESCRIPCIÓN</span>
+            <strong class="id-info-number-value">{{ seccion.descripcion }}</strong>
           </div>
         </div>
-      </div>
-
-      <!-- Contenido principal (solo se muestra cuando hay una sección seleccionada) -->
-      <div *ngIf="seccion">
-        <!-- Información de la sección -->
-        <div class="info-section">
-          <h3 class="section-title">
-            <i class="pi pi-info-circle"></i>
-            Información de la Sección
-          </h3>
-
-        <div class="info-grid">
-          <div class="info-card">
-            <div class="info-icon">
-              <i class="pi pi-tag"></i>
-            </div>
-            <div class="info-content">
-              <span class="info-label">Nombre</span>
-              <strong>{{ seccion.nombre }}</strong>
-            </div>
-          </div>
-
-          <div class="info-card" *ngIf="seccion.descripcion">
-            <div class="info-icon">
-              <i class="pi pi-align-left"></i>
-            </div>
-            <div class="info-content">
-              <span class="info-label">Descripción</span>
-              <strong>{{ seccion.descripcion }}</strong>
-            </div>
-          </div>
-
-          <div class="info-card">
-            <div class="info-icon">
-              <i class="pi pi-power-off"></i>
-            </div>
-            <div class="info-content">
-              <span class="info-label">Estado</span>
-              <p-tag
-                [value]="seccion.estado || 'ACTIVA'"
-                [severity]="['ACTIVA','ACTIVO'].includes((seccion.estado||'').toUpperCase()) ? 'success' : 'danger'">
-              </p-tag>
-            </div>
-          </div>
-
-          <div class="info-card" *ngIf="seccion.autonomiaConfigurada !== undefined">
-            <div class="info-icon">
-              <i class="pi pi-unlock"></i>
-            </div>
-            <div class="info-content">
-              <span class="info-label">Autonomía</span>
-              <p-tag
-                [value]="seccion.autonomiaConfigurada ? 'CONFIGURADA' : 'NO CONFIGURADA'"
-                [severity]="seccion.autonomiaConfigurada ? 'success' : 'warning'">
-              </p-tag>
-            </div>
-          </div>
+        <div class="id-info-status">
+          <p-tag
+            [value]="seccion.estado || 'ACTIVA'"
+            [severity]="isSeccionActiva() ? 'success' : 'danger'"
+            styleClass="large-tag"
+          ></p-tag>
         </div>
-        </div>
-
-        <!-- Información del Administrador -->
-        <div class="admin-section" *ngIf="!loadingAdmin">
-          <h3 class="section-title">
-            <i class="pi pi-user-edit"></i>
-            Administrador de la Sección
-          </h3>
-
-          <!-- Con Administrador -->
-          <div class="admin-card" *ngIf="currentAdmin; else noAdminAssigned">
-            <div class="admin-header">
-              <div class="admin-avatar">
-                <i class="pi pi-user"></i>
-              </div>
-              <div class="admin-info-header">
-                <h4>{{ currentAdmin.nombreCompleto || currentAdmin.username }}</h4>
-                <div class="admin-badges">
-                  <span class="role-badge" *ngFor="let role of currentAdmin.roles">
-                    <i class="pi pi-shield"></i>
-                    {{ role }}
-                  </span>
-                  <span class="scope-badge" *ngIf="currentAdmin.scopeNivel">
-                    <i class="pi pi-sitemap"></i>
-                    {{ currentAdmin.scopeNivel }}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <div class="admin-details">
-              <div class="detail-item">
-                <div class="detail-icon">
-                  <i class="pi pi-at"></i>
-                </div>
-                <div class="detail-content">
-                  <span class="detail-label">Usuario</span>
-                  <strong>{{ currentAdmin.username }}</strong>
-                </div>
-              </div>
-
-              <div class="detail-item" *ngIf="currentAdmin.email">
-                <div class="detail-icon">
-                  <i class="pi pi-envelope"></i>
-                </div>
-                <div class="detail-content">
-                  <span class="detail-label">Correo Electrónico</span>
-                  <strong>{{ currentAdmin.email }}</strong>
-                </div>
-              </div>
-
-              <div class="detail-item" *ngIf="currentAdmin.identificacion">
-                <div class="detail-icon">
-                  <i class="pi pi-id-card"></i>
-                </div>
-                <div class="detail-content">
-                  <span class="detail-label">Documento</span>
-                  <strong>{{ currentAdmin.tipoIdentificacion || 'CC' }}: {{ currentAdmin.identificacion }}</strong>
-                </div>
-              </div>
-
-              <div class="detail-item" *ngIf="currentAdmin.telefono">
-                <div class="detail-icon">
-                  <i class="pi pi-phone"></i>
-                </div>
-                <div class="detail-content">
-                  <span class="detail-label">Teléfono</span>
-                  <strong>{{ currentAdmin.telefono }}</strong>
-                </div>
-              </div>
-
-              <div class="detail-item" *ngIf="currentAdmin.seccionNombre">
-                <div class="detail-icon">
-                  <i class="pi pi-th-large"></i>
-                </div>
-                <div class="detail-content">
-                  <span class="detail-label">Sección Asignada</span>
-                  <strong>{{ currentAdmin.seccionNombre }}</strong>
-                </div>
-              </div>
-
-              <div class="detail-item">
-                <div class="detail-icon">
-                  <i class="pi pi-power-off"></i>
-                </div>
-                <div class="detail-content">
-                  <span class="detail-label">Estado</span>
-                  <p-tag
-                    [value]="currentAdmin.activo ? 'ACTIVO' : 'INACTIVO'"
-                    [severity]="currentAdmin.activo ? 'success' : 'danger'">
-                  </p-tag>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Sin Administrador -->
-          <ng-template #noAdminAssigned>
-            <div class="no-admin-card">
-              <div class="no-admin-icon">
-                <i class="pi pi-exclamation-circle"></i>
-              </div>
-              <div class="no-admin-content">
-                <h4>Sin Administrador Asignado</h4>
-                <p>Esta sección no tiene un administrador principal asignado.</p>
-                <button
-                  pButton
-                  type="button"
-                  label="Asignar Administrador"
-                  icon="pi pi-user-plus"
-                  class="p-button-primary"
-                  [routerLink]="['/asignar-administrador-de-seccion']"
-                  [queryParams]="{ seccionId: seccionId }">
-                </button>
-              </div>
-            </div>
-          </ng-template>
-        </div>
-
-        <!-- Loading Administrador -->
-        <div class="admin-loading" *ngIf="loadingAdmin">
-          <p-progressSpinner [style]="{ width: '50px', height: '50px' }"></p-progressSpinner>
-          <p>Cargando información del administrador...</p>
-        </div>
-
-        <!-- Acciones disponibles -->
-        <div class="actions-section">
-        <h3 class="section-title">
-          <i class="pi pi-bolt"></i>
-          Acciones Disponibles
-        </h3>
-
-        <div class="actions-grid">
-          <!-- Gestión de Lugares -->
-          <div class="action-card lugares-card">
-            <div class="action-header">
-              <div class="action-icon">
-                <i class="pi pi-map-marker"></i>
-              </div>
-              <div class="action-info">
-                <h4>Gestión de Lugares</h4>
-                <p>Administra los lugares de esta sección</p>
-              </div>
-            </div>
-            <div class="action-buttons">
-              <button
-                pButton
-                type="button"
-                label="Crear Lugar"
-                icon="pi pi-plus"
-                class="p-button-success action-btn"
-                (click)="crearLugar()"
-                [disabled]="loading">
-              </button>
-              <button
-                pButton
-                type="button"
-                label="Listar Lugares"
-                icon="pi pi-list"
-                class="p-button-outlined action-btn"
-                (click)="listarLugares()"
-                [disabled]="loading">
-              </button>
-            </div>
-          </div>
-
-          <!-- Más acciones se pueden agregar aquí -->
-          <!--
-          <div class="action-card usuarios-card">
-            <div class="action-header">
-              <div class="action-icon">
-                <i class="pi pi-users"></i>
-              </div>
-              <div class="action-info">
-                <h4>Gestión de Usuarios</h4>
-                <p>Administra los usuarios de esta sección</p>
-              </div>
-            </div>
-            <div class="action-buttons">
-              <button pButton type="button" label="Ver Usuarios" icon="pi pi-eye" class="p-button-info action-btn"></button>
-            </div>
-          </div>
-          -->
-        </div>
-        </div>
-      </div>
-
-      <!-- Estado de carga -->
-      <div class="loading-overlay" *ngIf="loading">
-        <p-progressSpinner></p-progressSpinner>
-        <p>Cargando información...</p>
       </div>
     </div>
-  </p-card>
+
+    <!-- Formulario de edición -->
+    <div class="edit-section" *ngIf="editing">
+      <div class="section-header">
+        <i class="pi pi-pencil"></i>
+        <span>Editar Información de la Sección</span>
+      </div>
+
+      <form class="edit-form" (ngSubmit)="save()" novalidate>
+        <div class="form-grid">
+          <!-- Nombre -->
+          <div class="field">
+            <label for="nombre" class="field-label">
+              <i class="pi pi-tag"></i>
+              Nombre de la Sección
+            </label>
+            <input
+              pInputText
+              id="nombre"
+              type="text"
+              [(ngModel)]="draft.nombre"
+              name="nombre"
+              placeholder="Nombre de la sección"
+              class="w-full"
+            />
+          </div>
+
+          <!-- Descripción -->
+          <div class="field full-width">
+            <label for="descripcion" class="field-label">
+              <i class="pi pi-align-left"></i>
+              Descripción
+            </label>
+            <textarea
+              pInputTextarea
+              id="descripcion"
+              [(ngModel)]="draft.descripcion"
+              name="descripcion"
+              placeholder="Descripción de la sección (opcional)"
+              rows="3"
+              class="w-full"
+            ></textarea>
+          </div>
+
+          <!-- Autonomía -->
+          <div class="field">
+            <label for="autonomia" class="field-label">
+              <i class="pi pi-unlock"></i>
+              Autonomía Configurada
+            </label>
+            <div class="toggle-field">
+              <p-inputSwitch
+                id="autonomia"
+                [(ngModel)]="draft.autonomiaConfigurada"
+                name="autonomia"
+              ></p-inputSwitch>
+              <span class="toggle-label">
+                {{ draft.autonomiaConfigurada ? 'Autonomía configurada' : 'Sin autonomía' }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <p-button
+            label="Guardar Cambios"
+            icon="pi pi-check"
+            type="submit"
+            [loading]="saving"
+          ></p-button>
+          <p-button
+            label="Cancelar"
+            icon="pi pi-times"
+            severity="secondary"
+            [outlined]="true"
+            (onClick)="cancelEdit()"
+            [disabled]="saving"
+          ></p-button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Información del Administrador -->
+    <div class="info-section" *ngIf="!loadingAdmin">
+      <div class="section-header">
+        <i class="pi pi-user-edit"></i>
+        <span>Administrador de la Sección</span>
+      </div>
+
+      <!-- Con Administrador -->
+      <div class="info-grid" *ngIf="currentAdmin; else noAdminAssigned">
+        <div class="info-item">
+          <div class="info-item-header">
+            <i class="pi pi-user"></i>
+            <span>Usuario</span>
+          </div>
+          <div class="info-item-content">
+            <strong>{{ currentAdmin.username }}</strong>
+          </div>
+        </div>
+
+        <div class="info-item">
+          <div class="info-item-header">
+            <i class="pi pi-id-card"></i>
+            <span>Nombre Completo</span>
+          </div>
+          <div class="info-item-content">
+            <strong>{{ currentAdmin.nombreCompleto }}</strong>
+          </div>
+        </div>
+
+        <div class="info-item" *ngIf="currentAdmin.email">
+          <div class="info-item-header">
+            <i class="pi pi-envelope"></i>
+            <span>Correo Electrónico</span>
+          </div>
+          <div class="info-item-content">
+            <strong>{{ currentAdmin.email }}</strong>
+          </div>
+        </div>
+
+        <div class="info-item" *ngIf="currentAdmin.telefono">
+          <div class="info-item-header">
+            <i class="pi pi-phone"></i>
+            <span>Teléfono</span>
+          </div>
+          <div class="info-item-content">
+            <strong>{{ currentAdmin.telefono }}</strong>
+          </div>
+        </div>
+
+        <div class="info-item" *ngIf="currentAdmin.identificacion">
+          <div class="info-item-header">
+            <i class="pi pi-bookmark"></i>
+            <span>Identificación</span>
+          </div>
+          <div class="info-item-content">
+            <strong>{{ currentAdmin.tipoIdentificacion || 'CC' }}: {{ currentAdmin.identificacion }}</strong>
+          </div>
+        </div>
+
+        <div class="info-item">
+          <div class="info-item-header">
+            <i class="pi pi-power-off"></i>
+            <span>Estado</span>
+          </div>
+          <div class="info-item-content">
+            <p-tag
+              [value]="currentAdmin.activo ? 'ACTIVO' : 'INACTIVO'"
+              [severity]="currentAdmin.activo ? 'success' : 'danger'"
+            ></p-tag>
+          </div>
+        </div>
+
+        <div class="info-item" *ngIf="currentAdmin.roles && currentAdmin.roles.length > 0">
+          <div class="info-item-header">
+            <i class="pi pi-shield"></i>
+            <span>Roles</span>
+          </div>
+          <div class="info-item-content roles-content">
+            <p-tag
+              *ngFor="let role of currentAdmin.roles"
+              [value]="role"
+              severity="info"
+              styleClass="mr-2"
+            ></p-tag>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sin Administrador -->
+      <ng-template #noAdminAssigned>
+        <div class="empty-state">
+          <i class="pi pi-user-minus"></i>
+          <p>Esta sección no tiene un administrador asignado</p>
+          <p-button
+            label="Asignar Administrador"
+            icon="pi pi-user-plus"
+            (onClick)="gotoAssignAdmin()"
+            *ngIf="canAssignAdmin"
+          ></p-button>
+        </div>
+      </ng-template>
+    </div>
+
+    <!-- Acciones Rápidas -->
+    <div class="info-section">
+      <div class="section-header">
+        <i class="pi pi-bolt"></i>
+        <span>Acciones Rápidas</span>
+      </div>
+
+      <div class="quick-actions-grid">
+        <p-button
+          label="Gestionar Lugares"
+          icon="pi pi-map-marker"
+          [outlined]="true"
+          (onClick)="crearLugar()"
+          class="quick-action-btn"
+        ></p-button>
+        <p-button
+          label="Ver Auditoría"
+          icon="pi pi-history"
+          [outlined]="true"
+          (onClick)="verAuditoria()"
+          class="quick-action-btn"
+        ></p-button>
+      </div>
+    </div>
+  </div>
 </div>
+
+<!-- Loading State -->
+<ng-template #loadingTpl>
+  <div class="card loading-card">
+    <div class="loading-content">
+      <p-progressSpinner></p-progressSpinner>
+      <p>Cargando información de la sección...</p>
+    </div>
+  </div>
+</ng-template>
 

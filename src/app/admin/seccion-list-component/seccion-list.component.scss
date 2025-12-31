@@ -187,10 +187,40 @@
 
   // Botones de acción
   .action-buttons {
-    display: flex;
+    display: flex !important;
     align-items: center;
     gap: 0.25rem;
     justify-content: center;
+    min-width: 180px;
+
+    // Asegurar que los botones de PrimeNG sean visibles
+    ::ng-deep .p-button {
+      width: 36px;
+      height: 36px;
+
+      &.p-button-rounded {
+        border-radius: 50%;
+      }
+
+      &.p-button-text {
+        background: transparent;
+        border-color: transparent;
+
+        &:enabled:hover {
+          background: rgba(79, 140, 255, 0.1);
+        }
+
+        &.p-button-danger:enabled:hover {
+          background: rgba(239, 68, 68, 0.1);
+          color: #ef4444;
+        }
+
+        &.p-button-success:enabled:hover {
+          background: rgba(34, 197, 94, 0.1);
+          color: #22c55e;
+        }
+      }
+    }
   }
 
   // Empty message

@@ -74,8 +74,128 @@
    CUERPO DE LA TARJETA
    ============================================ */
 .card-body {
-  padding: 2rem;
+  padding: 0;
   background: var(--surface);
+}
+
+/* ============================================
+   INFORMACIÓN ESTADÍSTICA
+   ============================================ */
+.stats-info {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1rem 2rem;
+  background: linear-gradient(135deg, var(--surface-alt) 0%, var(--surface) 100%);
+  border-bottom: 1px solid var(--border);
+
+  .stat-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--text);
+
+    i {
+      color: var(--primary);
+      font-size: 1rem;
+    }
+
+    strong {
+      font-weight: 600;
+    }
+  }
+}
+
+/* ============================================
+   ESTILOS DE TABLA
+   ============================================ */
+::ng-deep .p-datatable {
+  // Chip de placa
+  .placa-chip {
+    font-weight: 600;
+    background: linear-gradient(135deg, rgba(79, 140, 255, 0.1) 0%, rgba(37, 99, 235, 0.1) 100%);
+    border: 1px solid var(--primary);
+
+    .p-chip-text {
+      color: var(--primary);
+      font-weight: 600;
+    }
+  }
+
+  // Info de marca/modelo
+  .marca-modelo-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+
+    .marca {
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: var(--text);
+    }
+
+    .modelo {
+      font-size: 0.8rem;
+      color: #6b7280;
+    }
+  }
+
+  // Contenedor de usuarios
+  .usuarios-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+
+    .user-tag {
+      font-size: 0.8rem;
+    }
+  }
+
+  // Botones de acción
+  .action-buttons {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    justify-content: center;
+  }
+
+  // Mensaje vacío
+  .empty-message {
+    text-align: center;
+    padding: 3rem 1rem !important;
+    color: #9ca3af;
+    font-size: 1rem;
+
+    i {
+      display: block;
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      opacity: 0.3;
+    }
+  }
+
+  // Text muted
+  .text-muted {
+    color: #9ca3af;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  // Headers
+  .th-content {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    i {
+      color: var(--primary);
+      font-size: 0.9rem;
+    }
+  }
 }
 
 /* ============================================

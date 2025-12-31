@@ -16,17 +16,12 @@
 
     <!-- Cuerpo de la tarjeta -->
     <div class="card-body">
-      <!-- Acciones superiores -->
-      <div class="top-actions">
-        <div class="info-section">
-          <i class="pi pi-list"></i>
-          <span class="total-count">Total: <strong>{{ items.length || 0 }}</strong> vehículos</span>
+      <!-- Información estadística -->
+      <div class="stats-info">
+        <div class="stat-item">
+          <i class="pi pi-car"></i>
+          <span>Mostrando <strong>{{ items.length || 0 }}</strong> vehículo(s)</span>
         </div>
-        <button pButton
-                label="Crear Vehículo"
-                icon="pi pi-plus"
-                class="create-btn"
-                routerLink="/gestion-de-vehiculos/crear-vehiculo"></button>
       </div>
 
       <!-- Tabla de vehículos -->
@@ -36,48 +31,54 @@
                [rows]="10"
                [paginator]="true"
                [rowsPerPageOptions]="[10,20,50]"
-               styleClass="modern-table"
+               styleClass="p-datatable-striped"
+               responsiveLayout="scroll"
                [showCurrentPageReport]="true"
-               currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} vehículos">
+               currentPageReportTemplate="Mostrando {first}-{last} de {totalRecords} vehículos">
         <ng-template pTemplate="header">
           <tr>
-            <th>
+            <th pSortableColumn="placa" style="min-width: 150px">
               <div class="th-content">
                 <i class="pi pi-id-card"></i>
                 <span>Placa</span>
               </div>
+              <p-sortIcon field="placa"></p-sortIcon>
             </th>
-            <th>
+            <th pSortableColumn="marca" style="min-width: 180px">
               <div class="th-content">
                 <i class="pi pi-car"></i>
                 <span>Marca/Modelo</span>
               </div>
+              <p-sortIcon field="marca"></p-sortIcon>
             </th>
-            <th>
+            <th pSortableColumn="seccionNombre" style="min-width: 180px">
               <div class="th-content">
                 <i class="pi pi-building"></i>
                 <span>Sección</span>
               </div>
+              <p-sortIcon field="seccionNombre"></p-sortIcon>
             </th>
-            <th>
+            <th style="min-width: 200px">
               <div class="th-content">
                 <i class="pi pi-users"></i>
-                <span>Usuarios</span>
+                <span>Usuarios Asignados</span>
               </div>
             </th>
-            <th style="width: 10rem">
+            <th pSortableColumn="activo" style="min-width: 120px; text-align: center">
               <div class="th-content">
                 <i class="pi pi-power-off"></i>
                 <span>Estado</span>
               </div>
+              <p-sortIcon field="activo"></p-sortIcon>
             </th>
-            <th style="width: 12rem" *ngIf="canToggleBloqueado()">
+            <th pSortableColumn="bloqueado" style="min-width: 120px; text-align: center" *ngIf="canToggleBloqueado()">
               <div class="th-content">
                 <i class="pi pi-lock"></i>
                 <span>Bloqueo</span>
               </div>
+              <p-sortIcon field="bloqueado"></p-sortIcon>
             </th>
-            <th style="width: 10rem">
+            <th style="width: 140px; text-align: center">
               <div class="th-content">
                 <i class="pi pi-cog"></i>
                 <span>Acciones</span>
@@ -85,104 +86,123 @@
             </th>
           </tr>
         </ng-template>
-        <ng-template pTemplate="body" let-row>
+        <ng-template pTemplate="body" let-vehiculo>
           <tr>
+            <!-- Placa con chip -->
             <td>
-              <div class="placa-cell">
-                <i class="pi pi-car"></i>
-                <strong>{{ row.placa }}</strong>
-              </div>
+              <p-chip
+                icon="pi pi-car"
+                [label]="vehiculo.placa"
+                styleClass="placa-chip"
+              ></p-chip>
             </td>
-            <td>
-              <div class="marca-modelo-cell">
-                <span>{{ row.marca || '-' }}</span>
-                <span *ngIf="row.modelo"> / {{ row.modelo }}</span>
-              </div>
-            </td>
-            <td>
-              <div class="seccion-cell">
-                <p-tag *ngIf="row.seccionNombre"
-                       [value]="row.seccionNombre"
-                       severity="info"
-                       [pTooltip]="row.seccionNombre"></p-tag>
-                <span *ngIf="!row.seccionNombre" class="text-muted">Sin sección</span>
-              </div>
-            </td>
-            <td>
-              <div class="usuarios-cell">
-                <!-- Mostrar primeros 2 usuarios -->
-                <ng-container *ngIf="row.usuariosAsignados && row.usuariosAsignados.length > 0">
-                  <p-tag *ngFor="let usuario of getVisibleUsers(row)"
-                         [value]="usuario"
-                         severity="success"
-                         styleClass="user-tag"
-                         [pTooltip]="usuario"
-                         tooltipPosition="top"></p-tag>
 
-                  <!-- Badge "+N más" con tooltip de todos los usuarios -->
-                  <p-tag *ngIf="getRemainingUsersCount(row) > 0"
-                         [value]="'+' + getRemainingUsersCount(row) + ' más'"
-                         severity="info"
-                         styleClass="more-users-tag"
-                         [pTooltip]="getAllUsersTooltip(row)"
-                         [escape]="false"
-                         tooltipPosition="top"></p-tag>
+            <!-- Marca/Modelo -->
+            <td>
+              <div class="marca-modelo-info">
+                <span class="marca">{{ vehiculo.marca || '—' }}</span>
+                <span class="modelo" *ngIf="vehiculo.modelo">{{ vehiculo.modelo }}</span>
+              </div>
+            </td>
+
+            <!-- Sección -->
+            <td>
+              <p-chip
+                *ngIf="vehiculo.seccionNombre"
+                icon="pi pi-sitemap"
+                [label]="vehiculo.seccionNombre"
+              ></p-chip>
+              <span *ngIf="!vehiculo.seccionNombre" class="text-muted">
+                <i class="pi pi-minus-circle"></i> Sin sección
+              </span>
+            </td>
+
+            <!-- Usuarios con tooltip -->
+            <td>
+              <div class="usuarios-container">
+                <ng-container *ngIf="vehiculo.usuariosAsignados && vehiculo.usuariosAsignados.length > 0; else noUsers">
+                  <p-tag
+                    *ngFor="let usuario of getVisibleUsers(vehiculo)"
+                    [value]="usuario"
+                    severity="success"
+                    styleClass="user-tag"
+                  ></p-tag>
+                  <p-button
+                    *ngIf="getRemainingUsersCount(vehiculo) > 0"
+                    [label]="'+' + getRemainingUsersCount(vehiculo)"
+                    [text]="true"
+                    [rounded]="true"
+                    size="small"
+                    [pTooltip]="getAllUsersTooltip(vehiculo)"
+                    [escape]="false"
+                    tooltipPosition="top"
+                  ></p-button>
                 </ng-container>
+                <ng-template #noUsers>
+                  <span class="text-muted">
+                    <i class="pi pi-user-minus"></i> Sin usuarios
+                  </span>
+                </ng-template>
+              </div>
+            </td>
 
-                <!-- Sin usuarios -->
-                <span *ngIf="!row.usuariosAsignados || row.usuariosAsignados.length === 0" class="text-muted">
-                  <i class="pi pi-user-minus"></i> Sin usuarios
-                </span>
-              </div>
+            <!-- Estado -->
+            <td style="text-align: center">
+              <p-tag
+                [value]="vehiculo.activo ? 'ACTIVO' : 'INACTIVO'"
+                [severity]="vehiculo.activo ? 'success' : 'danger'"
+              ></p-tag>
             </td>
+
+            <!-- Bloqueo -->
+            <td style="text-align: center" *ngIf="canToggleBloqueado()">
+              <p-tag
+                [severity]="vehiculo.bloqueado ? 'danger' : 'success'"
+                [value]="vehiculo.bloqueado ? 'BLOQUEADO' : 'LIBRE'"
+                [icon]="vehiculo.bloqueado ? 'pi pi-lock' : 'pi pi-unlock'"
+                [style.cursor]="'pointer'"
+                (click)="toggleBloqueado(vehiculo)"
+                [pTooltip]="'Click para ' + (vehiculo.bloqueado ? 'desbloquear' : 'bloquear')"
+              ></p-tag>
+            </td>
+
+            <!-- Acciones -->
             <td>
-              <div class="estado-cell">
-                <p-inputSwitch [(ngModel)]="row.activo"
-                               (onChange)="toggle(row, $event.checked)"
-                               [disabled]="savingId === row.id"
-                               [ngModelOptions]="{standalone: true}"></p-inputSwitch>
-              </div>
-            </td>
-            <td *ngIf="canToggleBloqueado()">
-              <div class="bloqueo-cell">
-                <p-tag [severity]="row.bloqueado ? 'danger' : 'success'"
-                       [value]="row.bloqueado ? 'BLOQUEADO' : 'LIBRE'"
-                       [icon]="row.bloqueado ? 'pi pi-lock' : 'pi pi-unlock'"
-                       (click)="toggleBloqueado(row)"
-                       [style.cursor]="'pointer'"
-                       [pTooltip]="'Click para ' + (row.bloqueado ? 'desbloquear' : 'bloquear')"></p-tag>
-              </div>
-            </td>
-            <td>
-              <div class="acciones-cell">
-                <button pButton
-                        icon="pi pi-pencil"
-                        class="p-button-rounded p-button-text"
-                        pTooltip="Gestionar"
-                        tooltipPosition="left"
-                        (click)="gestionar(row)"></button>
-                <button pButton
-                        icon="pi pi-sitemap"
-                        class="p-button-rounded p-button-text"
-                        pTooltip="Asignar sección"
-                        tooltipPosition="left"
-                        (click)="asignar(row)"></button>
+              <div class="action-buttons">
+                <p-button
+                  icon="pi pi-pencil"
+                  [rounded]="true"
+                  [text]="true"
+                  (onClick)="gestionar(vehiculo)"
+                  pTooltip="Gestionar vehículo"
+                  tooltipPosition="top"
+                ></p-button>
+                <p-button
+                  icon="pi pi-sitemap"
+                  [rounded]="true"
+                  [text]="true"
+                  (onClick)="asignar(vehiculo)"
+                  pTooltip="Asignar sección"
+                  tooltipPosition="top"
+                ></p-button>
+                <p-button
+                  [icon]="vehiculo.activo ? 'pi pi-ban' : 'pi pi-check'"
+                  [rounded]="true"
+                  [text]="true"
+                  [severity]="vehiculo.activo ? 'danger' : 'success'"
+                  (onClick)="toggle(vehiculo, !vehiculo.activo)"
+                  [pTooltip]="vehiculo.activo ? 'Desactivar' : 'Activar'"
+                  tooltipPosition="top"
+                ></p-button>
               </div>
             </td>
           </tr>
         </ng-template>
         <ng-template pTemplate="emptymessage">
           <tr>
-            <td colspan="5">
-              <div class="empty-state">
-                <i class="pi pi-inbox"></i>
-                <p>No tienes vehículos registrados</p>
-                <button pButton
-                        label="Crear tu primer vehículo"
-                        icon="pi pi-plus"
-                        class="p-button-sm"
-                        routerLink="/gestion-de-vehiculos/crear-vehiculo"></button>
-              </div>
+            <td [attr.colspan]="canToggleBloqueado() ? 7 : 6" class="empty-message">
+              <i class="pi pi-inbox"></i>
+              <span>No hay vehículos registrados</span>
             </td>
           </tr>
         </ng-template>

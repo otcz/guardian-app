@@ -76,7 +76,162 @@
 }
 
 /* ============================================
-   TOOLBAR
+   INFORMACIÓN ESTADÍSTICA
+   ============================================ */
+.stats-info {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1rem 2rem;
+  background: linear-gradient(135deg, var(--surface-alt) 0%, var(--surface) 100%);
+  border-bottom: 1px solid var(--border);
+
+  .stat-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--text);
+
+    i {
+      color: var(--primary);
+      font-size: 1rem;
+    }
+
+    strong {
+      font-weight: 600;
+    }
+  }
+}
+
+/* ============================================
+   TABLA MODERNA
+   ============================================ */
+::ng-deep .p-datatable {
+  // Celda de sección
+  .seccion-cell {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  // Celda de administrador con avatar y detalles
+  .admin-cell {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+
+    .p-avatar {
+      flex-shrink: 0;
+    }
+
+    .admin-info {
+      flex: 1;
+      min-width: 0;
+
+      .admin-name {
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: var(--text);
+        margin-bottom: 0.25rem;
+      }
+
+      .admin-details {
+        display: flex;
+        flex-direction: column;
+        gap: 0.15rem;
+
+        .username,
+        .email {
+          font-size: 0.8rem;
+          color: #6b7280;
+          display: flex;
+          align-items: center;
+          gap: 0.3rem;
+
+          i {
+            font-size: 0.7rem;
+            color: var(--primary);
+          }
+        }
+      }
+    }
+
+    .info-icon {
+      flex-shrink: 0;
+      color: var(--primary);
+      font-size: 0.9rem;
+      opacity: 0.6;
+      cursor: help;
+      transition: opacity 0.2s ease;
+
+      &:hover {
+        opacity: 1;
+      }
+    }
+  }
+
+  // Sin administrador
+  .no-admin-cell {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #9ca3af;
+    font-style: italic;
+    font-size: 0.85rem;
+
+    i {
+      color: #f59e0b;
+    }
+  }
+
+  // Botones de acción
+  .action-buttons {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    justify-content: center;
+  }
+
+  // Empty message
+  .empty-message {
+    text-align: center;
+    padding: 3rem 1rem !important;
+    color: #9ca3af;
+    font-size: 1rem;
+
+    i {
+      display: block;
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      opacity: 0.3;
+    }
+  }
+
+  // Text muted
+  .text-muted {
+    color: #9ca3af;
+  }
+
+  // Input de edición
+  .w-100 {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--surface);
+    color: var(--text);
+
+    &:focus {
+      border-color: var(--primary);
+      outline: none;
+      box-shadow: 0 0 0 0.2rem rgba(79, 140, 255, 0.25);
+    }
+  }
+}
+
+/* ============================================
+   TOOLBAR ANTERIOR (mantener compatibilidad)
    ============================================ */
 .toolbar {
   display: flex;
@@ -302,6 +457,42 @@
 
     i.pi-hashtag {
       color: var(--primary);
+    }
+  }
+
+  // Fila de filtros
+  .filter-row {
+    th {
+      padding: 0.5rem 1rem !important;
+      background: var(--surface) !important;
+      border-bottom: 1px solid var(--border) !important;
+
+      .column-filter {
+        width: 100%;
+        padding: 0.4rem 0.6rem;
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        background: var(--surface);
+        color: var(--text);
+        font-size: 0.85rem;
+        transition: all 0.2s ease;
+
+        &::placeholder {
+          color: #9ca3af;
+          opacity: 0.7;
+        }
+
+        &:focus {
+          border-color: var(--primary);
+          outline: none;
+          box-shadow: 0 0 0 0.15rem rgba(79, 140, 255, 0.2);
+          background: var(--surface-alt);
+        }
+
+        &:hover:not(:focus) {
+          border-color: #9ca3af;
+        }
+      }
     }
   }
 
@@ -710,84 +901,71 @@
   .admin-cell {
     padding: 0.5rem 0;
 
-    .admin-info {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-
-      .admin-header {
+    // Visualización principal del administrador (simple y limpia)
+    .admin-display {
+      .admin-main {
         display: flex;
         align-items: center;
         gap: 0.5rem;
+        padding: 0.5rem 0.75rem;
+        background: linear-gradient(135deg, rgba(79, 140, 255, 0.06) 0%, rgba(37, 99, 235, 0.04) 100%);
+        border-radius: 6px;
+        border-left: 3px solid var(--primary);
+        transition: all 0.2s ease;
 
-        .admin-tag {
-          font-weight: 600;
-          font-size: 0.9rem;
+        &:hover {
+          background: linear-gradient(135deg, rgba(79, 140, 255, 0.1) 0%, rgba(37, 99, 235, 0.06) 100%);
+          box-shadow: 0 2px 6px rgba(79, 140, 255, 0.12);
         }
 
-        .admin-info-btn {
-          padding: 0.25rem;
-          min-width: auto;
-          width: 1.75rem;
-          height: 1.75rem;
-          color: #60a5fa;
+        .admin-icon {
+          color: var(--primary);
+          font-size: 1rem;
+          flex-shrink: 0;
+        }
+
+        .admin-name-primary {
+          font-size: 0.9rem;
+          font-weight: 600;
+          color: var(--text);
+          flex: 1;
+          min-width: 0;
+        }
+
+        .info-icon {
+          color: var(--primary);
+          font-size: 0.85rem;
+          opacity: 0.6;
+          cursor: help;
+          transition: opacity 0.2s ease;
+          flex-shrink: 0;
 
           &:hover {
-            background: rgba(96, 165, 250, 0.1);
-          }
-
-          ::ng-deep .pi {
-            font-size: 1rem;
-          }
-        }
-      }
-
-      .admin-details {
-        display: flex;
-        flex-direction: column;
-        gap: 0.25rem;
-        padding-left: 0.25rem;
-
-        small {
-          font-size: 0.825rem;
-          color: #9ca3af;
-          display: flex;
-          align-items: center;
-          gap: 0.25rem;
-
-          &.text-muted {
-            color: #9ca3af;
-          }
-
-          .pi {
-            font-size: 0.75rem;
+            opacity: 1;
           }
         }
       }
     }
 
-    .no-admin {
+    // Sin administrador
+    .no-admin-display {
       display: flex;
       align-items: center;
       gap: 0.5rem;
+      padding: 0.5rem 0.75rem;
+      background: rgba(251, 191, 36, 0.06);
+      border-radius: 6px;
+      border-left: 3px solid #f59e0b;
 
-      .fs-sm {
-        font-size: 0.875rem;
-
-        &.text-muted {
-          color: #9ca3af;
-        }
+      i {
+        color: #f59e0b;
+        font-size: 0.9rem;
       }
 
-      button {
-        padding: 0.25rem;
-        min-width: auto;
-        width: 1.75rem;
-        height: 1.75rem;
-
-        ::ng-deep .pi {
-          font-size: 0.9rem;
-        }
+      span {
+        font-size: 0.85rem;
+        color: #92400e;
+        font-style: italic;
       }
     }
   }

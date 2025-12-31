@@ -18,11 +18,27 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { InputTextModule } from 'primeng/inputtext';
 import { AuthService } from '../../service/auth.service';
 import { OrganizationService, Organization } from '../../service/organization.service';
+import { ChipModule } from 'primeng/chip';
 
 @Component({
   selector: 'app-vehiculos-mis',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, CardModule, TableModule, ButtonModule, TagModule, ProgressSpinnerModule, InputSwitchModule, TooltipModule, DropdownModule, CheckboxModule, InputTextModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterModule,
+    CardModule,
+    TableModule,
+    ButtonModule,
+    TagModule,
+    ProgressSpinnerModule,
+    InputSwitchModule,
+    TooltipModule,
+    DropdownModule,
+    CheckboxModule,
+    InputTextModule,
+    ChipModule
+  ],
   templateUrl: './vehiculos-mis.component.html',
   styleUrls: ['./vehiculos-mis.component.scss']
 })

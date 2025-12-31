@@ -44,15 +44,6 @@
         <button
           pButton
           type="button"
-          label="Nueva Sección"
-          icon="pi pi-plus"
-          class="p-button-success"
-          (click)="startAdd()"
-          [disabled]="adding || !!editingId">
-        </button>
-        <button
-          pButton
-          type="button"
           icon="pi pi-user-edit"
           label="Cargar Admins"
           class="p-button-help p-button-text"
@@ -86,307 +77,249 @@
       <small>Crea tu primera sección para comenzar</small>
     </div>
 
-    <!-- Estadísticas -->
-    <div class="stats-bar" *ngIf="rows.length>0">
+    <!-- Información estadística -->
+    <div class="stats-info" *ngIf="filtered.length > 0">
       <div class="stat-item">
-        <i class="pi pi-list"></i>
-        <span>Mostrando <strong>{{ filtered.length }}</strong> de <strong>{{ items.length }}</strong></span>
+        <i class="pi pi-sitemap"></i>
+        <span>Mostrando <strong>{{ filtered.length }}</strong> sección(es)</span>
       </div>
     </div>
 
-    <!-- Tabla moderna -->
-    <div class="table-container" *ngIf="rows.length>0">
-      <p-table
-        [value]="rows"
-        [loading]="loading"
-        styleClass="modern-table"
-        responsiveLayout="scroll">
-        <ng-template pTemplate="header">
-          <tr>
-            <th style="width: 60px">
-              <i class="pi pi-hashtag"></i>
-            </th>
-            <th>
-              <div class="th-content">
-                <i class="pi pi-tag"></i>
-                <span>Nombre de la Sección</span>
-              </div>
-            </th>
-            <th>
-              <div class="th-content">
-                <i class="pi pi-info-circle"></i>
-                <span>Descripción</span>
-              </div>
-            </th>
-            <th style="width: 280px">
-              <div class="th-content">
-                <i class="pi pi-user"></i>
-                <span>Administrador de Sección</span>
-              </div>
-            </th>
-            <th style="width: 130px">
-              <div class="th-content">
-                <i class="pi pi-power-off"></i>
-                <span>Estado</span>
-              </div>
-            </th>
-            <th style="width: 150px">
-              <div class="th-content">
-                <i class="pi pi-unlock"></i>
-                <span>Autonomía</span>
-              </div>
-            </th>
-            <th style="width: 400px">
-              <div class="th-content">
-                <i class="pi pi-cog"></i>
-                <span>Acciones</span>
-              </div>
-            </th>
-          </tr>
-        </ng-template>
-      <ng-template pTemplate="body" let-row let-i="rowIndex">
-        <tr [class.flash]="row.id === flashRowId">
-          <td>{{ i + 1 }}</td>
-
-          <!-- Columna Nombre -->
+    <!-- Tabla de Secciones -->
+    <p-table
+      *ngIf="!adding"
+      [value]="filtered"
+      [loading]="loading"
+      [paginator]="true"
+      [rows]="10"
+      [rowsPerPageOptions]="[10, 25, 50]"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Mostrando {first}-{last} de {totalRecords} secciones"
+      styleClass="p-datatable-striped"
+      responsiveLayout="scroll">
+      <ng-template pTemplate="header">
+        <tr>
+          <th pSortableColumn="nombre" style="min-width: 200px">
+            <div class="th-content">
+              <i class="pi pi-tag"></i>
+              <span>Sección</span>
+            </div>
+            <p-sortIcon field="nombre"></p-sortIcon>
+          </th>
+          <th pSortableColumn="descripcion" style="min-width: 250px">
+            <div class="th-content">
+              <i class="pi pi-info-circle"></i>
+              <span>Descripción</span>
+            </div>
+            <p-sortIcon field="descripcion"></p-sortIcon>
+          </th>
+          <th style="min-width: 220px">
+            <div class="th-content">
+              <i class="pi pi-user"></i>
+              <span>Administrador</span>
+            </div>
+          </th>
+          <th pSortableColumn="estado" style="min-width: 120px; text-align: center">
+            <div class="th-content">
+              <i class="pi pi-power-off"></i>
+              <span>Estado</span>
+            </div>
+            <p-sortIcon field="estado"></p-sortIcon>
+          </th>
+          <th pSortableColumn="autonomiaConfigurada" style="min-width: 140px; text-align: center">
+            <div class="th-content">
+              <i class="pi pi-unlock"></i>
+              <span>Autonomía</span>
+            </div>
+            <p-sortIcon field="autonomiaConfigurada"></p-sortIcon>
+          </th>
+          <th style="width: 200px; text-align: center">
+            <div class="th-content">
+              <i class="pi pi-cog"></i>
+              <span>Acciones</span>
+            </div>
+          </th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-seccion>
+        <tr [class.flash]="seccion.id === flashRowId">
+          <!-- Sección (nombre con icono) -->
           <td>
-            <ng-container *ngIf="adding && row.id === ''; else notAddingName">
-              <input pInputText [(ngModel)]="newDraft.nombre" placeholder="Nombre de la sección" class="w-100" />
+            <ng-container *ngIf="editingId === seccion.id; else viewMode">
+              <input
+                pInputText
+                [ngModel]="editDraft?.nombre"
+                (ngModelChange)="onEditChange('nombre', $event)"
+                placeholder="Nombre de la sección"
+                class="w-100"
+              />
             </ng-container>
-            <ng-template #notAddingName>
-              <ng-container *ngIf="editingId === row.id; else viewName">
-                <input pInputText [ngModel]="editDraft?.nombre" (ngModelChange)="onEditChange('nombre', $event)" placeholder="Nombre de la sección" class="w-100" />
-              </ng-container>
-              <ng-template #viewName>
-                {{ row.nombre }}
-              </ng-template>
+            <ng-template #viewMode>
+              <div class="seccion-cell">
+                <p-chip
+                  icon="pi pi-sitemap"
+                  [label]="seccion.nombre"
+                ></p-chip>
+              </div>
             </ng-template>
           </td>
 
-          <!-- Columna Descripción -->
+          <!-- Descripción -->
           <td>
-            <ng-container *ngIf="adding && row.id === ''; else notAddingDesc">
-              <input pInputText [(ngModel)]="newDraft.descripcion" placeholder="Descripción (opcional)" class="w-100" maxlength="160" />
+            <ng-container *ngIf="editingId === seccion.id; else viewDesc">
+              <input
+                pInputText
+                [ngModel]="editDraft?.descripcion"
+                (ngModelChange)="onEditChange('descripcion', $event)"
+                placeholder="Descripción (opcional)"
+                class="w-100"
+                maxlength="160"
+              />
             </ng-container>
-            <ng-template #notAddingDesc>
-              <ng-container *ngIf="editingId === row.id; else viewDesc">
-                <input pInputText [ngModel]="editDraft?.descripcion" (ngModelChange)="onEditChange('descripcion', $event)" placeholder="Descripción (opcional)" class="w-100" maxlength="160" />
-              </ng-container>
-              <ng-template #viewDesc>
-                <span class="fs-sm opacity-85">{{ row.descripcion || '-' }}</span>
-              </ng-template>
+            <ng-template #viewDesc>
+              <span class="text-muted">{{ seccion.descripcion || '—' }}</span>
             </ng-template>
           </td>
 
-          <!-- Columna Administrador -->
+          <!-- Administrador -->
           <td>
-            <div class="admin-cell">
-              <ng-container *ngIf="row.adminInfo; else noAdminInfo">
+            <ng-container *ngIf="seccion.adminInfo; else noAdminInfo">
+              <div class="admin-cell">
+                <p-avatar
+                  icon="pi pi-user"
+                  shape="circle"
+                  [style]="{ 'background': 'linear-gradient(135deg, var(--primary), var(--secondary))', 'color': '#fff' }"
+                ></p-avatar>
                 <div class="admin-info">
-                  <div class="admin-header">
-                    <p-tag
-                      icon="pi pi-user"
-                      severity="info"
-                      [value]="row.adminInfo.username"
-                      styleClass="admin-tag">
-                    </p-tag>
-                    <button
-                      pButton
-                      type="button"
-                      icon="pi pi-info-circle"
-                      class="p-button-text p-button-sm admin-info-btn"
-                      [pTooltip]="getAdminTooltip(row)"
-                      tooltipPosition="left"
-                      [escape]="false">
-                    </button>
-                  </div>
+                  <div class="admin-name">{{ seccion.adminInfo.nombreCompleto }}</div>
                   <div class="admin-details">
-                    <small class="text-muted">{{ row.adminInfo.nombreCompleto }}</small>
-                    <small class="text-muted" *ngIf="row.adminInfo.email">
-                      <i class="pi pi-envelope"></i> {{ row.adminInfo.email }}
-                    </small>
+                    <span class="username">
+                      <i class="pi pi-at"></i>
+                      {{ seccion.adminInfo.username }}
+                    </span>
+                  </div>
+                </div>
+                <i class="pi pi-info-circle info-icon"
+                   [pTooltip]="getAdminTooltipContent(seccion.adminInfo)"
+                   tooltipPosition="left"
+                   [escape]="false"></i>
+              </div>
+            </ng-container>
+            <ng-template #noAdminInfo>
+              <ng-container *ngIf="seccion.adminNombre; else noAdmin">
+                <div class="admin-cell">
+                  <p-avatar
+                    icon="pi pi-user"
+                    shape="circle"
+                    [style]="{ 'background': '#94a3b8', 'color': '#fff' }"
+                  ></p-avatar>
+                  <div class="admin-info">
+                    <div class="admin-name">{{ seccion.adminNombre }}</div>
                   </div>
                 </div>
               </ng-container>
-              <ng-template #noAdminInfo>
-                <ng-container *ngIf="row.adminNombre; else noAdmin">
-                  <p-tag
-                    icon="pi pi-user"
-                    severity="info"
-                    [value]="row.adminNombre!"
-                    pTooltip="Administrador actual"
-                    tooltipPosition="top">
-                  </p-tag>
-                </ng-container>
-                <ng-template #noAdmin>
-                  <div class="no-admin">
-                    <span class="fs-sm text-muted">Sin administrador</span>
-                    <button
-                      pButton
-                      type="button"
-                      icon="pi pi-user-plus"
-                      class="p-button-text p-button-sm p-button-warning"
-                      (click)="gotoAssignAdmin(row)"
-                      pTooltip="Asignar administrador"
-                      tooltipPosition="top"
-                      *ngIf="canAssignAdmin">
-                    </button>
-                  </div>
-                </ng-template>
+              <ng-template #noAdmin>
+                <div class="no-admin-cell">
+                  <i class="pi pi-user-minus"></i>
+                  <span>Sin administrador</span>
+                </div>
               </ng-template>
-            </div>
-          </td>
-
-          <!-- Columna Estado -->
-          <td>
-            <div class="flex ai-center gap-xs">
-              <p-inputSwitch
-                [ngModel]="['ACTIVA','ACTIVO'].includes((row.estado||'').toUpperCase())"
-                (onChange)="onToggleEstado(row, $event.checked)"
-                [disabled]="saving || (adding && row.id==='')">
-              </p-inputSwitch>
-              <p-tag [severity]="['ACTIVA','ACTIVO'].includes((row.estado||'').toUpperCase()) ? 'success' : 'danger'" [value]="row.estado || '-' "></p-tag>
-            </div>
-          </td>
-
-          <!-- Columna Autonomía -->
-          <td>
-            <ng-container *ngIf="adding && row.id === ''; else existingAuto">
-              <p-inputSwitch [(ngModel)]="newDraft.autonomiaConfigurada"></p-inputSwitch>
-            </ng-container>
-            <ng-template #existingAuto>
-              <div class="flex ai-center gap-xs">
-                <p-inputSwitch
-                  [ngModel]="!!row.autonomiaConfigurada"
-                  (onChange)="onToggleAutonomia(row, $event.checked)"
-                  [disabled]="saving">
-                </p-inputSwitch>
-                <p-tag [severity]="row.autonomiaConfigurada ? 'success' : 'warning'" [value]="row.autonomiaConfigurada ? 'CONFIGURADA' : 'NO'"></p-tag>
-              </div>
             </ng-template>
           </td>
 
-          <!-- Columna Acciones -->
+          <!-- Estado -->
+          <td style="text-align: center">
+            <p-tag
+              [value]="['ACTIVA','ACTIVO'].includes((seccion.estado||'').toUpperCase()) ? 'ACTIVA' : 'INACTIVA'"
+              [severity]="['ACTIVA','ACTIVO'].includes((seccion.estado||'').toUpperCase()) ? 'success' : 'danger'"
+            ></p-tag>
+          </td>
+
+          <!-- Autonomía -->
+          <td style="text-align: center">
+            <p-tag
+              [value]="seccion.autonomiaConfigurada ? 'CONFIGURADA' : 'NO'"
+              [severity]="seccion.autonomiaConfigurada ? 'success' : 'warning'"
+            ></p-tag>
+          </td>
+
+          <!-- Acciones -->
           <td>
             <div class="action-buttons">
-              <!-- Botones para modo creación -->
-              <ng-container *ngIf="adding && row.id === ''">
-                <button
-                  pButton
-                  type="button"
+              <!-- Modo edición -->
+              <ng-container *ngIf="editingId === seccion.id; else viewMode">
+                <p-button
                   icon="pi pi-check"
-                  class="action-btn save-btn"
-                  (click)="saveAdd()"
-                  [disabled]="saving"
-                  pTooltip="Guardar sección"
-                  tooltipPosition="top">
-                </button>
-                <button
-                  pButton
-                  type="button"
-                  icon="pi pi-times"
-                  class="action-btn cancel-btn"
-                  (click)="cancelAdd()"
-                  [disabled]="saving"
-                  pTooltip="Cancelar"
-                  tooltipPosition="top">
-                </button>
-              </ng-container>
-
-              <!-- Botones para modo edición -->
-              <ng-container *ngIf="!adding && editingId === row.id">
-                <button
-                  pButton
-                  type="button"
-                  icon="pi pi-check"
-                  class="action-btn save-btn"
-                  (click)="saveEdit()"
-                  [disabled]="saving"
+                  [rounded]="true"
+                  [text]="true"
+                  severity="success"
+                  (onClick)="saveEdit()"
                   pTooltip="Guardar cambios"
-                  tooltipPosition="top">
-                </button>
-                <button
-                  pButton
-                  type="button"
+                  tooltipPosition="top"
+                ></p-button>
+                <p-button
                   icon="pi pi-times"
-                  class="action-btn cancel-btn"
-                  (click)="cancelEdit()"
-                  [disabled]="saving"
-                  pTooltip="Cancelar edición"
-                  tooltipPosition="top">
-                </button>
+                  [rounded]="true"
+                  [text]="true"
+                  severity="danger"
+                  (onClick)="cancelEdit()"
+                  pTooltip="Cancelar"
+                  tooltipPosition="top"
+                ></p-button>
               </ng-container>
 
-              <!-- Botones para modo vista -->
-              <ng-container *ngIf="!adding && editingId !== row.id">
-                <button
-                  pButton
-                  type="button"
+              <!-- Modo vista -->
+              <ng-template #viewMode>
+                <p-button
                   icon="pi pi-user-edit"
-                  class="action-btn assign-admin-btn"
-                  (click)="gotoAssignAdmin(row)"
-                  [disabled]="saving"
-                  pTooltip="Asignar/Cambiar administrador"
+                  [rounded]="true"
+                  [text]="true"
+                  (onClick)="gotoAssignAdmin(seccion)"
+                  pTooltip="Asignar administrador"
                   tooltipPosition="top"
-                  *ngIf="canAssignAdmin">
-                </button>
-                <button
-                  pButton
-                  type="button"
-                  icon="pi pi-users"
-                  class="action-btn users-btn"
-                  (click)="viewUsuarios(row)"
-                  [disabled]="saving"
-                  pTooltip="Ver usuarios"
-                  tooltipPosition="top">
-                </button>
-                <button
-                  pButton
-                  type="button"
+                  *ngIf="canAssignAdmin"
+                ></p-button>
+                <p-button
                   icon="pi pi-pencil"
-                  class="action-btn edit-btn"
-                  (click)="startEdit(row)"
-                  [disabled]="saving"
-                  pTooltip="Editar sección"
-                  tooltipPosition="top">
-                </button>
-                <button
-                  pButton
-                  type="button"
-                  icon="pi pi-trash"
-                  class="action-btn delete-btn"
-                  (click)="remove(row)"
-                  [disabled]="saving"
-                  pTooltip="Eliminar sección"
-                  tooltipPosition="top">
-                </button>
-                <button
-                  pButton
-                  type="button"
+                  [rounded]="true"
+                  [text]="true"
+                  (onClick)="startEdit(seccion)"
+                  pTooltip="Editar"
+                  tooltipPosition="top"
+                ></p-button>
+                <p-button
                   icon="pi pi-cog"
-                  class="action-btn manage-btn"
+                  [rounded]="true"
+                  [text]="true"
                   [routerLink]="['/gestion-de-secciones/gestionar-seccion']"
-                  [queryParams]="{ id: orgId, seccionId: row.id }"
-                  pTooltip="Gestionar sección"
-                  tooltipPosition="top">
-                </button>
-              </ng-container>
+                  [queryParams]="{ id: orgId, seccionId: seccion.id }"
+                  pTooltip="Gestionar"
+                  tooltipPosition="top"
+                ></p-button>
+                <p-button
+                  icon="pi pi-trash"
+                  [rounded]="true"
+                  [text]="true"
+                  severity="danger"
+                  (onClick)="remove(seccion)"
+                  pTooltip="Eliminar"
+                  tooltipPosition="top"
+                ></p-button>
+              </ng-template>
             </div>
           </td>
         </tr>
       </ng-template>
-        <ng-template pTemplate="emptymessage">
-          <tr>
-            <td colspan="7" class="empty-message">
-              <div class="empty-state-inline">
-                <i class="pi pi-inbox"></i>
-                <p>No hay datos para mostrar</p>
-              </div>
-            </td>
-          </tr>
-        </ng-template>
-      </p-table>
-    </div>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="6" class="empty-message">
+            <i class="pi pi-inbox"></i>
+            <span>No hay secciones para mostrar</span>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
 
     <!-- Panel de Usuarios por Sección -->
     <div class="usuarios-panel" *ngIf="orgId && selectedSeccionId">

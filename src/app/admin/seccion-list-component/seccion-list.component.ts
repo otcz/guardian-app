@@ -17,11 +17,28 @@ import {ConfirmationService, MessageService} from 'primeng/api';
 import { SeccionUsuariosComponent } from '../seccion-usuarios-component/seccion-usuarios.component';
 import { MenuService } from '../../service/menu.service';
 import { CardModule } from 'primeng/card';
+import { AvatarModule } from 'primeng/avatar';
+import { ChipModule } from 'primeng/chip';
 
 @Component({
   selector: 'app-seccion-list',
   standalone: true,
-  imports: [CommonModule, RouterModule, TableModule, ButtonModule, InputTextModule, TagModule, FormsModule, TooltipModule, InputSwitchModule, ConfirmDialogModule, SeccionUsuariosComponent, CardModule],
+  imports: [
+    CommonModule,
+    RouterModule,
+    TableModule,
+    ButtonModule,
+    InputTextModule,
+    TagModule,
+    FormsModule,
+    TooltipModule,
+    InputSwitchModule,
+    ConfirmDialogModule,
+    SeccionUsuariosComponent,
+    CardModule,
+    AvatarModule,
+    ChipModule
+  ],
   templateUrl: './seccion-list.component.html',
   styleUrls: ['./seccion-list.component.scss']
 })
@@ -35,6 +52,13 @@ export class SeccionListComponent implements OnInit, OnDestroy {
   items: SeccionEntity[] = [];
   filtered: SeccionEntity[] = [];
   filter = '';
+
+  // Filtros por columna
+  filterNombre = '';
+  filterDescripcion = '';
+  filterAdmin = '';
+  filterEstado = '';
+  filterAutonomia = '';
 
   // Inline add/edit state
   adding = false;
@@ -168,6 +192,84 @@ export class SeccionListComponent implements OnInit, OnDestroy {
       return;
     }
     this.filtered = this.items.filter(s => (s.nombre || '').toLowerCase().includes(f) || (s.descripcion || '').toLowerCase().includes(f));
+  }
+
+  applyColumnFilters() {
+    let result = [...this.items];
+
+    // Filtro por nombre
+    if (this.filterNombre.trim()) {
+      const term = this.filterNombre.trim().toLowerCase();
+      result = result.filter(s => (s.nombre || '').toLowerCase().includes(term));
+    }
+
+    // Filtro por descripción
+    if (this.filterDescripcion.trim()) {
+      const term = this.filterDescripcion.trim().toLowerCase();
+      result = result.filter(s => (s.descripcion || '').toLowerCase().includes(term));
+    }
+
+    // Filtro por administrador
+    if (this.filterAdmin.trim()) {
+      const term = this.filterAdmin.trim().toLowerCase();
+      result = result.filter(s => {
+        if (s.adminInfo?.nombreCompleto) {
+          return s.adminInfo.nombreCompleto.toLowerCase().includes(term);
+        }
+        if (s.adminNombre) {
+          return s.adminNombre.toLowerCase().includes(term);
+        }
+        return false;
+      });
+    }
+
+    // Filtro por estado
+    if (this.filterEstado.trim()) {
+      const term = this.filterEstado.trim().toLowerCase();
+      result = result.filter(s => (s.estado || '').toLowerCase().includes(term));
+    }
+
+    // Filtro por autonomía
+    if (this.filterAutonomia.trim()) {
+      const term = this.filterAutonomia.trim().toLowerCase();
+      result = result.filter(s => {
+        const autonomiaText = s.autonomiaConfigurada ? 'configurada' : 'no';
+        return autonomiaText.includes(term);
+      });
+    }
+
+    this.filtered = result;
+  }
+
+  getAdminTooltipContent(adminInfo: any): string {
+    if (!adminInfo) return '';
+
+    const lines: string[] = [];
+
+    if (adminInfo.username) {
+      lines.push(`<strong>Usuario:</strong> ${adminInfo.username}`);
+    }
+
+    if (adminInfo.email) {
+      lines.push(`<strong>Email:</strong> ${adminInfo.email}`);
+    }
+
+    if (adminInfo.telefono) {
+      lines.push(`<strong>Teléfono:</strong> ${adminInfo.telefono}`);
+    }
+
+    if (adminInfo.tipoIdentificacion && adminInfo.identificacion) {
+      lines.push(`<strong>ID:</strong> ${adminInfo.tipoIdentificacion} ${adminInfo.identificacion}`);
+    }
+
+    if (adminInfo.roles && adminInfo.roles.length > 0) {
+      lines.push(`<strong>Roles:</strong> ${adminInfo.roles.join(', ')}`);
+    }
+
+    const estadoIcon = adminInfo.activo ? '✅' : '❌';
+    lines.push(`<strong>Estado:</strong> ${estadoIcon} ${adminInfo.activo ? 'Activo' : 'Inactivo'}`);
+
+    return lines.join('<br/>');
   }
 
   // Draft helpers
@@ -368,44 +470,6 @@ export class SeccionListComponent implements OnInit, OnDestroy {
     this.router.navigate(['/asignar-administrador-de-seccion'], { queryParams: { seccionId: row.id } });
   }
 
-  /**
-   * Generar tooltip HTML con información completa del administrador de sección
-   * @param row - Entidad de sección que contiene adminInfo
-   * @returns String HTML con formato para tooltip
-   */
-  getAdminTooltip(row: SeccionEntity): string {
-    if (!row.adminInfo) return 'Sin información adicional';
-
-    const lines: string[] = [];
-    lines.push(`<strong>${row.adminInfo.nombreCompleto}</strong>`);
-    lines.push(`<strong>Usuario:</strong> ${row.adminInfo.username}`);
-
-    if (row.adminInfo.email) {
-      lines.push(`<strong>Email:</strong> ${row.adminInfo.email}`);
-    }
-
-    if (row.adminInfo.telefono) {
-      lines.push(`<strong>Teléfono:</strong> ${row.adminInfo.telefono}`);
-    }
-
-    if (row.adminInfo.tipoIdentificacion && row.adminInfo.identificacion) {
-      lines.push(`<strong>Identificación:</strong> ${row.adminInfo.tipoIdentificacion} ${row.adminInfo.identificacion}`);
-    }
-
-    if (row.adminInfo.scopeNivel) {
-      lines.push(`<strong>Alcance:</strong> ${row.adminInfo.scopeNivel}`);
-    }
-
-    if (row.adminInfo.roles && row.adminInfo.roles.length > 0) {
-      lines.push(`<strong>Roles:</strong> ${row.adminInfo.roles.join(', ')}`);
-    }
-
-    if (row.adminInfo.activo !== undefined) {
-      lines.push(`<strong>Estado:</strong> ${row.adminInfo.activo ? 'ACTIVO' : 'INACTIVO'}`);
-    }
-
-    return lines.join('<br/>');
-  }
 
   // Utils
   validate(model: SeccionEntity): string | null {

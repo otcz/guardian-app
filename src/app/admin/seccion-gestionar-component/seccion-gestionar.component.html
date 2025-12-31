@@ -1,4 +1,48 @@
-<div class="card" *ngIf="seccion && !loadingSecciones; else loadingTpl">
+<div class="page-container">
+  <!-- Selector de Sección (solo para ORGADMIN cuando no hay sección seleccionada) -->
+  <div class="selector-card" *ngIf="showSeccionSelector && !seccionId && !loadingSecciones">
+    <p-card>
+      <div class="selector-header">
+        <i class="pi pi-search"></i>
+        <h2>Seleccionar Sección para Gestionar</h2>
+      </div>
+
+      <div class="selector-body">
+        <label for="seccion-dropdown">Selecciona la sección que deseas gestionar:</label>
+        <p-dropdown
+          id="seccion-dropdown"
+          [options]="secciones"
+          [(ngModel)]="seccionId"
+          (onChange)="onSeccionChange($event.value)"
+          optionLabel="nombre"
+          optionValue="id"
+          placeholder="Selecciona una sección..."
+          [filter]="true"
+          filterBy="nombre,descripcion"
+          [showClear]="false"
+          styleClass="w-full"
+          appendTo="body">
+          <ng-template let-seccion pTemplate="item">
+            <div class="dropdown-item">
+              <i class="pi pi-sitemap"></i>
+              <div class="item-info">
+                <strong>{{ seccion.nombre }}</strong>
+                <span *ngIf="seccion.descripcion">{{ seccion.descripcion }}</span>
+              </div>
+            </div>
+          </ng-template>
+        </p-dropdown>
+
+        <div class="selector-info" *ngIf="secciones.length > 0">
+          <i class="pi pi-info-circle"></i>
+          <span>{{ secciones.length }} {{ secciones.length === 1 ? 'sección disponible' : 'secciones disponibles' }}</span>
+        </div>
+      </div>
+    </p-card>
+  </div>
+
+  <!-- Contenido principal (cuando hay sección seleccionada) -->
+  <div class="card" *ngIf="seccion; else loadingTpl">
   <!-- Header -->
   <div class="card-header">
     <h2>
@@ -264,7 +308,7 @@
           label="Gestionar Lugares"
           icon="pi pi-map-marker"
           [outlined]="true"
-          (onClick)="crearLugar()"
+          (onClick)="listarLugares()"
           class="quick-action-btn"
         ></p-button>
         <p-button
@@ -277,15 +321,16 @@
       </div>
     </div>
   </div>
-</div>
-
-<!-- Loading State -->
-<ng-template #loadingTpl>
-  <div class="card loading-card">
-    <div class="loading-content">
-      <p-progressSpinner></p-progressSpinner>
-      <p>Cargando información de la sección...</p>
-    </div>
   </div>
-</ng-template>
+
+  <!-- Loading State -->
+  <ng-template #loadingTpl>
+    <div class="card loading-card" *ngIf="seccionId && loading">
+      <div class="loading-content">
+        <p-progressSpinner></p-progressSpinner>
+        <p>Cargando información de la sección...</p>
+      </div>
+    </div>
+  </ng-template>
+</div>
 

@@ -1,1 +1,597 @@
+/* Gestionar Sección - Estilos Modernos Consistentes con Usuario */
+
+.page-container {
+  padding: 0;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Selector de Sección */
+.selector-card {
+  margin: 2rem;
+
+  ::ng-deep .p-card {
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  .selector-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--primary);
+
+    i {
+      font-size: 2rem;
+      color: var(--primary);
+    }
+
+    h2 {
+      margin: 0;
+      color: var(--text);
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+  }
+
+  .selector-body {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+
+    label {
+      font-weight: 600;
+      color: var(--text);
+      font-size: 1rem;
+    }
+
+    .w-full {
+      width: 100%;
+    }
+
+    .dropdown-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+
+      i {
+        color: var(--primary);
+        font-size: 1.1rem;
+      }
+
+      .item-info {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+
+        strong {
+          color: var(--text);
+          font-size: 0.95rem;
+        }
+
+        span {
+          color: var(--muted);
+          font-size: 0.85rem;
+        }
+      }
+    }
+
+    .selector-info {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1rem;
+      background: rgba(79, 140, 255, 0.08);
+      border-left: 3px solid var(--primary);
+      border-radius: 6px;
+      color: var(--text);
+      font-size: 0.9rem;
+
+      i {
+        color: var(--primary);
+        font-size: 1.1rem;
+      }
+    }
+  }
+}
+
+/* Estilos del Card Principal */
+.card {
+  padding: 0;
+  background: var(--surface);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  margin: 2rem;
+}
+
+/* Header del Card */
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 2rem;
+  background: linear-gradient(135deg, var(--primary) 0%, color-mix(in srgb, var(--primary) 80%, #000) 100%);
+  border-bottom: 2px solid var(--border);
+  gap: 1rem;
+  flex-wrap: wrap;
+
+  h2 {
+    margin: 0;
+    color: #fff;
+    font-size: 1.5rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+    i {
+      font-size: 1.3rem;
+    }
+  }
+
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+}
+
+/* Secciones de Contenido */
+.content-sections {
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* Sección Destacada de Información Principal */
+.info-section-highlight {
+  background: linear-gradient(135deg,
+    color-mix(in srgb, var(--primary) 5%, var(--surface)) 0%,
+    var(--surface) 100%);
+  border: 2px solid color-mix(in srgb, var(--primary) 20%, transparent);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+
+  .section-header-highlight {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1.25rem 1.5rem;
+    background: linear-gradient(135deg, var(--primary), color-mix(in srgb, var(--primary) 85%, #000));
+    color: white;
+    font-weight: 600;
+    font-size: 1.1rem;
+
+    i {
+      font-size: 1.3rem;
+    }
+  }
+
+  .id-info-card {
+    padding: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+
+    .id-info-main {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+
+      .id-info-type,
+      .id-info-number {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .id-info-type-label,
+      .id-info-number-label {
+        font-size: 0.8rem;
+        color: var(--muted);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .id-info-type-value {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--primary);
+      }
+
+      .id-info-number-value {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--text);
+      }
+    }
+
+    .id-info-status {
+      display: flex;
+      align-items: center;
+
+      ::ng-deep .p-tag.large-tag {
+        font-size: 1rem;
+        padding: 0.5rem 1rem;
+      }
+    }
+  }
+}
+
+/* Secciones de Información */
+.info-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.5rem;
+    background: var(--surface-alt);
+    border-bottom: 1px solid var(--border);
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--text);
+
+    i {
+      color: var(--primary);
+      font-size: 1.1rem;
+    }
+  }
+
+  .info-grid {
+    padding: 1.5rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+
+    .info-item-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.85rem;
+      color: var(--muted);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+
+      i {
+        font-size: 0.9rem;
+      }
+    }
+
+    .info-item-content {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 1rem;
+
+      strong {
+        color: var(--text);
+        font-weight: 600;
+      }
+
+      &.roles-content {
+        flex-wrap: wrap;
+      }
+
+      ::ng-deep .p-tag {
+        margin-right: 0.5rem;
+        margin-bottom: 0.5rem;
+      }
+    }
+  }
+
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: 2rem;
+    text-align: center;
+    color: var(--muted);
+    background: color-mix(in srgb, var(--muted) 5%, transparent);
+    border-radius: 8px;
+    border: 1px dashed var(--border);
+    margin: 1.5rem;
+
+    i {
+      font-size: 2rem;
+      color: var(--muted);
+    }
+
+    p {
+      margin: 0;
+      font-size: 0.95rem;
+      font-style: italic;
+    }
+  }
+}
+
+/* Sección de Edición */
+.edit-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.5rem;
+    background: var(--surface-alt);
+    border-bottom: 1px solid var(--border);
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--text);
+
+    i {
+      color: var(--primary);
+      font-size: 1.1rem;
+    }
+  }
+}
+
+/* Formulario de Edición */
+.edit-form {
+  padding: 1.5rem;
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+
+    &.full-width {
+      grid-column: 1 / -1;
+    }
+
+    .field-label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 500;
+      color: var(--text);
+      font-size: 0.9rem;
+
+      i {
+        color: var(--primary);
+        font-size: 0.9rem;
+      }
+    }
+
+    .toggle-field {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+
+      .toggle-label {
+        font-size: 0.9rem;
+        color: var(--text);
+      }
+    }
+
+    input,
+    textarea,
+    ::ng-deep .p-inputtext,
+    ::ng-deep .p-inputtextarea {
+      width: 100%;
+    }
+  }
+
+  .form-actions {
+    display: flex;
+    gap: 1rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+
+    ::ng-deep .p-button {
+      min-width: 120px;
+    }
+  }
+}
+
+/* Acciones Rápidas */
+.quick-actions-grid {
+  padding: 1.5rem;
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+
+  ::ng-deep .p-button.quick-action-btn {
+    flex: 1;
+    min-width: 200px;
+    justify-content: center;
+  }
+}
+
+/* Loading State */
+.loading-card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+
+  .loading-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    color: var(--muted);
+
+    p {
+      margin: 0;
+      font-size: 0.95rem;
+    }
+  }
+}
+
+/* Utilidades */
+.w-full {
+  width: 100% !important;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .card {
+    margin: 1rem;
+  }
+
+  .card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 1rem 1.5rem;
+
+    h2 {
+      font-size: 1.3rem;
+    }
+
+    .header-actions {
+      width: 100%;
+
+      ::ng-deep .p-button {
+        flex: 1;
+      }
+    }
+  }
+
+  .content-sections {
+    padding: 1rem;
+  }
+
+  .info-section {
+    .info-grid {
+      grid-template-columns: 1fr;
+      padding: 1rem;
+    }
+  }
+
+  .edit-form {
+    .form-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .form-actions {
+      flex-direction: column;
+
+      ::ng-deep .p-button {
+        width: 100%;
+      }
+    }
+  }
+
+  .quick-actions-grid {
+    flex-direction: column;
+
+    ::ng-deep .p-button {
+      width: 100%;
+    }
+  }
+
+  /* Sección Destacada de Identificación - Responsive */
+  .info-section-highlight {
+    .id-info-card {
+      flex-direction: column;
+      padding: 1.5rem;
+
+      .id-info-main {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1.5rem;
+        width: 100%;
+
+        .id-info-type,
+        .id-info-number {
+          width: 100%;
+        }
+      }
+
+      .id-info-status {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+  }
+
+  .selector-card {
+    margin: 1rem;
+  }
+}
+
+/* Ajustes por tema */
+:host-context(.theme-dark),
+:host-context(.theme-black) {
+  .card {
+    background: var(--surface);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+  }
+
+  .info-section-highlight {
+    background: linear-gradient(135deg,
+      color-mix(in srgb, var(--primary) 8%, var(--surface)) 0%,
+      color-mix(in srgb, var(--surface) 95%, #000) 100%);
+    border-color: color-mix(in srgb, var(--primary) 30%, transparent);
+  }
+
+  .info-section {
+    background: color-mix(in srgb, var(--surface) 95%, #000);
+    border-color: color-mix(in srgb, var(--border) 50%, #fff);
+
+    .section-header {
+      background: color-mix(in srgb, var(--surface-alt) 70%, #000);
+      border-color: color-mix(in srgb, var(--border) 50%, #fff);
+    }
+  }
+
+  .edit-section {
+    background: color-mix(in srgb, var(--surface) 95%, #000);
+    border-color: color-mix(in srgb, var(--border) 50%, #fff);
+
+    .section-header {
+      background: color-mix(in srgb, var(--surface-alt) 70%, #000);
+      border-color: color-mix(in srgb, var(--border) 50%, #fff);
+    }
+  }
+}
+
+:host-context(.theme-light) {
+  .info-section {
+    .section-header {
+      background: color-mix(in srgb, var(--surface-alt) 95%, var(--primary) 5%);
+    }
+  }
+
+  .edit-section {
+    .section-header {
+      background: color-mix(in srgb, var(--surface-alt) 95%, var(--primary) 5%);
+    }
+  }
+}
 

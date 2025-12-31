@@ -137,6 +137,7 @@ export class SeccionGestionarComponent implements OnInit, OnDestroy {
 
   load() {
     if (!this.orgId || !this.seccionId) return;
+
     this.loading = true;
     this.seccionService.get(this.orgId, this.seccionId).subscribe({
       next: (s) => {
@@ -187,7 +188,12 @@ export class SeccionGestionarComponent implements OnInit, OnDestroy {
 
   listarLugares() {
     if (!this.orgId) return;
-    this.router.navigate(['/listar-lugares'], { queryParams: { id: this.orgId } });
+    this.router.navigate(['/listar-lugares'], {
+      queryParams: {
+        id: this.orgId,
+        seccionId: this.seccionId
+      }
+    });
   }
 
   isSeccionActiva(): boolean {

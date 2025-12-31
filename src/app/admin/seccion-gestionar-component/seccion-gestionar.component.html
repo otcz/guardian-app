@@ -54,8 +54,7 @@
         icon="pi pi-arrow-left"
         [text]="true"
         severity="secondary"
-        [routerLink]="['/gestion-de-secciones/listar-secciones']"
-        [queryParams]="{ id: orgId }"
+        (onClick)="volver()"
         pTooltip="Volver al listado"
         tooltipPosition="top"
       ></p-button>
@@ -309,13 +308,6 @@
           icon="pi pi-map-marker"
           [outlined]="true"
           (onClick)="listarLugares()"
-          class="quick-action-btn"
-        ></p-button>
-        <p-button
-          label="Ver Auditoría"
-          icon="pi pi-history"
-          [outlined]="true"
-          (onClick)="verAuditoria()"
           class="quick-action-btn"
         ></p-button>
       </div>

@@ -269,12 +269,6 @@ export class SeccionGestionarComponent implements OnInit, OnDestroy {
     return this.menu?.canAccessCode('SECTION_ASSIGN_ADMIN') || false;
   }
 
-  verAuditoria() {
-    if (!this.orgId) return;
-    this.router.navigate(['/auditoria-seccion'], {
-      queryParams: { id: this.orgId, seccionId: this.seccionId }
-    });
-  }
 
   volver() {
     this.router.navigate(['/gestion-de-secciones/listar-secciones'], {

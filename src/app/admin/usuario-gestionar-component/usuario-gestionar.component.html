@@ -1,4 +1,48 @@
-<div class="card" *ngIf="user && !loading; else loadingTpl">
+<div class="page-container">
+  <!-- Selector de Usuario (cuando no hay usuario seleccionado) -->
+  <div class="selector-card" *ngIf="showUsuarioSelector && !userId && !loadingUsuarios">
+    <p-card>
+      <div class="selector-header">
+        <i class="pi pi-search"></i>
+        <h2>Seleccionar Usuario para Gestionar</h2>
+      </div>
+
+      <div class="selector-body">
+        <label for="usuario-dropdown">Selecciona el usuario que deseas gestionar:</label>
+        <p-dropdown
+          id="usuario-dropdown"
+          [options]="usuarios"
+          [(ngModel)]="userId"
+          (onChange)="onUsuarioChange($event.value)"
+          optionLabel="nombreCompleto"
+          optionValue="id"
+          placeholder="Selecciona un usuario..."
+          [filter]="true"
+          filterBy="nombreCompleto,username,email"
+          [showClear]="false"
+          styleClass="w-full"
+          appendTo="body">
+          <ng-template let-usuario pTemplate="item">
+            <div class="dropdown-item">
+              <i class="pi pi-user"></i>
+              <div class="item-info">
+                <strong>{{ usuario.nombreCompleto || usuario.username }}</strong>
+                <span *ngIf="usuario.email">{{ usuario.email }}</span>
+              </div>
+            </div>
+          </ng-template>
+        </p-dropdown>
+
+        <div class="selector-info" *ngIf="usuarios.length > 0">
+          <i class="pi pi-info-circle"></i>
+          <span>{{ usuarios.length }} {{ usuarios.length === 1 ? 'usuario disponible' : 'usuarios disponibles' }}</span>
+        </div>
+      </div>
+    </p-card>
+  </div>
+
+  <!-- Contenido principal (cuando hay usuario seleccionado) -->
+<div class="card" *ngIf="user && !loading">
   <!-- Header -->
   <div class="card-header">
     <h2>
@@ -27,6 +71,7 @@
         [outlined]="true"
         [severity]="user.activo ? 'danger' : 'success'"
         (onClick)="toggleActive()"
+        *ngIf="!editing"
       ></p-button>
     </div>
   </div>
@@ -204,7 +249,7 @@
     </form>
   </div>
 
-  <!-- Vista solo lectura -->
+  <!-- Vista solo lectura (oculta durante edición) -->
   <div *ngIf="!editing" class="content-sections">
     <!-- Sección: Información Básica -->
     <div class="info-section">
@@ -435,47 +480,4 @@
     </div>
   </div>
 </div>
-
-<ng-template #loadingTpl>
-  <div class="card">
-    <div class="card-header">
-      <h2>
-        <i class="pi pi-user"></i>
-        Gestionar Usuario
-      </h2>
-    </div>
-
-    <div class="content-sections">
-      <div class="info-section">
-        <div class="section-header">
-          <p-skeleton width="200px" height="24px"></p-skeleton>
-        </div>
-        <div class="info-grid">
-          <p-skeleton width="100%" height="48px" [style]="{'margin-bottom': '1rem'}"></p-skeleton>
-          <p-skeleton width="100%" height="48px" [style]="{'margin-bottom': '1rem'}"></p-skeleton>
-          <p-skeleton width="100%" height="48px"></p-skeleton>
-        </div>
-      </div>
-
-      <div class="info-section">
-        <div class="section-header">
-          <p-skeleton width="220px" height="24px"></p-skeleton>
-        </div>
-        <div class="info-grid">
-          <p-skeleton width="100%" height="48px" [style]="{'margin-bottom': '1rem'}"></p-skeleton>
-          <p-skeleton width="100%" height="48px"></p-skeleton>
-        </div>
-      </div>
-
-      <div class="info-section">
-        <div class="section-header">
-          <p-skeleton width="220px" height="24px"></p-skeleton>
-        </div>
-        <div class="info-grid">
-          <p-skeleton width="100%" height="48px" [style]="{'margin-bottom': '1rem'}"></p-skeleton>
-          <p-skeleton width="100%" height="48px"></p-skeleton>
-        </div>
-      </div>
-    </div>
-  </div>
-</ng-template>
+</div>

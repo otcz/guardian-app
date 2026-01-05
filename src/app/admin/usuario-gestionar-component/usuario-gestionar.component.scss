@@ -1,11 +1,109 @@
 /* Gestionar Usuario - Estilos Modernos Consistentes */
 
+.page-container {
+  padding: 0;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Selector de Usuario */
+.selector-card {
+  margin: 2rem;
+
+  ::ng-deep .p-card {
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  .selector-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--primary);
+
+    i {
+      font-size: 2rem;
+      color: var(--primary);
+    }
+
+    h2 {
+      margin: 0;
+      color: var(--text);
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+  }
+
+  .selector-body {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+
+    label {
+      font-weight: 600;
+      color: var(--text);
+      font-size: 1rem;
+    }
+
+    .w-full {
+      width: 100%;
+    }
+
+    .dropdown-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+
+      i {
+        color: var(--primary);
+        font-size: 1.1rem;
+      }
+
+      .item-info {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+
+        strong {
+          color: var(--text);
+          font-size: 0.95rem;
+        }
+
+        span {
+          color: var(--muted);
+          font-size: 0.85rem;
+        }
+      }
+    }
+
+    .selector-info {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1rem;
+      background: rgba(79, 140, 255, 0.08);
+      border-left: 3px solid var(--primary);
+      border-radius: 6px;
+      color: var(--text);
+      font-size: 0.9rem;
+
+      i {
+        color: var(--primary);
+        font-size: 1.1rem;
+      }
+    }
+  }
+}
+
 .card {
   padding: 0;
   background: var(--surface);
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   overflow: hidden;
+  margin: 2rem;
 }
 
 /* Header del Card */
@@ -364,6 +462,29 @@
 /* Utilidades */
 .w-full {
   width: 100% !important;
+}
+
+/* Loading State */
+.loading-card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  margin: 2rem;
+
+  .loading-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    color: var(--muted);
+
+    p {
+      margin: 0;
+      font-size: 0.95rem;
+    }
+  }
 }
 
 /* Responsive */

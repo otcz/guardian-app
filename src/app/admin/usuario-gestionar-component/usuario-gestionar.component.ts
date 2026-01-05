@@ -33,13 +33,16 @@ export class UsuarioGestionarComponent implements OnInit {
   orgId: string | null = null;
   userId: string | null = null;
   user: UserEntity | null = null;
+  usuarios: UserEntity[] = []; // Lista de usuarios para el selector
   loading = true;
+  loadingUsuarios = false; // Loading para el selector
   editing = false;
   saving = false;
   draft: UpdateUserRequest = {};
   principalSeccionNombre: string | null = null;
   roles: UserRoleAssignment[] = [];
   rolesLoading = false;
+  showUsuarioSelector = true; // Mostrar selector si no hay usuario seleccionado
 
   // Opciones de tipo de identificación (REQ-001)
   tiposIdentificacion = [
@@ -93,11 +96,27 @@ export class UsuarioGestionarComponent implements OnInit {
 
   ngOnInit(): void {
     this.orgId = this.orgCtx.value;
-    if (!this.orgId) { this.notify.warn('Atención', 'Seleccione una organización'); this.router.navigate(['/listar-organizaciones']); return; }
+    if (!this.orgId) {
+      this.notify.warn('Atención', 'Seleccione una organización');
+      this.router.navigate(['/listar-organizaciones']);
+      return;
+    }
+
     this.route.queryParamMap.subscribe(qm => {
       const id = qm.get('id');
-      if (!id) { this.notify.warn('Atención', 'Seleccione un usuario'); this.router.navigate(['/gestion-de-usuarios/listar-usuarios']); return; }
-      this.userId = id; this.load();
+
+      if (!id) {
+        // No hay usuario seleccionado, mostrar selector
+        this.showUsuarioSelector = true;
+        this.userId = null;
+        this.loadUsuarios();
+        this.loading = false;
+      } else {
+        // Hay usuario seleccionado, cargar sus datos
+        this.showUsuarioSelector = false;
+        this.userId = id;
+        this.load();
+      }
     });
   }
 
@@ -164,6 +183,30 @@ export class UsuarioGestionarComponent implements OnInit {
         this.roles = this.roles.map(a => (a.rol && a.rol.nombre) ? a : ({ ...a, rol: map.get(String(a.rolId)) || a.rol }));
       },
       error: () => {}
+    });
+  }
+
+  loadUsuarios() {
+    if (!this.orgId) return;
+    this.loadingUsuarios = true;
+    this.users.list(this.orgId).subscribe({
+      next: (list) => {
+        this.usuarios = list;
+        this.loadingUsuarios = false;
+      },
+      error: (e) => {
+        this.notify.error('Error', e?.error?.message || 'No se pudo cargar los usuarios');
+        this.loadingUsuarios = false;
+      }
+    });
+  }
+
+  onUsuarioChange(usuarioId: string) {
+    if (!usuarioId) return;
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { id: usuarioId },
+      queryParamsHandling: 'merge'
     });
   }
 

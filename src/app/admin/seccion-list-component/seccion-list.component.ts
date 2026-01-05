@@ -343,13 +343,11 @@ export class SeccionListComponent implements OnInit, OnDestroy {
     const body: UpdateSeccionRequest = {
       nombre: (this.editDraft.nombre || '').trim(),
       descripcion: (this.editDraft.descripcion || '').trim() || null,
-      idSeccionPadre: this.editDraft.seccionPadreId ?? null,
       autonomiaConfigurada: !!this.editDraft.autonomiaConfigurada
     };
     const optimistic: Partial<SeccionEntity> = {
       nombre: body.nombre!,
       descripcion: (body.descripcion ?? undefined) as any,
-      seccionPadreId: body.idSeccionPadre ?? null,
       autonomiaConfigurada: body.autonomiaConfigurada
     };
     this.saving = true;

@@ -63,7 +63,7 @@
         label="Asignar Admin"
         [outlined]="true"
         (onClick)="gotoAssignAdmin()"
-        *ngIf="canAssignAdmin"
+        *ngIf="canAssignAdmin && !editing"
       ></p-button>
       <p-button
         icon="pi pi-pencil"
@@ -78,14 +78,15 @@
         [outlined]="true"
         [severity]="isSeccionActiva() ? 'danger' : 'success'"
         (onClick)="toggleActive()"
+        *ngIf="!editing"
       ></p-button>
     </div>
   </div>
 
   <!-- Contenido -->
   <div class="content-sections">
-    <!-- Sección Destacada de Información Principal -->
-    <div class="info-section-highlight">
+    <!-- Sección Destacada de Información Principal (oculta durante edición) -->
+    <div class="info-section-highlight" *ngIf="!editing">
       <div class="section-header-highlight">
         <i class="pi pi-th-large"></i>
         <span>Información de la Sección</span>
@@ -192,8 +193,8 @@
       </form>
     </div>
 
-    <!-- Información del Administrador -->
-    <div class="info-section" *ngIf="!loadingAdmin">
+    <!-- Información del Administrador (oculto durante edición) -->
+    <div class="info-section" *ngIf="!loadingAdmin && !editing">
       <div class="section-header">
         <i class="pi pi-user-edit"></i>
         <span>Administrador de la Sección</span>
@@ -295,8 +296,8 @@
       </ng-template>
     </div>
 
-    <!-- Acciones Rápidas -->
-    <div class="info-section">
+    <!-- Acciones Rápidas (oculto durante edición) -->
+    <div class="info-section" *ngIf="!editing">
       <div class="section-header">
         <i class="pi pi-bolt"></i>
         <span>Acciones Rápidas</span>

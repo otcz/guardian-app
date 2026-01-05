@@ -43,8 +43,6 @@ export interface CreateSeccionRequest {
 export interface UpdateSeccionRequest {
   nombre?: string;
   descripcion?: string | null;
-  idSeccionPadre?: string | null;
-  administradorPrincipal?: string | null;
   autonomiaConfigurada?: boolean;
 }
 

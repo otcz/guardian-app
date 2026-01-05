@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 import { CardModule } from 'primeng/card';
@@ -66,7 +66,8 @@ export class SeccionGestionarComponent implements OnInit, OnDestroy {
     private orgCtx: OrgContextService,
     private notify: NotificationService,
     private authService: AuthService,
-    private menu: MenuService
+    private menu: MenuService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -165,7 +166,6 @@ export class SeccionGestionarComponent implements OnInit, OnDestroy {
         this.loadingAdmin = false;
       },
       error: (e) => {
-        console.error('Error al cargar administrador:', e);
         this.currentAdmin = null;
         this.loadingAdmin = false;
       }
@@ -213,17 +213,54 @@ export class SeccionGestionarComponent implements OnInit, OnDestroy {
   save() {
     if (!this.orgId || !this.seccionId || !this.draft) return;
 
-    this.saving = true;
-    this.seccionService.update(this.orgId, this.seccionId, {
+    const requestBody = {
       nombre: this.draft.nombre,
       descripcion: this.draft.descripcion,
       autonomiaConfigurada: this.draft.autonomiaConfigurada
-    }).subscribe({
-      next: () => {
-        this.notify.success('Éxito', 'Sección actualizada correctamente');
+    };
+
+    this.saving = true;
+    this.seccionService.update(this.orgId, this.seccionId, requestBody).subscribe({
+      next: (res) => {
+        // Preservar información del administrador desde this.currentAdmin
+        // (this.seccion no tiene adminInfo porque el GET tampoco lo retorna)
+        const adminInfo = this.currentAdmin ? {
+          id: this.currentAdmin.id,
+          username: this.currentAdmin.username,
+          nombreCompleto: this.currentAdmin.nombreCompleto,
+          email: this.currentAdmin.email,
+          telefono: this.currentAdmin.telefono,
+          activo: this.currentAdmin.activo,
+          scopeNivel: this.currentAdmin.scopeNivel,
+          tipoIdentificacion: this.currentAdmin.tipoIdentificacion,
+          identificacion: this.currentAdmin.identificacion,
+          seccionId: this.currentAdmin.seccionId,
+          seccionNombre: this.currentAdmin.seccionNombre,
+          roles: this.currentAdmin.roles
+        } : undefined;
+
+        const adminId = this.currentAdmin?.id || null;
+        const adminNombre = this.currentAdmin?.nombreCompleto || null;
+
+        // Actualizar directamente con los datos retornados del servidor
+        if (this.seccion && res.seccion) {
+          // Usar Object.assign para actualizar sin crear nueva referencia
+          Object.assign(this.seccion, res.seccion, {
+            // Preservar explícitamente la info del admin desde currentAdmin
+            adminInfo: adminInfo,
+            adminId: adminId,
+            adminNombre: adminNombre
+          });
+        }
+
+        this.notify.success('Éxito', res.message || 'Sección actualizada correctamente');
         this.editing = false;
         this.saving = false;
-        this.load(); // Recargar datos
+
+        // Forzar detección de cambios de Angular para asegurar que la vista se actualice
+        this.cdr.detectChanges();
+
+        // No recargar todo - los datos ya están actualizados
       },
       error: (e) => {
         this.notify.error('Error', e?.error?.message || 'No se pudo actualizar la sección');
@@ -237,20 +274,14 @@ export class SeccionGestionarComponent implements OnInit, OnDestroy {
 
     const nuevoEstado = this.isSeccionActiva() ? 'INACTIVA' : 'ACTIVA';
 
-    // Como 'estado' no está en UpdateSeccionRequest, usamos el método toggle específico si existe
-    // o actualizamos solo los campos permitidos
-    this.seccionService.update(this.orgId, this.seccionId, {
-      nombre: this.seccion.nombre,
-      descripcion: this.seccion.descripcion,
-      autonomiaConfigurada: this.seccion.autonomiaConfigurada
-    }).subscribe({
-      next: () => {
-        // Actualizar estado localmente
-        if (this.seccion) {
-          this.seccion.estado = nuevoEstado;
+    // Usar el método específico changeState del servicio
+    this.seccionService.changeState(this.orgId, this.seccionId, nuevoEstado).subscribe({
+      next: (res) => {
+        // Actualizar con los datos del servidor
+        if (this.seccion && res.seccion) {
+          this.seccion = { ...this.seccion, ...res.seccion };
         }
-        this.notify.success('Éxito', `Sección ${nuevoEstado.toLowerCase()} correctamente`);
-        this.load(); // Recargar datos para sincronizar con el servidor
+        this.notify.success('Estado actualizado', res.message || `Sección ${nuevoEstado.toLowerCase()} correctamente`);
       },
       error: (e) => {
         this.notify.error('Error', e?.error?.message || 'No se pudo cambiar el estado');

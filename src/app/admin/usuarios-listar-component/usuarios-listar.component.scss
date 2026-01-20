@@ -52,6 +52,23 @@
       left: 0.75rem;
     }
   }
+
+  .role-filter-dropdown {
+    min-width: 200px;
+
+    ::ng-deep .p-dropdown {
+      height: 42px;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+
+      .p-dropdown-label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+    }
+  }
 }
 
 /* Información Estadística */

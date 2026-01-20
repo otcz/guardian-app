@@ -37,7 +37,7 @@
       <p-tabPanel header="Usuarios Dentro" leftIcon="pi pi-sign-in">
         <ng-template pTemplate="content">
 
-          <!-- Barra de búsqueda -->
+          <!-- Barra de búsqueda y filtros -->
           <div class="search-container">
             <p-iconField iconPosition="left" class="search-field">
               <p-inputIcon styleClass="pi pi-search" />
@@ -51,8 +51,30 @@
                 class="search-input"
               />
             </p-iconField>
+            <p-dropdown
+              [options]="guardiasDentro"
+              [(ngModel)]="filterGuardiaDentro"
+              (ngModelChange)="onGuardiaFilterDentro(tableDentro)"
+              placeholder="Filtrar por Guardia"
+              [showClear]="true"
+              [style]="{ 'min-width': '200px' }"
+              styleClass="guardia-filter-dropdown"
+            >
+              <ng-template pTemplate="selectedItem">
+                <span *ngIf="filterGuardiaDentro">
+                  <i class="pi pi-map-marker"></i>
+                  {{ filterGuardiaDentro }}
+                </span>
+              </ng-template>
+              <ng-template let-guardia pTemplate="item">
+                <span>
+                  <i class="pi pi-map-marker"></i>
+                  {{ guardia }}
+                </span>
+              </ng-template>
+            </p-dropdown>
             <p-button
-              *ngIf="searchValueDentro"
+              *ngIf="searchValueDentro || filterGuardiaDentro"
               icon="pi pi-times"
               (onClick)="clearFilter(tableDentro, 'dentro')"
               styleClass="p-button-text p-button-rounded"
@@ -68,25 +90,31 @@
             [rows]="20"
             [rowsPerPageOptions]="[10, 20, 50, 100]"
             [showCurrentPageReport]="true"
-            [globalFilterFields]="['nombreCompleto', 'identificacion', 'email', 'telefono', 'guardiaNombre', 'observaciones', 'seccionNombre']"
+            [globalFilterFields]="['nombreCompleto', 'identificacion', 'email', 'telefono', 'guardiaNombre', 'observaciones', 'seccionNombre', 'tiempoTranscurrido']"
             currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} usuario(s)"
             styleClass="p-datatable-gridlines p-datatable-sm"
             responsiveLayout="scroll"
             [rowHover]="true"
+            (sortFunction)="customSort($event)"
+            [customSort]="true"
           >
             <ng-template pTemplate="header">
               <tr>
                 <th pSortableColumn="nombreCompleto" style="min-width: 200px;">
                   Usuario <p-sortIcon field="nombreCompleto"></p-sortIcon>
                 </th>
-                <th style="min-width: 120px;">Teléfono</th>
+                <th pSortableColumn="telefono" style="min-width: 120px;">
+                  Teléfono <p-sortIcon field="telefono"></p-sortIcon>
+                </th>
                 <th pSortableColumn="guardiaNombre" style="min-width: 150px;">
                   Guardia <p-sortIcon field="guardiaNombre"></p-sortIcon>
                 </th>
                 <th pSortableColumn="fechaHoraMovimiento" style="min-width: 160px;">
                   Fecha/Hora Entrada <p-sortIcon field="fechaHoraMovimiento"></p-sortIcon>
                 </th>
-                <th style="min-width: 150px;">Tiempo Transcurrido</th>
+                <th pSortableColumn="tiempoTranscurridoMinutos" style="min-width: 150px;">
+                  Tiempo Transcurrido <p-sortIcon field="tiempoTranscurridoMinutos"></p-sortIcon>
+                </th>
                 <th style="min-width: 200px;">Observaciones</th>
                 <th style="width: 100px; text-align: center">Acción</th>
               </tr>
@@ -167,7 +195,7 @@
       <p-tabPanel header="Usuarios Fuera" leftIcon="pi pi-sign-out">
         <ng-template pTemplate="content">
 
-          <!-- Barra de búsqueda -->
+          <!-- Barra de búsqueda y filtros -->
           <div class="search-container">
             <p-iconField iconPosition="left" class="search-field">
               <p-inputIcon styleClass="pi pi-search" />
@@ -181,8 +209,30 @@
                 class="search-input"
               />
             </p-iconField>
+            <p-dropdown
+              [options]="guardiasFuera"
+              [(ngModel)]="filterGuardiaFuera"
+              (ngModelChange)="onGuardiaFilterFuera(tableFuera)"
+              placeholder="Filtrar por Guardia"
+              [showClear]="true"
+              [style]="{ 'min-width': '200px' }"
+              styleClass="guardia-filter-dropdown"
+            >
+              <ng-template pTemplate="selectedItem">
+                <span *ngIf="filterGuardiaFuera">
+                  <i class="pi pi-map-marker"></i>
+                  {{ filterGuardiaFuera }}
+                </span>
+              </ng-template>
+              <ng-template let-guardia pTemplate="item">
+                <span>
+                  <i class="pi pi-map-marker"></i>
+                  {{ guardia }}
+                </span>
+              </ng-template>
+            </p-dropdown>
             <p-button
-              *ngIf="searchValueFuera"
+              *ngIf="searchValueFuera || filterGuardiaFuera"
               icon="pi pi-times"
               (onClick)="clearFilter(tableFuera, 'fuera')"
               styleClass="p-button-text p-button-rounded"
@@ -198,25 +248,31 @@
             [rows]="20"
             [rowsPerPageOptions]="[10, 20, 50, 100]"
             [showCurrentPageReport]="true"
-            [globalFilterFields]="['nombreCompleto', 'identificacion', 'email', 'telefono', 'guardiaNombre', 'observaciones', 'seccionNombre']"
+            [globalFilterFields]="['nombreCompleto', 'identificacion', 'email', 'telefono', 'guardiaNombre', 'observaciones', 'seccionNombre', 'tiempoTranscurrido']"
             currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} usuario(s)"
             styleClass="p-datatable-gridlines p-datatable-sm"
             responsiveLayout="scroll"
             [rowHover]="true"
+            (sortFunction)="customSort($event)"
+            [customSort]="true"
           >
             <ng-template pTemplate="header">
               <tr>
                 <th pSortableColumn="nombreCompleto" style="min-width: 200px;">
                   Usuario <p-sortIcon field="nombreCompleto"></p-sortIcon>
                 </th>
-                <th style="min-width: 120px;">Teléfono</th>
+                <th pSortableColumn="telefono" style="min-width: 120px;">
+                  Teléfono <p-sortIcon field="telefono"></p-sortIcon>
+                </th>
                 <th pSortableColumn="guardiaNombre" style="min-width: 150px;">
                   Guardia <p-sortIcon field="guardiaNombre"></p-sortIcon>
                 </th>
                 <th pSortableColumn="fechaHoraMovimiento" style="min-width: 160px;">
                   Fecha/Hora Salida <p-sortIcon field="fechaHoraMovimiento"></p-sortIcon>
                 </th>
-                <th style="min-width: 150px;">Tiempo Transcurrido</th>
+                <th pSortableColumn="tiempoTranscurridoMinutos" style="min-width: 150px;">
+                  Tiempo Transcurrido <p-sortIcon field="tiempoTranscurridoMinutos"></p-sortIcon>
+                </th>
                 <th style="min-width: 200px;">Observaciones</th>
                 <th style="width: 100px; text-align: center">Acción</th>
               </tr>

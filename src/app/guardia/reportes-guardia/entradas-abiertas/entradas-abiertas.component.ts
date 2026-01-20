@@ -22,6 +22,7 @@ import { MovimientoGuardiaService } from '../../../service/movimiento-guardia.se
 // Modelos
 import { UsuarioDentroDTO } from '../../../models/guardia.models';
 import { LABELS } from '../../constants/mensajes.constants';
+import {DropdownModule} from 'primeng/dropdown';
 
 /**
  * Interface para representar el estado de un usuario en la UI
@@ -61,7 +62,8 @@ interface EstadoUsuario {
     DialogModule,
     InputTextModule,
     IconFieldModule,
-    InputIconModule
+    InputIconModule,
+    DropdownModule
   ],
   providers: [MessageService],
   templateUrl: './entradas-abiertas.component.html',
@@ -77,6 +79,14 @@ export class EntradasAbiertasComponent implements OnInit {
   // Filtros globales
   searchValueDentro: string = '';
   searchValueFuera: string = '';
+
+  // Filtros por guardia
+  filterGuardiaDentro: string = '';
+  filterGuardiaFuera: string = '';
+
+  // Listas de guardias únicas
+  guardiasDentro: string[] = [];
+  guardiasFuera: string[] = [];
 
   readonly LABELS = LABELS;
 
@@ -122,6 +132,7 @@ export class EntradasAbiertasComponent implements OnInit {
     this.movimientoService.getUsuariosDentro().subscribe({
       next: (usuarios) => {
         this.usuariosDentro = usuarios.map(u => this.mapearUsuarioDentro(u));
+        this.extractGuardiasDentro();
         finalizarCarga();
       },
       error: (error) => {
@@ -135,6 +146,7 @@ export class EntradasAbiertasComponent implements OnInit {
     this.movimientoService.getUsuariosFuera().subscribe({
       next: (usuarios) => {
         this.usuariosFuera = usuarios.map(u => this.mapearUsuarioFuera(u));
+        this.extractGuardiasFuera();
         finalizarCarga();
       },
       error: (error) => {
@@ -327,15 +339,110 @@ export class EntradasAbiertasComponent implements OnInit {
   }
 
   /**
+   * Extrae las guardias únicas de los usuarios dentro
+   */
+  private extractGuardiasDentro(): void {
+    const guardiasSet = new Set<string>();
+    this.usuariosDentro.forEach(u => {
+      if (u.guardiaNombre && u.guardiaNombre !== 'N/A') {
+        guardiasSet.add(u.guardiaNombre);
+      }
+    });
+    this.guardiasDentro = Array.from(guardiasSet).sort();
+  }
+
+  /**
+   * Extrae las guardias únicas de los usuarios fuera
+   */
+  private extractGuardiasFuera(): void {
+    const guardiasSet = new Set<string>();
+    this.usuariosFuera.forEach(u => {
+      if (u.guardiaNombre && u.guardiaNombre !== 'N/A') {
+        guardiasSet.add(u.guardiaNombre);
+      }
+    });
+    this.guardiasFuera = Array.from(guardiasSet).sort();
+  }
+
+  /**
    * Limpia el filtro de búsqueda
    */
   clearFilter(table: any, searchType: 'dentro' | 'fuera'): void {
     if (searchType === 'dentro') {
       this.searchValueDentro = '';
+      this.filterGuardiaDentro = '';
     } else {
       this.searchValueFuera = '';
+      this.filterGuardiaFuera = '';
     }
     table.clear();
+  }
+
+  /**
+   * Aplica el filtro por guardia
+   */
+  onGuardiaFilterDentro(table: any): void {
+    table.filter(this.filterGuardiaDentro, 'guardiaNombre', 'equals');
+  }
+
+  onGuardiaFilterFuera(table: any): void {
+    table.filter(this.filterGuardiaFuera, 'guardiaNombre', 'equals');
+  }
+
+  /**
+   * Ordenamiento personalizado para la columna Tiempo Transcurrido
+   * Convierte el formato "Xd Xh Xm" a minutos totales para comparación
+   */
+  customSort(event: any) {
+    if (event.field === 'tiempoTranscurridoMinutos') {
+      event.data.sort((data1: EstadoUsuario, data2: EstadoUsuario) => {
+        const value1 = this.convertirTiempoAMinutos(data1.tiempoTranscurrido);
+        const value2 = this.convertirTiempoAMinutos(data2.tiempoTranscurrido);
+
+        let result = null;
+
+        if (value1 == null && value2 != null) {
+          result = -1;
+        } else if (value1 != null && value2 == null) {
+          result = 1;
+        } else if (value1 == null && value2 == null) {
+          result = 0;
+        } else {
+          result = (value1 < value2) ? -1 : (value1 > value2) ? 1 : 0;
+        }
+
+        return (event.order * result);
+      });
+    }
+  }
+
+  /**
+   * Convierte el tiempo transcurrido en formato "Xd Xh Xm" a minutos totales
+   */
+  private convertirTiempoAMinutos(tiempoStr: string): number {
+    if (!tiempoStr || tiempoStr === '-') return 0;
+
+    let totalMinutos = 0;
+
+    // Extraer días (Xd)
+    const diasMatch = tiempoStr.match(/(\d+)d/);
+    if (diasMatch) {
+      totalMinutos += parseInt(diasMatch[1]) * 24 * 60;
+    }
+
+    // Extraer horas (Xh)
+    const horasMatch = tiempoStr.match(/(\d+)h/);
+    if (horasMatch) {
+      totalMinutos += parseInt(horasMatch[1]) * 60;
+    }
+
+    // Extraer minutos (Xm)
+    const minutosMatch = tiempoStr.match(/(\d+)m/);
+    if (minutosMatch) {
+      totalMinutos += parseInt(minutosMatch[1]);
+    }
+
+    return totalMinutos;
   }
 }
 

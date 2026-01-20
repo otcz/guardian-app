@@ -16,6 +16,28 @@
           (ngModelChange)="applyFilter()"
         />
       </span>
+      <p-dropdown
+        [options]="availableRoles"
+        [(ngModel)]="filterRole"
+        (ngModelChange)="applyFilter()"
+        placeholder="Filtrar por rol"
+        [showClear]="true"
+        [style]="{ 'min-width': '200px' }"
+        styleClass="role-filter-dropdown"
+      >
+        <ng-template pTemplate="selectedItem">
+          <span *ngIf="filterRole">
+            <i class="pi pi-shield"></i>
+            {{ filterRole }}
+          </span>
+        </ng-template>
+        <ng-template let-role pTemplate="item">
+          <span>
+            <i class="pi pi-shield"></i>
+            {{ role }}
+          </span>
+        </ng-template>
+      </p-dropdown>
     </div>
   </div>
 
@@ -39,6 +61,8 @@
     currentPageReportTemplate="Mostrando {first}-{last} de {totalRecords} usuarios"
     styleClass="p-datatable-striped"
     responsiveLayout="scroll"
+    (sortFunction)="customSort($event)"
+    [customSort]="true"
   >
 
     <ng-template pTemplate="header">
@@ -57,11 +81,12 @@
           </div>
           <p-sortIcon field="orgNombre"></p-sortIcon>
         </th>
-        <th style="min-width: 180px">
+        <th pSortableColumn="primaryRole" style="min-width: 180px">
           <div class="th-content">
             <i class="pi pi-shield"></i>
             <span>Roles</span>
           </div>
+          <p-sortIcon field="primaryRole"></p-sortIcon>
         </th>
         <th pSortableColumn="identificacion" style="min-width: 160px">
           <div class="th-content">

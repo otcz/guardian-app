@@ -23,6 +23,7 @@ import { RoleLabelPipe } from '../../shared/pipes/role-label.pipe';
 import { RoleSeverityPipe } from '../../shared/pipes/role-severity.pipe';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
 import { RolesService } from '../../service/roles.service';
+import { DropdownModule } from 'primeng/dropdown';
 
 /**
  * Componente de Listado de Usuarios
@@ -50,7 +51,7 @@ import { RolesService } from '../../service/roles.service';
 @Component({
   selector: 'app-usuarios-listar',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, CardModule, InputTextModule, ButtonModule, TableModule, TagModule, TooltipModule, AvatarModule, ChipModule, OverlayPanelModule, RoleLabelPipe, RoleSeverityPipe],
+  imports: [CommonModule, FormsModule, RouterModule, CardModule, InputTextModule, ButtonModule, TableModule, TagModule, TooltipModule, AvatarModule, ChipModule, OverlayPanelModule, RoleLabelPipe, RoleSeverityPipe, DropdownModule],
   templateUrl: './usuarios-listar.component.html',
   styleUrls: ['./usuarios-listar.component.scss']
 })
@@ -60,8 +61,10 @@ export class UsuariosListarComponent implements OnInit {
   usuarios: UserEntity[] = [];
   filtered: UserEntity[] = [];
   filter = '';
+  filterRole = ''; // Filtro por rol
   secciones: SeccionEntity[] = [];
   orgName: string | null = null;
+  availableRoles: string[] = []; // Lista de roles únicos disponibles
 
   // Paginación adaptable
   pageSize = 10;
@@ -310,8 +313,29 @@ export class UsuariosListarComponent implements OnInit {
 
   applyFilter() {
     const f = (this.filter || '').trim().toLowerCase();
-    if (!f) { this.filtered = [...this.usuarios]; this.first = 0; this.deferAdjustToViewport(); return; }
-    this.filtered = this.usuarios.filter(u => [u.username, u.nombreCompleto, u.email, u.scopeNivel].some(v => (v || '').toString().toLowerCase().includes(f)));
+    const roleFilter = (this.filterRole || '').trim().toLowerCase();
+
+    if (!f && !roleFilter) {
+      this.filtered = [...this.usuarios];
+      this.first = 0;
+      this.deferAdjustToViewport();
+      return;
+    }
+
+    this.filtered = this.usuarios.filter(u => {
+      // Filtro de texto (username, nombre, email, etc.)
+      const textMatch = !f || [u.username, u.nombreCompleto, u.email, u.scopeNivel].some(v => (v || '').toString().toLowerCase().includes(f));
+
+      // Filtro de rol
+      let roleMatch = true;
+      if (roleFilter) {
+        const userRoles = this.rolesFor(u);
+        roleMatch = userRoles.some(role => role.toLowerCase().includes(roleFilter));
+      }
+
+      return textMatch && roleMatch;
+    });
+
     this.first = 0;
     this.deferAdjustToViewport();
   }
@@ -413,6 +437,7 @@ export class UsuariosListarComponent implements OnInit {
     });
 
     if (usersWithoutRoles.length === 0) {
+      this.extractAvailableRoles();
       return;
     }
 
@@ -437,11 +462,29 @@ export class UsuariosListarComponent implements OnInit {
 
         this.usuarios = [...this.usuarios];
         this.applyFilter();
+        this.extractAvailableRoles();
       },
       error: err => {
         console.error('[UsuariosListar] Error cargando roles faltantes:', err);
+        this.extractAvailableRoles();
       }
     });
+  }
+
+  /**
+   * Extrae los roles únicos disponibles de todos los usuarios
+   */
+  private extractAvailableRoles() {
+    const rolesSet = new Set<string>();
+    this.usuarios.forEach(u => {
+      const roles = this.rolesFor(u);
+      roles.forEach(role => {
+        if (role && role.trim()) {
+          rolesSet.add(role.trim());
+        }
+      });
+    });
+    this.availableRoles = Array.from(rolesSet).sort();
   }
 
   rolesFor(u: UserEntity): string[] {
@@ -471,6 +514,38 @@ export class UsuariosListarComponent implements OnInit {
       }
     });
     return out;
+  }
+
+  /**
+   * Función de ordenamiento personalizado para la columna de roles
+   * Retorna el primer rol del usuario para ordenamiento
+   */
+  customSort(event: any) {
+    if (event.field === 'primaryRole') {
+      event.data.sort((data1: UserEntity, data2: UserEntity) => {
+        const roles1 = this.rolesFor(data1);
+        const roles2 = this.rolesFor(data2);
+
+        const value1 = roles1.length > 0 ? roles1[0].toLowerCase() : '';
+        const value2 = roles2.length > 0 ? roles2[0].toLowerCase() : '';
+
+        let result = null;
+
+        if (value1 == null && value2 != null) {
+          result = -1;
+        } else if (value1 != null && value2 == null) {
+          result = 1;
+        } else if (value1 == null && value2 == null) {
+          result = 0;
+        } else if (typeof value1 === 'string' && typeof value2 === 'string') {
+          result = value1.localeCompare(value2);
+        } else {
+          result = (value1 < value2) ? -1 : (value1 > value2) ? 1 : 0;
+        }
+
+        return (event.order * result);
+      });
+    }
   }
 }
 

@@ -1,8 +1,9 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TableModule } from 'primeng/table';
+import { Table } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { TagModule } from 'primeng/tag';
@@ -15,15 +16,20 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { AuthService } from '../../service/auth.service';
 import { CardModule } from 'primeng/card';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
+import { DropdownModule } from 'primeng/dropdown';
 
 @Component({
   selector: 'app-roles-list',
   standalone: true,
-  imports: [CommonModule, RouterModule, TableModule, ButtonModule, InputTextModule, TagModule, FormsModule, TooltipModule, InputSwitchModule, ConfirmDialogModule, CardModule],
+  imports: [CommonModule, RouterModule, TableModule, ButtonModule, InputTextModule, TagModule, FormsModule, TooltipModule, InputSwitchModule, ConfirmDialogModule, CardModule, IconFieldModule, InputIconModule, DropdownModule],
   templateUrl: './roles-list.component.html',
   styleUrls: ['./roles-list.component.scss']
 })
 export class RolesListComponent implements OnInit, OnDestroy {
+  @ViewChild('tableRoles') tableRoles!: Table;
+
   orgId: string | null = null;
   loading = false;
   saving = false;
@@ -32,6 +38,8 @@ export class RolesListComponent implements OnInit, OnDestroy {
   items: RoleEntity[] = [];
   filtered: RoleEntity[] = [];
   filter = '';
+  filterRol: string = ''; // Filtro por rol específico
+  availableRoles: string[] = []; // Lista de nombres de roles
 
   adding = false;
   newDraft: RoleEntity = this.blank();
@@ -93,6 +101,7 @@ export class RolesListComponent implements OnInit, OnDestroy {
               propio: r.orgId === this.orgId,
               heredado: r.orgId !== this.orgId
             }));
+          this.extractAvailableRoles();
           this.applyFilter();
           this.loading = false;
         },
@@ -101,10 +110,63 @@ export class RolesListComponent implements OnInit, OnDestroy {
     });
   }
 
+  /**
+   * Extrae los nombres únicos de roles disponibles
+   */
+  private extractAvailableRoles(): void {
+    const rolesSet = new Set<string>();
+    this.items.forEach(r => {
+      if (r.nombre && r.nombre.trim()) {
+        rolesSet.add(r.nombre.trim());
+      }
+    });
+    this.availableRoles = Array.from(rolesSet).sort();
+  }
+
   applyFilter() {
     const f = (this.filter || '').trim().toLowerCase();
-    if (!f) { this.filtered = [...this.items]; return; }
-    this.filtered = this.items.filter(s => (s.nombre || '').toLowerCase().includes(f) || (s.descripcion || '').toLowerCase().includes(f));
+    const rolFilter = (this.filterRol || '').trim().toLowerCase();
+
+    if (!f && !rolFilter) {
+      this.filtered = [...this.items];
+      return;
+    }
+
+    this.filtered = this.items.filter(s => {
+      // Filtro de texto global
+      const textMatch = !f ||
+        (s.nombre || '').toLowerCase().includes(f) ||
+        (s.descripcion || '').toLowerCase().includes(f);
+
+      // Filtro por rol específico
+      const rolMatch = !rolFilter || (s.nombre || '').toLowerCase() === rolFilter;
+
+      return textMatch && rolMatch;
+    });
+  }
+
+  /**
+   * Filtro global para tabla de roles
+   */
+  onGlobalFilter(table: any, event: Event): void {
+    const inputElement = event.target as HTMLInputElement;
+    table.filterGlobal(inputElement.value, 'contains');
+  }
+
+  /**
+   * Limpia el filtro de búsqueda
+   */
+  clearFilter(table: any): void {
+    this.filter = '';
+    this.filterRol = '';
+    table.clear();
+  }
+
+  /**
+   * Aplica el filtro por rol específico
+   */
+  onRolFilter(table: any): void {
+    this.applyFilter();
   }
 
   // Add

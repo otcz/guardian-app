@@ -16,32 +16,57 @@
         <h3 class="section-title">Listado de Roles</h3>
       </div>
       <div class="toolbar-right">
-        <!-- Buscador -->
-        <div class="control-container search-container">
-          <label class="control-label">
-            <i class="pi pi-search"></i>
-            Buscar:
-          </label>
-          <input
-            pInputText
-            type="text"
-            placeholder="Filtrar por nombre o descripción..."
-            [(ngModel)]="filter"
-            (ngModelChange)="applyFilter()"
-            class="search-input"
-          />
+        <!-- Barra de búsqueda moderna -->
+        <div class="search-container-modern">
+          <p-iconField iconPosition="left">
+            <p-inputIcon styleClass="pi pi-search" />
+            <input
+              pInputText
+              type="text"
+              placeholder="Buscar por nombre o descripción..."
+              [(ngModel)]="filter"
+              (input)="onGlobalFilter(tableRoles, $event)"
+              class="search-input-modern"
+              style="padding-left: 2.5rem;"
+            />
+          </p-iconField>
+          <button
+            *ngIf="filter"
+            pButton
+            type="button"
+            icon="pi pi-times"
+            class="p-button-text p-button-rounded"
+            (click)="clearFilter(tableRoles)"
+            pTooltip="Limpiar búsqueda"
+            tooltipPosition="top"
+          ></button>
         </div>
 
+        <!-- Filtro por rol -->
+        <p-dropdown
+          [options]="availableRoles"
+          [(ngModel)]="filterRol"
+          (ngModelChange)="onRolFilter(tableRoles)"
+          placeholder="Filtrar por Rol"
+          [showClear]="true"
+          [style]="{ 'min-width': '200px' }"
+          styleClass="rol-filter-dropdown"
+        >
+          <ng-template pTemplate="selectedItem">
+            <span *ngIf="filterRol">
+              <i class="pi pi-shield"></i>
+              {{ filterRol }}
+            </span>
+          </ng-template>
+          <ng-template let-rol pTemplate="item">
+            <span>
+              <i class="pi pi-shield"></i>
+              {{ rol }}
+            </span>
+          </ng-template>
+        </p-dropdown>
+
         <!-- Botones de acción -->
-        <button
-          pButton
-          type="button"
-          label="Nuevo Rol"
-          icon="pi pi-plus"
-          class="p-button-success"
-          (click)="startAdd()"
-          [disabled]="adding || !!editingId">
-        </button>
         <button
           pButton
           type="button"
@@ -103,38 +128,50 @@
     <!-- Tabla moderna -->
     <div class="table-container" *ngIf="rows.length>0">
       <p-table
+        #tableRoles
         [value]="rows"
         [loading]="loading"
         styleClass="modern-table"
-        responsiveLayout="scroll">
+        responsiveLayout="scroll"
+        [paginator]="true"
+        [rows]="10"
+        [rowsPerPageOptions]="[10, 25, 50]"
+        [showCurrentPageReport]="true"
+        currentPageReportTemplate="Mostrando {first}-{last} de {totalRecords} roles"
+        [globalFilterFields]="['nombre', 'descripcion', 'estado']"
+      >
         <ng-template pTemplate="header">
           <tr>
             <th style="width: 60px">
               <i class="pi pi-hashtag"></i>
             </th>
-            <th>
+            <th pSortableColumn="nombre">
               <div class="th-content">
                 <i class="pi pi-shield"></i>
                 <span>Nombre del Rol</span>
               </div>
+              <p-sortIcon field="nombre"></p-sortIcon>
             </th>
-            <th>
+            <th pSortableColumn="descripcion">
               <div class="th-content">
                 <i class="pi pi-info-circle"></i>
                 <span>Descripción</span>
               </div>
+              <p-sortIcon field="descripcion"></p-sortIcon>
             </th>
-            <th style="width: 130px">
+            <th pSortableColumn="activo" style="width: 130px">
               <div class="th-content">
                 <i class="pi pi-power-off"></i>
                 <span>Estado</span>
               </div>
+              <p-sortIcon field="activo"></p-sortIcon>
             </th>
-            <th style="width: 150px">
+            <th pSortableColumn="visibleParaHijos" style="width: 150px">
               <div class="th-content">
                 <i class="pi pi-eye"></i>
                 <span>Visible Hijos</span>
               </div>
+              <p-sortIcon field="visibleParaHijos"></p-sortIcon>
             </th>
             <th style="width: 240px">
               <div class="th-content">

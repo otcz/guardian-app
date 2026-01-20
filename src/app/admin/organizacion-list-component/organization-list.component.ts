@@ -35,6 +35,8 @@ export class OrganizationListComponent implements OnInit {
   orgs: Organization[] = [];
   filtered: Organization[] = [];
   filter = '';
+  filterOrganizacion: string = ''; // Filtro por organización específica
+  availableOrganizaciones: string[] = []; // Lista de nombres de organizaciones
   error: string | null = null;
   private returnUrl: string | null = null;
 
@@ -80,6 +82,7 @@ export class OrganizationListComponent implements OnInit {
     this.orgService.list().subscribe({
       next: (data) => {
         this.orgs = data || [];
+        this.extractAvailableOrganizaciones();
         this.applyFilter();
         this.loading = false;
         if (!silent) {
@@ -96,13 +99,37 @@ export class OrganizationListComponent implements OnInit {
     });
   }
 
+  /**
+   * Extrae los nombres únicos de organizaciones disponibles
+   */
+  private extractAvailableOrganizaciones(): void {
+    const orgSet = new Set<string>();
+    this.orgs.forEach(o => {
+      if (o.nombre && o.nombre.trim()) {
+        orgSet.add(o.nombre.trim());
+      }
+    });
+    this.availableOrganizaciones = Array.from(orgSet).sort();
+  }
+
   applyFilter() {
     const f = (this.filter || '').trim().toLowerCase();
-    if (!f) {
+    const orgFilter = (this.filterOrganizacion || '').trim().toLowerCase();
+
+    if (!f && !orgFilter) {
       this.filtered = [...this.orgs];
       return;
     }
-    this.filtered = this.orgs.filter(o => (o.nombre || '').toLowerCase().includes(f));
+
+    this.filtered = this.orgs.filter(o => {
+      // Filtro de texto global
+      const textMatch = !f || (o.nombre || '').toLowerCase().includes(f);
+
+      // Filtro por organización específica
+      const orgMatch = !orgFilter || (o.nombre || '').toLowerCase() === orgFilter;
+
+      return textMatch && orgMatch;
+    });
   }
 
   /**
@@ -118,7 +145,15 @@ export class OrganizationListComponent implements OnInit {
    */
   clearFilter(table: any): void {
     this.filter = '';
+    this.filterOrganizacion = '';
     table.clear();
+  }
+
+  /**
+   * Aplica el filtro por organización específica
+   */
+  onOrganizacionFilter(table: any): void {
+    this.applyFilter();
   }
 
   // ====== Inline Add / Edit ======

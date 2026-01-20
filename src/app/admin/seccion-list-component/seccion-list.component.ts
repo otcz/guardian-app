@@ -1,8 +1,9 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {ActivatedRoute, Router, RouterModule} from '@angular/router';
 import {FormsModule} from '@angular/forms';
 import {TableModule} from 'primeng/table';
+import {Table} from 'primeng/table';
 import {ButtonModule} from 'primeng/button';
 import {InputTextModule} from 'primeng/inputtext';
 import {TagModule} from 'primeng/tag';
@@ -19,6 +20,9 @@ import { MenuService } from '../../service/menu.service';
 import { CardModule } from 'primeng/card';
 import { AvatarModule } from 'primeng/avatar';
 import { ChipModule } from 'primeng/chip';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
+import { DropdownModule } from 'primeng/dropdown';
 
 @Component({
   selector: 'app-seccion-list',
@@ -37,12 +41,17 @@ import { ChipModule } from 'primeng/chip';
     SeccionUsuariosComponent,
     CardModule,
     AvatarModule,
-    ChipModule
+    ChipModule,
+    IconFieldModule,
+    InputIconModule,
+    DropdownModule
   ],
   templateUrl: './seccion-list.component.html',
   styleUrls: ['./seccion-list.component.scss']
 })
 export class SeccionListComponent implements OnInit, OnDestroy {
+  @ViewChild('tableSecciones') tableSecciones!: Table;
+
   orgId: string | null = null;
   orgName: string | null = null;
   loading = false;
@@ -52,6 +61,8 @@ export class SeccionListComponent implements OnInit, OnDestroy {
   items: SeccionEntity[] = [];
   filtered: SeccionEntity[] = [];
   filter = '';
+  filterSeccion: string = ''; // Filtro por sección específica
+  availableSecciones: string[] = []; // Lista de nombres de secciones
 
   // Filtros por columna
   filterNombre = '';
@@ -118,6 +129,7 @@ export class SeccionListComponent implements OnInit, OnDestroy {
     this.svc.list(this.orgId).subscribe({
       next: (data) => {
         this.items = data || [];
+        this.extractAvailableSecciones();
         this.applyFilter();
         this.loading = false;
         // Cargar información completa de administradores
@@ -128,6 +140,19 @@ export class SeccionListComponent implements OnInit, OnDestroy {
         this.loading = false;
       }
     });
+  }
+
+  /**
+   * Extrae los nombres únicos de secciones disponibles
+   */
+  private extractAvailableSecciones(): void {
+    const seccionSet = new Set<string>();
+    this.items.forEach(s => {
+      if (s.nombre && s.nombre.trim()) {
+        seccionSet.add(s.nombre.trim());
+      }
+    });
+    this.availableSecciones = Array.from(seccionSet).sort();
   }
 
   /**
@@ -187,11 +212,48 @@ export class SeccionListComponent implements OnInit, OnDestroy {
 
   applyFilter() {
     const f = (this.filter || '').trim().toLowerCase();
-    if (!f) {
+    const seccionFilter = (this.filterSeccion || '').trim().toLowerCase();
+
+    if (!f && !seccionFilter) {
       this.filtered = [...this.items];
       return;
     }
-    this.filtered = this.items.filter(s => (s.nombre || '').toLowerCase().includes(f) || (s.descripcion || '').toLowerCase().includes(f));
+
+    this.filtered = this.items.filter(s => {
+      // Filtro de texto global
+      const textMatch = !f ||
+        (s.nombre || '').toLowerCase().includes(f) ||
+        (s.descripcion || '').toLowerCase().includes(f);
+
+      // Filtro por sección específica
+      const seccionMatch = !seccionFilter || (s.nombre || '').toLowerCase() === seccionFilter;
+
+      return textMatch && seccionMatch;
+    });
+  }
+
+  /**
+   * Filtro global para tabla de secciones
+   */
+  onGlobalFilter(table: any, event: Event): void {
+    const inputElement = event.target as HTMLInputElement;
+    table.filterGlobal(inputElement.value, 'contains');
+  }
+
+  /**
+   * Limpia el filtro de búsqueda
+   */
+  clearFilter(table: any): void {
+    this.filter = '';
+    this.filterSeccion = '';
+    table.clear();
+  }
+
+  /**
+   * Aplica el filtro por sección específica
+   */
+  onSeccionFilter(table: any): void {
+    this.applyFilter();
   }
 
   applyColumnFilters() {

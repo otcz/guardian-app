@@ -24,34 +24,57 @@
         <h3 class="section-title">Listado de Secciones</h3>
       </div>
       <div class="toolbar-right">
-        <!-- Buscador -->
-        <div class="control-container search-container">
-          <label class="control-label">
-            <i class="pi pi-search"></i>
-            Buscar:
-          </label>
-          <input
-            pInputText
-            type="text"
-            placeholder="Filtrar por nombre o descripción..."
-            [(ngModel)]="filter"
-            (ngModelChange)="applyFilter()"
-            class="search-input"
-          />
+        <!-- Barra de búsqueda moderna -->
+        <div class="search-container-modern">
+          <p-iconField iconPosition="left">
+            <p-inputIcon styleClass="pi pi-search" />
+            <input
+              pInputText
+              type="text"
+              placeholder="Buscar por nombre, descripción o administrador..."
+              [(ngModel)]="filter"
+              (input)="onGlobalFilter(tableSecciones, $event)"
+              class="search-input-modern"
+              style="padding-left: 2.5rem;"
+            />
+          </p-iconField>
+          <button
+            *ngIf="filter"
+            pButton
+            type="button"
+            icon="pi pi-times"
+            class="p-button-text p-button-rounded"
+            (click)="clearFilter(tableSecciones)"
+            pTooltip="Limpiar búsqueda"
+            tooltipPosition="top"
+          ></button>
         </div>
 
+        <!-- Filtro por sección -->
+        <p-dropdown
+          [options]="availableSecciones"
+          [(ngModel)]="filterSeccion"
+          (ngModelChange)="onSeccionFilter(tableSecciones)"
+          placeholder="Filtrar por Sección"
+          [showClear]="true"
+          [style]="{ 'min-width': '200px' }"
+          styleClass="seccion-filter-dropdown"
+        >
+          <ng-template pTemplate="selectedItem">
+            <span *ngIf="filterSeccion">
+              <i class="pi pi-th-large"></i>
+              {{ filterSeccion }}
+            </span>
+          </ng-template>
+          <ng-template let-seccion pTemplate="item">
+            <span>
+              <i class="pi pi-th-large"></i>
+              {{ seccion }}
+            </span>
+          </ng-template>
+        </p-dropdown>
+
         <!-- Botones de acción -->
-        <button
-          pButton
-          type="button"
-          icon="pi pi-user-edit"
-          label="Cargar Admins"
-          class="p-button-help p-button-text"
-          (click)="loadAdminDetails()"
-          [disabled]="loading"
-          pTooltip="Cargar información de administradores"
-          tooltipPosition="top">
-        </button>
         <button
           pButton
           type="button"
@@ -88,6 +111,7 @@
     <!-- Tabla de Secciones -->
     <p-table
       *ngIf="!adding"
+      #tableSecciones
       [value]="filtered"
       [loading]="loading"
       [paginator]="true"
@@ -96,7 +120,9 @@
       [showCurrentPageReport]="true"
       currentPageReportTemplate="Mostrando {first}-{last} de {totalRecords} secciones"
       styleClass="p-datatable-striped"
-      responsiveLayout="scroll">
+      responsiveLayout="scroll"
+      [globalFilterFields]="['nombre', 'descripcion', 'adminNombre', 'adminInfo.nombreCompleto', 'adminInfo.username', 'estado']"
+    >
       <ng-template pTemplate="header">
         <tr>
           <th pSortableColumn="nombre" style="min-width: 200px">

@@ -18,8 +18,8 @@
       <div class="toolbar-right">
         <!-- Barra de búsqueda moderna -->
         <div class="search-container-modern">
-          <span class="p-input-icon-left">
-            <i class="pi pi-search"></i>
+          <p-iconField iconPosition="left">
+            <p-inputIcon styleClass="pi pi-search" />
             <input
               pInputText
               type="text"
@@ -27,8 +27,9 @@
               [(ngModel)]="filter"
               (input)="onGlobalFilter(tableOrg, $event)"
               class="search-input-modern"
+              style="padding-left: 2.5rem;"
             />
-          </span>
+          </p-iconField>
           <button
             *ngIf="filter"
             pButton
@@ -42,16 +43,6 @@
         </div>
 
         <!-- Botones de acción -->
-        <button
-          *ngIf="isSysadmin"
-          pButton
-          type="button"
-          label="Nueva Organización"
-          icon="pi pi-plus"
-          class="p-button-success"
-          (click)="startAdd()"
-          [disabled]="adding || !!editingId">
-        </button>
         <button
           pButton
           type="button"

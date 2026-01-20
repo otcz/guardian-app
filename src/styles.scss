@@ -87,6 +87,120 @@ a:hover { text-decoration: underline; }
 /* Elevación en hover para tarjetas */
 .card:hover { box-shadow: 0 14px 32px rgba(0,0,0,0.12), 0 4px 14px rgba(79,140,255,0.10); }
 
+/* ========================================
+   CARD HEADER - Adaptación a Temas
+   ======================================== */
+
+/* === Card Header en Tema Claro === */
+:root.theme-light .card-header,
+:root.theme-light .p-card-header {
+  background: linear-gradient(135deg, var(--primary) 0%, color-mix(in srgb, var(--primary) 80%, #000) 100%) !important;
+  color: #ffffff !important;
+  padding: 1.5rem 2rem;
+  border-radius: 12px 12px 0 0;
+  border-bottom: 2px solid var(--border);
+}
+
+:root.theme-light .card-header h1,
+:root.theme-light .card-header h2,
+:root.theme-light .card-header h3,
+:root.theme-light .card-header h4,
+:root.theme-light .p-card-header h1,
+:root.theme-light .p-card-header h2,
+:root.theme-light .p-card-header h3,
+:root.theme-light .p-card-header h4 {
+  color: #ffffff !important;
+  margin: 0;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+:root.theme-light .card-header p,
+:root.theme-light .card-header span,
+:root.theme-light .p-card-header p,
+:root.theme-light .p-card-header span {
+  color: rgba(255, 255, 255, 0.95) !important;
+}
+
+:root.theme-light .card-header i,
+:root.theme-light .p-card-header i {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* === Card Header en Temas Oscuros (Dark y Black) === */
+:root.theme-dark .card-header,
+:root.theme-dark .p-card-header,
+:root.theme-black .card-header,
+:root.theme-black .p-card-header {
+  background: linear-gradient(135deg, var(--primary) 0%, color-mix(in srgb, var(--primary) 70%, #000) 100%) !important;
+  color: var(--text) !important;
+  padding: 1.5rem 2rem;
+  border-radius: 12px 12px 0 0;
+  border-bottom: 2px solid var(--border);
+}
+
+:root.theme-dark .card-header h1,
+:root.theme-dark .card-header h2,
+:root.theme-dark .card-header h3,
+:root.theme-dark .card-header h4,
+:root.theme-dark .p-card-header h1,
+:root.theme-dark .p-card-header h2,
+:root.theme-dark .p-card-header h3,
+:root.theme-dark .p-card-header h4,
+:root.theme-black .card-header h1,
+:root.theme-black .card-header h2,
+:root.theme-black .card-header h3,
+:root.theme-black .card-header h4,
+:root.theme-black .p-card-header h1,
+:root.theme-black .p-card-header h2,
+:root.theme-black .p-card-header h3,
+:root.theme-black .p-card-header h4 {
+  color: #ffffff !important;
+  margin: 0;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+}
+
+:root.theme-dark .card-header p,
+:root.theme-dark .card-header span,
+:root.theme-dark .p-card-header p,
+:root.theme-dark .p-card-header span,
+:root.theme-black .card-header p,
+:root.theme-black .card-header span,
+:root.theme-black .p-card-header p,
+:root.theme-black .p-card-header span {
+  color: rgba(255, 255, 255, 0.95) !important;
+}
+
+:root.theme-dark .card-header i,
+:root.theme-dark .p-card-header i,
+:root.theme-black .card-header i,
+:root.theme-black .p-card-header i {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* === Contenido interno del card-header === */
+:root.theme-light .card-header .header-content,
+:root.theme-light .p-card-header .header-content,
+:root.theme-dark .card-header .header-content,
+:root.theme-dark .p-card-header .header-content,
+:root.theme-black .card-header .header-content,
+:root.theme-black .p-card-header .header-content {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+:root.theme-light .card-header .header-icon,
+:root.theme-light .p-card-header .header-icon,
+:root.theme-dark .card-header .header-icon,
+:root.theme-dark .p-card-header .header-icon,
+:root.theme-black .card-header .header-icon,
+:root.theme-black .p-card-header .header-icon {
+  font-size: 2rem;
+  opacity: 0.9;
+}
+
+/* === Fin estilos de Card Header === */
+
 /* Botones PrimeNG override básico */
 .p-button { border: none; border-radius: 10px; }
 .p-button.p-button-primary { background: linear-gradient(90deg, var(--primary) 60%, var(--secondary) 100%); }
@@ -454,14 +568,32 @@ a:hover { text-decoration: underline; }
 
 /* Panel del dropdown en tema claro (base) */
 :root.theme-light body .p-dropdown-panel {
-  background: #ffffff !important;
-  color: #000 !important;
-  border: none !important;
+  background: var(--surface) !important;
+  color: var(--text) !important;
+  border: 1px solid var(--border) !important;
   box-shadow: 0 12px 28px rgba(0,0,0,0.18), 0 6px 12px rgba(79,140,255,0.10) !important;
 }
-:root.theme-light body .p-dropdown-panel .p-dropdown-item { color: #000 !important; border-radius: 8px; }
-:root.theme-light body .p-dropdown-panel .p-dropdown-item.p-highlight { background: color-mix(in srgb, var(--primary) 14%, transparent) !important; color: #000 !important; }
-:root.theme-light body .p-dropdown-panel .p-dropdown-item:not(.p-highlight):hover { background: color-mix(in srgb, var(--primary) 10%, transparent) !important; }
+/* Asegurar que contenedores internos también usen el tema */
+:root.theme-light body .p-dropdown-panel .p-dropdown-items-wrapper,
+:root.theme-light body .p-dropdown-panel .p-dropdown-content {
+  background: var(--surface) !important;
+}
+:root.theme-light body .p-dropdown-panel .p-dropdown-items {
+  background: transparent !important;
+}
+:root.theme-light body .p-dropdown-panel .p-dropdown-item {
+  color: var(--text) !important;
+  border-radius: 8px;
+  background: transparent !important;
+  transition: background-color 0.2s ease;
+}
+:root.theme-light body .p-dropdown-panel .p-dropdown-item.p-highlight {
+  background: color-mix(in srgb, var(--primary) 14%, var(--surface)) !important;
+  color: var(--text) !important;
+}
+:root.theme-light body .p-dropdown-panel .p-dropdown-item:not(.p-highlight):hover {
+  background: color-mix(in srgb, var(--primary) 10%, var(--surface)) !important;
+}
 
 /* Tema claro: control específico blanco para Tipo de documento */
 :root.theme-light body .doc-type-control.p-dropdown {
@@ -487,14 +619,32 @@ a:hover { text-decoration: underline; }
 
 /* Extensiones para clases p-select-* (PrimeNG 18) */
 :root.theme-light body .p-select-panel {
-  background: #ffffff !important;
-  color: #000 !important;
-  border: none !important;
+  background: var(--surface) !important;
+  color: var(--text) !important;
+  border: 1px solid var(--border) !important;
   box-shadow: 0 12px 28px rgba(0,0,0,0.18), 0 6px 12px rgba(79,140,255,0.10) !important;
 }
-:root.theme-light body .p-select-panel .p-select-item { color: #000 !important; border-radius: 8px; }
-:root.theme-light body .p-select-panel .p-select-item.p-highlight { background: color-mix(in srgb, var(--primary) 14%, transparent) !important; color: #000 !important; }
-:root.theme-light body .p-select-panel .p-select-item:not(.p-highlight):hover { background: color-mix(in srgb, var(--primary) 10%, transparent) !important; }
+/* Asegurar que contenedores internos también usen el tema */
+:root.theme-light body .p-select-panel .p-select-items-wrapper,
+:root.theme-light body .p-select-panel .p-select-content {
+  background: var(--surface) !important;
+}
+:root.theme-light body .p-select-panel .p-select-items {
+  background: transparent !important;
+}
+:root.theme-light body .p-select-panel .p-select-item {
+  color: var(--text) !important;
+  border-radius: 8px;
+  background: transparent !important;
+  transition: background-color 0.2s ease;
+}
+:root.theme-light body .p-select-panel .p-select-item.p-highlight {
+  background: color-mix(in srgb, var(--primary) 14%, var(--surface)) !important;
+  color: var(--text) !important;
+}
+:root.theme-light body .p-select-panel .p-select-item:not(.p-highlight):hover {
+  background: color-mix(in srgb, var(--primary) 10%, var(--surface)) !important;
+}
 
 /* Control específico 'Tipo de documento' (label negro si la clase cambia) */
 :root.theme-light body .doc-type-control .p-select-label { color: #000 !important; }
@@ -709,92 +859,254 @@ body .p-toast .p-toast-message-info {
 /* Posiciones: top-center ya se setea desde el componente */
 /* Fin Toast overrides */
 
+/* ========================================
+   TOOLTIPS - Adaptación a Temas
+   ======================================== */
+
+/* === Tooltips en Tema Claro === */
+:root.theme-light body .p-tooltip {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.15), 0 2px 6px rgba(0,0,0,0.1) !important;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 0.875rem;
+}
+
+:root.theme-light body .p-tooltip .p-tooltip-text {
+  background: transparent !important;
+  color: var(--text) !important;
+  padding: 0;
+}
+
+:root.theme-light body .p-tooltip .p-tooltip-arrow {
+  border-top-color: var(--surface) !important;
+  border-bottom-color: var(--surface) !important;
+  border-left-color: var(--surface) !important;
+  border-right-color: var(--surface) !important;
+}
+
+/* Flecha según posición en modo claro */
+:root.theme-light body .p-tooltip-top .p-tooltip-arrow {
+  border-top-color: var(--surface) !important;
+  border-bottom-color: transparent !important;
+  border-left-color: transparent !important;
+  border-right-color: transparent !important;
+}
+
+:root.theme-light body .p-tooltip-bottom .p-tooltip-arrow {
+  border-top-color: transparent !important;
+  border-bottom-color: var(--surface) !important;
+  border-left-color: transparent !important;
+  border-right-color: transparent !important;
+}
+
+:root.theme-light body .p-tooltip-left .p-tooltip-arrow {
+  border-top-color: transparent !important;
+  border-bottom-color: transparent !important;
+  border-left-color: var(--surface) !important;
+  border-right-color: transparent !important;
+}
+
+:root.theme-light body .p-tooltip-right .p-tooltip-arrow {
+  border-top-color: transparent !important;
+  border-bottom-color: transparent !important;
+  border-left-color: transparent !important;
+  border-right-color: var(--surface) !important;
+}
+
+/* === Tooltips en Temas Oscuros (Dark y Black) === */
+:root.theme-dark body .p-tooltip,
+:root.theme-black body .p-tooltip {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.6), 0 4px 12px rgba(0,0,0,0.5) !important;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 0.875rem;
+}
+
+:root.theme-dark body .p-tooltip .p-tooltip-text,
+:root.theme-black body .p-tooltip .p-tooltip-text {
+  background: transparent !important;
+  color: var(--text) !important;
+  padding: 0;
+}
+
+:root.theme-dark body .p-tooltip .p-tooltip-arrow,
+:root.theme-black body .p-tooltip .p-tooltip-arrow {
+  border-top-color: var(--surface) !important;
+  border-bottom-color: var(--surface) !important;
+  border-left-color: var(--surface) !important;
+  border-right-color: var(--surface) !important;
+}
+
+/* Flecha según posición en modos oscuros */
+:root.theme-dark body .p-tooltip-top .p-tooltip-arrow,
+:root.theme-black body .p-tooltip-top .p-tooltip-arrow {
+  border-top-color: var(--surface) !important;
+  border-bottom-color: transparent !important;
+  border-left-color: transparent !important;
+  border-right-color: transparent !important;
+}
+
+:root.theme-dark body .p-tooltip-bottom .p-tooltip-arrow,
+:root.theme-black body .p-tooltip-bottom .p-tooltip-arrow {
+  border-top-color: transparent !important;
+  border-bottom-color: var(--surface) !important;
+  border-left-color: transparent !important;
+  border-right-color: transparent !important;
+}
+
+:root.theme-dark body .p-tooltip-left .p-tooltip-arrow,
+:root.theme-black body .p-tooltip-left .p-tooltip-arrow {
+  border-top-color: transparent !important;
+  border-bottom-color: transparent !important;
+  border-left-color: var(--surface) !important;
+  border-right-color: transparent !important;
+}
+
+:root.theme-dark body .p-tooltip-right .p-tooltip-arrow,
+:root.theme-black body .p-tooltip-right .p-tooltip-arrow {
+  border-top-color: transparent !important;
+  border-bottom-color: transparent !important;
+  border-left-color: transparent !important;
+  border-right-color: var(--surface) !important;
+}
+
+/* === Fin estilos de Tooltips === */
+
 /* === Overrides globales para p-dropdown en temas oscuros (panel) === */
 :root.theme-dark body .p-dropdown-panel,
 :root.theme-black body .p-dropdown-panel {
-  background: color-mix(in srgb, var(--surface) 92%, #000) !important;
-  border: 1px solid color-mix(in srgb, var(--border) 70%, transparent) !important;
-  color: #fff !important;
+  background: var(--surface) !important;
+  border: 1px solid var(--border) !important;
+  color: var(--text) !important;
+  box-shadow: 0 12px 28px rgba(0,0,0,0.4), 0 6px 12px rgba(0,0,0,0.3) !important;
 }
 :root.theme-dark body .p-dropdown-panel .p-dropdown-header,
 :root.theme-black body .p-dropdown-panel .p-dropdown-header {
-  background: color-mix(in srgb, var(--surface) 92%, #000) !important;
-  border-bottom: 1px solid color-mix(in srgb, var(--border) 70%, transparent) !important;
+  background: var(--surface) !important;
+  border-bottom: 1px solid var(--border) !important;
 }
 :root.theme-dark body .p-dropdown-panel .p-dropdown-header .p-inputtext,
 :root.theme-black body .p-dropdown-panel .p-dropdown-header .p-inputtext,
 :root.theme-dark body .p-dropdown-panel .p-dropdown-filter,
 :root.theme-black body .p-dropdown-panel .p-dropdown-filter {
-  background: color-mix(in srgb, var(--surface) 88%, #000) !important;
-  color: #fff !important;
-  border: 1px solid color-mix(in srgb, var(--border) 70%, transparent) !important;
+  background: color-mix(in srgb, var(--surface) 85%, #000) !important;
+  color: var(--text) !important;
+  border: 1px solid var(--border) !important;
 }
 :root.theme-dark body .p-dropdown-panel .p-dropdown-header .p-inputtext::placeholder,
-:root.theme-black body .p-dropdown-panel .p-dropdown-header .p-inputtext::placeholder { color: #fff !important; opacity: .75; }
+:root.theme-black body .p-dropdown-panel .p-dropdown-header .p-inputtext::placeholder {
+  color: var(--muted) !important;
+  opacity: .9;
+}
 :root.theme-dark body .p-dropdown-panel .p-dropdown-filter-icon,
-:root.theme-black body .p-dropdown-panel .p-dropdown-filter-icon { color: #fff !important; opacity: .9; }
+:root.theme-black body .p-dropdown-panel .p-dropdown-filter-icon {
+  color: var(--muted) !important;
+  opacity: .9;
+}
 
 :root.theme-dark body .p-dropdown-panel .p-dropdown-items,
-:root.theme-black body .p-dropdown-panel .p-dropdown-items { background: transparent !important; }
+:root.theme-black body .p-dropdown-panel .p-dropdown-items {
+  background: transparent !important;
+}
 :root.theme-dark body .p-dropdown-panel .p-dropdown-item,
-:root.theme-black body .p-dropdown-panel .p-dropdown-item { color: #fff !important; }
+:root.theme-black body .p-dropdown-panel .p-dropdown-item {
+  color: var(--text) !important;
+  background: transparent !important;
+  border-radius: 8px;
+  transition: background-color 0.2s ease;
+}
 :root.theme-dark body .p-dropdown-panel .p-dropdown-item.p-highlight,
-:root.theme-black body .p-dropdown-panel .p-dropdown-item.p-highlight { background: color-mix(in srgb, var(--primary) 22%, transparent) !important; }
+:root.theme-black body .p-dropdown-panel .p-dropdown-item.p-highlight {
+  background: color-mix(in srgb, var(--primary) 22%, var(--surface)) !important;
+  color: var(--text) !important;
+}
 :root.theme-dark body .p-dropdown-panel .p-dropdown-item:not(.p-highlight):hover,
-:root.theme-black body .p-dropdown-panel .p-dropdown-item:not(.p-highlight):hover { background: color-mix(in srgb, var(--primary) 16%, transparent) !important; }
+:root.theme-black body .p-dropdown-panel .p-dropdown-item:not(.p-highlight):hover {
+  background: color-mix(in srgb, var(--primary) 16%, var(--surface)) !important;
+}
 /* === Fin overrides dropdown oscuro === */
 
 /* Refuerzo contenedores internos del panel (evitar fondos blancos residuales) */
 :root.theme-dark body .p-dropdown-panel .p-dropdown-content,
 :root.theme-black body .p-dropdown-panel .p-dropdown-content,
 :root.theme-dark body .p-dropdown-panel .p-dropdown-items-wrapper,
-:root.theme-black body .p-dropdown-panel .p-dropdown-items-wrapper { background: color-mix(in srgb, var(--surface) 92%, #000) !important; }
+:root.theme-black body .p-dropdown-panel .p-dropdown-items-wrapper {
+  background: var(--surface) !important;
+}
 
 /* === Overrides globales para p-select-overlay en temas oscuros === */
 :root.theme-dark body .p-select-overlay,
 :root.theme-black body .p-select-overlay {
-  background: color-mix(in srgb, var(--surface) 92%, #000) !important;
-  border: 1px solid color-mix(in srgb, var(--border) 70%, transparent) !important;
-  color: #fff !important;
+  background: var(--surface) !important;
+  border: 1px solid var(--border) !important;
+  color: var(--text) !important;
+  box-shadow: 0 12px 28px rgba(0,0,0,0.4), 0 6px 12px rgba(0,0,0,0.3) !important;
 }
 :root.theme-dark body .p-select-overlay .p-select-header,
 :root.theme-black body .p-select-overlay .p-select-header {
-  background: color-mix(in srgb, var(--surface) 92%, #000) !important;
-  border-bottom: 1px solid color-mix(in srgb, var(--border) 70%, transparent) !important;
+  background: var(--surface) !important;
+  border-bottom: 1px solid var(--border) !important;
 }
 :root.theme-dark body .p-select-overlay .p-inputtext,
 :root.theme-black body .p-select-overlay .p-inputtext,
 :root.theme-dark body .p-select-overlay .p-select-filter,
 :root.theme-black body .p-select-overlay .p-select-filter {
-  background: color-mix(in srgb, var(--surface) 88%, #000) !important;
-  color: #fff !important;
-  border: 1px solid color-mix(in srgb, var(--border) 70%, transparent) !important;
+  background: color-mix(in srgb, var(--surface) 85%, #000) !important;
+  color: var(--text) !important;
+  border: 1px solid var(--border) !important;
 }
 :root.theme-dark body .p-select-overlay .p-inputtext::placeholder,
-:root.theme-black body .p-select-overlay .p-inputtext::placeholder { color: #fff !important; opacity: .75; }
+:root.theme-black body .p-select-overlay .p-inputtext::placeholder {
+  color: var(--muted) !important;
+  opacity: .9;
+}
 :root.theme-dark body .p-select-overlay .p-select-filter-icon,
-:root.theme-black body .p-select-overlay .p-select-filter-icon { color: #fff !important; opacity: .9; }
+:root.theme-black body .p-select-overlay .p-select-filter-icon {
+  color: var(--muted) !important;
+  opacity: .9;
+}
 
+/* Asegurar que contenedores internos también usen el tema */
 :root.theme-dark body .p-select-overlay .p-select-items,
 :root.theme-black body .p-select-overlay .p-select-items,
 :root.theme-dark body .p-select-overlay .p-select-items-wrapper,
-:root.theme-black body .p-select-overlay .p-select-items-wrapper { background: transparent !important; }
+:root.theme-black body .p-select-overlay .p-select-items-wrapper,
+:root.theme-dark body .p-select-overlay .p-select-content,
+:root.theme-black body .p-select-overlay .p-select-content {
+  background: var(--surface) !important;
+}
 
 /* Cubrir tanto nomenclatura antigua (.p-select-item) como nueva (.p-select-option) */
 :root.theme-dark body .p-select-overlay .p-select-item,
 :root.theme-black body .p-select-overlay .p-select-item,
 :root.theme-dark body .p-select-overlay .p-select-option,
-:root.theme-black body .p-select-overlay .p-select-option { color: #fff !important; background: transparent !important; }
+:root.theme-black body .p-select-overlay .p-select-option {
+  color: var(--text) !important;
+  background: transparent !important;
+  border-radius: 8px;
+  transition: background-color 0.2s ease;
+}
 
 :root.theme-dark body .p-select-overlay .p-select-item.p-highlight,
 :root.theme-black body .p-select-overlay .p-select-item.p-highlight,
 :root.theme-dark body .p-select-overlay .p-select-option.p-highlight,
-:root.theme-black body .p-select-overlay .p-select-option.p-highlight { background: var(--success) !important; color: #ffffff !important; }
+:root.theme-black body .p-select-overlay .p-select-option.p-highlight {
+  background: color-mix(in srgb, var(--primary) 22%, var(--surface)) !important;
+  color: var(--text) !important;
+}
 
 :root.theme-dark body .p-select-overlay .p-select-item:not(.p-highlight):hover,
 :root.theme-black body .p-select-overlay .p-select-item:not(.p-highlight):hover,
 :root.theme-dark body .p-select-overlay .p-select-option:not(.p-highlight):hover,
-:root.theme-black body .p-select-overlay .p-select-option:not(.p-highlight):hover { background: color-mix(in srgb, var(--primary) 16%, transparent) !important; }
+:root.theme-black body .p-select-overlay .p-select-option:not(.p-highlight):hover {
+  background: color-mix(in srgb, var(--primary) 16%, var(--surface)) !important;
+}
 /* === Fin overrides p-select-overlay oscuro === */
 
 /* === Overrides globales para p-select-overlay en tema claro === */

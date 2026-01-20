@@ -1,9 +1,10 @@
 // filepath: c:\Users\oscar.carrillo\WebstormProjects\guardian-app\src\app\admin\organization-list.component.ts
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, ViewChild} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {Router, RouterModule, ActivatedRoute} from '@angular/router';
 import {Organization, OrganizationService} from '../../service/organization.service';
 import {TableModule} from 'primeng/table';
+import {Table} from 'primeng/table';
 import {ButtonModule} from 'primeng/button';
 import {InputTextModule} from 'primeng/inputtext';
 import {TagModule} from 'primeng/tag';
@@ -17,15 +18,19 @@ import { DialogModule } from 'primeng/dialog';
 import { DropdownModule } from 'primeng/dropdown';
 import { UsersService, UserEntity } from '../../service/users.service';
 import { CardModule } from 'primeng/card';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
 
 @Component({
   selector: 'app-organization-list',
   standalone: true,
-  imports: [CommonModule, RouterModule, TableModule, ButtonModule, InputTextModule, TagModule, FormsModule, TooltipModule, InputSwitchModule, DialogModule, DropdownModule, CardModule],
+  imports: [CommonModule, RouterModule, TableModule, ButtonModule, InputTextModule, TagModule, FormsModule, TooltipModule, InputSwitchModule, DialogModule, DropdownModule, CardModule, IconFieldModule, InputIconModule],
   templateUrl: './organization-list.component.html',
   styleUrls: ['./organization-list.component.scss']
 })
 export class OrganizationListComponent implements OnInit {
+  @ViewChild('tableOrg') tableOrg!: Table;
+
   loading = false;
   orgs: Organization[] = [];
   filtered: Organization[] = [];
@@ -98,6 +103,22 @@ export class OrganizationListComponent implements OnInit {
       return;
     }
     this.filtered = this.orgs.filter(o => (o.nombre || '').toLowerCase().includes(f));
+  }
+
+  /**
+   * Filtro global para tabla de organizaciones
+   */
+  onGlobalFilter(table: any, event: Event): void {
+    const inputElement = event.target as HTMLInputElement;
+    table.filterGlobal(inputElement.value, 'contains');
+  }
+
+  /**
+   * Limpia el filtro de búsqueda
+   */
+  clearFilter(table: any): void {
+    this.filter = '';
+    table.clear();
   }
 
   // ====== Inline Add / Edit ======

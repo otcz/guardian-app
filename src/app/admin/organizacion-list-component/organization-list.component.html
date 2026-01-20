@@ -16,20 +16,29 @@
         <h3 class="section-title">Listado de Organizaciones</h3>
       </div>
       <div class="toolbar-right">
-        <!-- Buscador -->
-        <div class="control-container search-container">
-          <label class="control-label">
+        <!-- Barra de búsqueda moderna -->
+        <div class="search-container-modern">
+          <span class="p-input-icon-left">
             <i class="pi pi-search"></i>
-            Buscar:
-          </label>
-          <input
-            pInputText
-            type="text"
-            placeholder="Filtrar organizaciones..."
-            [(ngModel)]="filter"
-            (ngModelChange)="applyFilter()"
-            class="search-input"
-          />
+            <input
+              pInputText
+              type="text"
+              placeholder="Buscar organizaciones..."
+              [(ngModel)]="filter"
+              (input)="onGlobalFilter(tableOrg, $event)"
+              class="search-input-modern"
+            />
+          </span>
+          <button
+            *ngIf="filter"
+            pButton
+            type="button"
+            icon="pi pi-times"
+            class="p-button-text p-button-rounded"
+            (click)="clearFilter(tableOrg)"
+            pTooltip="Limpiar búsqueda"
+            tooltipPosition="top"
+          ></button>
         </div>
 
         <!-- Botones de acción -->
@@ -79,38 +88,50 @@
     <!-- Tabla moderna -->
     <div class="table-container" *ngIf="filtered.length>0 || adding">
       <p-table
+        #tableOrg
         [value]="rows"
         [loading]="loading"
         styleClass="modern-table"
-        responsiveLayout="scroll">
+        responsiveLayout="scroll"
+        [paginator]="true"
+        [rows]="10"
+        [rowsPerPageOptions]="[5, 10, 20, 50]"
+        [showCurrentPageReport]="true"
+        currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} organizaciones"
+        [globalFilterFields]="['nombre', 'administradorUsername', 'administradorNombreCompleto']"
+      >
         <ng-template pTemplate="header">
           <tr>
             <th style="width: 60px">
               <i class="pi pi-hashtag"></i>
             </th>
-            <th style="width: 250px">
+            <th pSortableColumn="nombre" style="width: 250px">
               <div class="th-content">
                 <i class="pi pi-tag"></i>
                 <span>Nombre de la Organización</span>
               </div>
+              <p-sortIcon field="nombre"></p-sortIcon>
             </th>
-            <th style="width: 280px">
+            <th pSortableColumn="administradorUsername" style="width: 280px">
               <div class="th-content">
                 <i class="pi pi-user"></i>
                 <span>Administrador</span>
               </div>
+              <p-sortIcon field="administradorUsername"></p-sortIcon>
             </th>
-            <th style="width: 110px">
+            <th pSortableColumn="activa" style="width: 110px">
               <div class="th-content">
                 <i class="pi pi-power-off"></i>
                 <span>Estado</span>
               </div>
+              <p-sortIcon field="activa"></p-sortIcon>
             </th>
-            <th style="width: 160px">
+            <th pSortableColumn="fecha_creacion" style="width: 160px">
               <div class="th-content">
                 <i class="pi pi-calendar"></i>
                 <span>Fecha de Creación</span>
               </div>
+              <p-sortIcon field="fecha_creacion"></p-sortIcon>
             </th>
             <th style="width: 150px">
               <div class="th-content">
